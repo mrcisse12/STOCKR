@@ -67,6 +67,6 @@ class InventoryScan(db.Model):
             'new_quantity': self.new_quantity,
             'confidence_score': self.confidence_score,
             'is_manual_correction': self.is_manual_correction,
-            'timestamp': self.timestamp.isoformat()
-'>>>>>>>' 3c9f621 (update stockr_backend (all))
-        }
+            'timestamp': self.timestamp.isoformat()}
+'>>>>>>> 3c9f621 (update stockr_backend (all))'
+        

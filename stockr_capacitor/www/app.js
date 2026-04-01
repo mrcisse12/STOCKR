@@ -7,7 +7,7 @@ console.log('🚀 Stockr Wax chargé');
 // ============================================
 // SVG MOTIFS WAX
 // ============================================
-const WAX_HEADER = `<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><rect width='80' height='80' fill='none'/><polygon points='40,4 76,40 40,76 4,40' fill='none' stroke='rgba(255,255,255,0.18)' stroke-width='2'/><polygon points='40,16 64,40 40,64 16,40' fill='none' stroke='rgba(255,255,255,0.12)' stroke-width='1.5'/></svg>`;
+const WAX_HEADER = `<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><rect width='80' height='80' fill='none'/><polygon points='40,4 76,40 40,76 4,40' fill='none' stroke='rgba(110, 33, 33, 0.18)' stroke-width='2'/><polygon points='40,16 64,40 40,64 16,40' fill='none' stroke='rgba(255,255,255,0.12)' stroke-width='1.5'/></svg>`;
 const WAX_CARD = `<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60'><rect width='60' height='60' fill='none'/><line x1='0' y1='30' x2='60' y2='30' stroke='rgba(0,0,0,0.06)' stroke-width='1'/><line x1='30' y1='0' x2='30' y2='60' stroke='rgba(0,0,0,0.06)' stroke-width='1'/></svg>`;
 const WAX_BG = `<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='none'/><polyline points='0,10 10,0 20,10 30,0 40,10 50,0 60,10 70,0 80,10 90,0 100,10' fill='none' stroke='rgba(224,123,0,0.12)' stroke-width='2'/></svg>`;
 
@@ -66,6 +66,34 @@ let newProductDemand = 1;
 let newProductLead = 7;
 
 // ============================================
+// RENDU DE LA BARRE DE NAVIGATION
+// ============================================
+function renderBottomNav() {
+    return `
+        <button class="tab ${currentView === 'home' ? 'active' : ''}" onclick="currentView='home'; render()">
+            <span class="tab-icon">🏠</span>
+            <span>Accueil</span>
+        </button>
+        <button class="tab ${currentView === 'pantry' ? 'active' : ''}" onclick="currentView='pantry'; render()">
+            <span class="tab-icon">📦</span>
+            <span>Stock</span>
+        </button>
+        <button class="tab ${currentView === 'products' ? 'active' : ''}" onclick="currentView='products'; render()">
+            <span class="tab-icon">🏷️</span>
+            <span>Produits</span>
+        </button>
+        <button class="tab ${currentView === 'sales' ? 'active' : ''}" onclick="currentView='sales'; render()">
+            <span class="tab-icon">💰</span>
+            <span>Ventes</span>
+        </button>
+        <button class="tab ${currentView === 'financial' ? 'active' : ''}" onclick="currentView='financial'; render()">
+            <span class="tab-icon">📊</span>
+            <span>Bilan</span>
+        </button>
+    `;
+}
+
+// ============================================
 // FONCTIONS UTILITAIRES
 // ============================================
 function statusInfo(stock, min) {
@@ -91,7 +119,6 @@ function applyAction() {
     articles = updated;
     selectedArticle = articles.find(a => a.id === selectedArticle.id);
     
-    // Mettre à jour les produits
     products = articles.filter(a => a.price > 0).map(a => ({
         id: a.id,
         name: a.name,
@@ -140,7 +167,6 @@ function addProduct() {
     
     showToast(`✅ "${newProductName}" ajouté !`);
     
-    // Réinitialiser le formulaire
     newProductName = "";
     newProductEmoji = "📦";
     newProductStock = 0;
@@ -158,7 +184,7 @@ function recordSale() {
     const productSelect = document.getElementById('saleProductSelect');
     const qtyInput = document.getElementById('saleQty');
     
-    if (!productSelect.value) {
+    if (!productSelect || !productSelect.value) {
         showToast("❌ Choisis un produit", true);
         return;
     }
@@ -173,7 +199,6 @@ function recordSale() {
         return;
     }
     
-    // Enregistrer la vente
     sales.unshift({
         id: Date.now(),
         product_id: product.id,
@@ -183,10 +208,8 @@ function recordSale() {
         date: new Date().toISOString()
     });
     
-    // Mettre à jour le stock
     product.stock -= quantity;
     
-    // Mettre à jour les produits
     products = articles.filter(a => a.price > 0).map(a => ({
         id: a.id,
         name: a.name,
@@ -223,7 +246,6 @@ function editPrice(article) {
     const newPrice = prompt(`Nouveau prix pour ${article.name} (actuel: ${article.price} FCFA):`, article.price);
     if (newPrice !== null && !isNaN(parseFloat(newPrice))) {
         article.price = parseFloat(newPrice);
-        // Mettre à jour les produits
         products = articles.filter(a => a.price > 0).map(a => ({
             id: a.id,
             name: a.name,
@@ -238,16 +260,6 @@ function editPrice(article) {
     }
 }
 
-function getProductIcon(productName) {
-    const iconMap = {
-        "Tissu Wax": "🧵",
-        "Fil à coudre": "🪡",
-        "Boutons": "🔘",
-        "Pagne simple": "👗"
-    };
-    return iconMap[productName] || "📦";
-}
-
 function objToStyle(obj) {
     return Object.entries(obj).map(([k, v]) => `${k.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${v};`).join(' ');
 }
@@ -255,31 +267,57 @@ function objToStyle(obj) {
 // ============================================
 // RENDU DES VUES
 // ============================================
+// Remplacer le render() existant par celui-ci
 function render() {
-    const appDiv = document.getElementById('app');
-    if (!appDiv) return;
+    const appContent = document.getElementById('app-content');
+    const tabsDiv = document.getElementById('tabs');
+    
+    if (!appContent) return;
     
     const alerts = articles.filter(a => a.stock < a.min);
     const totalStockValue = articles.reduce((sum, a) => sum + (a.stock * a.price), 0);
     const totalSales = sales.reduce((sum, s) => sum + s.total, 0);
     
-    appDiv.innerHTML = `
-        <div style="position: relative; min-height: 100vh; background: ${COLORS.cream}; background-image: ${svgBg(WAX_BG)}; background-size: 100px 100px; max-width: 430px; margin: 0 auto;">
-            ${toast ? `<div class="toast ${toast.isError ? 'error' : ''}">${toast.msg}</div>` : ''}
-            
-            ${currentView === "home" ? renderHomeView(alerts, articles, totalStockValue, totalSales) : ''}
-            ${currentView === "pantry" ? renderPantryView(alerts) : ''}
-            ${currentView === "products" ? renderProductsView() : ''}
-            ${currentView === "sales" ? renderSalesView() : ''}
-            ${currentView === "financial" ? renderFinancialView(totalSales, totalStockValue) : ''}
-            ${currentView === "detail" && selectedArticle ? renderDetailView() : ''}
-            ${currentView === "add" ? renderAddProductView() : ''}
-            
-            ${!["detail", "add"].includes(currentView) ? renderBottomNav() : ''}
-        </div>
-    `;
+    // Rendre le contenu
+    if (currentView === "home") {
+        appContent.innerHTML = renderHomeView(alerts, articles, totalStockValue, totalSales);
+    } else if (currentView === "pantry") {
+        appContent.innerHTML = renderPantryView();
+    } else if (currentView === "products") {
+        appContent.innerHTML = renderProductsView();
+    } else if (currentView === "sales") {
+        appContent.innerHTML = renderSalesView();
+    } else if (currentView === "financial") {
+        appContent.innerHTML = renderFinancialView(totalSales, totalStockValue);
+    } else if (currentView === "detail" && selectedArticle) {
+        appContent.innerHTML = renderDetailView();
+    } else if (currentView === "add") {
+        appContent.innerHTML = renderAddProductView();
+    }
+    
+    // Rendre la barre de navigation
+    if (!["detail", "add"].includes(currentView)) {
+        tabsDiv.innerHTML = renderBottomNav();
+    } else {
+        tabsDiv.innerHTML = '';
+    }
+    
+    // Afficher le toast si présent
+    if (toast) {
+        const toastDiv = document.createElement('div');
+        toastDiv.className = `toast ${toast.isError ? 'error' : ''}`;
+        toastDiv.textContent = toast.msg;
+        toastDiv.style.position = 'fixed';
+        toastDiv.style.top = '20px';
+        toastDiv.style.left = '50%';
+        toastDiv.style.transform = 'translateX(-50%)';
+        toastDiv.style.zIndex = '2000';
+        appContent.appendChild(toastDiv);
+        setTimeout(() => {
+            if (toastDiv.parentNode) toastDiv.remove();
+        }, 2800);
+    }
 }
-
 function renderHomeView(alerts, articles, totalStockValue, totalSales) {
     return `
         <div class="header">
@@ -370,7 +408,7 @@ function renderHomeView(alerts, articles, totalStockValue, totalSales) {
     `;
 }
 
-function renderPantryView(alerts) {
+function renderPantryView() {
     const filtered = articles.filter(a => a.name.toLowerCase().includes(search.toLowerCase()));
     
     return `
@@ -613,6 +651,8 @@ function renderFinancialView(totalSales, totalStockValue) {
 }
 
 function renderDetailView() {
+    if (!selectedArticle) return '';
+    
     const s = statusInfo(selectedArticle.stock, selectedArticle.min);
     const pct = Math.min(100, Math.round((selectedArticle.stock / Math.max(selectedArticle.min * 2, 1)) * 100));
     
@@ -634,232 +674,116 @@ function renderDetailView() {
                 <div class="progress-bar" style="margin: 14px 0 6px;">
                     <div class="progress-fill" style="width: ${pct}%; background: ${s.color};"></div>
                 </div>
-                <div style="font-size: 12px; color: #aaa; font-weight: 600;">Stock minimum : ${selectedArticle.min} ${selectedArticle.} ${selectedArticle.unit}</unit}</div>
-           div>
-            </ </div>
-            
-            <divdiv>
+                <div style="font-size: 12px; color: #aaa; font-weight: 600;">Stock minimum : ${selectedArticle.min} ${selectedArticle.unit}</div>
+            </div>
             
             <div class="card">
- class="                <card">
-                <div stylediv style="font="font-family:-family: 'Fra 'Fraunces', serunces', serif; font-size: if;18px font-size: ; font-weight:18px 900; font-weight:; color 900; color: ${COLORS.brown: ${COLORS}; margin-bottom:.brown}; margin-bottom: 14 14px;">px;">ModifierModifier le stock le stock</div>
-                <div</div>
-                <div style=" style="display:display: flex; flex; gap: gap: 10 10px; margin-bottom: px; margin-bottom: 16px16px;">
-                   ;">
-                    <button <button onclick=" onclick="action='action='add';add'; render() render()" style" style="flex:1; background="flex:1; background: ${: ${action ===action === 'add 'add' ?' ? COLORS COLORS.green.greenL :L : '# '#F5F5F0E8'};F0E8'}; border: ${action border: ${action === ' === 'add' ? `add' ? `3px3px solid solid ${COLORS.green ${COLORS.green}` :}` : '2px solid '2px solid transparent'}; border transparent'}; border-radius: 18-radius: 18px; padding:px; padding: 14px  14px 8px8px; cursor; cursor: pointer;">
-                       : pointer;">
-                        <div <div style="font-size style="font-size: : 26px26px;">;">📥</div>
-                        <div style="font📥</div>
-                        <div style="font-size:-size: 12px 12px; font-weight; font-weight: : 800; color:800; color: ${action ${action === ' === 'add' ? COLadd' ? COLORS.gORS.green : '#aaareen : '#aaa'};">'};">J'aiJ'ai reçu reçu</div</div>
-                   >
+                <div style="font-family: 'Fraunces', serif; font-size: 18px; font-weight: 900; color: ${COLORS.brown}; margin-bottom: 14px;">Modifier le stock</div>
+                <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+                    <button onclick="action='add'; render()" style="flex:1; background: ${action === 'add' ? COLORS.greenL : '#F5F0E8'}; border: ${action === 'add' ? `3px solid ${COLORS.green}` : '2px solid transparent'}; border-radius: 18px; padding: 14px 8px; cursor: pointer;">
+                        <div style="font-size: 26px;">📥</div>
+                        <div style="font-size: 12px; font-weight: 800; color: ${action === 'add' ? COLORS.green : '#aaa'};">J'ai reçu</div>
                     </button>
-                    </button>
-                    <button <button onclick=" onclick="action='action='remove';remove'; render() render()" style" style="flex:1="flex:1;; background: ${action === background: ${action === 'remove 'remove' ?' ? COLORS COLORS.orange.orangeL :L : '#F '#F5F5F0E0E8'8'}; border: ${}; border: ${action === 'remove' ?action === 'remove' ? `3 `3px solidpx solid ${COLORS. ${COLorange}`ORS.orange}` : '2px solid transparent : '2px solid transparent'};'}; border-radius border-radius: 18px: 18px; padding; padding: : 14px14px 8 8px;px; cursor: cursor: pointer;">
- pointer;">
-                        <div style                        <div style="font="font-size: 26-size: 26px;">px;">📤</div📤</div>
-                        <div style="font-size>
-                        <div style="font-size: : 12px12px; font; font-weight:-weight: 800 800; color: ${; color: ${action ===action === 'remove 'remove' ?' ? COLORS COLORS.orange.orange : '# : '#aaa'}aaa'};">J;">J'ai vend'ai vendu</u</div>
-div>
+                    <button onclick="action='remove'; render()" style="flex:1; background: ${action === 'remove' ? COLORS.orangeL : '#F5F0E8'}; border: ${action === 'remove' ? `3px solid ${COLORS.orange}` : '2px solid transparent'}; border-radius: 18px; padding: 14px 8px; cursor: pointer;">
+                        <div style="font-size: 26px;">📤</div>
+                        <div style="font-size: 12px; font-weight: 800; color: ${action === 'remove' ? COLORS.orange : '#aaa'};">J'ai vendu</div>
                     </button>
                 </div>
                 
-                <div                    </button>
+                <div class="qty-selector">
+                    <button class="qty-btn" onclick="qty=Math.max(1,qty-1); render()">−</button>
+                    <div class="qty-value">${qty}</div>
+                    <button class="qty-btn" onclick="qty=qty+1; render()">+</button>
                 </div>
                 
-                <div class=" class="qtyqty-selector">
-                    <button class="qty-btn" onclick="qty=Math-selector">
-                    <button class="qty-btn" onclick="qty=Math.max(.max(1,q1,qty-1);ty-1); render() render()">−">−</button</button>
-                   >
-                    <div <div class=" class="qtyqty-value">-value">${qty}</div>
-                    <button class${qty}</div>
-                    <button class="qty-btn="q" onclick="qty-btn" onclick="qty=qty=qty+ty+1;1; render() render()">+</button">+</button>
-               >
-                </div </div>
-                
->
-                
-                <                <div classdiv class="q="qty-chty-chips">
-ips">
-                    ${[1                    ${[1, , 5, 105, 10, 25,, 25, 50 50, , 100].100].map(nmap(n => `
- => `
-                        <                        <button classbutton class="qty-chip="qty-chip ${q ${qty ===ty === n ? n ? 'active 'active' :' : ''}" ''}" onclick=" onclick="qty=${nqty=${n}; render()">}; render()">${n${n}</button}</button>
-                    `).>
-                    `).join('join('')}
-')}
-                </div>
+                <div class="qty-chips">
+                    ${[1, 5, 10, 25, 50, 100].map(n => `
+                        <button class="qty-chip ${qty === n ? 'active' : ''}" onclick="qty=${n}; render()">${n}</button>
+                    `).join('')}
                 </div>
                 
+                <button class="btn btn-primary" style="width: 100%;" onclick="applyAction(); render()">
+                    ${action === 'add' ? `✅ Ajouter ${qty} au stock` : `✅ Retirer ${qty} du stock`}
+                </button>
                 
-                               <button class="btn btn <button class="-primary"btn btn style="width:-primary" style="width: 100 100%;"%;" onclick onclick="="applyActionapplyAction(); render(); render()">
-                    ${action ===()">
-                    ${action === ' 'add'add' ? ` ? `✅ Aj✅ Ajouter ${outer ${qtyqty} au} au stock` stock` : ` : `✅ Ret✅ Retirer ${qtyirer ${qty} du} du stock`}
-                stock`}
-                </button </button>
-                
-                <>
-                
-                <divdiv style="margin-top: 16 style="margin-top: 16px;px; padding-top: 16px padding-top: 16px;; border border-top: -top: 1px solid #eee1px solid #eee;">
-                   ;">
-                    < <divdiv style=" style="display: flex; justify-contentdisplay: flex; justify-content: space: space-between; margin-bottom-between; margin-bottom: : 88px;">
-px;">
-                        <span>                        <span>💰 Prix💰 Prix unit unitaire</aire</span>
-span>
-                        <                        <span stylespan style="font="font-weight: 800-weight: 800; color; color: ${: ${COLORSCOLORS.green};">.green};">${selected${selectedArticle.priceArticle.price.toLocale.toLocaleString()}String()} FCF FCFA</span>
-A</span>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #eee;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>💰 Prix unitaire</span>
+                        <span style="font-weight: 800; color: ${COLORS.green};">${selectedArticle.price.toLocaleString()} FCFA</span>
                     </div>
-                    </div>
-                    <                    <div stylediv style="display="display: flex: flex; justify; justify-content:-content: space-between space-between; margin-bottom:; margin-bottom: 8px;">
- 8px;">
-                        <span                        <span>>⚙️ Se⚙uil d️ Seuil d'aler'alerte</span>
-te</span>
-                        <span style                        <span style="="font-weight:font-weight: 800 800; cursor: pointer;" onclick="editThreshold(selectedArticle); render; cursor: pointer;" onclick="editThreshold(selectedArticle); render()">${selected()">Article.min${selectedArticle.min} ${} ${selectedArticle.unitselectedArticle.unit}} ✏️ ✏️</span</span>
-                   >
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>⚙️ Seuil d'alerte</span>
+                        <span style="font-weight: 800; cursor: pointer;" onclick="editThreshold(selectedArticle); render()">${selectedArticle.min} ${selectedArticle.unit} ✏️</span>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
-                        <span> </div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span>📈 Dem📈 Demande journalière</span>
-                        <span>${selectedArticle.daily_avg_demand || 1} ${selectedArticle.unit}/jour</span>
-                    </div>
-                </div>
-            </div>
-       ande journalière</span>
+                        <span>📈 Demande journalière</span>
                         <span>${selectedArticle.daily_avg_demand || 1} ${selectedArticle.unit}/jour</span>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     `;
-}
-
-function `;
 }
 
 function renderAddProductView() {
-    const renderAddProductView() {
-    const emoj emojis =is = [" ["📦", "📦", "🧵",🧵", " "🪡", "🪡", "🔘", "🔘", "👗👗", "🧥", "🧥", "👕", "", "👕", "👖", "👖🧣", "", "🧣", "🧤🧤", "", "🧦🧦", "👜", "", "👜", "👛👛", "", "🧢",🧢", "👒", " "👒", "💍"];
-💍"];
+    const emojis = ["📦", "🧵", "🪡", "🔘", "👗", "🧥", "👕", "👖", "🧣", "🧤", "🧦", "👜", "👛", "🧢", "👒", "💍"];
     
     return `
-        <div style="background: linear    
-    return `
-        <div style="background: linear-gradient(-gradient(135deg135deg, ${, ${COLORSCOLORS.red},.red}, #8B0A12); background-image: #8B0A12); background-image: ${svgBg(WAX_ ${svgBg(WAX_HEADERHEADER)};)}; background-size: 80px background-size: 80px 80px, 80px, cover; cover; padding: padding: 44 44px px 20px20px 24px; border-radius 24px; border-radius: : 0 0 0 0 32px32px 32 32px;">
-            <px;">
-            <button classbutton class="back="back-btn" onclick="-btn" onclick="currentView='home'; render()">←</currentView='home'; render()">←</button>
-button>
-                       <div style <div style="font-family:="font-family: ' 'FrauncesFraunces', serif; font-size: 26px', serif; font-size: 26px; color; color: white: white; font-weight:; font-weight: 900 900;">;">🆕 Nouveau🆕 Nouveau produit</ produit</div>
-div>
-            <div style="font-size:             <13px;div style="font-size: 13 color:px; rgba(255,255,255, color: rgba(0.7);255,255,255,0.7); margin-top: margin-top: 4px;">Aj 4px;">Ajoute un article à ton catalogue</divoute un article à ton catalogue</div>
-        </div>
+        <div style="background: linear-gradient(135deg, ${COLORS.red}, #8B0A12); background-image: ${svgBg(WAX_HEADER)}; background-size: 80px 80px, cover; padding: 44px 20px 24px; border-radius: 0 0 32px 32px;">
+            <button class="back-btn" onclick="currentView='home'; render()">←</button>
+            <div style="font-family: 'Fraunces', serif; font-size: 26px; color: white; font-weight: 900;">🆕 Nouveau produit</div>
+            <div style="font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 4px;">Ajoute un article à ton catalogue</div>
         </div>
         
->
-        
-        <        <div class="container">
-            <div classdiv class="container">
-            <div class="="card">
-card">
-                <                <div stylediv style="margin="margin-bottom:-bottom: 18px;">
- 18px;">
-                    <div style                    <div style="font="font-size: 13-size:px; 13px; font-weight font-weight: : 800; color:800; color: #888 #888; margin-bottom: 8; margin-bottom: 8px;">px;">IcôneIcône du produit du produit</div>
-                    <div style="</div>
-                    <div style="display:display: flex; flex; flex-wrap flex-wrap: wrap: wrap; gap; gap: : 8px;">
-                       8px;">
-                        ${em ${emojisojis.map(e.map(e => `
- => `
-                            <                            <button onclickbutton onclick="newProductEmoji='${e}'; render()" style="width: ="newProductEmoji='${e}'; render()" style="width: 46px; height: 46px; height46px: 46px; border; border: ${newProduct: ${newProductEmojiEmoji === e === e ? ` ? `3px3px solid ${ solid ${COLORSCOLORS.teal.teal}` :}` : '2px solid #E8D '2px solid #E8D9C9C8'}; border-radius: 14px; background: ${newProductEm8'}; border-radius: 14px; background: ${newProductEmoji ===oji === e ? e ? COLORS COLORS.teal.tealL : COLORSL : COLORS.cream.cream}; cursor}; cursor: pointer; font: pointer; font-size:-size: 22px;"> 22px;">${e${e}</button}</button>
-                       >
-                        `). `).join('join('')}
-')}
-                    </                    </div>
-div>
-                </div>
-                </div>
-                
-                <div style="margin-bottom:                
-                <div style="margin-bottom: 14 14px;">
-                    <px;">
-                    <label stylelabel style="display: block; font-size: 13="display: block; font-size: 13px;px; font-weight font-weight: : 800;800; color: color: ${COL ${COLORS.bORS.brown};rown}; margin-bottom margin-bottom: : 6px6px;">Nom;">Nom du produit du produit *</ *</label>
-                    <label>
-                    <input type="textinput type="text"" value="${new value="${newProductNameProductName}" oninput="}" oninput="newProductnewProductName=Name=this.valuethis.value" placeholder="ex: Pag" placeholder="ex: Pagne waxne wax,, T Tissuissu..." class="input">
-..." class="input">
-                </                </divdiv>
-                
-               >
-                
-                <div <div style=" style="margin-bottommargin-bottom: : 14px14px;">
-                    <label;">
-                    <label style=" style="display:display: block; font-size:  block; font-size: 13px13px; font; font-weight: 800-weight: 800; color; color: ${COLORS.brown: ${COLORS.brown};}; margin margin-bottom: 6-bottom: 6px;">Unitépx;"> de mesureUnité de mesure</label</label>
-                   >
-                    <input <input type=" type="text"text" value="${new value="${ProductUnit}" oninput="newProductUnitnewProductUnit}" oninput="newProductUnit=this.value"=this.value" placeholder="ex: placeholder="ex: m, m, kg, kg, pcs pcs, bouteille, bouteille..." class="input..." class="input">
-                </div>
-                
-                <div style="display">
-                </div>
-                
-                <div style="display: flex: flex; gap; gap: 12px: 12px; margin; margin-bottom:-bottom: 14 14px;">
-px;">
-                    <                    <div style="flexdiv style="flex: : 1;">
-                        <label style1;">
-                        <label style="display="display: block: block; font-size:; font-size: 13px; font-weight:  13px; font-weight: 800;800; color: color: ${COLORS.b ${COLORS.brown}; margin-bottom: rown}; margin-bottom: 6px;">Quantité en stock</6px;">Quantité en stock</label>
-label>
-                        <input type="number" value                        <input type="number" value="${newProductStock}" on="${newProductStock}" oninput="newProductStock=this.valueinput="newProductStock=this.value" placeholder" placeholder="="0" class="input" step0" class="input" step="0="0.5.5">
-                    </div">
+        <div class="container">
+            <div class="card">
+                <div style="margin-bottom: 18px;">
+                    <div style="font-size: 13px; font-weight: 800; color: #888; margin-bottom: 8px;">Icône du produit</div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        ${emojis.map(e => `
+                            <button onclick="newProductEmoji='${e}'; render()" style="width: 46px; height: 46px; border: ${newProductEmoji === e ? `3px solid ${COLORS.teal}` : '2px solid #E8D9C8'}; border-radius: 14px; background: ${newProductEmoji === e ? COLORS.tealL : COLORS.cream}; cursor: pointer; font-size: 22px;">${e}</button>
+                        `).join('')}
                     </div>
-                    <div style=">
-                    <div style="flex:flex: 1 1;">
-                       ;">
-                        <label style="display: block; <label style="display: block; font-size font-size: : 13px; font-weight: 80013px; font-weight:; color: ${ 800; color: ${COLORSCOLORS.brown}; margin-bottom: 6.brown}; margin-bottom: 6px;">px;">SeuilSeuil d'alerte</ d'alerte</label>
-                        <label>
-                        <input typeinput type="number" value="number" value="${newProductMin}" on="${newProductMin}" oninput="newProductMin=input="newProductthis.valueMin=this.value" placeholder="5" placeholder="5" class="input" class="input" step="0." step="0.5">
-5">
-                    </div>
-                    </div>
-                </                </div>
-div>
-                
-                               
-                <div style="display: flex; gap: <div style="display: flex; 12px; margin-bottom: 14px;">
-                    gap: 12px; margin-bottom: 14px;">
-                    <div style="flex: 1 <div style="flex: 1;">
-                        <label style="display:;">
-                        <label style="display: block; font-size block; font-size: 13px; font-weight: 800: 13px; font-weight: 800; color: ${COLORS; color: ${COLORS.brown}; margin-bottom:.brown}; margin-bottom: 6px;"> 6px;">DemandeDemande journalière</label>
-                        <input type="number" journalière</label>
-                        <input type="number" value="${newProduct value="${newProductDemandDemand}" oninput="newProductDemand=this}" oninput="newProductDemand=this.value" placeholder=".value" placeholder="1" class="1" class="input"input" step=" step="0.5">
-                    </div>
-0.5">
-                    </div>
-                    <div style                    <div style="flex: ="flex: 1;">
-                        <label style1;">
-                        <label style="display="display: block; font-size: 13px; font-weight: block; font-size: 13px; font-weight: 800; color:: 800; color: ${ ${COLORS.bCOLORS.brown}; margin-bottom: 6px;">Drown}; margin-bottom: 6px;">Délai livraison (jours)</élai livraison (jours)</label>
-label>
-                        <input type="number                        <input type="number" value="${newProductLead}" on" value="${newProductLead}" oninput="newProductLead=input="newProductLead=this.valuethis.value" placeholder" placeholder="7="7" class" class="input">
-                    </div="input">
-                    </div>
-               >
                 </div>
                 
-                <div style </div>
-                
-                <div style="margin-bottom:="margin 14-bottom: 14px;">
-                    <label style="displaypx;">
-                    <label style="display: block; font-size: 13: block; font-size: 13px;px; font-weight: 800; color: font-weight: 800; ${COL color: ${COLORS.brown};ORS.brown}; margin-bottom: 6px margin-bottom: 6px;">Prix de;">Prix de vente (F vente (FCFA)</labelCFA)</label>
-                    <input type="number" value="${>
-                    <input type="number" value="${newProductnewProductPrice}" oninput="newPrice}" oninput="newProductPrice=this.value"ProductPrice=this.value" placeholder="0" placeholder="0" class="input" step="100">
+                <div style="margin-bottom: 14px;">
+                    <label style="display: block; font-size: 13px; font-weight: 800; color: ${COLORS.brown}; margin-bottom: 6px;">Nom du produit *</label>
+                    <input type="text" value="${newProductName}" oninput="newProductName=this.value" placeholder="ex: Pagne wax, Tissu..." class="input">
                 </div>
                 
-                <button class="btn btn-primary" style="width: 100%; margin-top: 6px;" onclick="addProduct()"> class="input" step="100">
+                <div style="margin-bottom: 14px;">
+                    <label style="display: block; font-size: 13px; font-weight: 800; color: ${COLORS.brown}; margin-bottom: 6px;">Unité de mesure</label>
+                    <input type="text" value="${newProductUnit}" oninput="newProductUnit=this.value" placeholder="ex: m, kg, pcs, bouteille..." class="input">
                 </div>
                 
-                <button class="btn btn-primary" style="width: 100%; margin-top: 6px;" onclick="addProduct()">✅ Ajouter✅ Ajouter ce produit</button>
-            </div>
-        </div>
-    `;
-}
-
-function renderBottomNav() {
-    return ce produit</button>
+                <div style="display: flex; gap: 12px; margin-bottom: 14px;">
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 13px; font-weight: 800; color: ${COLORS.brown}; margin-bottom: 6px;">Quantité en stock</label>
+                        <input type="number" value="${newProductStock}" oninput="newProductStock=this.value" placeholder="0" class="input" step="0.5">
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 13px; font-weight: 800; color: ${COLORS.brown}; margin-bottom: 6px;">Seuil d'alerte</label>
+                        <input type="number" value="${newProductMin}" oninput="newProductMin=this.value" placeholder="5" class="input" step="0.5">
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 12px; margin-bottom: 14px;">
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 13px; font-weight: 800; color: ${COLORS.brown}; margin-bottom: 6px;">Demande journalière</label>
+                        <input type="number" value="${newProductDemand}" oninput="newProductDemand=this.value" placeholder="1" class="input" step="0.5">
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="display: block; font-size: 13px; font-weight: 800; color: ${COLORS.brown}; margin-bottom: 6px;">Délai livraison (jours)</label>
+                        <input type="number" value="${newProductLead}" oninput="newProductLead=this.value" placeholder="7" class="input">
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 14px;">
+                    <label style="display: block; font-size: 13px; font-weight: 800; color: ${COLORS.brown}; margin-bottom: 6px;">Prix de vente (FCFA)</label>
+                    <input type="number" value="${newProductPrice}" oninput="newProductPrice=this.value" placeholder="0" class="input" step="100">
+                </div>
+                
+                <button class="btn btn-primary" style="width: 100%; margin-top: 6px;" onclick="addProduct()">✅ Ajouter ce produit</button>
             </div>
         </div>
     `;
@@ -867,10 +791,8 @@ function renderBottomNav() {
 
 function renderBottomNav() {
     return `
-        <div `
         <div class="tabs">
-            class="tabs">
-            <button class=" <button class="tab ${tab ${currentView === 'home'currentView === 'home' ? ' ? 'active'active' : '' : ''}" onclick="currentView='home'; render()">
+            <button class="tab ${currentView === 'home' ? 'active' : ''}" onclick="currentView='home'; render()">
                 <span class="tab-icon">🏠</span>
                 <span>Accueil</span>
             </button>
@@ -905,51 +827,6 @@ function init() {
     }
     render();
     
-    // Exposer les fonctions globales pour les onclick
-    window.currentView = currentView;
-    window.render = render;
-    window.selectedArticle = selectedArticle;
-    window.qty = qty;
-    window.action = action;
-    window.applyAction = applyAction;
-    window.showToast = showToast;
-    window.recordSale = recordSale;
-    window.addProduct = addProduct}" onclick="currentView='home'; render()">
-                <span class="tab-icon">🏠</span>
-                <span>Accueil</span>
-            </button>
-            <button class="tab ${currentView === 'pantry' ? 'active' : ''}" onclick="currentView='pantry'; render()">
-                <span class="tab-icon">📦</span>
-                <span>Stock</span>
-            </button>
-            <button class="tab ${currentView === 'products' ? 'active' : ''}" onclick="currentView='products'; render()">
-                <span class="tab-icon">🏷️</span>
-                <span>Produits</span>
-            </button>
-            <button class="tab ${currentView === 'sales' ? 'active' : ''}" onclick="currentView='sales'; render()">
-                <span class="tab-icon">💰</span>
-                <span>Ventes</span>
-            </button>
-            <button class="tab ${currentView === 'financial' ? 'active' : ''}" onclick="currentView='financial'; render()">
-                <span class="tab-icon">📊</span>
-                <span>Bilan</span>
-            </button>
-        </div>
-    `;
-}
-
-// ============================================
-// DÉMARRAGE
-// ============================================
-function init() {
-    const appDiv = document.getElementById('app');
-    if (!appDiv) {
-        console.error('❌ <div id="app"> introuvable');
-        return;
-    }
-    render();
-    
-    // Exposer les fonctions globales pour les onclick
     window.currentView = currentView;
     window.render = render;
     window.selectedArticle = selectedArticle;
@@ -967,13 +844,10 @@ function init() {
     window.newProductEmoji = newProductEmoji;
     window.newProductStock = newProductStock;
     window.newProductMin = newProductMin;
-    window.newProduct;
-    window.editArticle = editArticle;
-    window.editThreshold = editThreshold;
-    window.editPrice = editPrice;
-    window.search = search;
-    window.newProductName = newProductName;
-    window.newProductEmoji = newProductEmoji;
-    window.newProductStock = newProductStock;
-    window.newProductMin = newProductMin;
-    window.newProduct
+    window.newProductUnit = newProductUnit;
+    window.newProductPrice = newProductPrice;
+    window.newProductDemand = newProductDemand;
+    window.newProductLead = newProductLead;
+}
+
+init();

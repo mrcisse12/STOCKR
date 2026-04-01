@@ -19,7 +19,7 @@ product_articles = db.Table('product_articles',
 # 3. Ensuite les modèles dépendants
 from .product import Product
 from .sale import Sale
-from .scan import InventoryScan # 🔴 AJOUT DE SPECTRA ICI
+#from .scan import InventoryScan # 🔴 AJOUT DE SPECTRA ICI
 
 # -----------------------------------
 # DÉCORATEUR D'AUTH (Sécurisé)
