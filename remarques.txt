@@ -1,9 +1,17 @@
 il faut qu'on travaille sur la partie bilan. proposer bilans par période, chercher comment faire des recommendations;
 vue paramètres à faire 
-la barre e navigation a enlever
 les boutons ajouter articles et créer produits dans les vues respectives la sont pas au milieu.
 ce serait bien un volet "panier" dans les ventes pour accélerer les enregistrements de ventes plus larges. 
     ça pourrait nous aider aussi pour la création de factures
 le seuil d'alerte doit s'actualiser automatiquement en fonction de la demande suite à chaque initialisation de produits
 pas de prix de vente dans les articles du stock du pantry, pas de demande journaliere
 il faut que les unités se convertissent automatiquement 
+On ne peut pas supprimer les articles 
+IL FAUT IMPÉRATIVEMENT FAIRE L'AUTHENTIFICATION C'EST PRIMORDIAL A TOUT.
+auth:
+    le bouton afficher le mot de passe réinitialise tout...
+    je ne peux pas me connecter avec mon adresse email et mon mot de passe
+Settings:
+    on peut pas modifier les infos du compte?
+détail:
+    faire afficher une liste des unités plutôt parmi lesquelles on va choisir. 
