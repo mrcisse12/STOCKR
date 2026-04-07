@@ -57,6 +57,38 @@ function clearSession() {
   localStorage.removeItem(AUTH_KEY);
 }
 
+// ── Unit lists ────────────────────────────────
+const UNITS = ['g','kg','t','ml','cl','l','m³','cm','m','m²','pce','lot','sac','carton','h','j','mois'];
+
+const UNIT_COND = {
+  'sac':    { label:'Contenance du sac',            opts:['25 kg','50 kg','100 kg','Autre'] },
+  'lot':    { label:'Nombre de pièces par lot',      opts:['6','12','24','Autre'] },
+  'carton': { label:"Nombre d'unités par carton",    opts:['6','12','24','48','Autre'] },
+};
+
+// ── Unit conversion helpers ───────────────────
+const UNIT_FACTORS = { g:1,kg:1000,t:1e6, ml:1,cl:10,l:1000,'m³':1e6, cm:1,m:100, h:1,j:24,mois:720 };
+const UNIT_GROUPS  = [['g','kg','t'],['ml','cl','l','m³'],['cm','m'],['h','j','mois']];
+
+function compatibleUnits(unit) {
+  const grp = UNIT_GROUPS.find(g => g.includes(unit));
+  return grp || [unit];
+}
+function convertQty(qty, from, to) {
+  if (from === to) return qty;
+  const f = UNIT_FACTORS[from], t = UNIT_FACTORS[to];
+  if (!f || !t) return qty;
+  const result = qty * f / t;
+  return Math.abs(result) < 0.01 ? 0 : parseFloat(result.toPrecision(10));
+}
+function fmtQty(n) {
+  if (n == null || Math.abs(n) < 0.01) return '0';
+  return parseFloat(parseFloat(n).toFixed(4)).toString();
+}
+
+// ── API base ──────────────────────────────────
+const API_BASE = 'http://localhost:5001';
+
 // ── State ─────────────────────────────────────
 const S = {
   // Auth
@@ -68,6 +100,7 @@ const S = {
   authBiz:     '',
   authShowPwd: false,
   session:     null,      // { id, name, email, business }
+  token:       null,
 
   // App
   view:       'home',
@@ -80,16 +113,78 @@ const S = {
   search:     '',
   filter:     'all',
   period:     'all',
-  darkMode:   false,
-  form: { name: '', stock: 0, min: 0, unit: 'pcs', lead: 7 },
+  darkMode:     false,
+  settingsEdit: false,
+  unitDropOpen: false,
+  unitCondVal:  '',
+  unitCondOther:'',
+  compUnits:     {},
+  cart:          [],
+  cartOpen:      false,
+  editProductId: null,
+  predictions:   [],
+  form: { name: '', stock: 0, min: 0, unit: '', lead: 7 },
 };
+
+// ── API helper ────────────────────────────────
+async function api(method, path, body) {
+  const res = await fetch(API_BASE + path, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(S.token ? { 'Authorization': `Bearer ${S.token}` } : {})
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const errMsg = typeof err.error === 'string' ? err.error : (err.error?.error || err.message || `Erreur ${res.status}`);
+    throw new Error(errMsg);
+  }
+  return res.json();
+}
+
+// ── Mapping API → state ───────────────────────
+function articleFromAPI(a) {
+  return { id: a.id, name: a.name, stock: a.quantity, unit: a.unit, min: a.alert_threshold || 0, lead: a.lead_time_days };
+}
+function productFromAPI(p) {
+  return {
+    id: p.id, name: p.name, price: p.price,
+    composition: (p.composition || []).map(c => ({ id: c.article.id, qty: c.quantity_used }))
+  };
+}
+function saleFromAPI(s) {
+  const product = S.products.find(p => p.id === s.product_id);
+  return { id: s.id, productId: s.product_id, productName: s.product_name, qty: s.quantity, total: (product ? product.price : 0) * s.quantity, date: s.timestamp };
+}
+
+// ── Charger données depuis l'API ──────────────
+async function loadData() {
+  try {
+    const [arts, prods, sales, preds] = await Promise.all([
+      api('GET', '/api/articles/'),
+      api('GET', '/api/products/'),
+      api('GET', '/api/sales/'),
+      api('GET', '/api/predictions/'),
+    ]);
+    S.products    = prods.map(productFromAPI);
+    S.articles    = arts.map(articleFromAPI);
+    S.sales       = sales.map(saleFromAPI);
+    S.predictions = preds;
+    recalcAllMins();
+    render();
+  } catch(e) {
+    showToast('Erreur de chargement des données', 'error');
+  }
+}
 
 // ── Helpers ───────────────────────────────────
 const $ = id => document.getElementById(id);
 
 function fmt(n) {
   if (n >= 1000000) return (n / 1000000).toFixed(1).replace('.0','') + 'M';
-  if (n >= 1000)    return (n / 1000).toFixed(0) + 'K';
+  if (n >= 10000)   return (n / 1000).toFixed(0) + 'K';
   return Math.round(n).toLocaleString('fr-FR');
 }
 function fmtDate(iso) {
@@ -151,24 +246,26 @@ function showToast(msg, type='') {
 }
 
 // ── Auth Actions ───────────────────────────────
-function doLogin() {
-  // Lire depuis le state (sauvegardé via oninput) — fiable même après un re-render
+async function doLogin() {
   const email = S.authEmail.trim();
   const pwd   = S.authPwd;
   if (!email || !pwd) { showToast('Remplis tous les champs', 'error'); return; }
-  const users = getUsers();
-  const user  = users.find(u => u.email === email && u.pwd === pwd);
-  if (!user) { showToast('Email ou mot de passe incorrect', 'error'); return; }
-  const session = { id: user.id, name: user.name, email: user.email, business: user.business };
-  saveSession(session);
-  S.session = session;
-  S.authEmail = S.authPwd = S.authPwd2 = S.authName = S.authBiz = '';
-  S.view = 'home';
-  render();
+  try {
+    const data = await api('POST', '/api/auth/login', { email, password: pwd });
+    const u = data.user;
+    S.token   = u.auth_token;
+    S.session = { id: u.id, name: u.name, email: u.email, business: u.business_name };
+    saveSession({ ...S.session, token: S.token });
+    S.authEmail = S.authPwd = '';
+    S.view = 'home';
+    render();
+    await loadData();
+  } catch(e) {
+    showToast(e.message || 'Email ou mot de passe incorrect', 'error');
+  }
 }
 
-function doRegister() {
-  // Lire depuis le state (sauvegardé via oninput)
+async function doRegister() {
   const name     = S.authName.trim();
   const business = (S.authBiz || '').trim();
   const email    = S.authEmail.trim();
@@ -177,58 +274,64 @@ function doRegister() {
   if (!name || !email || !pwd) { showToast('Remplis tous les champs obligatoires', 'error'); return; }
   if (pwd !== pwd2)            { showToast('Les mots de passe ne correspondent pas', 'error'); return; }
   if (pwd.length < 6)          { showToast('Mot de passe trop court (min. 6 caractères)', 'error'); return; }
-  const users = getUsers();
-  if (users.find(u => u.email === email)) { showToast('Cet email est déjà utilisé', 'error'); return; }
-  const newUser = { id: Date.now(), name, business: business || name, email, pwd };
-  users.push(newUser);
-  saveUsers(users);
-  const session = { id: newUser.id, name: newUser.name, email: newUser.email, business: newUser.business };
-  saveSession(session);
-  S.session = session;
-  S.authEmail = S.authPwd = S.authPwd2 = S.authName = S.authBiz = '';
-  S.view = 'home';
-  showToast(`Bienvenue, ${name} !`);
-  render();
+  try {
+    const data = await api('POST', '/api/auth/register', { email, password: pwd, name, business_name: business || name });
+    const u = data.user;
+    S.token   = u.auth_token;
+    S.session = { id: u.id, name: u.name, email: u.email, business: u.business_name };
+    saveSession({ ...S.session, token: S.token });
+    S.authEmail = S.authPwd = S.authPwd2 = S.authName = S.authBiz = '';
+    S.view = 'home';
+    showToast(`Bienvenue, ${name} !`);
+    render();
+    await loadData();
+  } catch(e) {
+    showToast(e.message || 'Erreur lors de la création du compte', 'error');
+  }
 }
 
-function doLogout() {
+async function doLogout() {
+  if (!confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) return;
+  try { await api('POST', '/api/auth/logout'); } catch(e) { /* ignore */ }
   clearSession();
-  S.session  = null;
-  S.articles = [];
-  S.products = [];
-  S.sales    = [];
-  S.view     = 'home';
-  S.authView = 'login';
+  S.session = null; S.token = null;
+  S.articles = []; S.products = []; S.sales = []; S.cart = [];
+  S.view = 'home'; S.authView = 'login';
   S.authEmail = S.authPwd = S.authPwd2 = S.authName = S.authBiz = '';
   render();
 }
 
 // ── App Actions ───────────────────────────────
-function applyStock() {
+async function applyStock() {
   const art = S.articles.find(a => a.id === S.selectedId);
   if (!art) return;
-  if (S.action === 'add') {
-    art.stock = Math.round((art.stock + S.qty) * 10) / 10;
-    showToast(`+${S.qty} ${art.unit} ajouté`);
-  } else {
-    if (art.stock < S.qty) { showToast('Stock insuffisant', 'error'); return; }
-    art.stock = Math.round((art.stock - S.qty) * 10) / 10;
-    showToast(`-${S.qty} ${art.unit} retiré`);
+  if (S.action === 'remove' && art.stock < S.qty) { showToast('Stock insuffisant', 'error'); return; }
+  const newStock = S.action === 'add'
+    ? Math.round((art.stock + S.qty) * 10) / 10
+    : Math.round((art.stock - S.qty) * 10) / 10;
+  try {
+    await api('PUT', `/api/articles/${art.id}`, { quantity: newStock });
+    art.stock = newStock;
+    showToast(S.action === 'add' ? `+${S.qty} ${art.unit} ajouté` : `-${S.qty} ${art.unit} retiré`);
+    S.qty = 1;
+    render();
+  } catch(e) {
+    showToast(e.message, 'error');
   }
-  S.qty = 1;
-  render();
 }
 
-function deleteArticle(id) {
+async function deleteArticle(id) {
   const art = S.articles.find(a => a.id === id);
   if (!art) return;
-  // Retirer des compositions de produits
-  S.products.forEach(p => {
-    p.composition = p.composition.filter(c => c.id !== id);
-  });
-  S.articles = S.articles.filter(a => a.id !== id);
-  showToast(`"${art.name}" supprimé`);
-  nav('pantry');
+  try {
+    await api('DELETE', `/api/articles/${id}`);
+    S.products.forEach(p => { p.composition = p.composition.filter(c => c.id !== id); });
+    S.articles = S.articles.filter(a => a.id !== id);
+    showToast(`"${art.name}" supprimé`);
+    nav('pantry');
+  } catch(e) {
+    showToast(e.message, 'error');
+  }
 }
 
 function recordSale() {
@@ -254,63 +357,222 @@ function recordSale() {
   render();
 }
 
-function saveArticle() {
+async function saveArticle() {
   const f = S.form;
   if (!f.name.trim()) { showToast('Nom requis', 'error'); return; }
-  S.articles.push({
-    id:    Date.now(),
-    name:  f.name.trim(),
-    stock: parseFloat(f.stock) || 0,
-    min:   parseFloat(f.min)   || 0,   // sera recalculé quand un produit utilise cet article
-    unit:  f.unit  || 'pcs',
-    lead:  parseInt(f.lead) || 7,
-  });
-  showToast(`"${f.name}" ajouté`);
-  S.form = { name:'', stock:0, min:0, unit:'pcs', lead:7 };
-  nav('pantry');
+  try {
+    const data = await api('POST', '/api/articles/', {
+      name:            f.name.trim(),
+      quantity:        parseFloat(f.stock) || 0,
+      unit:            f.unit || 'pcs',
+      alert_threshold: parseFloat(f.min) || null,
+      lead_time_days:  parseInt(f.lead) || 7,
+    });
+    S.articles.push(articleFromAPI(data));
+    showToast(`"${f.name}" ajouté`);
+    S.form = { name:'', stock:0, min:0, unit:'', lead:7 };
+    nav('pantry');
+  } catch(e) {
+    showToast(e.message, 'error');
+  }
 }
 
-function saveProduct() {
+async function saveProduct() {
   const nameEl  = $('prod-name');
   const priceEl = $('prod-price');
   if (!nameEl || !nameEl.value.trim()) { showToast('Nom requis', 'error'); return; }
   const composition = [];
   document.querySelectorAll('.comp-input').forEach(row => {
     const artId = parseInt(row.dataset.id);
+    const art   = S.articles.find(a => a.id === artId);
     const qtyEl = row.querySelector('.comp-qty');
-    if (qtyEl && parseFloat(qtyEl.value) > 0)
-      composition.push({ id: artId, qty: parseFloat(qtyEl.value) });
+    const rawQty = parseFloat(qtyEl?.value) || 0;
+    if (rawQty > 0 && art) {
+      const selUnit   = S.compUnits[artId] || art.unit;
+      const converted = convertQty(rawQty, selUnit, art.unit);
+      composition.push({ article_id: artId, quantity_used: converted });
+    }
   });
-  S.products.push({ id: Date.now(), name: nameEl.value.trim(), price: parseFloat(priceEl.value)||0, composition });
-  // Recalculer les seuils de tous les articles concernés
-  recalcAllMins();
-  showToast(`Produit "${nameEl.value}" créé`);
-  nav('products');
+  try {
+    const data = await api('POST', '/api/products/', {
+      name:        nameEl.value.trim(),
+      price:       parseFloat(priceEl?.value) || 0,
+      composition
+    });
+    S.products.push(productFromAPI(data));
+    recalcAllMins();
+    showToast(`Produit "${nameEl.value}" créé`);
+    nav('products');
+  } catch(e) {
+    showToast(e.message, 'error');
+  }
+}
+
+function toggleCart() {
+  S.cartOpen = !S.cartOpen;
+  render();
+}
+
+async function deleteProduct(id) {
+  const p = S.products.find(p => p.id === id);
+  if (!p) return;
+  if (!confirm(`Supprimer "${p.name}" ?`)) return;
+  try {
+    await api('DELETE', `/api/products/${id}`);
+    S.products = S.products.filter(p => p.id !== id);
+    showToast(`"${p.name}" supprimé`);
+    render();
+  } catch(e) {
+    showToast(e.message, 'error');
+  }
+}
+
+async function saveEditProduct() {
+  const nameEl  = $('prod-name');
+  const priceEl = $('prod-price');
+  if (!nameEl?.value.trim()) { showToast('Nom requis', 'error'); return; }
+  const p = S.products.find(p => p.id === S.editProductId);
+  if (!p) return;
+  const composition = [];
+  document.querySelectorAll('.comp-input').forEach(row => {
+    const artId = parseInt(row.dataset.id);
+    const art   = S.articles.find(a => a.id === artId);
+    const qtyEl = row.querySelector('.comp-qty');
+    const rawQty = parseFloat(qtyEl?.value) || 0;
+    if (rawQty > 0 && art) {
+      const selUnit   = S.compUnits[artId] || art.unit;
+      const converted = convertQty(rawQty, selUnit, art.unit);
+      composition.push({ article_id: artId, quantity_used: converted });
+    }
+  });
+  try {
+    const data = await api('PUT', `/api/products/${p.id}`, {
+      name:  nameEl.value.trim(),
+      price: parseFloat(priceEl?.value) || 0,
+      composition,
+    });
+    p.name  = data.name;
+    p.price = data.price;
+    p.composition = (data.composition || []).map(c => ({ id: c.article.id, qty: c.quantity_used }));
+    recalcAllMins();
+    showToast(`"${p.name}" mis à jour`);
+    nav('products');
+  } catch(e) {
+    showToast(e.message, 'error');
+  }
 }
 
 function toggleAuthPwd(e) {
   if (e) { e.preventDefault(); e.stopPropagation(); }
-  // 1. Lire les valeurs actuelles du DOM (avant que render() les efface)
-  const v = {
-    email: (document.getElementById('auth-email') || {}).value || '',
-    pwd:   (document.getElementById('auth-pwd')   || {}).value || '',
-    pwd2:  (document.getElementById('auth-pwd2')  || {}).value || '',
-    name:  (document.getElementById('auth-name')  || {}).value || '',
-    biz:   (document.getElementById('auth-biz')   || {}).value || '',
-  };
   S.authShowPwd = !S.authShowPwd;
-  render();
-  // 2. Réinjecter les valeurs via .value (prop JS, pas attribut HTML) après le render
-  const eEl  = document.getElementById('auth-email');
+  // Zéro render() — DOM direct uniquement, les champs ne sont jamais vidés
   const pEl  = document.getElementById('auth-pwd');
   const p2El = document.getElementById('auth-pwd2');
-  const nEl  = document.getElementById('auth-name');
-  const bEl  = document.getElementById('auth-biz');
-  if (eEl)  eEl.value  = v.email;
-  if (pEl)  pEl.value  = v.pwd;
-  if (p2El) p2El.value = v.pwd2;
-  if (nEl)  nEl.value  = v.name;
-  if (bEl)  bEl.value  = v.biz;
+  if (pEl)  pEl.classList.toggle('pwd-masked', !S.authShowPwd);
+  if (p2El) p2El.classList.toggle('pwd-masked', !S.authShowPwd);
+  document.querySelectorAll('.pwd-eye').forEach(btn => {
+    btn.innerHTML = S.authShowPwd ? IC.eyeOff : IC.eye;
+  });
+}
+
+// ── Cart actions ──────────────────────────────
+function addToCart() {
+  const sel   = $('sale-product');
+  const qtyEl = $('sale-qty');
+  if (!sel?.value) { showToast('Choisis un produit', 'error'); return; }
+  const product = S.products.find(p => p.id === parseInt(sel.value));
+  if (!product) return;
+  const qty = Math.max(1, parseInt(qtyEl?.value) || 1);
+  const existing = S.cart.find(c => c.productId === product.id);
+  if (existing) { existing.qty += qty; }
+  else { S.cart.push({ productId:product.id, productName:product.name, qty, unitPrice:product.price }); }
+  showToast(`${product.name} ajouté au panier`);
+  render();
+}
+
+function removeFromCart(idx) {
+  S.cart.splice(idx, 1);
+  render();
+}
+
+async function confirmCart() {
+  if (!S.cart.length) { showToast('Le panier est vide', 'error'); return; }
+  try {
+    let total = 0, count = 0;
+    for (const item of S.cart) {
+      const data = await api('POST', '/api/sales/', { product_id: item.productId, quantity: item.qty });
+      const product = S.products.find(p => p.id === item.productId);
+      const lineTotal = (product?.price || 0) * item.qty;
+      total += lineTotal;
+      count += item.qty;
+      S.sales.unshift({ id: data.sale.id, productId: data.sale.product_id, productName: data.sale.product_name, qty: data.sale.quantity, total: lineTotal, date: data.sale.timestamp });
+    }
+    S.cart = [];
+    showToast(`${count} unité(s) vendue(s) — ${fmt(total)} FCFA`);
+    // Recharger les articles pour avoir les stocks à jour
+    const arts = await api('GET', '/api/articles/');
+    S.articles = arts.map(articleFromAPI);
+    recalcAllMins();
+    render();
+  } catch(e) {
+    showToast(e.message, 'error');
+  }
+}
+
+// ── Unit combobox actions (DOM direct — zéro render() pendant la frappe) ──
+function _unitDropHTML() {
+  const q = (S.form.unit || '').toLowerCase();
+  const safe = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const filtered = UNITS.filter(u => u.toLowerCase().includes(q));
+  if (!filtered.length) return '<div class="unit-opt" style="color:var(--text-3);cursor:default">Aucun résultat</div>';
+  return filtered.map(u => {
+    const hi = q ? u.replace(new RegExp(safe,'gi'), m => `<strong>${m}</strong>`) : u;
+    return `<div class="unit-opt" onmousedown="event.preventDefault()" onclick="selectUnit('${u}')">${hi}</div>`;
+  }).join('');
+}
+function openUnitDrop() {
+  S.unitDropOpen = true;
+  const wrap = document.getElementById('unit-combo-wrap');
+  if (!wrap || document.getElementById('unit-dropdown')) return;
+  const dd = document.createElement('div');
+  dd.className = 'unit-dropdown'; dd.id = 'unit-dropdown';
+  dd.innerHTML = _unitDropHTML();
+  wrap.appendChild(dd);
+}
+function updateUnitDrop() {
+  const inp = document.getElementById('unit-input');
+  if (inp) S.form.unit = inp.value;
+  const dd = document.getElementById('unit-dropdown');
+  if (!dd) { openUnitDrop(); return; }
+  dd.innerHTML = _unitDropHTML();
+}
+function closeUnitDrop() {
+  S.unitDropOpen = false;
+  const dd = document.getElementById('unit-dropdown');
+  if (dd) dd.remove();
+}
+function selectUnit(u) {
+  S.form.unit = u; S.unitDropOpen = false; S.unitCondVal = ''; S.unitCondOther = '';
+  closeUnitDrop();
+  render(); // re-render uniquement pour afficher/cacher la section conditionnelle
+}
+function selectUnitCond(v) { S.unitCondVal = v; S.unitCondOther = ''; render(); }
+
+async function saveAccountInfo() {
+  const nameVal  = ($('set-name')?.value  || '').trim();
+  const bizVal   = ($('set-biz')?.value   || '').trim();
+  if (!nameVal) { showToast('Nom requis', 'error'); return; }
+  try {
+    await api('PUT', '/api/auth/profile', { name: nameVal, business_name: bizVal });
+    S.session.name     = nameVal;
+    S.session.business = bizVal;
+    saveSession({ ...S.session, token: S.token });
+    S.settingsEdit = false;
+    showToast('Infos mises à jour');
+    render();
+  } catch(e) {
+    showToast(e.message, 'error');
+  }
 }
 
 function toggleDark() {
@@ -343,12 +605,12 @@ function render() {
     home: vHome, pantry: vPantry, products: vProducts,
     sales: vSales, financial: vFinancial,
     detail: vDetail, add: vAdd, 'add-product': vAddProduct,
-    settings: vSettings,
+    'edit-product': vEditProduct, settings: vSettings,
   };
   viewEl.innerHTML = (map[S.view] || vHome)();
   viewEl.scrollTop = 0;
 
-  const hideNav = ['detail','add','add-product'].includes(S.view);
+  const hideNav = ['detail','add','add-product','edit-product'].includes(S.view);
   navEl.style.display = hideNav ? 'none' : '';
   if (!hideNav) navEl.innerHTML = renderNav();
 }
@@ -469,6 +731,21 @@ function vHome() {
       <div class="alert-arrow">${IC.chevron}</div>
     </div>` : ''}
 
+    ${(() => {
+      const critical = S.predictions.filter(p => p.status === 'critical');
+      if (!critical.length) return '';
+      return `
+      <div class="section-hd"><div class="section-lbl">Prédictions IA</div></div>
+      ${critical.slice(0, 3).map((p, i) => `
+      <div class="pred-card critical" style="animation-delay:${i * 0.06}s">
+        <div class="pred-dot"></div>
+        <div class="pred-body">
+          <div class="pred-name">${p.article_name}</div>
+          <div class="pred-msg">${p.message}</div>
+        </div>
+      </div>`).join('')}`;
+    })()}
+
     <div class="section-hd"><div class="section-lbl">Navigation</div></div>
     <div class="quick-grid">
       <button class="quick-btn" onclick="nav('pantry')">
@@ -493,27 +770,26 @@ function vHome() {
       </button>
     </div>
 
-    ${S.articles.length > 0 ? `
     <div class="section-hd">
-      <div class="section-lbl">Articles récents</div>
-      <button class="section-act" onclick="nav('pantry')">Voir tout</button>
+      <div class="section-lbl">Dernières ventes</div>
+      <button class="section-act" onclick="nav('sales')">Voir tout</button>
     </div>
-    ${S.articles.slice(0,4).map((a,i) => {
-      const st = stockStatus(a.stock, a.min);
-      return `
-      <div class="card card-tap anim" style="animation-delay:${i*0.04}s" onclick="nav('detail',{selectedId:${a.id}})">
-        <div class="article-row">
-          <div class="article-avatar">${initials(a.name)}</div>
-          <div class="article-info">
-            <div class="article-name">${a.name}</div>
-            <div class="article-meta">${a.stock} ${a.unit}</div>
-          </div>
-          <div class="article-right">
-            <span class="status ${st.cls}">${st.icon} ${st.label}</span>
-          </div>
+    ${S.sales.length === 0 ? `
+    <div class="card" style="text-align:center;padding:18px;color:var(--text-3);font-size:13px">Aucune vente pour l'instant</div>
+    ` : S.sales.slice(0,4).map((s,i) => `
+    <div class="card anim" style="animation-delay:${i*0.04}s">
+      <div class="sale-item" style="padding:0">
+        <div class="sale-dot"></div>
+        <div class="sale-info">
+          <div class="sale-prod">${s.productName}</div>
+          <div class="sale-date">${fmtDate(s.date)}</div>
         </div>
-      </div>`;
-    }).join('')}` : ''}
+        <div class="sale-right">
+          <div class="sale-total">${fmt(s.total)} FCFA</div>
+          <div class="sale-qty">×${s.qty}</div>
+        </div>
+      </div>
+    </div>`).join('')}
   </div>`;
 }
 
@@ -534,7 +810,7 @@ function vPantry() {
     </div>
     <div class="search-wrap">
       <span class="search-ico">${IC.search}</span>
-      <input class="input input-search" type="text" placeholder="Rechercher…" value="${S.search.replace(/"/g,'&quot;')}" oninput="S.search=this.value;render()">
+      <input class="input input-search" type="text" placeholder="    Rechercher…" value="${S.search.replace(/"/g,'&quot;')}" oninput="S.search=this.value;render()">
     </div>
     <div class="filter-row">
       <button class="filter-chip ${S.filter==='all'?'active':''}" onclick="S.filter='all';render()">Tout (${S.articles.length})</button>
@@ -559,7 +835,7 @@ function vPantry() {
           <div class="article-avatar">${initials(a.name)}</div>
           <div class="article-info">
             <div class="article-name">${a.name}</div>
-            <div class="article-meta">${a.stock} ${a.unit}${a.min>0 ? ` · seuil ${a.min}` : ''}</div>
+            <div class="article-meta">${fmtQty(a.stock)} ${a.unit}${a.min>0 ? ` · seuil ${fmtQty(a.min)}` : ''}</div>
             <div class="progress"><div class="progress-bar ${st.bar}" style="width:${pct}%"></div></div>
           </div>
           <div class="article-right">
@@ -592,26 +868,27 @@ function vProducts() {
     </div>` : S.products.map((p,i) => {
       const avail   = productMaxMake(p);
       const canMake = avail > 0;
+      const recipeNames = p.composition.map(c => {
+        const a = S.articles.find(a => a.id === c.id);
+        return a ? `${fmtQty(c.qty)} ${a.unit} ${a.name}` : null;
+      }).filter(Boolean).join(' · ');
       return `
       <div class="card anim" style="animation-delay:${i*0.05}s">
-        <div class="article-row" style="margin-bottom:${p.composition.length?'12px':'0'}">
+        <div class="article-row">
           <div class="article-avatar">${initials(p.name)}</div>
           <div class="article-info">
             <div class="article-name">${p.name}</div>
             <div class="article-meta" style="font-weight:700;color:var(--text-2)">${fmt(p.price)} FCFA</div>
+            ${recipeNames ? `<div class="article-meta" style="margin-top:2px;color:var(--text-3)">${recipeNames}</div>` : ''}
           </div>
-          <span class="status ${canMake?'st-ok':'st-out'}">${canMake?IC.check:IC.xmark} ${canMake?avail+' fab.':'Indispo'}</span>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+            <span class="status ${canMake?'st-ok':'st-out'}">${canMake?IC.check:IC.xmark} ${canMake?avail+' fab.':'Indispo'}</span>
+            <div style="display:flex;gap:6px">
+              <button onclick="nav('edit-product',{editProductId:${p.id}})" style="background:none;border:1px solid var(--gray-3);border-radius:6px;padding:4px 8px;cursor:pointer;color:var(--text-2)">${IC.settings}</button>
+              <button onclick="deleteProduct(${p.id})" style="background:none;border:1px solid var(--gray-3);border-radius:6px;padding:4px 8px;cursor:pointer;color:var(--text-2)">${IC.trash}</button>
+            </div>
+          </div>
         </div>
-        ${p.composition.length ? `
-        <div style="border-top:1px solid var(--border);padding-top:10px">
-          <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Composition</div>
-          ${p.composition.map(c => {
-            const art = S.articles.find(a=>a.id===c.id);
-            if (!art) return '';
-            const ok = art.stock >= c.qty;
-            return `<div class="comp-row"><span class="comp-lbl">${art.name}</span><span class="${ok?'comp-ok':'comp-fail'}">${art.stock} / ${c.qty} ${art.unit}</span></div>`;
-          }).join('')}
-        </div>` : ''}
       </div>`;
     }).join('')}
   </div>`;
@@ -644,8 +921,29 @@ function vSales() {
         <label class="form-label">Quantité</label>
         <input type="number" class="input" id="sale-qty" value="1" min="1">
       </div>
-      <button class="btn btn-primary" onclick="recordSale()">Confirmer la vente</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" style="flex:1" onclick="addToCart();S.cartOpen=true;render()">Confirmer</button>
+        <button class="btn btn-ghost" onclick="toggleCart()" style="flex:1">
+          ${S.cartOpen ? 'Fermer panier' : 'Faire un panier ?'}${S.cart.length>0?` (${S.cart.length})`:''}
+        </button>
+      </div>
     </div>
+    ${S.cartOpen ? `
+    <div class="card" style="margin-bottom:14px;border:2px solid var(--black)">
+      <div class="card-title">Panier (${S.cart.length} article${S.cart.length>1?'s':''})</div>
+      ${S.cart.length===0 ? `<div style="font-size:13px;color:var(--text-3);padding:8px 0">Panier vide — ajoute des produits ci-dessus.</div>` :
+        S.cart.map((c,i) => `
+        <div class="cart-item">
+          <div class="cart-item-info">
+            <div class="cart-item-name">${c.productName}</div>
+            <div class="cart-item-sub">×${c.qty} · ${fmt(c.unitPrice * c.qty)} FCFA</div>
+          </div>
+          <button class="cart-remove" onclick="removeFromCart(${i})">${IC.xmark}</button>
+        </div>`).join('')}
+      ${S.cart.length>0 ? `
+      <div class="cart-total">Total : <strong>${fmt(S.cart.reduce((s,c)=>s+c.unitPrice*c.qty,0))} FCFA</strong></div>
+      <button class="btn btn-primary" style="margin-top:10px" onclick="confirmCart()">Valider la vente</button>` : ''}
+    </div>` : ''}
     <div class="section-hd">
       <div class="section-lbl">Historique</div>
       <div style="font-size:12px;color:var(--text-3)">${S.sales.length} vente(s)</div>
@@ -731,16 +1029,25 @@ function vFinancial() {
             <div class="rank-rev">${fmt(d.rev)} FCFA</div>
           </div>`).join('')}
     </div>
-    ${recos.length>0 ? `
-    <div class="section-hd"><div class="section-lbl">Recommandations</div></div>
-    ${recos.map(a=>`
-    <div class="reco-card">
-      <div class="reco-dot"></div>
-      <div class="reco-info">
-        <div class="reco-main">Commander ${a.toOrder} ${a.unit} de ${a.name}</div>
-        <div class="reco-sub">${IC.truck} Délai livraison : ${a.lead} j · stock actuel : ${a.stock}</div>
+    ${S.predictions.length > 0 ? `
+    <div class="section-hd" style="margin-top:8px">
+      <div class="section-lbl">Prédictions IA</div>
+      <div style="font-size:11px;color:var(--text-3)">WMA · EOQ · Safety Stock</div>
+    </div>
+    ${S.predictions.filter(p => p.status !== 'no_data').map((p, i) => `
+    <div class="pred-card ${p.status}" style="animation-delay:${i * 0.06}s">
+      <div class="pred-dot"></div>
+      <div class="pred-body">
+        <div class="pred-name">${p.article_name}</div>
+        <div class="pred-msg">${p.message}</div>
+        ${p.status !== 'no_data' && p.daily_demand > 0 ? `
+        <div class="pred-stats">
+          <div class="pred-stat">Stock <strong>${p.current_stock} ${p.unit}</strong></div>
+          ${p.days_remaining !== null ? `<div class="pred-stat">Jours restants <strong>${p.days_remaining}j</strong></div>` : ''}
+          <div class="pred-stat">EOQ <strong>${p.eoq} ${p.unit}</strong></div>
+          <div class="pred-stat">Safety Stock <strong>${p.safety_stock} ${p.unit}</strong></div>
+        </div>` : ''}
       </div>
-      <div class="reco-val">${a.stock}/${a.min}</div>
     </div>`).join('')}` : ''}
   </div>`;
 }
@@ -792,7 +1099,7 @@ function vDetail() {
       </div>
       <div class="qty-row">
         <button class="qty-ctrl" onclick="S.qty=Math.max(1,S.qty-1);render()">${IC.minus}</button>
-        <div class="qty-val">${S.qty}</div>
+        <input class="qty-val" type="number" min="1" step="0.5" value="${S.qty}" oninput="S.qty=parseFloat(this.value)||1" style="width:60px;text-align:center;border:none;background:none;font-size:inherit;font-weight:inherit;color:inherit">
         <button class="qty-ctrl" onclick="S.qty++;render()">${IC.plus}</button>
       </div>
       <div class="chip-row">
@@ -860,7 +1167,30 @@ function vAdd() {
       </div>
       <div class="form-group">
         <label class="form-label">Unité de mesure</label>
-        <input class="input" type="text" placeholder="pcs, m, kg, litre…" value="${f.unit}" oninput="S.form.unit=this.value">
+        <div class="unit-combo" id="unit-combo-wrap">
+          <input class="input" type="text" id="unit-input"
+            placeholder="ex: kg, pcs, m..."
+            value="${f.unit}"
+            oninput="updateUnitDrop()"
+            onfocus="openUnitDrop()"
+            onblur="setTimeout(closeUnitDrop,160)">
+          <button type="button" class="unit-chevron"
+            onmousedown="event.preventDefault()"
+            onclick="S.unitDropOpen?closeUnitDrop():openUnitDrop()">${IC.chevron}</button>
+        </div>
+        ${(() => {
+          const cond = UNIT_COND[f.unit];
+          if (!cond) return '';
+          const isOther = S.unitCondVal === 'Autre';
+          return `
+          <div class="form-group" style="margin-top:8px">
+            <label class="form-label">${cond.label}</label>
+            <div class="chip-row" style="margin-top:6px">
+              ${cond.opts.map(o => `<button type="button" class="chip ${S.unitCondVal===o?'active':''}" onclick="selectUnitCond('${o}')">${o}</button>`).join('')}
+            </div>
+            ${isOther ? `<input class="input" type="number" min="1" step="1" placeholder="Entier..." style="margin-top:8px" value="${S.unitCondOther}" oninput="S.unitCondOther=Math.round(this.value)||''">` : ''}
+          </div>`;
+        })()}
       </div>
       <div class="input-row form-group">
         <div>
@@ -904,16 +1234,66 @@ function vAddProduct() {
         ${S.articles.map(a=>`
         <div class="comp-input" data-id="${a.id}" style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
           <div style="flex:1;font-size:13px;font-weight:600;color:var(--text-2)">${a.name}
-            <span style="color:var(--text-3);font-weight:400;font-size:11px">(${a.stock} ${a.unit} dispo)</span>
+            <span style="color:var(--text-3);font-weight:400;font-size:11px">(${fmtQty(a.stock)} ${a.unit} dispo)</span>
           </div>
           <input type="number" class="input comp-qty" placeholder="0" step="0.5" min="0" style="width:76px;text-align:center">
-          <span style="font-size:11px;color:var(--text-3);white-space:nowrap">${a.unit}</span>
+          <select class="input" style="width:70px;padding:8px 4px"
+            onchange="S.compUnits[${a.id}]=this.value">
+            ${compatibleUnits(a.unit).map(u =>
+              `<option value="${u}" ${(S.compUnits[a.id]||a.unit)===u?'selected':''}>${u}</option>`
+            ).join('')}
+          </select>
         </div>`).join('')}
       </div>` : `
       <div style="padding:14px;background:var(--gray-1);border-radius:var(--r-md);border:1px solid var(--border);font-size:13px;color:var(--text-3);text-align:center;margin-bottom:14px">
         Ajoute d'abord des articles au stock pour définir la composition.
       </div>`}
       <button class="btn btn-primary" onclick="saveProduct()">Créer ce produit</button>
+    </div>
+  </div>`;
+}
+
+// ── EDIT PRODUCT ──────────────────────────────
+function vEditProduct() {
+  const p = S.products.find(p => p.id === S.editProductId);
+  if (!p) { nav('products'); return ''; }
+  return `
+  <div class="sub-hero">
+    <button class="back-btn-dark" style="margin-bottom:14px" onclick="nav('products')">${IC.left}</button>
+    <div class="sub-hero-title">Modifier le produit</div>
+    <div class="sub-hero-sub">${p.name}</div>
+  </div>
+  <div class="container">
+    <div class="card">
+      <div class="form-group">
+        <label class="form-label">Nom du produit *</label>
+        <input class="input" id="prod-name" type="text" value="${p.name.replace(/"/g,'&quot;')}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Prix de vente (FCFA)</label>
+        <input class="input" id="prod-price" type="number" placeholder="0" step="100" value="${p.price}">
+      </div>
+      ${S.articles.length > 0 ? `
+      <div class="form-group">
+        <label class="form-label">Composition <span style="font-weight:400;text-transform:none;letter-spacing:0">(quantité par unité produite)</span></label>
+        ${S.articles.map(a => {
+          const existing = p.composition.find(c => c.id === a.id);
+          return `
+          <div class="comp-input" data-id="${a.id}" style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <div style="flex:1;font-size:13px;font-weight:600;color:var(--text-2)">${a.name}
+              <span style="color:var(--text-3);font-weight:400;font-size:11px">(${fmtQty(a.stock)} ${a.unit} dispo)</span>
+            </div>
+            <input type="number" class="input comp-qty" placeholder="0" step="0.5" min="0" style="width:76px;text-align:center" value="${existing ? existing.qty : ''}">
+            <select class="input" style="width:70px;padding:8px 4px"
+              onchange="S.compUnits[${a.id}]=this.value">
+              ${compatibleUnits(a.unit).map(u =>
+                `<option value="${u}" ${(S.compUnits[a.id]||a.unit)===u?'selected':''}>${u}</option>`
+              ).join('')}
+            </select>
+          </div>`;
+        }).join('')}
+      </div>` : ''}
+      <button class="btn btn-primary" onclick="saveEditProduct()">Mettre à jour</button>
     </div>
   </div>`;
 }
@@ -929,6 +1309,26 @@ function vSettings() {
   <div class="container">
     <div class="settings-section">
       <div class="settings-label">Mon compte</div>
+      ${S.settingsEdit ? `
+      <div class="card" style="padding:14px">
+        <div class="form-group">
+          <label class="form-label">Nom</label>
+          <input class="input" id="set-name" type="text" value="${S.session.name.replace(/"/g,'&quot;')}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Commerce</label>
+          <input class="input" id="set-biz" type="text" value="${(S.session.business||'').replace(/"/g,'&quot;')}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="input" id="set-email" type="email" value="${S.session.email.replace(/"/g,'&quot;')}">
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="btn btn-primary" style="flex:1" onclick="saveAccountInfo()">Sauvegarder</button>
+          <button class="btn btn-ghost" style="flex:1" onclick="S.settingsEdit=false;render()">Annuler</button>
+        </div>
+      </div>
+      ` : `
       <div class="settings-row-block">
         <div class="settings-row" style="cursor:default">
           <div class="settings-row-inner">
@@ -948,7 +1348,14 @@ function vSettings() {
             </div>
           </div>
         </div>
-      </div>
+        <div class="settings-row" onclick="S.settingsEdit=true;render()">
+          <div class="settings-row-inner">
+            <span class="settings-row-ico">${IC.settings}</span>
+            <div class="settings-row-lbl">Modifier</div>
+          </div>
+          ${IC.chevron}
+        </div>
+      </div>`}
     </div>
 
     <div class="settings-section">
@@ -1013,13 +1420,34 @@ document.addEventListener('DOMContentLoaded', () => {
   window.recordSale    = recordSale;
   window.saveArticle   = saveArticle;
   window.saveProduct   = saveProduct;
+  window.toggleCart      = toggleCart;
+  window.deleteProduct   = deleteProduct;
+  window.saveEditProduct = saveEditProduct;
+  window.toggleAuthPwd   = toggleAuthPwd;
+  window.addToCart       = addToCart;
+  window.removeFromCart  = removeFromCart;
+  window.confirmCart     = confirmCart;
+  window.openUnitDrop    = openUnitDrop;
+  window.closeUnitDrop   = closeUnitDrop;
+  window.updateUnitDrop  = updateUnitDrop;
+  window.selectUnit      = selectUnit;
+  window.selectUnitCond  = selectUnitCond;
+  window.saveAccountInfo = saveAccountInfo;
   window.toggleDark    = toggleDark;
   window.doLogin       = doLogin;
   window.doRegister    = doRegister;
   window.doLogout      = doLogout;
   window.showToast     = showToast;
+  window.loadData      = loadData;
 
-  // Restaurer la session si elle existe
-  S.session = getSession();
-  render();
+  // Restaurer la session + token si existants
+  const saved = getSession();
+  if (saved && saved.token) {
+    S.token   = saved.token;
+    S.session = { id: saved.id, name: saved.name, email: saved.email, business: saved.business };
+    render(); // Affiche l'app immédiatement
+    loadData(); // Charge les données en arrière-plan
+  } else {
+    render(); // Affiche l'écran auth
+  }
 });
