@@ -1,17 +1,33 @@
-il faut qu'on travaille sur la partie bilan. proposer bilans par période, chercher comment faire des recommendations;
-vue paramètres à faire 
-les boutons ajouter articles et créer produits dans les vues respectives la sont pas au milieu.
 ce serait bien un volet "panier" dans les ventes pour accélerer les enregistrements de ventes plus larges. 
     ça pourrait nous aider aussi pour la création de factures
-le seuil d'alerte doit s'actualiser automatiquement en fonction de la demande suite à chaque initialisation de produits
-pas de prix de vente dans les articles du stock du pantry, pas de demande journaliere
-il faut que les unités se convertissent automatiquement 
+    le volet panier doit etre dans la partie vente. 
+le seuil d'alerte doit s'actualiser automatiquement en fonction de la demande suite à chaque initialisation de produits 
 On ne peut pas supprimer les articles 
-IL FAUT IMPÉRATIVEMENT FAIRE L'AUTHENTIFICATION C'EST PRIMORDIAL A TOUT.
-auth:
+Auth:
     le bouton afficher le mot de passe réinitialise tout...
-    je ne peux pas me connecter avec mon adresse email et mon mot de passe
 Settings:
-    on peut pas modifier les infos du compte?
-détail:
-    faire afficher une liste des unités plutôt parmi lesquelles on va choisir. 
+    se déconnecter: on doit demander "etes vous sur"
+
+Article (pantry):
+    Détail:
+    *il faudrait faire une modification pour les lots aussi. il faut que chaque truc du lot on puisse mettre sa contenance et son unité dans le 
+    sens où on peut avoir un lot de six  t-shirt, ou un lot de 6 bouteilles de lait et en consommer 10ml dans une recette par exemple
+
+Sales:
+    il faut juste faire un bouton "faire un panier?" mais pas automatiquement mettre un panier quoi
+
+Home:
+    c'est plus intelligent de mettre dans home les dernières ventes plutot que les derniers articles de la pantry
+    (avec le prix).
+
+All:
+    Pourquoi à chaque fois que je clique sur un bouton la page a une animation de rechargement genre un blink.
+    changes ça. -> ce n'est plus la peine mais n'enleves pas je vais d'abord en discuter avec les
+
+Products:
+    quand je passe de l a ml par exemple, tout se reinitialise sur la page. 
+    Je dois pouvoir modifier et supprimer es produits apres les avoir créés
+    Euhhh les valeurs liées prouit que j'ai initialisé ne sont pas les mêmes que celles qui apparaissent quand je l'ajoute. il ne faut rien arrondir,
+    tout garder authentique stp. pour le détail visible sur la carte du produits, mets juste le prix, combien on peut en faire et un aperçu de la recette
+    pas besion de mettre 1/5l et tout ça
+
