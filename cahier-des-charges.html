@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STOCKR — Cahier des charges</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:   #0A0A0A;
+      --gray-9:  #111111;
+      --gray-8:  #1E1E1E;
+      --gray-7:  #2E2E2E;
+      --gray-6:  #914646;
+      --gray-5:  #6A6A6A;
+      --gray-4:  #9A9A9A;
+      --gray-3:  #C8C8C8;
+      --gray-2:  #E8E8E8;
+      --gray-1:  #F5F5F5;
+      --white:   #FFFFFF;
+      --accent:  #0A0A0A;
+      --green:   #16A34A;
+      --yellow:  #CA8A04;
+      --red:     #DC2626;
+      --blue:    #2563EB;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--gray-1);
+      color: var(--black);
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(10,10,10,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 0 40px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-size: 18px;
+      font-weight: 900;
+      color: white;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-logo span {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--gray-4);
+      letter-spacing: 0.5px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--gray-4);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: white; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      background: var(--black);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 24px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,255,255,0.04) 0%, transparent 70%);
+    }
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .hero-content { position: relative; max-width: 760px; }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--gray-3);
+      margin-bottom: 28px;
+      letter-spacing: 0.3px;
+    }
+    .hero-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #4ADE80;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .hero h1 {
+      font-size: clamp(56px, 10vw, 96px);
+      font-weight: 900;
+      color: white;
+      letter-spacing: -4px;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+    .hero h1 span { color: var(--gray-5); }
+    .hero-sub {
+      font-size: 18px;
+      color: var(--gray-4);
+      font-weight: 400;
+      margin-bottom: 48px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.5;
+    }
+    .hero-meta {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .hero-meta-item {
+      text-align: center;
+    }
+    .hero-meta-val {
+      font-size: 28px;
+      font-weight: 800;
+      color: white;
+      letter-spacing: -1px;
+    }
+    .hero-meta-lbl {
+      font-size: 11px;
+      color: var(--gray-5);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+    .hero-divider {
+      width: 1px;
+      height: 40px;
+      background: var(--gray-7);
+      align-self: center;
+    }
+    .scroll-hint {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: var(--gray-6);
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      animation: bounce 2s infinite;
+    }
+    .scroll-hint svg { stroke: var(--gray-6); }
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(6px); }
+    }
+
+    /* ── SECTIONS ── */
+    section { padding: 80px 24px; }
+    .container { max-width: 960px; margin: 0 auto; }
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--gray-5);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      color: var(--black);
+      margin-bottom: 8px;
+      line-height: 1.15;
+    }
+    .section-desc {
+      font-size: 16px;
+      color: var(--gray-5);
+      max-width: 560px;
+      line-height: 1.6;
+      margin-bottom: 48px;
+    }
+
+    /* ── PROBLÈME ── */
+    #probleme { background: var(--white); }
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 40px;
+    }
+    .problem-card {
+      background: var(--gray-1);
+      border: 1px solid var(--gray-2);
+      border-radius: 16px;
+      padding: 28px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .problem-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+    }
+    .problem-icon {
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      color: var(--black);
+    }
+    .problem-card h3 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--black);
+    }
+    .problem-card p {
+      font-size: 13.5px;
+      color: var(--gray-5);
+      line-height: 1.6;
+    }
+
+    /* ── SOLUTION ── */
+    #solution { background: var(--black); }
+    #solution .section-title { color: white; }
+    #solution .section-desc { color: var(--gray-5); }
+    #solution .section-label { color: var(--gray-6); }
+    .solution-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      margin-top: 40px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--gray-7);
+    }
+    .solution-item {
+      background: var(--gray-9);
+      padding: 28px;
+      border: 1px solid var(--gray-7);
+      transition: background 0.2s;
+    }
+    .solution-item:hover { background: var(--gray-8); }
+    .solution-num {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gray-6);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .solution-item h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 8px;
+    }
+    .solution-item p {
+      font-size: 13px;
+      color: var(--gray-5);
+      line-height: 1.6;
+    }
+
+    /* ── PARCOURS ── */
+    #parcours { background: var(--gray-1); }
+    .parcours-group {
+      margin-top: 40px;
+    }
+    .parcours-group + .parcours-group {
+      margin-top: 32px;
+    }
+    .parcours-group-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--gray-5);
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--gray-2);
+      margin-bottom: 0;
+    }
+    .parcours-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .parcours-table tr {
+      border-bottom: 1px solid var(--gray-2);
+    }
+    .parcours-table tr:last-child { border-bottom: none; }
+    .parcours-table td {
+      padding: 13px 16px 13px 0;
+      vertical-align: top;
+    }
+    .parcours-table td:first-child {
+      width: 42%;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--black);
+      padding-right: 24px;
+    }
+    .parcours-table td:last-child {
+      font-size: 13px;
+      color: var(--gray-5);
+      line-height: 1.55;
+    }
+    .parcours-block {
+      background: white;
+      border: 1px solid var(--gray-2);
+      border-radius: 16px;
+      padding: 0 24px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .parcours-block-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--gray-5);
+      padding: 18px 0 14px;
+      border-bottom: 1px solid var(--gray-2);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .parcours-block-title svg { color: var(--black); flex-shrink: 0; }
+
+    /* ── FONCTIONNALITÉS ── */
+    #fonctionnalites { background: var(--white); }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+      margin-top: 40px;
+    }
+    .feature-card {
+      background: var(--gray-1);
+      border: 1px solid var(--gray-2);
+      border-radius: 16px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+    .feature-card:hover {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    }
+    .feature-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 3px 10px;
+      border-radius: 100px;
+      margin-bottom: 14px;
+    }
+    .status-done  { background: #DCFCE7; color: #16A34A; }
+    .status-wip   { background: #FEF9C3; color: #CA8A04; }
+    .status-todo  { background: #F3F4F6; color: #6B7280; }
+    .status-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .feature-card h3 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--black);
+    }
+    .feature-card p {
+      font-size: 13px;
+      color: var(--gray-5);
+      line-height: 1.5;
+    }
+    .feature-tag {
+      display: inline-block;
+      margin-top: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--gray-5);
+      background: var(--white);
+      border: 1px solid var(--gray-2);
+      border-radius: 6px;
+      padding: 2px 8px;
+    }
+
+    /* ── TECH ── */
+    #technique { background: white; }
+    .tech-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-top: 40px;
+    }
+    .tech-block h3 {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--gray-5);
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--gray-2);
+    }
+    .tech-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--gray-1);
+    }
+    .tech-item:last-child { border-bottom: none; }
+    .tech-dot {
+      width: 8px; height: 8px;
+      border-radius: 2px;
+      background: var(--black);
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+    .tech-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--black);
+    }
+    .tech-desc {
+      font-size: 12px;
+      color: var(--gray-5);
+      margin-top: 2px;
+    }
+
+    /* ── PLANNING ── */
+    #planning { background: var(--black); }
+    #planning .section-title { color: white; }
+    #planning .section-desc { color: var(--gray-5); }
+    #planning .section-label { color: var(--gray-6); }
+    .timeline {
+      margin-top: 48px;
+      position: relative;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0; bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, var(--gray-7), transparent);
+    }
+    .tl-item {
+      padding: 0 0 40px 36px;
+      position: relative;
+    }
+    .tl-item:last-child { padding-bottom: 0; }
+    .tl-dot {
+      position: absolute;
+      left: -5px;
+      top: 4px;
+      width: 11px; height: 11px;
+      border-radius: 50%;
+      background: var(--gray-7);
+      border: 2px solid var(--gray-6);
+    }
+    .tl-dot.done { background: #4ADE80; border-color: #4ADE80; }
+    .tl-dot.active { background: white; border-color: white; box-shadow: 0 0 12px rgba(255,255,255,0.4); }
+    .tl-date {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gray-6);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 6px;
+    }
+    .tl-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tl-desc {
+      font-size: 13px;
+      color: var(--gray-5);
+      line-height: 1.6;
+    }
+    .tl-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .tl-tag {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--gray-5);
+      background: var(--gray-8);
+      border: 1px solid var(--gray-7);
+      border-radius: 6px;
+      padding: 2px 8px;
+    }
+
+    /* ── IMPACT ── */
+    #impact { background: var(--gray-1); }
+    .impact-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-top: 40px;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--gray-2);
+    }
+    .impact-card {
+      background: var(--white);
+      padding: 32px 24px;
+      text-align: center;
+    }
+    .impact-icon {
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: center;
+      color: var(--black);
+    }
+    .impact-val {
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: -2px;
+      color: var(--black);
+      margin-bottom: 4px;
+    }
+    .impact-lbl {
+      font-size: 12px;
+      color: var(--gray-5);
+      line-height: 1.4;
+    }
+
+    /* ── ÉQUIPE ── */
+    #equipe { background: white; }
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 40px;
+    }
+    .team-card {
+      background: var(--gray-1);
+      border: 1px solid var(--gray-2);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      transition: box-shadow 0.2s;
+    }
+    .team-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.08); }
+    .team-avatar {
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      background: var(--black);
+      color: white;
+      font-size: 18px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px;
+    }
+    .team-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--black);
+      margin-bottom: 4px;
+    }
+    .team-role {
+      font-size: 12px;
+      color: var(--gray-5);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--black);
+      padding: 40px 24px;
+      text-align: center;
+    }
+    .footer-logo {
+      font-size: 22px;
+      font-weight: 900;
+      color: white;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+    }
+    .footer-sub {
+      font-size: 13px;
+      color: var(--gray-6);
+      margin-bottom: 24px;
+    }
+    .footer-meta {
+      font-size: 12px;
+      color: var(--gray-7);
+    }
+
+    /* ── UPDATED BADGE ── */
+    .update-badge {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: white;
+      border: 1px solid var(--gray-2);
+      border-radius: 100px;
+      padding: 8px 16px;
+      font-size: 11px;
+      color: var(--gray-5);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      z-index: 99;
+    }
+    .update-badge strong { color: var(--black); }
+
+    /* ── ANIM ── */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 640px) {
+      nav { padding: 0 16px; }
+      .nav-links { display: none; }
+      .solution-list { grid-template-columns: 1fr; }
+      .tech-split { grid-template-columns: 1fr; }
+      .impact-grid { grid-template-columns: 1fr; }
+      .hero-divider { display: none; }
+      .parcours-table td:first-child { width: 50%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+    STOCKR
+    <span>Cahier des charges · 2026</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#probleme">Problème</a></li>
+    <li><a href="#solution">Solution</a></li>
+    <li><a href="#parcours">Parcours</a></li>
+    <li><a href="#fonctionnalites">Fonctionnalités</a></li>
+    <li><a href="#technique">Technique</a></li>
+    <li><a href="#planning">Planning</a></li>
+    <li><a href="#equipe">Équipe</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge">Concours Maarif Innovative Projects · Catégorie 01</div>
+    <h1>STOCK<span>R</span></h1>
+    <p class="hero-sub">
+      Application mobile de gestion de stock intelligente
+      pour les PME.
+    </p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <div class="hero-meta-val">3</div>
+        <div class="hero-meta-lbl">Membres</div>
+      </div>
+      <div class="hero-divider"></div>
+      <div class="hero-meta-item">
+        <div class="hero-meta-val">21 avr.</div>
+        <div class="hero-meta-lbl">Deadline</div>
+      </div>
+      <div class="hero-divider"></div>
+      <div class="hero-meta-item">
+        <div class="hero-meta-val">v0.3</div>
+        <div class="hero-meta-lbl">Version actuelle</div>
+      </div>
+      <div class="hero-divider"></div>
+      <div class="hero-meta-item">
+        <div class="hero-meta-val">Flask</div>
+        <div class="hero-meta-lbl">Backend</div>
+      </div>
+      <div class="hero-divider"></div>
+      <div class="hero-meta-item">
+        <div class="hero-meta-val" id="hero-jj"></div>
+        <div class="hero-meta-lbl">Jours restants</div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    Défiler
+  </div>
+</div>
+
+<!-- PROBLÈME -->
+<section id="probleme">
+  <div class="container">
+    <div class="fade-in">
+      <div class="section-label">01 — Contexte</div>
+      <h2 class="section-title">Un problème réel,<br>une solution concrète</h2>
+      <p class="section-desc">
+        Les PME gèrent encore leur stock à la main — cahiers, mémoire, approximations.
+        Résultat : ruptures fréquentes, pertes invisibles, décisions sans données.
+      </p>
+    </div>
+    <div class="problem-grid">
+      <div class="problem-card fade-in">
+        <div class="problem-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+        </div>
+        <h3>Gestion manuelle et imprécise</h3>
+        <p>La majorité des PME utilisent encore des cahiers ou leur mémoire pour suivre leur stock, avec des erreurs fréquentes.</p>
+      </div>
+      <div class="problem-card fade-in">
+        <div class="problem-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <h3>Ruptures de stock non anticipées</h3>
+        <p>Sans système d'alerte, les ruptures arrivent par surprise — perte de ventes et de clients.</p>
+      </div>
+      <div class="problem-card fade-in">
+        <div class="problem-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+        </div>
+        <h3>Aucune visibilité sur les données</h3>
+        <p>Sans historique de ventes, impossible de savoir quels produits sont rentables ou quand réapprovisionner.</p>
+      </div>
+      <div class="problem-card fade-in">
+        <div class="problem-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
+        </div>
+        <h3>Outils existants inadaptés</h3>
+        <p>Les logiciels de gestion disponibles sont trop chers, en anglais, ou conçus pour de grandes entreprises.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION -->
+<section id="solution">
+  <div class="container">
+    <div class="fade-in">
+      <div class="section-label">02 — Notre réponse</div>
+      <h2 class="section-title">STOCKR</h2>
+      <p class="section-desc">
+        Une application mobile-first, en français, pensée pour les PME.
+        Accessible via QR code, sans installation, même avec une connexion instable.
+      </p>
+    </div>
+    <div class="solution-list fade-in">
+      <div class="solution-item">
+        <div class="solution-num">01</div>
+        <h3>Gestion du stock en temps réel</h3>
+        <p>Ajout, retrait, alertes automatiques — tout l'inventaire en un coup d'œil.</p>
+      </div>
+      <div class="solution-item">
+        <div class="solution-num">02</div>
+        <h3>Prédictions IA</h3>
+        <p>Algorithmes économiques (WMA, EOQ, Safety Stock) pour anticiper les ruptures.</p>
+      </div>
+      <div class="solution-item">
+        <div class="solution-num">03</div>
+        <h3>Gestion des produits finis</h3>
+        <p>Chaque produit est lié à ses articles de composition — le stock se déduit automatiquement.</p>
+      </div>
+      <div class="solution-item">
+        <div class="solution-num">04</div>
+        <h3>Ventes et facturation</h3>
+        <p>Enregistrement des ventes, panier, historique et génération de factures PDF.</p>
+      </div>
+      <div class="solution-item">
+        <div class="solution-num">05</div>
+        <h3>Bilan financier</h3>
+        <p>Graphiques animés, CA par période, top produits, recommandations d'achat.</p>
+      </div>
+      <div class="solution-item">
+        <div class="solution-num">06</div>
+        <h3>Spectra — Vision IA</h3>
+        <p>Scanner un placard avec la caméra pour remplir automatiquement le stock via Gemini Vision.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PARCOURS UTILISATEUR -->
+<section id="parcours">
+  <div class="container">
+    <div class="fade-in">
+      <div class="section-label">03 — Parcours utilisateur</div>
+      <h2 class="section-title">Ce que l'utilisateur peut faire</h2>
+      <p class="section-desc">Pour chaque action disponible dans l'application, voici ce qui se passe en coulisses.</p>
+    </div>
+
+    <div class="parcours-block fade-in">
+      <div class="parcours-block-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Compte et session
+      </div>
+      <table class="parcours-table">
+        <tr>
+          <td>Créer un compte</td>
+          <td>Un compte est enregistré avec email et mot de passe haché. Un token de session est généré immédiatement.</td>
+        </tr>
+        <tr>
+          <td>Se connecter</td>
+          <td>Token Bearer stocké localement — toutes les requêtes suivantes sont authentifiées automatiquement.</td>
+        </tr>
+        <tr>
+          <td>Se déconnecter</td>
+          <td>Token supprimé, retour à l'écran de connexion. Aucune donnée ne subsiste côté client.</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="parcours-block fade-in">
+      <div class="parcours-block-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        Gestion du stock
+      </div>
+      <table class="parcours-table">
+        <tr>
+          <td>Ajouter un article</td>
+          <td>Article enregistré avec nom, quantité, unité, seuil d'alerte et délai de livraison.</td>
+        </tr>
+        <tr>
+          <td>Modifier un article</td>
+          <td>Toutes les informations sont mises à jour en base. Les prédictions se recalculent au prochain chargement.</td>
+        </tr>
+        <tr>
+          <td>Supprimer un article</td>
+          <td>Article retiré. Les produits finis qui l'utilisaient sont automatiquement mis à jour.</td>
+        </tr>
+        <tr>
+          <td>Filtrer par statut</td>
+          <td>Affichage filtré : tous les articles, en rupture, ou sous le seuil d'alerte uniquement.</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="parcours-block fade-in">
+      <div class="parcours-block-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        Produits finis
+      </div>
+      <table class="parcours-table">
+        <tr>
+          <td>Créer un produit</td>
+          <td>Produit lié à une recette d'articles avec quantités requises par unité vendue. Le stock fabricable est calculé automatiquement.</td>
+        </tr>
+        <tr>
+          <td>Modifier la composition</td>
+          <td>Recette mise à jour en base, stock fabricable recalculé en temps réel depuis les articles disponibles.</td>
+        </tr>
+        <tr>
+          <td>Supprimer un produit</td>
+          <td>Produit retiré. L'historique de ventes associé est conservé pour le bilan financier.</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="parcours-block fade-in">
+      <div class="parcours-block-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        Ventes
+      </div>
+      <table class="parcours-table">
+        <tr>
+          <td>Ajouter au panier</td>
+          <td>Produit ou article ajouté à la vente en cours avec quantité personnalisable.</td>
+        </tr>
+        <tr>
+          <td>Valider le panier</td>
+          <td>Vente enregistrée, stock des articles déduit automatiquement selon les recettes, historique mis à jour.</td>
+        </tr>
+        <tr>
+          <td>Vendre rapidement</td>
+          <td>Un seul produit vendu en un clic depuis la liste — sans passer par le panier.</td>
+        </tr>
+        <tr>
+          <td>Consulter l'historique</td>
+          <td>Toutes les ventes passées affichées avec date, produit, quantité et montant.</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="parcours-block fade-in">
+      <div class="parcours-block-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        Intelligence artificielle
+      </div>
+      <table class="parcours-table">
+        <tr>
+          <td>Consulter les prédictions</td>
+          <td>Algorithmes WMA, EOQ et Safety Stock calculés côté serveur depuis l'historique de ventes.</td>
+        </tr>
+        <tr>
+          <td>Voir une alerte critique</td>
+          <td>L'article affiché en rouge a un stock restant inférieur à son délai de livraison — rupture imminente.</td>
+        </tr>
+        <tr>
+          <td>Voir un avertissement</td>
+          <td>L'article est sous le point de réapprovisionnement recommandé — commande à planifier.</td>
+        </tr>
+        <tr>
+          <td>Lire la quantité à commander</td>
+          <td>Quantité optimale calculée selon la formule EOQ (Ford Harris, 1913) pour minimiser les coûts.</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="parcours-block fade-in">
+      <div class="parcours-block-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Bilan financier
+      </div>
+      <table class="parcours-table">
+        <tr>
+          <td>Sélectionner une période</td>
+          <td>CA, ticket moyen et top produits filtrés automatiquement sur la période choisie (7j, 30j, 90j).</td>
+        </tr>
+        <tr>
+          <td>Consulter la valeur du stock</td>
+          <td>Estimation de la valeur totale des articles en stock, calculée depuis les prix de revient enregistrés.</td>
+        </tr>
+        <tr>
+          <td>Lire une recommandation</td>
+          <td>Suggestion d'achat générée depuis les prédictions IA — article à commander et quantité conseillée.</td>
+        </tr>
+      </table>
+    </div>
+
+  </div>
+</section>
+
+<!-- FONCTIONNALITÉS -->
+<section id="fonctionnalites">
+  <div class="container">
+    <div class="fade-in">
+      <div class="section-label">04 — Détail des fonctionnalités</div>
+      <h2 class="section-title">Ce que l'app sait faire</h2>
+      <p class="section-desc">État d'avancement en temps réel de chaque fonctionnalité.</p>
+    </div>
+    <div class="features-grid">
+
+      <div class="feature-card fade-in">
+        <div class="feature-status status-done"><div class="status-dot"></div>Terminé</div>
+        <h3>Authentification</h3>
+        <p>Création de compte, connexion sécurisée par token, session persistante.</p>
+        <span class="feature-tag">Backend · Frontend</span>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-status status-done"><div class="status-dot"></div>Terminé</div>
+        <h3>Gestion du stock (Pantry)</h3>
+        <p>Ajout, modification, suppression d'articles. Alerte seuil, délai de livraison, filtre par statut.</p>
+        <span class="feature-tag">Backend · Frontend</span>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-status status-done"><div class="status-dot"></div>Terminé</div>
+        <h3>Produits finis et recettes</h3>
+        <p>Création de produits composés d'articles. Calcul automatique du stock fabricable. Modification et suppression.</p>
+        <span class="feature-tag">Backend · Frontend</span>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-status status-done"><div class="status-dot"></div>Terminé</div>
+        <h3>Ventes avec panier</h3>
+        <p>Enregistrement individuel ou par panier. Déduction automatique du stock à la vente. Historique complet.</p>
+        <span class="feature-tag">Backend · Frontend</span>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-status status-done"><div class="status-dot"></div>Terminé</div>
+        <h3>Bilan financier</h3>
+        <p>CA par période, ticket moyen, top produits, valeur du stock, recommandations de réapprovisionnement.</p>
+        <span class="feature-tag">Frontend</span>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-status status-done"><div class="status-dot"></div>Terminé</div>
+        <h3>Prédictions IA</h3>
+        <p>Moyenne mobile pondérée, EOQ (Ford Harris, 1913) et Safety Stock (niveau de service 95%) pour chaque article.</p>
+        <span class="feature-tag">Backend · Frontend · IA</span>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-status status-wip"><div class="status-dot"></div>En cours</div>
+        <h3>Graphiques animés</h3>
+        <p>Visualisations interactives des ventes par jour avec messages contextuels intelligents.</p>
+        <span class="feature-tag">Frontend · Chart.js</span>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-status status-wip"><div class="status-dot"></div>En cours</div>
+        <h3>Factures PDF</h3>
+        <p>Génération de factures professionnelles en un clic, partageables par WhatsApp.</p>
+        <span class="feature-tag">Backend · Python</span>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-status status-wip"><div class="status-dot"></div>En cours</div>
+        <h3>Spectra — Scan IA</h3>
+        <p>Photo du placard → Gemini Vision identifie les articles et pré-remplit le stock automatiquement.</p>
+        <span class="feature-tag">IA · Gemini Vision</span>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-status status-todo"><div class="status-dot"></div>Planifié</div>
+        <h3>PWA — Mode hors ligne</h3>
+        <p>Installable via QR code, fonctionne sans connexion. Adapté aux zones à connexion instable.</p>
+        <span class="feature-tag">Frontend · Service Worker</span>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-status status-todo"><div class="status-dot"></div>Planifié</div>
+        <h3>Déploiement</h3>
+        <p>Frontend sur Netlify, backend sur Render. URL publique et QR code pour la démo.</p>
+        <span class="feature-tag">DevOps</span>
+      </div>
+
+      <div class="feature-card fade-in">
+        <div class="feature-status status-todo"><div class="status-dot"></div>Planifié</div>
+        <h3>Lots avec contenance</h3>
+        <p>Gestion des unités conditionnées (sac de 25 kg, lot de 6, carton de 24) avec conversion automatique.</p>
+        <span class="feature-tag">Backend · Frontend</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- TECHNIQUE -->
+<section id="technique">
+  <div class="container">
+    <div class="fade-in">
+      <div class="section-label">05 — Architecture</div>
+      <h2 class="section-title">Stack technique</h2>
+      <p class="section-desc">Architecture légère, déployable rapidement, sans coût d'infrastructure.</p>
+    </div>
+    <div class="tech-split fade-in">
+      <div class="tech-block">
+        <h3>Backend</h3>
+        <div class="tech-item">
+          <div class="tech-dot"></div>
+          <div>
+            <div class="tech-name">Python + Flask</div>
+            <div class="tech-desc">API REST — léger, rapide à développer</div>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-dot"></div>
+          <div>
+            <div class="tech-name">SQLite + SQLAlchemy</div>
+            <div class="tech-desc">Base de données locale, zéro configuration</div>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-dot"></div>
+          <div>
+            <div class="tech-name">Authentification par token</div>
+            <div class="tech-desc">Bearer token, session sécurisée par utilisateur</div>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-dot"></div>
+          <div>
+            <div class="tech-name">Algorithmes économiques</div>
+            <div class="tech-desc">WMA, EOQ, Safety Stock — calcul serveur</div>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-dot"></div>
+          <div>
+            <div class="tech-name">Gemini Vision API</div>
+            <div class="tech-desc">Reconnaissance d'articles par caméra (Spectra)</div>
+          </div>
+        </div>
+      </div>
+      <div class="tech-block">
+        <h3>Frontend</h3>
+        <div class="tech-item">
+          <div class="tech-dot"></div>
+          <div>
+            <div class="tech-name">Vanilla JS — SPA</div>
+            <div class="tech-desc">Zéro framework, rendu via render() — ultra léger</div>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-dot"></div>
+          <div>
+            <div class="tech-name">Design mobile-first</div>
+            <div class="tech-desc">Interface pensée pour smartphone, monochrome</div>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-dot"></div>
+          <div>
+            <div class="tech-name">PWA</div>
+            <div class="tech-desc">Installable, mode hors ligne via Service Worker</div>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-dot"></div>
+          <div>
+            <div class="tech-name">Chart.js</div>
+            <div class="tech-desc">Graphiques animés pour le bilan financier</div>
+          </div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-dot"></div>
+          <div>
+            <div class="tech-name">Déploiement</div>
+            <div class="tech-desc">Netlify (front) + Render (back) — gratuit</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLANNING -->
+<section id="planning">
+  <div class="container">
+    <div class="fade-in">
+      <div class="section-label">06 — Calendrier</div>
+      <h2 class="section-title">Planning de livraison</h2>
+      <p class="section-desc">Concours le 21 avril 2026 — 17 jours restants.</p>
+    </div>
+    <div class="timeline fade-in">
+      <div class="tl-item">
+        <div class="tl-dot done"></div>
+        <div class="tl-date">Semaine 1 — 1 au 7 avril</div>
+        <div class="tl-title">Base de l'application
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="tl-desc">Authentification, stock, produits, ventes, panier, prédictions IA. Application fonctionnelle et connectée au backend.</div>
+        <div class="tl-tags">
+          <span class="tl-tag">Auth</span>
+          <span class="tl-tag">Stock</span>
+          <span class="tl-tag">Produits</span>
+          <span class="tl-tag">Ventes</span>
+          <span class="tl-tag">Prédictions IA</span>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot active"></div>
+        <div class="tl-date">Semaine 2 — 8 au 14 avril</div>
+        <div class="tl-title">Fonctionnalités avancées</div>
+        <div class="tl-desc">Graphiques animés, factures PDF, Spectra (scan IA caméra), PWA mode hors ligne.</div>
+        <div class="tl-tags">
+          <span class="tl-tag">Graphiques</span>
+          <span class="tl-tag">Factures PDF</span>
+          <span class="tl-tag">Spectra IA</span>
+          <span class="tl-tag">PWA</span>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-date">Semaine 3 — 15 au 20 avril</div>
+        <div class="tl-title">Déploiement et finitions</div>
+        <div class="tl-desc">Déploiement public (Netlify + Render), génération du QR code, tests complets, répétition de la démo.</div>
+        <div class="tl-tags">
+          <span class="tl-tag">Netlify</span>
+          <span class="tl-tag">Render</span>
+          <span class="tl-tag">QR Code</span>
+          <span class="tl-tag">Tests</span>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-date">21 avril 2026</div>
+        <div class="tl-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 21 16 21"/><line x1="12" y1="21" x2="12" y2="17"/><path d="M7 4H17l-1 7H8L7 4z"/><path d="M7 4H5a2 2 0 0 0-2 2v1a4 4 0 0 0 4 4h1"/><path d="M17 4h2a2 2 0 0 1 2 2v1a4 4 0 0 1-4 4h-1"/></svg>
+          Présentation — Concours Maarif
+        </div>
+        <div class="tl-desc">Démo live, scan QR par le jury, pitch de 5 minutes.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IMPACT -->
+<section id="impact">
+  <div class="container">
+    <div class="fade-in">
+      <div class="section-label">07 — Impact</div>
+      <h2 class="section-title">Pourquoi ça compte</h2>
+      <p class="section-desc">STOCKR s'inscrit directement dans les enjeux de gestion des PME.</p>
+    </div>
+    <div class="impact-grid fade-in">
+      <div class="impact-card">
+        <div class="impact-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <div class="impact-val">90%</div>
+        <div class="impact-lbl">des entreprises africaines sont des PME ou du secteur informel</div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        </div>
+        <div class="impact-val">PWA</div>
+        <div class="impact-lbl">Fonctionne hors ligne — adapté aux zones à connexion instable</div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+        </div>
+        <div class="impact-val">IA</div>
+        <div class="impact-lbl">Méthodes économiques avancées rendues accessibles à tous</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ÉQUIPE -->
+<section id="equipe">
+  <div class="container">
+    <div class="fade-in">
+      <div class="section-label">08 — L'équipe</div>
+      <h2 class="section-title">Qui sommes-nous</h2>
+      <p class="section-desc">Une équipe de lycéens passionnés — Écoles Internationales Maarif.</p>
+    </div>
+    <div class="team-grid fade-in">
+      <div class="team-card">
+        <div class="team-avatar">E</div>
+        <div class="team-name">Élisam</div>
+        <div class="team-role">Lead dev · Frontend & Backend</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">M2</div>
+        <div class="team-name">Membre 2</div>
+        <div class="team-role">Backend · Spectra IA</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">M3</div>
+        <div class="team-name">Membre 3</div>
+        <div class="team-role">Design · Communication</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">STOCKR</div>
+  <div class="footer-sub">Concours Maarif Innovative Projects 2026 · Catégorie 01 — Technologies Informatiques et IA</div>
+  <div class="footer-meta">Document mis à jour automatiquement · <span id="updated-date"></span></div>
+</footer>
+
+<!-- BADGE -->
+<div class="update-badge">
+  Mis à jour le <strong id="badge-date"></strong>
+</div>
+
+<script>
+  // Date de dernière mise à jour — changer manuellement à chaque modif du CDC
+  const LAST_UPDATED = '7 avril 2026';
+  document.getElementById('updated-date').textContent = LAST_UPDATED;
+  document.getElementById('badge-date').textContent = LAST_UPDATED;
+
+  // Countdown JJ — dynamique, se recalcule chaque jour
+  const now = new Date();
+  const deadline = new Date('2026-04-21');
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diff = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
+  document.getElementById('hero-jj').textContent = diff > 0 ? 'JJ-' + diff : diff === 0 ? 'JJ' : 'Passé';
+
+  // Fade-in observer
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
