@@ -1,5 +1,5 @@
 import cv2
-from spectra_core import SpectraVisionEngine
+from stockr_backend.spectra.spectra_core import SpectraVisionEngine
 
 def run_spectra_audit_system():
     print("=====================================================")
