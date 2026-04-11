@@ -200,6 +200,11 @@ body {
   cursor: pointer; color: white; transition: opacity var(--t); flex-shrink: 0;
 }
 .fab:active { opacity: 0.75; }
+.fab-outline {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--text);
+}
 
 /* ── Container ──────────────────────────────── */
 .container { padding: 14px 16px 32px; }
