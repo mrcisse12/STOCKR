@@ -19,6 +19,7 @@ def create_app():
     from routes.alert_routes import alert_bp
     from routes.auth_routes import auth_bp
     from routes.prediction_routes import prediction_bp
+    from routes.spectra_routes import spectra_bp
 
     app.register_blueprint(article_bp, url_prefix='/api/articles')
     app.register_blueprint(product_bp, url_prefix='/api/products')
@@ -26,6 +27,7 @@ def create_app():
     app.register_blueprint(alert_bp, url_prefix='/api/alerts')
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(prediction_bp, url_prefix='/api/predictions')
+    app.register_blueprint(spectra_bp, url_prefix='/api/spectra')
     
     
     @app.route('/api/health')
