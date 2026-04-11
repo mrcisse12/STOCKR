@@ -615,3 +615,175 @@ body.dark .sub-hero  { background: #000; }
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ── SPECTRA ─────────────────────────────── */
+.spectra-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 20px 100px;
+  min-height: 100vh;
+}
+.spectra-center { justify-content: center; padding-top: 80px; }
+
+.spectra-hero { text-align: center; margin-bottom: 40px; }
+.spectra-logo { color: var(--text); margin-bottom: 16px; opacity: 0.9; }
+.spectra-title { font-size: 28px; font-weight: 900; letter-spacing: -1px; color: var(--text); }
+.spectra-sub { font-size: 14px; color: var(--text-2); margin-top: 8px; line-height: 1.5; }
+.spectra-hint { font-size: 11px; color: var(--text-3); margin-top: 16px; text-align: center; max-width: 260px; }
+
+.spectra-capture-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 320px;
+  padding: 16px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+}
+
+/* Loading */
+.spectra-spinner {
+  width: 48px; height: 48px;
+  border: 3px solid var(--border);
+  border-top-color: var(--text);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 24px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.spectra-loading-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+
+/* Progress bar */
+.spectra-progress-bar {
+  width: 100%;
+  max-width: 360px;
+  height: 3px;
+  background: var(--border);
+  border-radius: 99px;
+  margin-bottom: 28px;
+  overflow: hidden;
+}
+.spectra-progress-fill {
+  height: 100%;
+  background: var(--text);
+  border-radius: 99px;
+  transition: width 0.3s ease;
+}
+
+/* Confirm card */
+.spectra-confirm-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px 24px;
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: slideIn 0.25s ease;
+}
+.spectra-conf-badge {
+  font-size: 11px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--text-3);
+  margin-bottom: 16px;
+}
+.spectra-conf-icon { color: var(--text-2); margin-bottom: 16px; }
+.spectra-conf-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-3); margin-bottom: 6px; }
+.spectra-conf-name { font-size: 24px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; margin-bottom: 14px; }
+.spectra-conf-meta { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
+.spectra-pill {
+  font-size: 11px; font-weight: 600;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 3px 10px;
+  color: var(--text-2);
+}
+.spectra-pill-match { background: #dcfce7; border-color: #bbf7d0; color: #16a34a; }
+.spectra-pill-new   { background: #fef9c3; border-color: #fde68a; color: #92400e; }
+
+.spectra-conf-question { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 20px; }
+
+.spectra-conf-actions { display: flex; gap: 10px; width: 100%; }
+.spectra-btn-yes {
+  flex: 1; padding: 14px;
+  background: var(--text); color: var(--bg);
+  border: none; border-radius: 12px;
+  font-weight: 700; font-size: 14px;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.spectra-btn-no {
+  flex: 1; padding: 14px;
+  background: transparent; color: var(--text);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-weight: 700; font-size: 14px;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+
+.spectra-name-input-wrap { width: 100%; }
+.spectra-name-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-size: 15px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+}
+.spectra-name-input:focus { border-color: var(--text); }
+
+/* Done screen */
+.spectra-done-icon {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #16a34a;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px;
+}
+.spectra-results { width: 100%; max-width: 360px; margin-top: 20px; }
+.spectra-result-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.spectra-result-row:last-child { border-bottom: none; }
+.spectra-result-name { flex: 1; font-weight: 600; color: var(--text); }
+.spectra-result-qty  { font-weight: 700; color: var(--text); }
+.spectra-result-action { font-size: 11px; color: var(--text-3); }
+
+/* ── AUTH STEP 2 — profil cards ─────────────── */
+.profile-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+.profile-card {
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.profile-card:hover { background: var(--bg-2); }
+.profile-card.selected {
+  border-color: var(--text);
+  background: var(--bg-2);
+}
+.profile-card-icon { color: var(--text); margin-bottom: 6px; }
+.profile-card-label { font-size: 15px; font-weight: 700; color: var(--text); }
+.profile-card-desc  { font-size: 12px; color: var(--text-2); line-height: 1.4; }
+.form-hint { font-size: 11px; color: var(--text-3); margin-top: 5px; }

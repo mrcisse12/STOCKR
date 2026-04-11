@@ -35,6 +35,8 @@ const IC = {
   trash:    `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`,
   eye:      `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
   eyeOff:   `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`,
+  camera:   `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
+  cameraLg: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
 };
 
 // ── Auth store (localStorage) ──────────────────
@@ -93,13 +95,19 @@ const API_BASE = 'http://localhost:5001';
 const S = {
   // Auth
   authView:    'login',   // 'login' | 'register'
+  authStep:    1,         // étape inscription : 1 = identifiants, 2 = profil
   authEmail:   '',
   authPwd:     '',
   authPwd2:    '',
   authName:    '',
   authBiz:     '',
   authShowPwd: false,
-  session:     null,      // { id, name, email, business }
+  authProfile: 'transformer', // 'transformer' | 'reseller'
+  authCountry: 'SN',
+  authLang:    'fr',
+  authCurrency:'XOF',
+  authTax:     0,         // taux TVA en %
+  session:     null,      // { id, name, email, business, profile, currency, currency_symbol, country, language, tax_rate }
   token:       null,
 
   // App
@@ -124,6 +132,14 @@ const S = {
   editProductId: null,
   predictions:   [],
   form: { name: '', stock: 0, min: 0, unit: '', lead: 7 },
+  spectra: {
+    step:      'camera',   // 'camera' | 'loading' | 'confirm' | 'done'
+    queue:     [],         // détections en attente de confirmation
+    current:   0,          // index dans queue
+    confirmed: [],         // items validés par l'utilisateur
+    naming:    false,      // l'utilisateur est en train de nommer un article inconnu
+    results:   [],         // résultats finaux après /confirm
+  },
 };
 
 // ── API helper ────────────────────────────────
@@ -183,9 +199,11 @@ async function loadData() {
 const $ = id => document.getElementById(id);
 
 function fmt(n) {
-  if (n >= 1000000) return (n / 1000000).toFixed(1).replace('.0','') + 'M';
-  if (n >= 10000)   return (n / 1000).toFixed(0) + 'K';
   return Math.round(n).toLocaleString('fr-FR');
+}
+function fmtCurrency(n) {
+  const sym = S.session?.currency_symbol || 'FCFA';
+  return `${fmt(n)} ${sym}`;
 }
 function fmtDate(iso) {
   const d = new Date(iso), now = new Date(), diff = now - d;
@@ -254,7 +272,15 @@ async function doLogin() {
     const data = await api('POST', '/api/auth/login', { email, password: pwd });
     const u = data.user;
     S.token   = u.auth_token;
-    S.session = { id: u.id, name: u.name, email: u.email, business: u.business_name };
+    S.session = {
+      id: u.id, name: u.name, email: u.email, business: u.business_name,
+      profile:         u.profile         || 'transformer',
+      currency:        u.currency        || 'XOF',
+      currency_symbol: getCurrencySymbol(u.currency || 'XOF'),
+      country:         u.country         || 'SN',
+      language:        u.language        || 'fr',
+      tax_rate:        u.tax_rate        || 0,
+    };
     saveSession({ ...S.session, token: S.token });
     S.authEmail = S.authPwd = '';
     S.view = 'home';
@@ -265,22 +291,86 @@ async function doLogin() {
   }
 }
 
+function authNextStep() {
+  const name  = S.authName.trim();
+  const email = S.authEmail.trim();
+  const pwd   = S.authPwd;
+  const pwd2  = S.authPwd2;
+  if (!name || !email || !pwd) { showToast('Remplis tous les champs obligatoires', 'error'); return; }
+  if (pwd !== pwd2)            { showToast('Les mots de passe ne correspondent pas', 'error'); return; }
+  if (pwd.length < 6)          { showToast('Mot de passe trop court (min. 6 caractères)', 'error'); return; }
+  S.authStep = 2;
+  render();
+}
+
+const CURRENCIES = [
+  { code:'XOF', label:'Franc CFA (FCFA)', symbol:'FCFA' },
+  { code:'EUR', label:'Euro (€)',          symbol:'€'    },
+  { code:'USD', label:'Dollar ($)',        symbol:'$'    },
+  { code:'MAD', label:'Dirham (DH)',       symbol:'DH'   },
+  { code:'GBP', label:'Livre sterling (£)',symbol:'£'    },
+  { code:'NGN', label:'Naira (₦)',         symbol:'₦'    },
+  { code:'GHS', label:'Cedi (₵)',          symbol:'₵'    },
+  { code:'XAF', label:'Franc CFA Centrafrique', symbol:'FCFA' },
+];
+
+const COUNTRIES = [
+  { code:'SN', label:'Sénégal'      },
+  { code:'CI', label:"Côte d'Ivoire"},
+  { code:'ML', label:'Mali'         },
+  { code:'BF', label:'Burkina Faso' },
+  { code:'GN', label:'Guinée'       },
+  { code:'BJ', label:'Bénin'        },
+  { code:'TG', label:'Togo'         },
+  { code:'CM', label:'Cameroun'     },
+  { code:'CD', label:'RD Congo'     },
+  { code:'MG', label:'Madagascar'   },
+  { code:'MA', label:'Maroc'        },
+  { code:'DZ', label:'Algérie'      },
+  { code:'TN', label:'Tunisie'      },
+  { code:'FR', label:'France'       },
+  { code:'BE', label:'Belgique'     },
+  { code:'CH', label:'Suisse'       },
+  { code:'CA', label:'Canada'       },
+  { code:'US', label:'États-Unis'   },
+  { code:'GB', label:'Royaume-Uni'  },
+];
+
+function getCurrencySymbol(code) {
+  return CURRENCIES.find(c => c.code === code)?.symbol || code;
+}
+
 async function doRegister() {
   const name     = S.authName.trim();
   const business = (S.authBiz || '').trim();
   const email    = S.authEmail.trim();
   const pwd      = S.authPwd;
-  const pwd2     = S.authPwd2;
-  if (!name || !email || !pwd) { showToast('Remplis tous les champs obligatoires', 'error'); return; }
-  if (pwd !== pwd2)            { showToast('Les mots de passe ne correspondent pas', 'error'); return; }
-  if (pwd.length < 6)          { showToast('Mot de passe trop court (min. 6 caractères)', 'error'); return; }
   try {
-    const data = await api('POST', '/api/auth/register', { email, password: pwd, name, business_name: business || name });
+    const data = await api('POST', '/api/auth/register', {
+      email,
+      password:      pwd,
+      name,
+      business_name: business || name,
+      country:       S.authCountry,
+      language:      S.authLang,
+      currency:      S.authCurrency,
+      profile:       S.authProfile,
+      tax_rate:      parseFloat(S.authTax) || 0,
+    });
     const u = data.user;
     S.token   = u.auth_token;
-    S.session = { id: u.id, name: u.name, email: u.email, business: u.business_name };
+    S.session = {
+      id: u.id, name: u.name, email: u.email, business: u.business_name,
+      profile:         S.authProfile,
+      currency:        S.authCurrency,
+      currency_symbol: getCurrencySymbol(S.authCurrency),
+      country:         S.authCountry,
+      language:        S.authLang,
+      tax_rate:        parseFloat(S.authTax) || 0,
+    };
     saveSession({ ...S.session, token: S.token });
     S.authEmail = S.authPwd = S.authPwd2 = S.authName = S.authBiz = '';
+    S.authStep = 1;
     S.view = 'home';
     showToast(`Bienvenue, ${name} !`);
     render();
@@ -606,6 +696,7 @@ function render() {
     sales: vSales, financial: vFinancial,
     detail: vDetail, add: vAdd, 'add-product': vAddProduct,
     'edit-product': vEditProduct, settings: vSettings,
+    spectra: vSpectra,
   };
   viewEl.innerHTML = (map[S.view] || vHome)();
   viewEl.scrollTop = 0;
@@ -622,6 +713,7 @@ function renderNav() {
     { id:'products',  icon:IC.tag,    label:'Produits' },
     { id:'sales',     icon:IC.dollar, label:'Ventes'   },
     { id:'financial', icon:IC.bar,    label:'Bilan'    },
+    { id:'spectra',   icon:IC.camera, label:'Spectra'  },
   ];
   return tabs.map(t => `
     <button class="nav-tab ${S.view===t.id?'active':''}" onclick="nav('${t.id}')">
@@ -633,15 +725,14 @@ function renderNav() {
 // ── AUTH ──────────────────────────────────────
 function vAuth() {
   const isLogin = S.authView === 'login';
+  if (!isLogin && S.authStep === 2) return vAuthStep2();
+
   return `
   <div class="auth-wrap">
     <div class="auth-card">
-      <div class="auth-logo">
-        ${IC.box}
-        <span>STOCKR</span>
-      </div>
+      <div class="auth-logo">${IC.box}<span>STOCKR</span></div>
       <div class="auth-title">${isLogin ? 'Connexion' : 'Créer un compte'}</div>
-      <div class="auth-sub">${isLogin ? 'Accède à ton espace de gestion' : 'Crée ton espace de gestion'}</div>
+      <div class="auth-sub">${isLogin ? 'Accède à ton espace' : 'Étape 1 sur 2 — Tes informations'}</div>
 
       ${!isLogin ? `
       <div class="form-group">
@@ -657,7 +748,6 @@ function vAuth() {
         <label class="form-label">Email *</label>
         <input class="input" id="auth-email" type="email" placeholder="ton@email.com" autocomplete="email" value="${S.authEmail}" oninput="S.authEmail=this.value">
       </div>
-
       <div class="form-group">
         <label class="form-label">Mot de passe *</label>
         <div class="pwd-wrap">
@@ -665,7 +755,6 @@ function vAuth() {
           <button class="pwd-eye" onclick="toggleAuthPwd(event)" type="button">${S.authShowPwd?IC.eyeOff:IC.eye}</button>
         </div>
       </div>
-
       ${!isLogin ? `
       <div class="form-group">
         <label class="form-label">Confirmer le mot de passe *</label>
@@ -674,16 +763,88 @@ function vAuth() {
         </div>
       </div>` : ''}
 
-      <button class="btn btn-primary" style="margin-top:8px" onclick="${isLogin?'doLogin()':'doRegister()'}">
-        ${isLogin ? 'Se connecter' : 'Créer mon compte'}
+      <button class="btn btn-primary" style="margin-top:8px" onclick="${isLogin ? 'doLogin()' : 'authNextStep()'}">
+        ${isLogin ? 'Se connecter' : 'Continuer →'}
       </button>
-
       <div class="auth-switch">
-        ${isLogin ? `Pas encore de compte ?` : `Déjà un compte ?`}
-        <button onclick="S.authView='${isLogin?'register':'login'}';S.authShowPwd=false;render()">
-          ${isLogin ? 'S\'inscrire' : 'Se connecter'}
+        ${isLogin ? 'Pas encore de compte ?' : 'Déjà un compte ?'}
+        <button onclick="S.authView='${isLogin?'register':'login'}';S.authStep=1;S.authShowPwd=false;render()">
+          ${isLogin ? "S'inscrire" : 'Se connecter'}
         </button>
       </div>
+    </div>
+  </div>`;
+}
+
+function vAuthStep2() {
+  const profiles = [
+    {
+      id: 'transformer',
+      icon: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`,
+      label: 'Transformateur',
+      desc:  'Tu fabriques des produits à partir de matières premières (boulanger, couturier, restaurateur…)',
+    },
+    {
+      id: 'reseller',
+      icon: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>`,
+      label: 'Revendeur',
+      desc:  'Tu achètes des produits et les revends — à l\'unité, en pack ou en gros (épicier, boutique, import/export…)',
+    },
+  ];
+
+  return `
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <button class="back-btn" style="margin-bottom:12px" onclick="S.authStep=1;render()">${IC.left}</button>
+      <div class="auth-title">Ton profil</div>
+      <div class="auth-sub">Étape 2 sur 2 — Ces paramètres sont modifiables plus tard</div>
+
+      <div class="form-group" style="margin-top:16px">
+        <label class="form-label">Type de commerce *</label>
+        <div class="profile-cards">
+          ${profiles.map(p => `
+          <div class="profile-card ${S.authProfile===p.id?'selected':''}" onclick="S.authProfile='${p.id}';render()">
+            <div class="profile-card-icon">${p.icon}</div>
+            <div class="profile-card-label">${p.label}</div>
+            <div class="profile-card-desc">${p.desc}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Pays</label>
+        <select class="input" onchange="S.authCountry=this.value">
+          ${COUNTRIES.map(c => `<option value="${c.code}" ${S.authCountry===c.code?'selected':''}>${c.label}</option>`).join('')}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Devise</label>
+        <select class="input" onchange="S.authCurrency=this.value">
+          ${CURRENCIES.map(c => `<option value="${c.code}" ${S.authCurrency===c.code?'selected':''}>${c.label}</option>`).join('')}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Langue</label>
+        <select class="input" onchange="S.authLang=this.value">
+          <option value="fr" ${S.authLang==='fr'?'selected':''}>Français</option>
+          <option value="en" ${S.authLang==='en'?'selected':''}>English</option>
+          <option value="ar" ${S.authLang==='ar'?'selected':''}>العربية</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Taux de TVA (%)</label>
+        <input class="input" type="number" min="0" max="100" step="0.5"
+               placeholder="ex: 18" value="${S.authTax||''}"
+               oninput="S.authTax=this.value">
+        <div class="form-hint">Utilisé pour le calcul des factures. 0 si non applicable.</div>
+      </div>
+
+      <button class="btn btn-primary" style="margin-top:8px" onclick="doRegister()">
+        Créer mon compte
+      </button>
     </div>
   </div>`;
 }
@@ -1298,6 +1459,217 @@ function vEditProduct() {
   </div>`;
 }
 
+// ── SPECTRA ───────────────────────────────────
+function vSpectra() {
+  const sp = S.spectra;
+
+  // ── Étape : caméra ──
+  if (sp.step === 'camera') return `
+  <div class="spectra-wrap">
+    <button class="back-btn" onclick="nav('home')" style="align-self:flex-start;margin-bottom:8px">${IC.left}</button>
+    <div class="spectra-hero">
+      <div class="spectra-logo">${IC.cameraLg}</div>
+      <div class="spectra-title">Spectra</div>
+      <div class="spectra-sub">Prends une photo de ton stock.<br>L'IA identifie et comptabilise tout.</div>
+    </div>
+    <label class="btn btn-primary spectra-capture-btn" for="spectra-file">
+      ${IC.camera} &nbsp; Scanner le stock
+    </label>
+    <input id="spectra-file" type="file" accept="image/*" capture="environment"
+           style="display:none" onchange="spectraOnFile(this)">
+    <div class="spectra-hint">L'image ne quitte jamais ton appareil — seule l'analyse est envoyée.</div>
+  </div>`;
+
+  // ── Étape : chargement ──
+  if (sp.step === 'loading') return `
+  <div class="spectra-wrap spectra-center">
+    <div class="spectra-spinner"></div>
+    <div class="spectra-loading-title">Spectra analyse…</div>
+    <div class="spectra-sub">Le modèle YOLOv8 est en train de traiter l'image.</div>
+  </div>`;
+
+  // ── Étape : confirmation ──
+  if (sp.step === 'confirm') {
+    const item = sp.queue[sp.current];
+    if (!item) { spectraFinish(); return ''; }
+    const progress = `${sp.current + 1} / ${sp.queue.length}`;
+    const label = item.matched_name || item.detected_name;
+
+    return `
+  <div class="spectra-wrap">
+    <div class="spectra-progress-bar">
+      <div class="spectra-progress-fill" style="width:${((sp.current)/sp.queue.length)*100}%"></div>
+    </div>
+
+    <div class="spectra-confirm-card">
+      <div class="spectra-conf-badge">${progress}</div>
+      <div class="spectra-conf-icon">${IC.cameraLg}</div>
+      <div class="spectra-conf-label">Article détecté</div>
+      <div class="spectra-conf-name">${label}</div>
+      <div class="spectra-conf-meta">
+        <span class="spectra-pill">×${item.quantity}</span>
+        <span class="spectra-pill">${item.confidence}% confiance</span>
+        ${item.matched_name ? `<span class="spectra-pill spectra-pill-match">En base</span>` : `<span class="spectra-pill spectra-pill-new">Nouvel article</span>`}
+      </div>
+      <div class="spectra-conf-question">C'est bien ça ?</div>
+
+      ${sp.naming ? `
+        <div class="spectra-name-input-wrap">
+          <input id="spectra-name-input" class="spectra-name-input" type="text"
+                 placeholder="Nom de l'article…" autocomplete="off">
+          <button class="btn btn-primary" style="margin-top:10px;width:100%" onclick="spectraSubmitName()">
+            Confirmer
+          </button>
+        </div>
+      ` : `
+        <div class="spectra-conf-actions">
+          <button class="btn spectra-btn-yes" onclick="spectraConfirmYes()">
+            ${IC.check}&nbsp; Oui, c'est ça
+          </button>
+          <button class="btn spectra-btn-no" onclick="spectraConfirmNo()">
+            ${IC.xmark}&nbsp; Non
+          </button>
+        </div>
+      `}
+    </div>
+  </div>`;
+  }
+
+  // ── Étape : terminé ──
+  if (sp.step === 'done') {
+    const total = sp.results.length;
+    return `
+  <div class="spectra-wrap spectra-center">
+    <div class="spectra-done-icon">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="spectra-loading-title">Stock mis à jour !</div>
+    <div class="spectra-sub">${total} article${total !== 1 ? 's' : ''} ajouté${total !== 1 ? 's' : ''} au stock.</div>
+    <div class="spectra-results">
+      ${sp.results.map(r => `
+        <div class="spectra-result-row">
+          <span class="spectra-result-name">${r.name}</span>
+          <span class="spectra-result-qty">+${r.new_qty} ${r.unit}</span>
+          <span class="spectra-result-action">${r.action === 'created' ? 'Créé' : 'Mis à jour'}</span>
+        </div>
+      `).join('')}
+    </div>
+    <button class="btn btn-primary" style="margin-top:24px" onclick="spectraReset();nav('pantry')">
+      Voir le stock
+    </button>
+    <button class="btn" style="margin-top:10px" onclick="spectraReset()">
+      Scanner à nouveau
+    </button>
+  </div>`;
+  }
+
+  return '';
+}
+
+// ── Spectra : logique ──────────────────────────
+
+async function spectraOnFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  // Convertir en base64
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    S.spectra.step = 'loading';
+    render();
+
+    try {
+      const data = await api('POST', '/api/spectra/scan', { image: e.target.result });
+      if (!data.detections || data.detections.length === 0) {
+        showToast('Aucun article détecté — réessaie avec une meilleure photo', 'error');
+        S.spectra.step = 'camera';
+        render();
+        return;
+      }
+      S.spectra.queue   = data.detections;
+      S.spectra.current = 0;
+      S.spectra.confirmed = [];
+      S.spectra.naming  = false;
+      S.spectra.step    = 'confirm';
+      render();
+    } catch (err) {
+      showToast(err.message || 'Erreur Spectra', 'error');
+      S.spectra.step = 'camera';
+      render();
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function spectraConfirmYes() {
+  const item = S.spectra.queue[S.spectra.current];
+  S.spectra.confirmed.push({
+    article_id: item.matched_id || null,
+    name:       item.matched_name || item.detected_name,
+    quantity:   item.quantity,
+    unit:       item.matched_unit || 'pce',
+  });
+  spectraNext();
+}
+
+function spectraConfirmNo() {
+  S.spectra.naming = true;
+  render();
+  setTimeout(() => document.getElementById('spectra-name-input')?.focus(), 80);
+}
+
+function spectraSubmitName() {
+  const input = document.getElementById('spectra-name-input');
+  const name = input?.value?.trim();
+  if (!name) { showToast('Saisis un nom', 'error'); return; }
+
+  const item = S.spectra.queue[S.spectra.current];
+  S.spectra.confirmed.push({
+    article_id: null,
+    name:       name,
+    quantity:   item.quantity,
+    unit:       item.matched_unit || 'pce',
+  });
+  S.spectra.naming = false;
+  spectraNext();
+}
+
+function spectraNext() {
+  S.spectra.current++;
+  S.spectra.naming = false;
+  if (S.spectra.current >= S.spectra.queue.length) {
+    spectraFinish();
+  } else {
+    render();
+  }
+}
+
+async function spectraFinish() {
+  S.spectra.step = 'loading';
+  render();
+
+  try {
+    const data = await api('POST', '/api/spectra/confirm', { items: S.spectra.confirmed });
+    S.spectra.results = data.results || [];
+    S.spectra.step    = 'done';
+    // Mettre à jour les articles locaux
+    await loadData();
+    render();
+  } catch (err) {
+    showToast(err.message || 'Erreur lors de la sauvegarde', 'error');
+    S.spectra.step = 'confirm';
+    render();
+  }
+}
+
+function spectraReset() {
+  S.spectra = {
+    step: 'camera', queue: [], current: 0,
+    confirmed: [], naming: false, results: [],
+  };
+  render();
+}
+
 // ── SETTINGS ──────────────────────────────────
 function vSettings() {
   return `
@@ -1433,9 +1805,15 @@ document.addEventListener('DOMContentLoaded', () => {
   window.selectUnit      = selectUnit;
   window.selectUnitCond  = selectUnitCond;
   window.saveAccountInfo = saveAccountInfo;
-  window.toggleDark    = toggleDark;
-  window.doLogin       = doLogin;
-  window.doRegister    = doRegister;
+  window.toggleDark      = toggleDark;
+  window.doLogin         = doLogin;
+  window.doRegister      = doRegister;
+  window.authNextStep    = authNextStep;
+  window.spectraOnFile   = spectraOnFile;
+  window.spectraConfirmYes = spectraConfirmYes;
+  window.spectraConfirmNo  = spectraConfirmNo;
+  window.spectraSubmitName = spectraSubmitName;
+  window.spectraReset    = spectraReset;
   window.doLogout      = doLogout;
   window.showToast     = showToast;
   window.loadData      = loadData;
