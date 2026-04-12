@@ -386,14 +386,14 @@ function _localApi(method, path, body) {
   // ── Products ──
   if (path === '/api/products/' && method === 'GET') return d.products.map(p => ({ ...p, composition: (p.composition||[]).map(c => ({ article: d.articles.find(a=>a.id===c.article_id)||{id:c.article_id,name:'?',unit:'pcs'}, quantity_used: c.quantity_used })) }));
   if (path === '/api/products/' && method === 'POST') {
-    const p = { id: Date.now(), name: body.name, price: body.price || 0, composition: body.composition || [] };
+    const p = { id: Date.now(), name: body.name, price: body.price || 0, purchase_price: body.purchase_price || 0, composition: body.composition || [] };
     d.products.push(p); _lsSaveData(_uid(), d);
     return { ...p, composition: p.composition.map(c => ({ article: d.articles.find(a=>a.id===c.article_id)||{id:c.article_id,name:'?',unit:'pcs'}, quantity_used: c.quantity_used })) };
   }
   const prodId = path.match(/\/api\/products\/(\d+)/)?.[1];
   if (prodId && method === 'PUT') {
     const p = d.products.find(p => p.id === parseInt(prodId));
-    if (p) { p.name = body.name || p.name; p.price = body.price ?? p.price; p.composition = body.composition || p.composition; _lsSaveData(_uid(), d); }
+    if (p) { p.name = body.name || p.name; p.price = body.price ?? p.price; p.purchase_price = body.purchase_price ?? p.purchase_price ?? 0; p.composition = body.composition || p.composition; _lsSaveData(_uid(), d); }
     return { ...p, composition: (p.composition||[]).map(c => ({ article: d.articles.find(a=>a.id===c.article_id)||{id:c.article_id,name:'?',unit:'pcs'}, quantity_used: c.quantity_used })) };
   }
   if (prodId && method === 'DELETE') {
@@ -457,13 +457,21 @@ function articleFromAPI(a) {
 }
 function productFromAPI(p) {
   return {
-    id: p.id, name: p.name, price: p.price,
+    id: p.id, name: p.name, price: p.price, purchasePrice: p.purchase_price || 0,
     composition: (p.composition || []).map(c => ({ id: c.article.id, qty: c.quantity_used }))
   };
 }
+function marginPct(p) {
+  return p.price > 0 ? Math.round(((p.price - p.purchasePrice) / p.price) * 100) : 0;
+}
+function profitUnit(p) {
+  return p.price - p.purchasePrice;
+}
 function saleFromAPI(s) {
   const product = S.products.find(p => p.id === s.product_id);
-  return { id: s.id, productId: s.product_id, productName: s.product_name, qty: s.quantity, total: (product ? product.price : 0) * s.quantity, date: s.timestamp };
+  const price = product ? product.price : 0;
+  const cost  = product ? product.purchasePrice : 0;
+  return { id: s.id, productId: s.product_id, productName: s.product_name, qty: s.quantity, total: price * s.quantity, profit: (price - cost) * s.quantity, date: s.timestamp };
 }
 
 // ── Charger données depuis l'API ──────────────
@@ -775,9 +783,11 @@ async function saveProduct() {
     }
   });
   try {
+    const costEl = $('prod-cost');
     const data = await api('POST', '/api/products/', {
-      name:        nameEl.value.trim(),
-      price:       parseFloat(priceEl?.value) || 0,
+      name:           nameEl.value.trim(),
+      purchase_price: parseFloat(costEl?.value) || 0,
+      price:          parseFloat(priceEl?.value) || 0,
       composition
     });
     S.products.push(productFromAPI(data));
@@ -786,6 +796,23 @@ async function saveProduct() {
     nav('products');
   } catch(e) {
     showToast(e.message, 'error');
+  }
+}
+
+function updateMarginPreview() {
+  const cost = parseFloat($('prod-cost')?.value) || 0;
+  const price = parseFloat($('prod-price')?.value) || 0;
+  const box = document.getElementById('margin-preview');
+  const val = document.getElementById('margin-val');
+  if (!box || !val) return;
+  if (price > 0) {
+    const pct = Math.round(((price - cost) / price) * 100);
+    const profit = price - cost;
+    val.innerHTML = `${pct}% · bénéfice ${fmt(profit)} FCFA/unité`;
+    val.style.color = pct >= 20 ? 'var(--success)' : pct >= 0 ? 'var(--warning)' : 'var(--danger)';
+    box.style.display = '';
+  } else {
+    box.style.display = 'none';
   }
 }
 
@@ -827,13 +854,16 @@ async function saveEditProduct() {
     }
   });
   try {
+    const costEl = $('prod-cost');
     const data = await api('PUT', `/api/products/${p.id}`, {
-      name:  nameEl.value.trim(),
-      price: parseFloat(priceEl?.value) || 0,
+      name:           nameEl.value.trim(),
+      purchase_price: parseFloat(costEl?.value) || 0,
+      price:          parseFloat(priceEl?.value) || 0,
       composition,
     });
     p.name  = data.name;
     p.price = data.price;
+    p.purchasePrice = data.purchase_price || 0;
     p.composition = (data.composition || []).map(c => ({ id: c.article.id, qty: c.quantity_used }));
     recalcAllMins();
     showToast(`"${p.name}" mis à jour`);
@@ -866,7 +896,7 @@ function addToCart() {
   const qty = Math.max(1, parseInt(qtyEl?.value) || 1);
   const existing = S.cart.find(c => c.productId === product.id);
   if (existing) { existing.qty += qty; }
-  else { S.cart.push({ productId:product.id, productName:product.name, qty, unitPrice:product.price }); }
+  else { S.cart.push({ productId:product.id, productName:product.name, qty, unitPrice:product.price, unitCost:product.purchasePrice }); }
   showToast(`${product.name} ajouté au panier`);
   render();
 }
@@ -884,9 +914,10 @@ async function confirmCart() {
       const data = await api('POST', '/api/sales/', { product_id: item.productId, quantity: item.qty });
       const product = S.products.find(p => p.id === item.productId);
       const lineTotal = (product?.price || 0) * item.qty;
+      const lineProfit = ((product?.price || 0) - (product?.purchasePrice || 0)) * item.qty;
       total += lineTotal;
       count += item.qty;
-      const newSale = { id: data.sale.id, productId: data.sale.product_id, productName: data.sale.product_name, qty: data.sale.quantity, total: lineTotal, date: data.sale.timestamp };
+      const newSale = { id: data.sale.id, productId: data.sale.product_id, productName: data.sale.product_name, qty: data.sale.quantity, total: lineTotal, profit: lineProfit, date: data.sale.timestamp };
       S.sales.unshift(newSale);
       newSales.push(newSale);
     }
@@ -1179,6 +1210,7 @@ function vHome() {
   const totalCA = S.sales.reduce((s,v) => s+v.total, 0);
   const today   = new Date().toDateString();
   const todayCA = S.sales.filter(s => new Date(s.date).toDateString()===today).reduce((s,v)=>s+v.total,0);
+  const todayProfit = S.sales.filter(s => new Date(s.date).toDateString()===today).reduce((s,v)=>s+(v.profit||0),0);
 
   return `
   <div class="hero anim">
@@ -1201,6 +1233,10 @@ function vHome() {
       <div class="hero-stat">
         <div class="hero-stat-val">${fmt(todayCA)}</div>
         <div class="hero-stat-lbl">CA Auj.</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val" style="color:#34d399">${fmt(todayProfit)}</div>
+        <div class="hero-stat-lbl">Bénéf. Auj.</div>
       </div>
     </div>
   </div>
@@ -1366,7 +1402,8 @@ function vProducts() {
           <div class="article-avatar">${initials(p.name)}</div>
           <div class="article-info">
             <div class="article-name">${p.name}</div>
-            <div class="article-meta" style="font-weight:700;color:var(--text-2)">${fmt(p.price)} FCFA</div>
+            <div class="article-meta" style="font-weight:700;color:var(--text-2)">${fmt(p.price)} FCFA${p.purchasePrice > 0 ? ` <span style="font-size:11px;font-weight:600;color:${marginPct(p)>=20?'var(--success)':marginPct(p)>=0?'var(--warning)':'var(--danger)'};margin-left:6px">${marginPct(p)}% marge</span>` : ''}</div>
+            ${p.purchasePrice > 0 ? `<div class="article-meta" style="margin-top:1px;font-size:11px;color:var(--text-3)">Coût: ${fmt(p.purchasePrice)} · Bénéf: ${fmt(profitUnit(p))} FCFA/u</div>` : ''}
             ${recipeNames ? `<div class="article-meta" style="margin-top:2px;color:var(--text-3)">${recipeNames}</div>` : ''}
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
@@ -1453,7 +1490,7 @@ function vSales() {
       </div>
       <div class="sale-right">
         <div class="sale-total">${fmt(s.total)} ${S.session?.currency_symbol||'FCFA'}</div>
-        <div class="sale-qty">×${s.qty}</div>
+        <div class="sale-qty">×${s.qty}${s.profit ? ` · <span style="color:var(--success)">+${fmt(s.profit)}</span>` : ''}</div>
       </div>
       <div class="sale-actions">
         <button class="sale-act-btn" title="Facture PDF" onclick="generateInvoicePDF(window['${sid}'])">${IC.pdf}</button>
@@ -1467,14 +1504,17 @@ function vSales() {
 function vFinancial() {
   const filtered = salesForPeriod();
   const totalCA  = filtered.reduce((s,v)=>s+v.total,0);
+  const totalProfit = filtered.reduce((s,v)=>s+(v.profit||0),0);
+  const avgMargin = totalCA > 0 ? Math.round((totalProfit / totalCA) * 100) : 0;
   const avg      = filtered.length ? Math.round(totalCA/filtered.length) : 0;
   const stockVal = S.articles.reduce((s,a)=>s+a.stock*(a.price||0),0);
 
   const stats = {};
   filtered.forEach(s => {
-    if (!stats[s.productName]) stats[s.productName]={qty:0,rev:0};
+    if (!stats[s.productName]) stats[s.productName]={qty:0,rev:0,profit:0};
     stats[s.productName].qty += s.qty;
     stats[s.productName].rev += s.total;
+    stats[s.productName].profit += (s.profit||0);
   });
   const top    = Object.entries(stats).sort((a,b)=>b[1].rev-a[1].rev).slice(0,5);
   const recos  = S.articles
@@ -1509,12 +1549,12 @@ function vFinancial() {
     </div>
     <div class="metric-grid">
       <div class="metric-card"><div class="metric-val">${fmt(totalCA)}</div><div class="metric-lbl">CA</div></div>
-      <div class="metric-card"><div class="metric-val">${filtered.length}</div><div class="metric-lbl">Ventes</div></div>
-      <div class="metric-card"><div class="metric-val">${fmt(avg)}</div><div class="metric-lbl">Ticket moy.</div></div>
+      <div class="metric-card"><div class="metric-val" style="color:var(--success)">${fmt(totalProfit)}</div><div class="metric-lbl">Bénéfice</div></div>
+      <div class="metric-card"><div class="metric-val" style="color:${avgMargin>=20?'var(--success)':avgMargin>=0?'var(--warning)':'var(--danger)'}">${avgMargin}%</div><div class="metric-lbl">Marge moy.</div></div>
     </div>
     <div class="metric-grid">
-      <div class="metric-card"><div class="metric-val">${S.articles.length}</div><div class="metric-lbl">Articles</div></div>
-      <div class="metric-card"><div class="metric-val">${S.articles.filter(a=>a.stock<a.min&&a.min>0).length}</div><div class="metric-lbl">Alertes</div></div>
+      <div class="metric-card"><div class="metric-val">${filtered.length}</div><div class="metric-lbl">Ventes</div></div>
+      <div class="metric-card"><div class="metric-val">${fmt(avg)}</div><div class="metric-lbl">Ticket moy.</div></div>
       <div class="metric-card"><div class="metric-val">${fmt(stockVal)}</div><div class="metric-lbl">Val. stock</div></div>
     </div>
     <div class="card">
@@ -1524,7 +1564,7 @@ function vFinancial() {
         : top.map(([name,d],i)=>`
           <div class="rank-item">
             <div class="rank-num ${i===0?'r1':''}">${i+1}</div>
-            <div class="rank-name">${name}</div>
+            <div class="rank-name">${name}${d.profit>0?`<div style="font-size:11px;color:var(--success);font-weight:400">+${fmt(d.profit)} bénéf.</div>`:''}</div>
             <div class="rank-rev">${fmt(d.rev)} FCFA</div>
           </div>`).join('')}
     </div>
@@ -1723,9 +1763,18 @@ function vAddProduct() {
         <label class="form-label">Nom du produit *</label>
         <input class="input" id="prod-name" type="text" placeholder="ex: Boubou, Robe, Jupe…">
       </div>
-      <div class="form-group">
-        <label class="form-label">Prix de vente (FCFA)</label>
-        <input class="input" id="prod-price" type="number" placeholder="0" step="100">
+      <div style="display:flex;gap:10px">
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Prix d'achat (FCFA)</label>
+          <input class="input" id="prod-cost" type="number" placeholder="0" step="100" oninput="updateMarginPreview()">
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Prix de vente (FCFA)</label>
+          <input class="input" id="prod-price" type="number" placeholder="0" step="100" oninput="updateMarginPreview()">
+        </div>
+      </div>
+      <div id="margin-preview" style="background:var(--gray-1);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 12px;font-size:13px;color:var(--text-3);margin-bottom:14px;display:none">
+        Marge : <strong id="margin-val">—</strong>
       </div>
       ${S.articles.length>0 ? `
       <div class="form-group">
@@ -1768,9 +1817,18 @@ function vEditProduct() {
         <label class="form-label">Nom du produit *</label>
         <input class="input" id="prod-name" type="text" value="${p.name.replace(/"/g,'&quot;')}">
       </div>
-      <div class="form-group">
-        <label class="form-label">Prix de vente (FCFA)</label>
-        <input class="input" id="prod-price" type="number" placeholder="0" step="100" value="${p.price}">
+      <div style="display:flex;gap:10px">
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Prix d'achat (FCFA)</label>
+          <input class="input" id="prod-cost" type="number" placeholder="0" step="100" value="${p.purchasePrice || ''}">
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label">Prix de vente (FCFA)</label>
+          <input class="input" id="prod-price" type="number" placeholder="0" step="100" value="${p.price}">
+        </div>
+      </div>
+      <div id="margin-preview" style="background:var(--gray-1);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 12px;font-size:13px;color:var(--text-3);margin-bottom:14px;${p.price > 0 ? '' : 'display:none'}">
+        Marge : <strong id="margin-val">${p.price > 0 ? Math.round(((p.price - (p.purchasePrice||0)) / p.price) * 100) + '%' : '—'}</strong>
       </div>
       ${S.articles.length > 0 ? `
       <div class="form-group">
@@ -2221,6 +2279,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.generateInvoicePDF  = generateInvoicePDF;
   window.shareViaWhatsApp    = shareViaWhatsApp;
   window.showReceiptBanner   = showReceiptBanner;
+  window.updateMarginPreview = updateMarginPreview;
 
   // Restaurer la session + token si existants
   const saved = getSession();
