@@ -35,6 +35,8 @@ const IC = {
   trash:    `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`,
   eye:      `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
   eyeOff:   `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`,
+  whatsapp: `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`,
+  pdf:      `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`,
   camera:   `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
   cameraLg: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
   logo:     `<svg width="22" height="22" viewBox="0 0 576 512" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18zM288 102.2l52.8 107.5c4.6 9.3 13.4 15.8 23.7 17.3l118.1 17.2-85.5 83.5c-7.4 7.2-10.8 17.6-9 27.8L411 473.1l-105.6-56.3c-9.3-5-20.4-5-29.7 0L170.1 473.1l20.2-117.6c1.8-10.2-1.6-20.6-9-27.8L95.8 244.2l118.1-17.2c10.3-1.5 19.1-8 23.7-17.3L288 102.2zm195.2-61.7c-5.6-11.2-16.9-18.5-29.5-18.5s-23.9 7.2-29.5 18.5l-21.8 44.4-48.8 7.1c-12.1 1.8-22.2 10.2-25.9 21.8s-.7 24.4 7.9 32.9l35.4 34.5-8.3 48.8c-2.1 12.1 3 24.4 13 31.6s23.2 8.1 34.1 2.3l43.8-23 43.8 23c10.9 5.7 24.1 4.9 34.1-2.3s15.1-19.5 13-31.6l-8.4-48.8 35.4-34.5c8.6-8.5 11.7-21.4 7.9-32.9s-13.8-20-25.9-21.8l-48.8-7.1-21.5-44.3z"/></svg>`,
@@ -92,6 +94,111 @@ function fmtQty(n) {
 
 // ── API base ──────────────────────────────────
 const API_BASE = 'http://localhost:5001';
+
+// ── Facture & WhatsApp ────────────────────────
+function _invNum(id) { return 'INV-' + String(id).slice(-6).toUpperCase(); }
+
+function generateInvoicePDF(sales) {
+  if (!Array.isArray(sales)) sales = [sales];
+  if (typeof window.jspdf === 'undefined') { showToast('PDF non disponible (hors-ligne)', 'error'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const sym  = S.session?.currency_symbol || 'FCFA';
+  const biz  = S.session?.business || S.session?.name || 'Mon Commerce';
+  const invId = _invNum(sales[0].id);
+  const date  = new Date(sales[0].date).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
+
+  // ── Header indigo ──
+  doc.setFillColor(79, 70, 229);
+  doc.rect(0, 0, 210, 42, 'F');
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(26); doc.setFont('helvetica', 'bold');
+  doc.text('STOCKR', 16, 18);
+  doc.setFontSize(10); doc.setFont('helvetica', 'normal');
+  doc.text(biz, 16, 27);
+  doc.setFontSize(9);
+  doc.text('Gestion de stock intelligente', 16, 34);
+
+  doc.setFontSize(18); doc.setFont('helvetica', 'bold');
+  doc.text('FACTURE', 195, 18, { align: 'right' });
+  doc.setFontSize(10); doc.setFont('helvetica', 'normal');
+  doc.text('N° ' + invId, 195, 27, { align: 'right' });
+  doc.text('Date : ' + date, 195, 34, { align: 'right' });
+
+  // ── Ligne séparatrice ──
+  doc.setDrawColor(229, 231, 235);
+  doc.line(16, 52, 194, 52);
+
+  // ── En-tête tableau ──
+  doc.setFillColor(238, 242, 255);
+  doc.roundedRect(16, 56, 178, 8, 1, 1, 'F');
+  doc.setTextColor(79, 70, 229); doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+  doc.text('DÉSIGNATION', 20, 61.5);
+  doc.text('QTÉ',   130, 61.5, { align: 'center' });
+  doc.text('PRIX U.', 158, 61.5, { align: 'right' });
+  doc.text('TOTAL',   192, 61.5, { align: 'right' });
+
+  // ── Lignes produits ──
+  let y = 72; let grandTotal = 0;
+  doc.setTextColor(30, 30, 30); doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
+  sales.forEach((s, i) => {
+    const unitPrice = s.qty > 0 ? Math.round(s.total / s.qty) : 0;
+    grandTotal += s.total;
+    if (i % 2 === 1) { doc.setFillColor(249, 250, 251); doc.rect(16, y - 5, 178, 8, 'F'); }
+    doc.text(s.productName, 20, y);
+    doc.text(String(s.qty), 130, y, { align: 'center' });
+    doc.text(fmt(unitPrice) + ' ' + sym, 158, y, { align: 'right' });
+    doc.setFont('helvetica', 'bold');
+    doc.text(fmt(s.total) + ' ' + sym, 192, y, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    y += 10;
+  });
+
+  // ── Total ──
+  doc.setDrawColor(229, 231, 235); doc.line(16, y, 194, y); y += 8;
+  const taxRate = parseFloat(S.session?.tax_rate) || 0;
+  if (taxRate > 0) {
+    const tva = Math.round(grandTotal * taxRate / 100);
+    doc.setFontSize(9); doc.setTextColor(100, 100, 100);
+    doc.text('Sous-total HT', 140, y, { align: 'right' });
+    doc.text(fmt(grandTotal) + ' ' + sym, 192, y, { align: 'right' }); y += 7;
+    doc.text(`TVA (${taxRate}%)`, 140, y, { align: 'right' });
+    doc.text(fmt(tva) + ' ' + sym, 192, y, { align: 'right' }); y += 7;
+    grandTotal += tva;
+  }
+  doc.setFillColor(79, 70, 229);
+  doc.roundedRect(120, y - 1, 74, 10, 1, 1, 'F');
+  doc.setTextColor(255, 255, 255); doc.setFontSize(10); doc.setFont('helvetica', 'bold');
+  doc.text('TOTAL TTC', 140, y + 6, { align: 'right' });
+  doc.text(fmt(grandTotal) + ' ' + sym, 192, y + 6, { align: 'right' });
+
+  // ── Pied de page ──
+  doc.setTextColor(160, 160, 160); doc.setFontSize(7); doc.setFont('helvetica', 'normal');
+  doc.text('Merci pour votre confiance !', 105, 280, { align: 'center' });
+  doc.text('Document généré par STOCKR · Gestion de stock pour PME', 105, 285, { align: 'center' });
+
+  doc.save(`Facture-${invId}.pdf`);
+  showToast('Facture téléchargée');
+}
+
+function shareViaWhatsApp(sales) {
+  if (!Array.isArray(sales)) sales = [sales];
+  const sym  = S.session?.currency_symbol || 'FCFA';
+  const biz  = S.session?.business || S.session?.name || 'Mon Commerce';
+  const date = new Date(sales[0].date).toLocaleDateString('fr-FR');
+  const invId = _invNum(sales[0].id);
+  const total = sales.reduce((s, v) => s + v.total, 0);
+
+  const lines = ['🧾 *REÇU DE VENTE*', `📍 *${biz}*`, `📅 ${date}  •  N° ${invId}`, ''];
+  sales.forEach(s => {
+    const u = s.qty > 0 ? Math.round(s.total / s.qty) : 0;
+    lines.push(`▸ ${s.productName}  ×${s.qty}  =  *${fmt(s.total)} ${sym}*`);
+  });
+  lines.push('', `✅ *TOTAL : ${fmt(total)} ${sym}*`, '', '_Géré avec STOCKR_');
+
+  window.open('https://wa.me/?text=' + encodeURIComponent(lines.join('\n')), '_blank');
+}
 
 // ── Chart ─────────────────────────────────────
 let _chart = null;
@@ -770,17 +877,20 @@ function removeFromCart(idx) {
 async function confirmCart() {
   if (!S.cart.length) { showToast('Le panier est vide', 'error'); return; }
   try {
-    let total = 0, count = 0;
+    let total = 0, count = 0, newSales = [];
     for (const item of S.cart) {
       const data = await api('POST', '/api/sales/', { product_id: item.productId, quantity: item.qty });
       const product = S.products.find(p => p.id === item.productId);
       const lineTotal = (product?.price || 0) * item.qty;
       total += lineTotal;
       count += item.qty;
-      S.sales.unshift({ id: data.sale.id, productId: data.sale.product_id, productName: data.sale.product_name, qty: data.sale.quantity, total: lineTotal, date: data.sale.timestamp });
+      const newSale = { id: data.sale.id, productId: data.sale.product_id, productName: data.sale.product_name, qty: data.sale.quantity, total: lineTotal, date: data.sale.timestamp };
+      S.sales.unshift(newSale);
+      newSales.push(newSale);
     }
     S.cart = [];
     showToast(`${count} unité(s) vendue(s) — ${fmt(total)} FCFA`);
+    showReceiptBanner(newSales, total);
     // Recharger les articles pour avoir les stocks à jour
     const arts = await api('GET', '/api/articles/');
     S.articles = arts.map(articleFromAPI);
@@ -851,6 +961,35 @@ function toggleDark() {
   S.darkMode = !S.darkMode;
   document.body.classList.toggle('dark', S.darkMode);
   render();
+}
+
+// ── Bannière reçu post-vente ──────────────────
+function showReceiptBanner(sales, total) {
+  const existing = document.getElementById('receipt-banner');
+  if (existing) existing.remove();
+  const sym = S.session?.currency_symbol || 'FCFA';
+  const el = document.createElement('div');
+  el.id = 'receipt-banner';
+  el.className = 'receipt-banner';
+  // Stocker les ventes dans un attribut data sérialisé
+  const sid = 'rb_' + Date.now();
+  window[sid] = sales;
+  el.innerHTML = `
+    <div class="receipt-banner-left">
+      <div class="receipt-banner-title">Vente confirmée</div>
+      <div class="receipt-banner-total">${fmt(total)} ${sym}</div>
+    </div>
+    <div class="receipt-banner-btns">
+      <button class="rb-btn rb-pdf" onclick="generateInvoicePDF(window['${sid}']);document.getElementById('receipt-banner').remove()">
+        ${IC.pdf} PDF
+      </button>
+      <button class="rb-btn rb-wa" onclick="shareViaWhatsApp(window['${sid}']);document.getElementById('receipt-banner').remove()">
+        ${IC.whatsapp} WhatsApp
+      </button>
+      <button class="rb-close" onclick="document.getElementById('receipt-banner').remove()">✕</button>
+    </div>`;
+  document.body.appendChild(el);
+  setTimeout(() => { const b = document.getElementById('receipt-banner'); if (b) b.remove(); }, 10000);
 }
 
 // ── Navigate ──────────────────────────────────
@@ -1300,7 +1439,10 @@ function vSales() {
       <div class="empty-ico">${IC.dollarLg}</div>
       <div class="empty-title">Aucune vente</div>
       <div class="empty-text">Les ventes apparaîtront ici.</div>
-    </div>` : S.sales.map(s=>`
+    </div>` : S.sales.map(s=>{
+      const sid = 'sale_' + s.id;
+      window[sid] = s;
+      return `
     <div class="sale-item">
       <div class="sale-dot"></div>
       <div class="sale-info">
@@ -1308,10 +1450,14 @@ function vSales() {
         <div class="sale-date">${fmtDate(s.date)}</div>
       </div>
       <div class="sale-right">
-        <div class="sale-total">${fmt(s.total)} FCFA</div>
+        <div class="sale-total">${fmt(s.total)} ${S.session?.currency_symbol||'FCFA'}</div>
         <div class="sale-qty">×${s.qty}</div>
       </div>
-    </div>`).join('')}
+      <div class="sale-actions">
+        <button class="sale-act-btn" title="Facture PDF" onclick="generateInvoicePDF(window['${sid}'])">${IC.pdf}</button>
+        <button class="sale-act-btn sale-act-wa" title="Partager WhatsApp" onclick="shareViaWhatsApp(window['${sid}'])">${IC.whatsapp}</button>
+      </div>
+    </div>`;}).join('')}
   </div>`;
 }
 
@@ -2007,7 +2153,10 @@ document.addEventListener('DOMContentLoaded', () => {
   window.doLogout      = doLogout;
   window.showToast     = showToast;
   window.loadData           = loadData;
-  window.renderRevenueChart = renderRevenueChart;
+  window.renderRevenueChart  = renderRevenueChart;
+  window.generateInvoicePDF  = generateInvoicePDF;
+  window.shareViaWhatsApp    = shareViaWhatsApp;
+  window.showReceiptBanner   = showReceiptBanner;
 
   // Restaurer la session + token si existants
   const saved = getSession();
