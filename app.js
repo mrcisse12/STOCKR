@@ -799,6 +799,48 @@ async function saveProduct() {
   }
 }
 
+// ── Export CSV ────────────────────────────────
+function downloadCSV(filename, rows) {
+  const BOM = '\uFEFF';
+  const csv = BOM + rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+  showToast(`${filename} téléchargé`);
+}
+
+function exportArticlesCSV() {
+  const rows = [['Nom', 'Stock', 'Unité', 'Seuil alerte', 'Délai (j)']];
+  S.articles.forEach(a => rows.push([a.name, a.stock, a.unit, a.min, a.lead || '']));
+  downloadCSV(`stockr_articles_${new Date().toISOString().slice(0,10)}.csv`, rows);
+}
+
+function exportProductsCSV() {
+  const rows = [['Nom', 'Prix achat', 'Prix vente', 'Marge %', 'Bénéfice/u', 'Composition']];
+  S.products.forEach(p => {
+    const comp = p.composition.map(c => {
+      const a = S.articles.find(a => a.id === c.id);
+      return a ? `${c.qty} ${a.unit} ${a.name}` : '';
+    }).filter(Boolean).join(' + ');
+    rows.push([p.name, p.purchasePrice || 0, p.price, marginPct(p) + '%', profitUnit(p), comp]);
+  });
+  downloadCSV(`stockr_produits_${new Date().toISOString().slice(0,10)}.csv`, rows);
+}
+
+function exportSalesCSV() {
+  const rows = [['Date', 'Produit', 'Quantité', 'Total', 'Bénéfice']];
+  S.sales.forEach(s => rows.push([fmtDate(s.date), s.productName, s.qty, s.total, s.profit || 0]));
+  downloadCSV(`stockr_ventes_${new Date().toISOString().slice(0,10)}.csv`, rows);
+}
+
+function exportAllCSV() {
+  exportArticlesCSV();
+  setTimeout(() => exportProductsCSV(), 300);
+  setTimeout(() => exportSalesCSV(), 600);
+}
+
 function updateMarginPreview() {
   const cost = parseFloat($('prod-cost')?.value) || 0;
   const price = parseFloat($('prod-price')?.value) || 0;
@@ -2272,6 +2314,28 @@ function vSettings() {
     </div>
 
     <div class="settings-section">
+      <div class="settings-label">Exporter (CSV)</div>
+      <div class="settings-row-block">
+        <div class="settings-row" onclick="exportArticlesCSV()">
+          <div class="settings-row-inner"><span class="settings-row-ico">${IC.download}</span><div class="settings-row-lbl">Articles</div></div>
+          ${IC.chevron}
+        </div>
+        <div class="settings-row" onclick="exportProductsCSV()">
+          <div class="settings-row-inner"><span class="settings-row-ico">${IC.download}</span><div class="settings-row-lbl">Produits + marges</div></div>
+          ${IC.chevron}
+        </div>
+        <div class="settings-row" onclick="exportSalesCSV()">
+          <div class="settings-row-inner"><span class="settings-row-ico">${IC.download}</span><div class="settings-row-lbl">Historique ventes</div></div>
+          ${IC.chevron}
+        </div>
+        <div class="settings-row" onclick="exportAllCSV()">
+          <div class="settings-row-inner"><span class="settings-row-ico" style="color:var(--accent)">${IC.download}</span><div class="settings-row-lbl" style="color:var(--accent)">Tout exporter</div></div>
+          ${IC.chevron}
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
       <div class="settings-label">Session</div>
       <div class="settings-row-block">
         <div class="settings-row" onclick="doLogout()">
@@ -2392,6 +2456,10 @@ document.addEventListener('DOMContentLoaded', () => {
   window.shareViaWhatsApp    = shareViaWhatsApp;
   window.showReceiptBanner   = showReceiptBanner;
   window.updateMarginPreview = updateMarginPreview;
+  window.exportArticlesCSV    = exportArticlesCSV;
+  window.exportProductsCSV    = exportProductsCSV;
+  window.exportSalesCSV       = exportSalesCSV;
+  window.exportAllCSV         = exportAllCSV;
 
   // Restaurer la session + token si existants
   const saved = getSession();
