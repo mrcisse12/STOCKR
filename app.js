@@ -218,22 +218,128 @@ const S = {
   },
 };
 
+// ── Mode local (localStorage) ─────────────────
+let USE_LOCAL = false; // basculé automatiquement si l'API n'est pas joignable
+
+const LS_USERS   = 'stockr_users_v2';
+const LS_SESSION = 'stockr_session';
+
+function _lsUsers()         { try { return JSON.parse(localStorage.getItem(LS_USERS)) || []; } catch { return []; } }
+function _lsSave(users)     { localStorage.setItem(LS_USERS, JSON.stringify(users)); }
+function _lsData(uid)       { try { return JSON.parse(localStorage.getItem('stockr_data_' + uid)) || { articles:[], products:[], sales:[] }; } catch { return { articles:[], products:[], sales:[] }; } }
+function _lsSaveData(uid,d) { localStorage.setItem('stockr_data_' + uid, JSON.stringify(d)); }
+function _uid()             { return S.session?.id; }
+
+function _localApi(method, path, body) {
+  // ── Auth ──
+  if (path === '/api/auth/register' && method === 'POST') {
+    const users = _lsUsers();
+    if (users.find(u => u.email === body.email)) throw new Error('Email déjà utilisé');
+    const user = { id: Date.now(), email: body.email, _pwd: body.password, name: body.name, business_name: body.business_name || body.name, currency: body.currency || 'XOF', country: body.country || 'SN', language: body.language || 'fr', profile: body.profile || 'transformer', tax_rate: parseFloat(body.tax_rate) || 0, auth_token: 'local_' + Date.now() };
+    users.push(user);
+    _lsSave(users);
+    _lsSaveData(user.id, { articles: [], products: [], sales: [] });
+    return { user };
+  }
+  if (path === '/api/auth/login' && method === 'POST') {
+    const user = _lsUsers().find(u => u.email === body.email && u._pwd === body.password);
+    if (!user) throw new Error('Email ou mot de passe incorrect');
+    return { user: { ...user, auth_token: 'local_' + user.id } };
+  }
+  if (path === '/api/auth/profile' && method === 'GET') {
+    return _lsUsers().find(u => u.id === _uid()) || {};
+  }
+  if (path === '/api/auth/profile' && method === 'PUT') {
+    const users = _lsUsers(); const u = users.find(u => u.id === _uid());
+    if (u) { Object.assign(u, body); _lsSave(users); }
+    return u;
+  }
+  if (path === '/api/auth/logout' && method === 'POST') { return {}; }
+
+  const d = _lsData(_uid());
+
+  // ── Articles ──
+  if (path === '/api/articles/' && method === 'GET') return d.articles;
+  if (path === '/api/articles/' && method === 'POST') {
+    const a = { id: Date.now(), name: body.name, quantity: body.quantity || 0, unit: body.unit || 'pcs', alert_threshold: body.alert_threshold || 0, lead_time_days: body.lead_time_days || 7, daily_avg_demand: 0 };
+    d.articles.push(a); _lsSaveData(_uid(), d); return a;
+  }
+  const artId = path.match(/\/api\/articles\/(\d+)/)?.[1];
+  if (artId && method === 'PUT') {
+    const a = d.articles.find(a => a.id === parseInt(artId));
+    if (a) { Object.assign(a, { quantity: body.quantity ?? a.quantity, alert_threshold: body.alert_threshold ?? a.alert_threshold, lead_time_days: body.lead_time_days ?? a.lead_time_days }); _lsSaveData(_uid(), d); }
+    return a;
+  }
+  if (artId && method === 'DELETE') {
+    d.articles = d.articles.filter(a => a.id !== parseInt(artId)); _lsSaveData(_uid(), d); return {};
+  }
+
+  // ── Products ──
+  if (path === '/api/products/' && method === 'GET') return d.products.map(p => ({ ...p, composition: (p.composition||[]).map(c => ({ article: d.articles.find(a=>a.id===c.article_id)||{id:c.article_id,name:'?',unit:'pcs'}, quantity_used: c.quantity_used })) }));
+  if (path === '/api/products/' && method === 'POST') {
+    const p = { id: Date.now(), name: body.name, price: body.price || 0, composition: body.composition || [] };
+    d.products.push(p); _lsSaveData(_uid(), d);
+    return { ...p, composition: p.composition.map(c => ({ article: d.articles.find(a=>a.id===c.article_id)||{id:c.article_id,name:'?',unit:'pcs'}, quantity_used: c.quantity_used })) };
+  }
+  const prodId = path.match(/\/api\/products\/(\d+)/)?.[1];
+  if (prodId && method === 'PUT') {
+    const p = d.products.find(p => p.id === parseInt(prodId));
+    if (p) { p.name = body.name || p.name; p.price = body.price ?? p.price; p.composition = body.composition || p.composition; _lsSaveData(_uid(), d); }
+    return { ...p, composition: (p.composition||[]).map(c => ({ article: d.articles.find(a=>a.id===c.article_id)||{id:c.article_id,name:'?',unit:'pcs'}, quantity_used: c.quantity_used })) };
+  }
+  if (prodId && method === 'DELETE') {
+    d.products = d.products.filter(p => p.id !== parseInt(prodId)); _lsSaveData(_uid(), d); return {};
+  }
+
+  // ── Sales ──
+  if (path === '/api/sales/' && method === 'GET') return d.sales;
+  if (path === '/api/sales/' && method === 'POST') {
+    const p = d.products.find(p => p.id === body.product_id);
+    if (!p) throw new Error('Produit introuvable');
+    for (const c of (p.composition||[])) {
+      const art = d.articles.find(a => a.id === c.article_id);
+      if (!art || art.quantity < c.quantity_used * body.quantity) throw new Error(`Stock insuffisant : ${art?.name||'?'}`);
+    }
+    for (const c of (p.composition||[])) {
+      const art = d.articles.find(a => a.id === c.article_id);
+      if (art) art.quantity = Math.round((art.quantity - c.quantity_used * body.quantity) * 10) / 10;
+    }
+    const sale = { id: Date.now(), product_id: body.product_id, product_name: p.name, quantity: body.quantity, timestamp: new Date().toISOString() };
+    d.sales.unshift(sale); _lsSaveData(_uid(), d);
+    return { sale };
+  }
+
+  // ── Predictions (stub local) ──
+  if (path === '/api/predictions/') return [];
+
+  throw new Error('Route locale non supportée : ' + path);
+}
+
 // ── API helper ────────────────────────────────
 async function api(method, path, body) {
-  const res = await fetch(API_BASE + path, {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(S.token ? { 'Authorization': `Bearer ${S.token}` } : {})
-    },
-    body: body ? JSON.stringify(body) : undefined
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    const errMsg = typeof err.error === 'string' ? err.error : (err.error?.error || err.message || `Erreur ${res.status}`);
-    throw new Error(errMsg);
+  if (USE_LOCAL) {
+    try { return _localApi(method, path, body); }
+    catch(e) { throw new Error(e.message); }
   }
-  return res.json();
+  try {
+    const res = await fetch(API_BASE + path, {
+      method,
+      headers: { 'Content-Type': 'application/json', ...(S.token ? { 'Authorization': `Bearer ${S.token}` } : {}) },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(typeof err.error === 'string' ? err.error : (err.error?.error || err.message || `Erreur ${res.status}`));
+    }
+    return res.json();
+  } catch(e) {
+    if (e.message === 'Failed to fetch' || e.name === 'TypeError') {
+      USE_LOCAL = true;
+      showToast('Mode hors-ligne activé', '');
+      return _localApi(method, path, body);
+    }
+    throw e;
+  }
 }
 
 // ── Mapping API → state ───────────────────────
