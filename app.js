@@ -469,6 +469,7 @@ const S = {
   clients:       [],
   selectedClientId: null,
   clientSearch:  '',
+  saleClientFilter: null,
   predictions:   [],
   form: { name: '', stock: 0, min: 0, unit: '', lead: 7 },
   spectra: {
@@ -1605,6 +1606,37 @@ function vHome() {
       </div>`).join('')}
     </div>` : ''}
 
+    ${(() => {
+      const cs = {};
+      S.sales.forEach(s => { if (!s.clientId) return; if (!cs[s.clientId]) cs[s.clientId] = { name: s.clientName, total: 0, count: 0 }; cs[s.clientId].total += s.total; cs[s.clientId].count += s.qty; });
+      const topC = Object.entries(cs).sort((a,b) => b[1].total - a[1].total).slice(0,3);
+      const maxC = topC.length > 0 ? topC[0][1].total : 1;
+      if (topC.length === 0) return '';
+      return `
+    <div class="section-hd">
+      <div class="section-lbl">${t('topClients')}</div>
+      <button class="section-act" onclick="nav('clients')">${t('viewAll')}</button>
+    </div>
+    <div class="card anim" style="animation-delay:0.25s">
+      ${topC.map(([id, d], i) => `
+      <div style="display:flex;align-items:center;gap:10px;cursor:pointer;${i>0?'margin-top:12px;padding-top:12px;border-top:1px solid var(--border)':''}" onclick="nav('client-detail',{selectedClientId:${id}})">
+        <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#6366f1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex-shrink:0">${initials(d.name)}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:var(--text-1)">${d.name}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+            <div style="flex:1;height:5px;background:var(--gray-2);border-radius:3px;overflow:hidden">
+              <div style="height:100%;width:${Math.round((d.total/maxC)*100)}%;background:var(--accent);border-radius:3px"></div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:13px;font-weight:700;color:var(--text-1)">${fmt(d.total)} FCFA</div>
+          <div style="font-size:11px;color:var(--text-3)">${d.count} ${t('purchases').toLowerCase()}</div>
+        </div>
+      </div>`).join('')}
+    </div>`;
+    })()}
+
     <div class="section-hd"><div class="section-lbl">${t('nav')}</div></div>
     <div class="quick-grid">
       <button class="quick-btn" onclick="nav('pantry')">
@@ -1824,12 +1856,21 @@ function vSales() {
       <div class="section-lbl">${t('history')}</div>
       <div style="font-size:12px;color:var(--text-3)">${S.sales.length} ${t('saleOf')}</div>
     </div>
-    ${S.sales.length===0 ? `
+    ${S.clients.length > 0 ? `
+    <div class="filter-row" style="margin-bottom:10px">
+      <button class="filter-chip ${!S.saleClientFilter?'active':''}" onclick="S.saleClientFilter=null;render()">${t('all')}</button>
+      ${S.clients.filter(c => S.sales.some(s => s.clientId === c.id)).map(c => `
+      <button class="filter-chip ${S.saleClientFilter===c.id?'active':''}" onclick="S.saleClientFilter=${c.id};render()">${c.name}</button>`).join('')}
+    </div>` : ''}
+    ${(() => {
+      const filtered = S.saleClientFilter ? S.sales.filter(s => s.clientId === S.saleClientFilter) : S.sales;
+      if (filtered.length === 0) return `
     <div class="empty">
       <div class="empty-ico">${IC.dollarLg}</div>
       <div class="empty-title">${t('noSales')}</div>
       <div class="empty-text">${t('noSalesSub')}</div>
-    </div>` : S.sales.map(s=>{
+    </div>`;
+      return filtered.map(s=>{
       const sid = 'sale_' + s.id;
       window[sid] = s;
       return `
@@ -1847,7 +1888,8 @@ function vSales() {
         <button class="sale-act-btn" title="Facture PDF" onclick="generateInvoicePDF(window['${sid}'])">${IC.pdf}</button>
         <button class="sale-act-btn sale-act-wa" title="Partager WhatsApp" onclick="shareViaWhatsApp(window['${sid}'])">${IC.whatsapp}</button>
       </div>
-    </div>`;}).join('')}
+    </div>`;}).join('');
+    })()}
   </div>`;
 }
 
