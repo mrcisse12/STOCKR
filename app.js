@@ -27,6 +27,9 @@ const IC = {
   trending: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
   settings: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
   user:     `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  users:    `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  usersLg:  `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  phone:    `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`,
   moon:     `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
   sun:      `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>`,
   logout:   `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`,
@@ -156,6 +159,14 @@ const LANGS = {
     emailAddr:'Adresse email', profitShort:'bénéf.', saleOf:'vente(s)',
     addArticlesFirst:'Ajoute d\'abord des articles au stock pour définir la composition.',
     noSalesPeriod:'Aucune vente sur cette période.',
+    // Clients
+    clients:'Clients', addClient:'Ajouter un client', newClient:'Nouveau client',
+    clientName:'Nom du client', clientPhone:'Téléphone', clientEmail:'Email',
+    clientNotes:'Notes', noClients:'Aucun client', noClientsSub:'Ajoute ton premier client.',
+    clientDetail:'Fiche client', purchases:'Achats', totalSpent:'Total dépensé',
+    lastPurchase:'Dernier achat', noPurchases:'Aucun achat', clientOf:'client(s)',
+    selectClient:'— Client (optionnel) —', topClients:'Meilleurs clients',
+    addClientSub:'Enregistrer un nouveau client',
     // Misc
     required:'requis', fillAll:'Remplis tous les champs', pwdMismatch:'Les mots de passe ne correspondent pas',
     pwdShort:'Mot de passe trop court (min. 6 caractères)',
@@ -209,6 +220,13 @@ const LANGS = {
     emailAddr:'Email address', profitShort:'profit', saleOf:'sale(s)',
     addArticlesFirst:'Add articles to stock first to define composition.',
     noSalesPeriod:'No sales in this period.',
+    clients:'Clients', addClient:'Add Client', newClient:'New Client',
+    clientName:'Client name', clientPhone:'Phone', clientEmail:'Email',
+    clientNotes:'Notes', noClients:'No clients', noClientsSub:'Add your first client.',
+    clientDetail:'Client details', purchases:'Purchases', totalSpent:'Total spent',
+    lastPurchase:'Last purchase', noPurchases:'No purchases', clientOf:'client(s)',
+    selectClient:'— Client (optional) —', topClients:'Top Clients',
+    addClientSub:'Register a new client',
     required:'required', fillAll:'Fill in all fields', pwdMismatch:'Passwords don\'t match',
     pwdShort:'Password too short (min 6 characters)',
     welcome:'Welcome', offlineMode:'Offline mode activated', delete:'Delete',
@@ -436,6 +454,9 @@ const S = {
   cart:          [],
   cartOpen:      false,
   editProductId: null,
+  clients:       [],
+  selectedClientId: null,
+  clientSearch:  '',
   predictions:   [],
   form: { name: '', stock: 0, min: 0, unit: '', lead: 7 },
   spectra: {
@@ -468,7 +489,7 @@ function _localApi(method, path, body) {
     const user = { id: Date.now(), email: body.email, _pwd: body.password, name: body.name, business_name: body.business_name || body.name, currency: body.currency || 'XOF', country: body.country || 'SN', language: body.language || 'fr', profile: body.profile || 'transformer', tax_rate: parseFloat(body.tax_rate) || 0, auth_token: 'local_' + Date.now() };
     users.push(user);
     _lsSave(users);
-    _lsSaveData(user.id, { articles: [], products: [], sales: [] });
+    _lsSaveData(user.id, { articles: [], products: [], sales: [], clients: [] });
     return { user };
   }
   if (path === '/api/auth/login' && method === 'POST') {
@@ -534,9 +555,26 @@ function _localApi(method, path, body) {
       const art = d.articles.find(a => a.id === c.article_id);
       if (art) art.quantity = Math.round((art.quantity - c.quantity_used * body.quantity) * 10) / 10;
     }
-    const sale = { id: Date.now(), product_id: body.product_id, product_name: p.name, quantity: body.quantity, timestamp: new Date().toISOString() };
+    const sale = { id: Date.now(), product_id: body.product_id, product_name: p.name, quantity: body.quantity, client_id: body.client_id || null, client_name: body.client_name || null, timestamp: new Date().toISOString() };
     d.sales.unshift(sale); _lsSaveData(_uid(), d);
     return { sale };
+  }
+
+  // ── Clients ──
+  if (!d.clients) d.clients = [];
+  if (path === '/api/clients/' && method === 'GET') return d.clients;
+  if (path === '/api/clients/' && method === 'POST') {
+    const c = { id: Date.now(), name: body.name, phone: body.phone || '', email: body.email || '', notes: body.notes || '', created_at: new Date().toISOString() };
+    d.clients.push(c); _lsSaveData(_uid(), d); return c;
+  }
+  const clientId = path.match(/\/api\/clients\/(\d+)/)?.[1];
+  if (clientId && method === 'PUT') {
+    const c = d.clients.find(c => c.id === parseInt(clientId));
+    if (c) { c.name = body.name || c.name; c.phone = body.phone ?? c.phone; c.email = body.email ?? c.email; c.notes = body.notes ?? c.notes; _lsSaveData(_uid(), d); }
+    return c;
+  }
+  if (clientId && method === 'DELETE') {
+    d.clients = d.clients.filter(c => c.id !== parseInt(clientId)); _lsSaveData(_uid(), d); return {};
   }
 
   // ── Predictions (stub local) ──
@@ -592,22 +630,24 @@ function saleFromAPI(s) {
   const product = S.products.find(p => p.id === s.product_id);
   const price = product ? product.price : 0;
   const cost  = product ? product.purchasePrice : 0;
-  return { id: s.id, productId: s.product_id, productName: s.product_name, qty: s.quantity, total: price * s.quantity, profit: (price - cost) * s.quantity, date: s.timestamp };
+  return { id: s.id, productId: s.product_id, productName: s.product_name, qty: s.quantity, total: price * s.quantity, profit: (price - cost) * s.quantity, date: s.timestamp, clientId: s.client_id || null, clientName: s.client_name || null };
 }
 
 // ── Charger données depuis l'API ──────────────
 async function loadData() {
   try {
-    const [arts, prods, sales, preds] = await Promise.all([
+    const [arts, prods, sales, preds, clients] = await Promise.all([
       api('GET', '/api/articles/'),
       api('GET', '/api/products/'),
       api('GET', '/api/sales/'),
       api('GET', '/api/predictions/'),
+      api('GET', '/api/clients/').catch(() => []),
     ]);
     S.products    = prods.map(productFromAPI);
     S.articles    = arts.map(articleFromAPI);
     S.sales       = sales.map(saleFromAPI);
     S.predictions = preds;
+    S.clients     = clients || [];
     recalcAllMins();
     render();
   } catch(e) {
@@ -1071,16 +1111,19 @@ function removeFromCart(idx) {
 
 async function confirmCart() {
   if (!S.cart.length) { showToast('Le panier est vide', 'error'); return; }
+  const clientSel = $('sale-client');
+  const clientId = clientSel ? parseInt(clientSel.value) || null : null;
+  const client = clientId ? S.clients.find(c => c.id === clientId) : null;
   try {
     let total = 0, count = 0, newSales = [];
     for (const item of S.cart) {
-      const data = await api('POST', '/api/sales/', { product_id: item.productId, quantity: item.qty });
+      const data = await api('POST', '/api/sales/', { product_id: item.productId, quantity: item.qty, client_id: clientId, client_name: client?.name || null });
       const product = S.products.find(p => p.id === item.productId);
       const lineTotal = (product?.price || 0) * item.qty;
       const lineProfit = ((product?.price || 0) - (product?.purchasePrice || 0)) * item.qty;
       total += lineTotal;
       count += item.qty;
-      const newSale = { id: data.sale.id, productId: data.sale.product_id, productName: data.sale.product_name, qty: data.sale.quantity, total: lineTotal, profit: lineProfit, date: data.sale.timestamp };
+      const newSale = { id: data.sale.id, productId: data.sale.product_id, productName: data.sale.product_name, qty: data.sale.quantity, total: lineTotal, profit: lineProfit, date: data.sale.timestamp, clientId, clientName: client?.name || null };
       S.sales.unshift(newSale);
       newSales.push(newSale);
     }
@@ -1213,14 +1256,15 @@ function render() {
     sales: vSales, financial: vFinancial,
     detail: vDetail, add: vAdd, 'add-product': vAddProduct,
     'edit-product': vEditProduct, settings: vSettings,
-    spectra: vSpectra,
+    spectra: vSpectra, clients: vClients, 'add-client': vAddClient,
+    'client-detail': vClientDetail,
   };
   viewEl.innerHTML = (map[S.view] || vHome)();
   viewEl.scrollTop = 0;
 
   if (S.view === 'financial') requestAnimationFrame(renderRevenueChart);
 
-  const hideNav = ['detail','add','add-product','edit-product'].includes(S.view);
+  const hideNav = ['detail','add','add-product','edit-product','add-client','client-detail'].includes(S.view);
   navEl.style.display = hideNav ? 'none' : '';
   if (!hideNav) navEl.innerHTML = renderNav();
 }
@@ -1568,6 +1612,11 @@ function vHome() {
         <div class="quick-label">${t('bilan')}</div>
         <div class="quick-sub">${S.sales.length} ${t('saleOf')}</div>
       </button>
+      <button class="quick-btn" onclick="nav('clients')">
+        <span class="quick-ico">${IC.users}</span>
+        <div class="quick-label">${t('clients')}</div>
+        <div class="quick-sub">${S.clients.length} ${t('clientOf')}</div>
+      </button>
     </div>
 
     <div class="section-hd">
@@ -1725,6 +1774,14 @@ function vSales() {
         <label class="form-label">${t('quantity')}</label>
         <input type="number" class="input" id="sale-qty" value="1" min="1">
       </div>
+      ${S.clients.length > 0 ? `
+      <div class="form-group">
+        <label class="form-label">${t('clients')}</label>
+        <select class="input" id="sale-client">
+          <option value="">${t('selectClient')}</option>
+          ${S.clients.map(c=>`<option value="${c.id}">${c.name}${c.phone?' · '+c.phone:''}</option>`).join('')}
+        </select>
+      </div>` : ''}
       <div style="display:flex;gap:8px">
         <button class="btn btn-primary" style="flex:1" onclick="addToCart();S.cartOpen=true;render()">${t('confirm')}</button>
         <button class="btn btn-ghost" onclick="toggleCart()" style="flex:1">
@@ -1765,7 +1822,7 @@ function vSales() {
       <div class="sale-dot"></div>
       <div class="sale-info">
         <div class="sale-prod">${s.productName}</div>
-        <div class="sale-date">${fmtDate(s.date)}</div>
+        <div class="sale-date">${fmtDate(s.date)}${s.clientName ? ` · <span style="color:var(--accent)">${s.clientName}</span>` : ''}</div>
       </div>
       <div class="sale-right">
         <div class="sale-total">${fmt(s.total)} ${S.session?.currency_symbol||'FCFA'}</div>
@@ -2130,6 +2187,191 @@ function vEditProduct() {
         }).join('')}
       </div>` : ''}
       <button class="btn btn-primary" onclick="saveEditProduct()">${t('update')}</button>
+    </div>
+  </div>`;
+}
+
+// ── CLIENTS ──────────────────────────────────
+function vClients() {
+  const q = S.clientSearch.toLowerCase();
+  const list = S.clients.filter(c => c.name.toLowerCase().includes(q) || (c.phone||'').includes(q) || (c.email||'').toLowerCase().includes(q));
+
+  // Compute stats per client
+  const clientStats = {};
+  S.sales.forEach(s => {
+    if (!s.clientId) return;
+    if (!clientStats[s.clientId]) clientStats[s.clientId] = { total: 0, count: 0, last: null };
+    clientStats[s.clientId].total += s.total;
+    clientStats[s.clientId].count += s.qty;
+    if (!clientStats[s.clientId].last || s.date > clientStats[s.clientId].last) clientStats[s.clientId].last = s.date;
+  });
+
+  return `
+  <div class="page-header">
+    <div class="page-header-row">
+      <button class="back-btn" onclick="nav('home')">${IC.left}</button>
+      <div class="page-title">${t('clients')}</div>
+      <button class="fab" onclick="nav('add-client')">${IC.plus}</button>
+    </div>
+    <div class="search-wrap">
+      <span class="search-ico">${IC.search}</span>
+      <input class="input input-search" type="text" placeholder="    Rechercher…" value="${S.clientSearch.replace(/"/g,'&quot;')}" oninput="S.clientSearch=this.value;render()">
+    </div>
+  </div>
+  <div class="container">
+    ${list.length === 0 ? `
+    <div class="empty">
+      <div class="empty-ico">${IC.usersLg}</div>
+      <div class="empty-title">${S.clients.length === 0 ? t('noClients') : t('noResults')}</div>
+      <div class="empty-text">${S.clients.length === 0 ? t('noClientsSub') : t('noResultsSub')}</div>
+      ${S.clients.length === 0 ? `<button class="btn btn-primary" style="width:auto;padding:11px 24px" onclick="nav('add-client')">${t('addClient')}</button>` : ''}
+    </div>` : list.map((c, i) => {
+      const st = clientStats[c.id] || { total: 0, count: 0, last: null };
+      return `
+      <div class="card card-tap anim" style="animation-delay:${i*0.04}s" onclick="nav('client-detail',{selectedClientId:${c.id}})">
+        <div class="article-row">
+          <div class="article-avatar">${initials(c.name)}</div>
+          <div class="article-info">
+            <div class="article-name">${c.name}</div>
+            <div class="article-meta">${c.phone ? `${IC.phone} ${c.phone}` : ''}${c.phone && c.email ? ' · ' : ''}${c.email || ''}</div>
+            ${st.count > 0 ? `<div class="article-meta" style="margin-top:2px">${st.count} ${t('purchases').toLowerCase()} · ${fmt(st.total)} FCFA</div>` : ''}
+          </div>
+          <div style="color:var(--gray-4)">${IC.chevron}</div>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function vAddClient() {
+  return `
+  <div class="sub-hero">
+    <button class="back-btn-dark" style="margin-bottom:14px" onclick="nav('clients')">${IC.left}</button>
+    <div class="sub-hero-title">${t('newClient')}</div>
+    <div class="sub-hero-sub">${t('addClientSub')}</div>
+  </div>
+  <div class="container">
+    <div class="card">
+      <div class="form-group">
+        <label class="form-label">${t('clientName')} *</label>
+        <input class="input" id="client-name" type="text" placeholder="ex: Fatou Diallo">
+      </div>
+      <div class="form-group">
+        <label class="form-label">${t('clientPhone')}</label>
+        <input class="input" id="client-phone" type="tel" placeholder="ex: 77 123 45 67">
+      </div>
+      <div class="form-group">
+        <label class="form-label">${t('clientEmail')}</label>
+        <input class="input" id="client-email" type="email" placeholder="ex: fatou@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">${t('clientNotes')}</label>
+        <textarea class="input" id="client-notes" rows="3" placeholder="Notes, préférences…" style="resize:vertical"></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="saveClient()">${t('addClient')}</button>
+    </div>
+  </div>`;
+}
+
+async function saveClient() {
+  const name = $('client-name')?.value?.trim();
+  if (!name) { showToast(t('fillAll'), 'error'); return; }
+  try {
+    const data = await api('POST', '/api/clients/', {
+      name,
+      phone: $('client-phone')?.value?.trim() || '',
+      email: $('client-email')?.value?.trim() || '',
+      notes: $('client-notes')?.value?.trim() || '',
+    });
+    S.clients.push(data);
+    showToast(`${name} — ${t('welcome')} !`);
+    nav('clients');
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function deleteClient(id) {
+  if (!confirm(t('delete') + ' ?')) return;
+  try {
+    await api('DELETE', `/api/clients/${id}`);
+    S.clients = S.clients.filter(c => c.id !== id);
+    showToast(t('delete'));
+    nav('clients');
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+function vClientDetail() {
+  const client = S.clients.find(c => c.id === S.selectedClientId);
+  if (!client) { nav('clients'); return ''; }
+  const clientSales = S.sales.filter(s => s.clientId === client.id);
+  const totalSpent = clientSales.reduce((s,v) => s + v.total, 0);
+  const totalProfit = clientSales.reduce((s,v) => s + (v.profit||0), 0);
+
+  return `
+  <div class="sub-hero">
+    <button class="back-btn-dark" style="margin-bottom:14px" onclick="nav('clients')">${IC.left}</button>
+    <div style="display:flex;align-items:center;gap:14px">
+      <div style="width:56px;height:56px;border-radius:14px;background:var(--gray-8);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:var(--white);flex-shrink:0">${initials(client.name)}</div>
+      <div>
+        <div style="font-size:22px;font-weight:800;color:var(--white)">${client.name}</div>
+        ${client.phone ? `<div style="font-size:13px;color:var(--gray-5);margin-top:4px">${IC.phone} ${client.phone}</div>` : ''}
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-val">${fmt(totalSpent)}</div>
+        <div class="metric-lbl">${t('totalSpent')}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val">${clientSales.length}</div>
+        <div class="metric-lbl">${t('purchases')}</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" style="color:var(--success)">${fmt(totalProfit)}</div>
+        <div class="metric-lbl">${t('profit')}</div>
+      </div>
+    </div>
+
+    ${client.email ? `
+    <div class="card" style="margin-top:8px">
+      <div class="info-row">
+        <span class="info-lbl">${t('clientEmail')}</span>
+        <span class="info-val">${client.email}</span>
+      </div>
+    </div>` : ''}
+
+    ${client.notes ? `
+    <div class="card" style="margin-top:8px">
+      <div class="card-title">${t('clientNotes')}</div>
+      <div style="font-size:13px;color:var(--text-2)">${client.notes}</div>
+    </div>` : ''}
+
+    <div class="section-hd" style="margin-top:8px">
+      <div class="section-lbl">${t('purchases')}</div>
+      <div style="font-size:12px;color:var(--text-3)">${clientSales.length} ${t('saleOf')}</div>
+    </div>
+    ${clientSales.length === 0 ? `
+    <div class="card" style="text-align:center;padding:18px;color:var(--text-3);font-size:13px">${t('noPurchases')}</div>
+    ` : clientSales.map((s,i) => `
+    <div class="card anim" style="animation-delay:${i*0.04}s">
+      <div class="sale-item" style="padding:0">
+        <div class="sale-dot"></div>
+        <div class="sale-info">
+          <div class="sale-prod">${s.productName}</div>
+          <div class="sale-date">${fmtDate(s.date)}</div>
+        </div>
+        <div class="sale-right">
+          <div class="sale-total">${fmt(s.total)} FCFA</div>
+          <div class="sale-qty">×${s.qty}</div>
+        </div>
+      </div>
+    </div>`).join('')}
+
+    <div style="margin-top:16px">
+      <button class="btn btn-ghost" onclick="deleteClient(${client.id})" style="color:var(--danger);border-color:var(--danger)">
+        ${IC.trash} ${t('delete')}
+      </button>
     </div>
   </div>`;
 }
@@ -2603,6 +2845,8 @@ document.addEventListener('DOMContentLoaded', () => {
   window.exportSalesCSV       = exportSalesCSV;
   window.exportAllCSV         = exportAllCSV;
   window.setLang              = setLang;
+  window.saveClient           = saveClient;
+  window.deleteClient         = deleteClient;
 
   // Restaurer la session + token si existants
   const saved = getSession();
