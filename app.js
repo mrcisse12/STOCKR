@@ -142,7 +142,20 @@ const LANGS = {
     exportAll:'Tout exporter', session:'Session', logout:'Se déconnecter',
     save:'Sauvegarder', cancel:'Annuler', business:'Commerce',
     installApp:'Installer STOCKR', installSub:'Ajouter à l\'écran d\'accueil',
-    language:'Langue',
+    language:'Langue', app:'Application',
+    // Detail / forms
+    noArticles:'Aucun article', noResults:'Aucun résultat',
+    noArticlesSub:'Ajoute ton premier article de stock.', noResultsSub:'Essaie un autre terme.',
+    revenueChart:'Chiffre d\'affaires',
+    editStock:'Modifier le stock', reception:'Réception', withdrawal:'Retrait',
+    inStock:'en stock', thresholdMin:'Seuil minimum', thresholdAuto:'Seuil auto',
+    deliveryTime:'Délai livraison', usedIn:'Utilisé dans', infoTitle:'Informations',
+    deleteArticle:'Supprimer cet article', unitLabel:'Unité de mesure',
+    alertAutoInfo:'Le seuil d\'alerte sera calculé automatiquement quand tu associes cet article à un produit.',
+    addStockSub:'Ajouter un article à ton stock', newArticle:'Nouvel article',
+    emailAddr:'Adresse email', profitShort:'bénéf.', saleOf:'vente(s)',
+    addArticlesFirst:'Ajoute d\'abord des articles au stock pour définir la composition.',
+    noSalesPeriod:'Aucune vente sur cette période.',
     // Misc
     required:'requis', fillAll:'Remplis tous les champs', pwdMismatch:'Les mots de passe ne correspondent pas',
     pwdShort:'Mot de passe trop court (min. 6 caractères)',
@@ -183,7 +196,19 @@ const LANGS = {
     exportAll:'Export all', session:'Session', logout:'Sign out',
     save:'Save', cancel:'Cancel', business:'Business',
     installApp:'Install STOCKR', installSub:'Add to home screen',
-    language:'Language',
+    language:'Language', app:'Application',
+    noArticles:'No articles', noResults:'No results',
+    noArticlesSub:'Add your first stock item.', noResultsSub:'Try another term.',
+    revenueChart:'Revenue',
+    editStock:'Edit stock', reception:'Receive', withdrawal:'Withdraw',
+    inStock:'in stock', thresholdMin:'Minimum threshold', thresholdAuto:'Auto threshold',
+    deliveryTime:'Delivery time', usedIn:'Used in', infoTitle:'Information',
+    deleteArticle:'Delete this article', unitLabel:'Unit',
+    alertAutoInfo:'The alert threshold will be set automatically when you add this article to a product.',
+    addStockSub:'Add an item to your stock', newArticle:'New Article',
+    emailAddr:'Email address', profitShort:'profit', saleOf:'sale(s)',
+    addArticlesFirst:'Add articles to stock first to define composition.',
+    noSalesPeriod:'No sales in this period.',
     required:'required', fillAll:'Fill in all fields', pwdMismatch:'Passwords don\'t match',
     pwdShort:'Password too short (min 6 characters)',
     welcome:'Welcome', offlineMode:'Offline mode activated', delete:'Delete',
@@ -1470,7 +1495,7 @@ function vHome() {
     </div>
 
     ${S.sales.length > 0 ? `
-    <div class="section-hd"><div class="section-lbl">Tendance 7 jours</div></div>
+    <div class="section-hd"><div class="section-lbl">${t('trend7d')}</div></div>
     <div class="card anim" style="animation-delay:0.1s">
       <div style="display:flex;align-items:flex-end;gap:4px;height:80px;padding:4px 0">
         ${weekDays.map(d => `
@@ -1480,14 +1505,14 @@ function vHome() {
         </div>`).join('')}
       </div>
       <div style="text-align:center;font-size:11px;color:var(--text-3);margin-top:6px">
-        Total semaine : <strong style="color:var(--text-1)">${fmt(weekDays.reduce((s,d)=>s+d.ca,0))} FCFA</strong>
+        ${t('weekTotal')} : <strong style="color:var(--text-1)">${fmt(weekDays.reduce((s,d)=>s+d.ca,0))} FCFA</strong>
       </div>
     </div>` : ''}
 
     ${topProducts.length > 0 ? `
     <div class="section-hd">
-      <div class="section-lbl">Top produits</div>
-      <button class="section-act" onclick="nav('financial')">Détails</button>
+      <div class="section-lbl">${t('topProducts')}</div>
+      <button class="section-act" onclick="nav('financial')">${t('details')}</button>
     </div>
     <div class="card anim" style="animation-delay:0.15s">
       ${topProducts.map(([name, d], i) => `
@@ -1503,54 +1528,54 @@ function vHome() {
         </div>
         <div style="text-align:right;flex-shrink:0">
           <div style="font-size:13px;font-weight:700;color:var(--text-1)">${fmt(d.rev)} FCFA</div>
-          ${d.profit > 0 ? `<div style="font-size:11px;color:var(--success)">+${fmt(d.profit)} bénéf.</div>` : ''}
+          ${d.profit > 0 ? `<div style="font-size:11px;color:var(--success)">+${fmt(d.profit)} ${t('profitShort')}</div>` : ''}
         </div>
       </div>`).join('')}
     </div>` : ''}
 
     ${bestMargin.length > 0 ? `
-    <div class="section-hd"><div class="section-lbl">Meilleures marges</div></div>
+    <div class="section-hd"><div class="section-lbl">${t('bestMargins')}</div></div>
     <div class="card anim" style="animation-delay:0.2s">
       ${bestMargin.map((p, i) => `
       <div style="display:flex;align-items:center;gap:10px;${i>0?'margin-top:10px;padding-top:10px;border-top:1px solid var(--border)':''}">
         <div style="width:40px;height:40px;border-radius:50%;background:${p.margin>=30?'rgba(5,150,105,.12)':p.margin>=15?'rgba(217,119,6,.12)':'rgba(220,38,38,.12)'};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:${p.margin>=30?'var(--success)':p.margin>=15?'var(--warning)':'var(--danger)'};flex-shrink:0">${p.margin}%</div>
         <div style="flex:1">
           <div style="font-size:13px;font-weight:600;color:var(--text-1)">${p.name}</div>
-          <div style="font-size:11px;color:var(--text-3)">Vente ${fmt(p.price)} · Bénéf. ${fmt(p.profit)} FCFA/u</div>
+          <div style="font-size:11px;color:var(--text-3)">${fmt(p.price)} · ${t('profitShort')} ${fmt(p.profit)} FCFA/u</div>
         </div>
       </div>`).join('')}
     </div>` : ''}
 
-    <div class="section-hd"><div class="section-lbl">Navigation</div></div>
+    <div class="section-hd"><div class="section-lbl">${t('nav')}</div></div>
     <div class="quick-grid">
       <button class="quick-btn" onclick="nav('pantry')">
         <span class="quick-ico">${IC.box}</span>
-        <div class="quick-label">Stock</div>
-        <div class="quick-sub">${S.articles.length} article${S.articles.length!==1?'s':''}</div>
+        <div class="quick-label">${t('stock')}</div>
+        <div class="quick-sub">${S.articles.length} ${t('articles').toLowerCase()}</div>
       </button>
       <button class="quick-btn" onclick="nav('products')">
         <span class="quick-ico">${IC.tag}</span>
-        <div class="quick-label">Produits</div>
-        <div class="quick-sub">${S.products.length} produit${S.products.length!==1?'s':''}</div>
+        <div class="quick-label">${t('products')}</div>
+        <div class="quick-sub">${S.products.length} ${t('products').toLowerCase()}</div>
       </button>
       <button class="quick-btn" onclick="nav('sales')">
         <span class="quick-ico">${IC.dollar}</span>
-        <div class="quick-label">Ventes</div>
-        <div class="quick-sub">${fmt(totalCA)} FCFA total</div>
+        <div class="quick-label">${t('sales')}</div>
+        <div class="quick-sub">${fmt(totalCA)} FCFA</div>
       </button>
       <button class="quick-btn" onclick="nav('financial')">
         <span class="quick-ico">${IC.trending}</span>
-        <div class="quick-label">Bilan</div>
-        <div class="quick-sub">${S.sales.length} vente${S.sales.length!==1?'s':''}</div>
+        <div class="quick-label">${t('bilan')}</div>
+        <div class="quick-sub">${S.sales.length} ${t('saleOf')}</div>
       </button>
     </div>
 
     <div class="section-hd">
-      <div class="section-lbl">Dernières ventes</div>
-      <button class="section-act" onclick="nav('sales')">Voir tout</button>
+      <div class="section-lbl">${t('recentSales')}</div>
+      <button class="section-act" onclick="nav('sales')">${t('viewAll')}</button>
     </div>
     ${S.sales.length === 0 ? `
-    <div class="card" style="text-align:center;padding:18px;color:var(--text-3);font-size:13px">Aucune vente pour l'instant</div>
+    <div class="card" style="text-align:center;padding:18px;color:var(--text-3);font-size:13px">${t('noSalesYet')}</div>
     ` : S.sales.slice(0,4).map((s,i) => `
     <div class="card anim" style="animation-delay:${i*0.04}s">
       <div class="sale-item" style="padding:0">
@@ -1580,9 +1605,9 @@ function vPantry() {
   <div class="page-header">
     <div class="page-header-row">
       <button class="back-btn" onclick="nav('home')">${IC.left}</button>
-      <div class="page-title">Stock</div>
+      <div class="page-title">${t('stock')}</div>
       <div style="display:flex;gap:8px;align-items:center">
-        <button class="fab fab-outline" onclick="nav('spectra')" title="Scanner avec Spectra">${IC.camera}</button>
+        <button class="fab fab-outline" onclick="nav('spectra')" title="Spectra">${IC.camera}</button>
         <button class="fab" onclick="nav('add')">${IC.plus}</button>
       </div>
     </div>
@@ -1591,19 +1616,19 @@ function vPantry() {
       <input class="input input-search" type="text" placeholder="    Rechercher…" value="${S.search.replace(/"/g,'&quot;')}" oninput="S.search=this.value;render()">
     </div>
     <div class="filter-row">
-      <button class="filter-chip ${S.filter==='all'?'active':''}" onclick="S.filter='all';render()">Tout (${S.articles.length})</button>
-      <button class="filter-chip ${S.filter==='out'?'active':''}" onclick="S.filter='out';render()">Rupture</button>
-      <button class="filter-chip ${S.filter==='low'?'active':''}" onclick="S.filter='low';render()">Faible</button>
-      <button class="filter-chip ${S.filter==='ok'?'active':''}"  onclick="S.filter='ok';render()">OK</button>
+      <button class="filter-chip ${S.filter==='all'?'active':''}" onclick="S.filter='all';render()">${t('all')} (${S.articles.length})</button>
+      <button class="filter-chip ${S.filter==='out'?'active':''}" onclick="S.filter='out';render()">${t('outOfStock')}</button>
+      <button class="filter-chip ${S.filter==='low'?'active':''}" onclick="S.filter='low';render()">${t('low')}</button>
+      <button class="filter-chip ${S.filter==='ok'?'active':''}"  onclick="S.filter='ok';render()">${t('ok')}</button>
     </div>
   </div>
   <div class="container">
     ${list.length===0 ? `
     <div class="empty">
       <div class="empty-ico">${IC.inbox}</div>
-      <div class="empty-title">${S.articles.length===0 ? 'Aucun article' : 'Aucun résultat'}</div>
-      <div class="empty-text">${S.articles.length===0 ? 'Ajoute ton premier article de stock.' : 'Essaie un autre terme.'}</div>
-      ${S.articles.length===0 ? `<button class="btn btn-primary" style="width:auto;padding:11px 24px" onclick="nav('add')">Ajouter un article</button>` : ''}
+      <div class="empty-title">${S.articles.length===0 ? t('noArticles') : t('noResults')}</div>
+      <div class="empty-text">${S.articles.length===0 ? t('noArticlesSub') : t('noResultsSub')}</div>
+      ${S.articles.length===0 ? `<button class="btn btn-primary" style="width:auto;padding:11px 24px" onclick="nav('add')">${t('addArticle')}</button>` : ''}
     </div>` : list.map((a,i) => {
       const st  = stockStatus(a.stock, a.min);
       const pct = a.min > 0 ? Math.min(100, Math.round((a.stock / Math.max(a.min*2,1))*100)) : 100;
@@ -1632,7 +1657,7 @@ function vProducts() {
   <div class="page-header">
     <div class="page-header-row">
       <button class="back-btn" onclick="nav('home')">${IC.left}</button>
-      <div class="page-title">Produits finis</div>
+      <div class="page-title">${t('finishedProducts')}</div>
       <button class="fab" onclick="nav('add-product')">${IC.plus}</button>
     </div>
   </div>
@@ -1640,9 +1665,9 @@ function vProducts() {
     ${S.products.length===0 ? `
     <div class="empty">
       <div class="empty-ico">${IC.tagLg}</div>
-      <div class="empty-title">Aucun produit</div>
-      <div class="empty-text">Crée un produit fini à partir de tes articles en stock.</div>
-      <button class="btn btn-primary" style="width:auto;padding:11px 24px" onclick="nav('add-product')">Créer un produit</button>
+      <div class="empty-title">${t('noProducts')}</div>
+      <div class="empty-text">${t('noProductsSub')}</div>
+      <button class="btn btn-primary" style="width:auto;padding:11px 24px" onclick="nav('add-product')">${t('createProduct')}</button>
     </div>` : S.products.map((p,i) => {
       const avail   = productMaxMake(p);
       const canMake = avail > 0;
@@ -1656,12 +1681,12 @@ function vProducts() {
           <div class="article-avatar">${initials(p.name)}</div>
           <div class="article-info">
             <div class="article-name">${p.name}</div>
-            <div class="article-meta" style="font-weight:700;color:var(--text-2)">${fmt(p.price)} FCFA${p.purchasePrice > 0 ? ` <span style="font-size:11px;font-weight:600;color:${marginPct(p)>=20?'var(--success)':marginPct(p)>=0?'var(--warning)':'var(--danger)'};margin-left:6px">${marginPct(p)}% marge</span>` : ''}</div>
-            ${p.purchasePrice > 0 ? `<div class="article-meta" style="margin-top:1px;font-size:11px;color:var(--text-3)">Coût: ${fmt(p.purchasePrice)} · Bénéf: ${fmt(profitUnit(p))} FCFA/u</div>` : ''}
+            <div class="article-meta" style="font-weight:700;color:var(--text-2)">${fmt(p.price)} FCFA${p.purchasePrice > 0 ? ` <span style="font-size:11px;font-weight:600;color:${marginPct(p)>=20?'var(--success)':marginPct(p)>=0?'var(--warning)':'var(--danger)'};margin-left:6px">${marginPct(p)}% ${t('margin')}</span>` : ''}</div>
+            ${p.purchasePrice > 0 ? `<div class="article-meta" style="margin-top:1px;font-size:11px;color:var(--text-3)">${t('costLabel')}: ${fmt(p.purchasePrice)} · ${t('profitUnit')}: ${fmt(profitUnit(p))} FCFA/u</div>` : ''}
             ${recipeNames ? `<div class="article-meta" style="margin-top:2px;color:var(--text-3)">${recipeNames}</div>` : ''}
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-            <span class="status ${canMake?'st-ok':'st-out'}">${canMake?IC.check:IC.xmark} ${canMake?avail+' fab.':'Indispo'}</span>
+            <span class="status ${canMake?'st-ok':'st-out'}">${canMake?IC.check:IC.xmark} ${canMake?avail+' '+t('available'):t('unavailable')}</span>
             <div style="display:flex;gap:6px">
               <button onclick="nav('edit-product',{editProductId:${p.id}})" style="background:none;border:1px solid var(--gray-3);border-radius:6px;padding:4px 8px;cursor:pointer;color:var(--text-2)">${IC.settings}</button>
               <button onclick="deleteProduct(${p.id})" style="background:none;border:1px solid var(--gray-3);border-radius:6px;padding:4px 8px;cursor:pointer;color:var(--text-2)">${IC.trash}</button>
@@ -1682,35 +1707,35 @@ function vSales() {
   return `
   <div class="sub-hero">
     <button class="back-btn-dark" style="margin-bottom:14px" onclick="nav('home')">${IC.left}</button>
-    <div class="sub-hero-title">Ventes</div>
+    <div class="sub-hero-title">${t('sales')}</div>
     <div class="sub-hero-big">${fmt(todayCA)} <span style="font-size:16px;color:var(--gray-5)">FCFA</span></div>
-    <div class="sub-hero-sub">Aujourd'hui · ${S.sales.filter(s=>new Date(s.date).toDateString()===new Date().toDateString()).length} vente(s)</div>
+    <div class="sub-hero-sub">${t('today')} · ${S.sales.filter(s=>new Date(s.date).toDateString()===new Date().toDateString()).length} ${t('saleOf')}</div>
   </div>
   <div class="container">
     <div class="card" style="margin-bottom:14px">
-      <div class="card-title">Nouvelle vente</div>
+      <div class="card-title">${t('newSale')}</div>
       <div class="form-group">
-        <label class="form-label">Produit</label>
+        <label class="form-label">${t('product')}</label>
         <select class="input" id="sale-product">
-          <option value="">— Sélectionner —</option>
+          <option value="">${t('select')}</option>
           ${avail.map(p=>`<option value="${p.id}">${p.name} — ${fmt(p.price)} FCFA (${productMaxMake(p)} fab.)</option>`).join('')}
         </select>
       </div>
       <div class="form-group">
-        <label class="form-label">Quantité</label>
+        <label class="form-label">${t('quantity')}</label>
         <input type="number" class="input" id="sale-qty" value="1" min="1">
       </div>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-primary" style="flex:1" onclick="addToCart();S.cartOpen=true;render()">Confirmer</button>
+        <button class="btn btn-primary" style="flex:1" onclick="addToCart();S.cartOpen=true;render()">${t('confirm')}</button>
         <button class="btn btn-ghost" onclick="toggleCart()" style="flex:1">
-          ${S.cartOpen ? 'Fermer panier' : 'Faire un panier ?'}${S.cart.length>0?` (${S.cart.length})`:''}
+          ${S.cartOpen ? t('closeCart') : t('cartQuestion')}${S.cart.length>0?` (${S.cart.length})`:''}
         </button>
       </div>
     </div>
     ${S.cartOpen ? `
     <div class="card" style="margin-bottom:14px;border:2px solid var(--black)">
-      <div class="card-title">Panier (${S.cart.length} article${S.cart.length>1?'s':''})</div>
-      ${S.cart.length===0 ? `<div style="font-size:13px;color:var(--text-3);padding:8px 0">Panier vide — ajoute des produits ci-dessus.</div>` :
+      <div class="card-title">${t('cart')} (${S.cart.length})</div>
+      ${S.cart.length===0 ? `<div style="font-size:13px;color:var(--text-3);padding:8px 0">${t('emptyCart')}</div>` :
         S.cart.map((c,i) => `
         <div class="cart-item">
           <div class="cart-item-info">
@@ -1720,18 +1745,18 @@ function vSales() {
           <button class="cart-remove" onclick="removeFromCart(${i})">${IC.xmark}</button>
         </div>`).join('')}
       ${S.cart.length>0 ? `
-      <div class="cart-total">Total : <strong>${fmt(S.cart.reduce((s,c)=>s+c.unitPrice*c.qty,0))} FCFA</strong></div>
-      <button class="btn btn-primary" style="margin-top:10px" onclick="confirmCart()">Valider la vente</button>` : ''}
+      <div class="cart-total">${t('total')} : <strong>${fmt(S.cart.reduce((s,c)=>s+c.unitPrice*c.qty,0))} FCFA</strong></div>
+      <button class="btn btn-primary" style="margin-top:10px" onclick="confirmCart()">${t('validateSale')}</button>` : ''}
     </div>` : ''}
     <div class="section-hd">
-      <div class="section-lbl">Historique</div>
-      <div style="font-size:12px;color:var(--text-3)">${S.sales.length} vente(s)</div>
+      <div class="section-lbl">${t('history')}</div>
+      <div style="font-size:12px;color:var(--text-3)">${S.sales.length} ${t('saleOf')}</div>
     </div>
     ${S.sales.length===0 ? `
     <div class="empty">
       <div class="empty-ico">${IC.dollarLg}</div>
-      <div class="empty-title">Aucune vente</div>
-      <div class="empty-text">Les ventes apparaîtront ici.</div>
+      <div class="empty-title">${t('noSales')}</div>
+      <div class="empty-text">${t('noSalesSub')}</div>
     </div>` : S.sales.map(s=>{
       const sid = 'sale_' + s.id;
       window[sid] = s;
@@ -1789,42 +1814,42 @@ function vFinancial() {
   return `
   <div class="sub-hero">
     <button class="back-btn-dark" style="margin-bottom:14px" onclick="nav('home')">${IC.left}</button>
-    <div class="sub-hero-title">Bilan financier</div>
+    <div class="sub-hero-title">${t('financialTitle')}</div>
     <div class="sub-hero-big">${fmt(totalCA)} <span style="font-size:16px;color:var(--accent-muted)">FCFA</span></div>
-    <div class="sub-hero-sub">${filtered.length} vente(s) · période sélectionnée</div>
+    <div class="sub-hero-sub">${filtered.length} ${t('saleOf')} · ${t('period')}</div>
   </div>
   <div class="container">
     <div class="period-tabs">
       ${periods.map(p=>`<button class="period-tab ${S.period===p.key?'active':''}" onclick="S.period='${p.key}';render()">${p.label}</button>`).join('')}
     </div>
     <div class="chart-card">
-      <div class="chart-title">Chiffre d'affaires</div>
+      <div class="chart-title">${t('revenueChart')}</div>
       <div class="chart-wrap"><canvas id="revenue-chart"></canvas></div>
     </div>
     <div class="metric-grid">
-      <div class="metric-card"><div class="metric-val">${fmt(totalCA)}</div><div class="metric-lbl">CA</div></div>
-      <div class="metric-card"><div class="metric-val" style="color:var(--success)">${fmt(totalProfit)}</div><div class="metric-lbl">Bénéfice</div></div>
-      <div class="metric-card"><div class="metric-val" style="color:${avgMargin>=20?'var(--success)':avgMargin>=0?'var(--warning)':'var(--danger)'}">${avgMargin}%</div><div class="metric-lbl">Marge moy.</div></div>
+      <div class="metric-card"><div class="metric-val">${fmt(totalCA)}</div><div class="metric-lbl">${t('caTotal')}</div></div>
+      <div class="metric-card"><div class="metric-val" style="color:var(--success)">${fmt(totalProfit)}</div><div class="metric-lbl">${t('profit')}</div></div>
+      <div class="metric-card"><div class="metric-val" style="color:${avgMargin>=20?'var(--success)':avgMargin>=0?'var(--warning)':'var(--danger)'}">${avgMargin}%</div><div class="metric-lbl">${t('avgMargin')}</div></div>
     </div>
     <div class="metric-grid">
-      <div class="metric-card"><div class="metric-val">${filtered.length}</div><div class="metric-lbl">Ventes</div></div>
-      <div class="metric-card"><div class="metric-val">${fmt(avg)}</div><div class="metric-lbl">Ticket moy.</div></div>
-      <div class="metric-card"><div class="metric-val">${fmt(stockVal)}</div><div class="metric-lbl">Val. stock</div></div>
+      <div class="metric-card"><div class="metric-val">${filtered.length}</div><div class="metric-lbl">${t('salesCount')}</div></div>
+      <div class="metric-card"><div class="metric-val">${fmt(avg)}</div><div class="metric-lbl">${t('avgTicket')}</div></div>
+      <div class="metric-card"><div class="metric-val">${fmt(stockVal)}</div><div class="metric-lbl">${t('stockVal')}</div></div>
     </div>
     <div class="card">
-      <div class="card-title">Top produits</div>
+      <div class="card-title">${t('topProducts')}</div>
       ${top.length===0
-        ? `<div style="font-size:13px;color:var(--text-3)">Aucune vente sur cette période.</div>`
+        ? `<div style="font-size:13px;color:var(--text-3)">${t('noSalesPeriod')}</div>`
         : top.map(([name,d],i)=>`
           <div class="rank-item">
             <div class="rank-num ${i===0?'r1':''}">${i+1}</div>
-            <div class="rank-name">${name}${d.profit>0?`<div style="font-size:11px;color:var(--success);font-weight:400">+${fmt(d.profit)} bénéf.</div>`:''}</div>
+            <div class="rank-name">${name}${d.profit>0?`<div style="font-size:11px;color:var(--success);font-weight:400">+${fmt(d.profit)} ${t('profitShort')}</div>`:''}</div>
             <div class="rank-rev">${fmt(d.rev)} FCFA</div>
           </div>`).join('')}
     </div>
     ${S.predictions.length > 0 ? `
     <div class="section-hd" style="margin-top:8px">
-      <div class="section-lbl">Prédictions IA</div>
+      <div class="section-lbl">${t('aiPredictions')}</div>
       <div style="font-size:11px;color:var(--text-3)">WMA · EOQ · Safety Stock</div>
     </div>
     ${S.predictions.filter(p => p.status !== 'no_data').map((p, i) => `
@@ -1870,7 +1895,7 @@ function vDetail() {
     <div class="card">
       <div class="gauge">
         <div class="gauge-val">${art.stock}</div>
-        <div class="gauge-unit">${art.unit} en stock</div>
+        <div class="gauge-unit">${art.unit} ${t('inStock')}</div>
         <div class="progress" style="margin:14px 0 6px;height:6px">
           <div class="progress-bar ${st.bar}" style="width:${pct}%"></div>
         </div>
@@ -1879,15 +1904,15 @@ function vDetail() {
     </div>
 
     <div class="card" style="margin-top:8px">
-      <div class="card-title">Modifier le stock</div>
+      <div class="card-title">${t('editStock')}</div>
       <div class="action-toggle">
         <button class="toggle-btn ${S.action==='add'?'t-active':''}" onclick="S.action='add';render()">
           <div class="toggle-ico">${IC.download}</div>
-          <div class="toggle-label">Réception</div>
+          <div class="toggle-label">${t('reception')}</div>
         </button>
         <button class="toggle-btn ${S.action==='remove'?'t-active':''}" onclick="S.action='remove';render()">
           <div class="toggle-ico">${IC.upload}</div>
-          <div class="toggle-label">Retrait</div>
+          <div class="toggle-label">${t('withdrawal')}</div>
         </button>
       </div>
       <div class="qty-row">
@@ -1905,28 +1930,28 @@ function vDetail() {
     </div>
 
     <div class="card" style="margin-top:8px">
-      <div class="card-title">Informations</div>
+      <div class="card-title">${t('infoTitle')}</div>
       <div class="info-row">
-        <span class="info-lbl">${IC.truck} Délai livraison</span>
+        <span class="info-lbl">${IC.truck} ${t('deliveryTime')}</span>
         <span class="info-val">${art.lead} jours</span>
       </div>
       ${usedIn.length>0 ? `
       <div class="info-row" style="align-items:flex-start">
-        <span class="info-lbl">${IC.tag} Utilisé dans</span>
+        <span class="info-lbl">${IC.tag} ${t('usedIn')}</span>
         <span class="info-val" style="text-align:right">${usedIn.map(p=>{
           const c=p.composition.find(x=>x.id===art.id);
           return `${p.name} (×${c.qty})`;
         }).join('<br>')}</span>
       </div>
       <div class="info-row">
-        <span class="info-lbl">${IC.alert} Seuil auto</span>
+        <span class="info-lbl">${IC.alert} ${t('thresholdAuto')}</span>
         <span class="info-val">${art.min>0?art.min+' '+art.unit:'non calculé'}</span>
       </div>` : ''}
     </div>
 
     <div style="margin-top:10px">
       <button class="btn btn-ghost" onclick="confirmDelete(${art.id})" style="color:var(--black);border-color:var(--gray-3)">
-        ${IC.trash} Supprimer cet article
+        ${IC.trash} ${t('deleteArticle')}
       </button>
     </div>
   </div>`;
@@ -1949,13 +1974,13 @@ function vAdd() {
   return `
   <div class="sub-hero">
     <button class="back-btn-dark" style="margin-bottom:14px" onclick="nav('pantry')">${IC.left}</button>
-    <div class="sub-hero-title">Nouvel article</div>
-    <div class="sub-hero-sub">Ajouter un article à ton stock</div>
+    <div class="sub-hero-title">${t('newArticle')}</div>
+    <div class="sub-hero-sub">${t('addStockSub')}</div>
   </div>
   <div class="container">
     <div class="card">
       <div class="form-group">
-        <label class="form-label">Nom de l'article *</label>
+        <label class="form-label">${t('articleName')} *</label>
         <input class="input" type="text" placeholder="ex: Farine, Tissu, Bouteilles…" value="${f.name.replace(/"/g,'&quot;')}" oninput="S.form.name=this.value">
       </div>
       <div class="form-group">
@@ -1987,18 +2012,18 @@ function vAdd() {
       </div>
       <div class="input-row form-group">
         <div>
-          <label class="form-label">Quantité initiale</label>
+          <label class="form-label">${t('initialStock')}</label>
           <input class="input" type="number" placeholder="0" step="0.5" value="${f.stock}" oninput="S.form.stock=this.value">
         </div>
         <div>
-          <label class="form-label">Délai livraison (j)</label>
+          <label class="form-label">${t('deliveryDays')}</label>
           <input class="input" type="number" placeholder="7" value="${f.lead}" oninput="S.form.lead=this.value">
         </div>
       </div>
       <div style="background:var(--gray-1);border:1px solid var(--border);border-radius:var(--r-md);padding:12px;font-size:12px;color:var(--text-3);margin-bottom:14px">
-        ${IC.info} Le seuil d'alerte sera calculé automatiquement quand tu associes cet article à un produit.
+        ${IC.info} ${t('alertAutoInfo')}
       </div>
-      <button class="btn btn-primary" onclick="saveArticle()">Ajouter cet article</button>
+      <button class="btn btn-primary" onclick="saveArticle()">${t('addThisArticle')}</button>
     </div>
   </div>`;
 }
@@ -2008,31 +2033,31 @@ function vAddProduct() {
   return `
   <div class="sub-hero">
     <button class="back-btn-dark" style="margin-bottom:14px" onclick="nav('products')">${IC.left}</button>
-    <div class="sub-hero-title">Nouveau produit</div>
-    <div class="sub-hero-sub">Produit fini composé d'articles</div>
+    <div class="sub-hero-title">${t('newProduct')}</div>
+    <div class="sub-hero-sub">${t('productSub')}</div>
   </div>
   <div class="container">
     <div class="card">
       <div class="form-group">
-        <label class="form-label">Nom du produit *</label>
+        <label class="form-label">${t('productName')} *</label>
         <input class="input" id="prod-name" type="text" placeholder="ex: Boubou, Robe, Jupe…">
       </div>
       <div style="display:flex;gap:10px">
         <div class="form-group" style="flex:1">
-          <label class="form-label">Prix d'achat (FCFA)</label>
+          <label class="form-label">${t('purchasePrice')} (FCFA)</label>
           <input class="input" id="prod-cost" type="number" placeholder="0" step="100" oninput="updateMarginPreview()">
         </div>
         <div class="form-group" style="flex:1">
-          <label class="form-label">Prix de vente (FCFA)</label>
+          <label class="form-label">${t('sellingPrice')} (FCFA)</label>
           <input class="input" id="prod-price" type="number" placeholder="0" step="100" oninput="updateMarginPreview()">
         </div>
       </div>
       <div id="margin-preview" style="background:var(--gray-1);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 12px;font-size:13px;color:var(--text-3);margin-bottom:14px;display:none">
-        Marge : <strong id="margin-val">—</strong>
+        ${t('margin')} : <strong id="margin-val">—</strong>
       </div>
       ${S.articles.length>0 ? `
       <div class="form-group">
-        <label class="form-label">Composition <span style="font-weight:400;text-transform:none;letter-spacing:0">(quantité par unité produite)</span></label>
+        <label class="form-label">${t('composition')} <span style="font-weight:400;text-transform:none;letter-spacing:0">(${t('perUnit')})</span></label>
         ${S.articles.map(a=>`
         <div class="comp-input" data-id="${a.id}" style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
           <div style="flex:1;font-size:13px;font-weight:600;color:var(--text-2)">${a.name}
@@ -2048,9 +2073,9 @@ function vAddProduct() {
         </div>`).join('')}
       </div>` : `
       <div style="padding:14px;background:var(--gray-1);border-radius:var(--r-md);border:1px solid var(--border);font-size:13px;color:var(--text-3);text-align:center;margin-bottom:14px">
-        Ajoute d'abord des articles au stock pour définir la composition.
+        ${t('addArticlesFirst')}
       </div>`}
-      <button class="btn btn-primary" onclick="saveProduct()">Créer ce produit</button>
+      <button class="btn btn-primary" onclick="saveProduct()">${t('create')}</button>
     </div>
   </div>`;
 }
@@ -2062,31 +2087,31 @@ function vEditProduct() {
   return `
   <div class="sub-hero">
     <button class="back-btn-dark" style="margin-bottom:14px" onclick="nav('products')">${IC.left}</button>
-    <div class="sub-hero-title">Modifier le produit</div>
+    <div class="sub-hero-title">${t('editProduct')}</div>
     <div class="sub-hero-sub">${p.name}</div>
   </div>
   <div class="container">
     <div class="card">
       <div class="form-group">
-        <label class="form-label">Nom du produit *</label>
+        <label class="form-label">${t('productName')} *</label>
         <input class="input" id="prod-name" type="text" value="${p.name.replace(/"/g,'&quot;')}">
       </div>
       <div style="display:flex;gap:10px">
         <div class="form-group" style="flex:1">
-          <label class="form-label">Prix d'achat (FCFA)</label>
+          <label class="form-label">${t('purchasePrice')} (FCFA)</label>
           <input class="input" id="prod-cost" type="number" placeholder="0" step="100" value="${p.purchasePrice || ''}">
         </div>
         <div class="form-group" style="flex:1">
-          <label class="form-label">Prix de vente (FCFA)</label>
+          <label class="form-label">${t('sellingPrice')} (FCFA)</label>
           <input class="input" id="prod-price" type="number" placeholder="0" step="100" value="${p.price}">
         </div>
       </div>
       <div id="margin-preview" style="background:var(--gray-1);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 12px;font-size:13px;color:var(--text-3);margin-bottom:14px;${p.price > 0 ? '' : 'display:none'}">
-        Marge : <strong id="margin-val">${p.price > 0 ? Math.round(((p.price - (p.purchasePrice||0)) / p.price) * 100) + '%' : '—'}</strong>
+        ${t('margin')} : <strong id="margin-val">${p.price > 0 ? Math.round(((p.price - (p.purchasePrice||0)) / p.price) * 100) + '%' : '—'}</strong>
       </div>
       ${S.articles.length > 0 ? `
       <div class="form-group">
-        <label class="form-label">Composition <span style="font-weight:400;text-transform:none;letter-spacing:0">(quantité par unité produite)</span></label>
+        <label class="form-label">${t('composition')} <span style="font-weight:400;text-transform:none;letter-spacing:0">(${t('perUnit')})</span></label>
         ${S.articles.map(a => {
           const existing = p.composition.find(c => c.id === a.id);
           return `
@@ -2104,7 +2129,7 @@ function vEditProduct() {
           </div>`;
         }).join('')}
       </div>` : ''}
-      <button class="btn btn-primary" onclick="saveEditProduct()">Mettre à jour</button>
+      <button class="btn btn-primary" onclick="saveEditProduct()">${t('update')}</button>
     </div>
   </div>`;
 }
@@ -2325,20 +2350,20 @@ function vSettings() {
   return `
   <div class="sub-hero">
     <button class="back-btn-dark" style="margin-bottom:14px" onclick="nav('home')">${IC.left}</button>
-    <div class="sub-hero-title">Paramètres</div>
+    <div class="sub-hero-title">${t('settings')}</div>
     <div class="sub-hero-sub">${S.session.email}</div>
   </div>
   <div class="container">
     <div class="settings-section">
-      <div class="settings-label">Mon compte</div>
+      <div class="settings-label">${t('myAccount')}</div>
       ${S.settingsEdit ? `
       <div class="card" style="padding:14px">
         <div class="form-group">
-          <label class="form-label">Nom</label>
+          <label class="form-label">${t('name')}</label>
           <input class="input" id="set-name" type="text" value="${S.session.name.replace(/"/g,'&quot;')}">
         </div>
         <div class="form-group">
-          <label class="form-label">Commerce</label>
+          <label class="form-label">${t('business')}</label>
           <input class="input" id="set-biz" type="text" value="${(S.session.business||'').replace(/"/g,'&quot;')}">
         </div>
         <div class="form-group">
@@ -2346,8 +2371,8 @@ function vSettings() {
           <input class="input" id="set-email" type="email" value="${S.session.email.replace(/"/g,'&quot;')}">
         </div>
         <div style="display:flex;gap:8px;margin-top:4px">
-          <button class="btn btn-primary" style="flex:1" onclick="saveAccountInfo()">Sauvegarder</button>
-          <button class="btn btn-ghost" style="flex:1" onclick="S.settingsEdit=false;render()">Annuler</button>
+          <button class="btn btn-primary" style="flex:1" onclick="saveAccountInfo()">${t('save')}</button>
+          <button class="btn btn-ghost" style="flex:1" onclick="S.settingsEdit=false;render()">${t('cancel')}</button>
         </div>
       </div>
       ` : `
@@ -2357,7 +2382,7 @@ function vSettings() {
             <span class="settings-row-ico">${IC.user}</span>
             <div>
               <div class="settings-row-lbl">${S.session.name}</div>
-              <div class="settings-row-sub">${S.session.business || 'Commerce'}</div>
+              <div class="settings-row-sub">${S.session.business || t('business')}</div>
             </div>
           </div>
         </div>
@@ -2366,14 +2391,14 @@ function vSettings() {
             <span class="settings-row-ico">${IC.info}</span>
             <div>
               <div class="settings-row-lbl">${S.session.email}</div>
-              <div class="settings-row-sub">Adresse email</div>
+              <div class="settings-row-sub">${t('emailAddr')}</div>
             </div>
           </div>
         </div>
         <div class="settings-row" onclick="S.settingsEdit=true;render()">
           <div class="settings-row-inner">
             <span class="settings-row-ico">${IC.settings}</span>
-            <div class="settings-row-lbl">Modifier</div>
+            <div class="settings-row-lbl">${t('modify')}</div>
           </div>
           ${IC.chevron}
         </div>
@@ -2381,13 +2406,13 @@ function vSettings() {
     </div>
 
     <div class="settings-section">
-      <div class="settings-label">Apparence</div>
+      <div class="settings-label">${t('appearance')}</div>
       <div class="settings-row-block">
         <div class="settings-row" style="cursor:default">
           <div class="settings-row-inner">
             <span class="settings-row-ico">${S.darkMode?IC.moon:IC.sun}</span>
             <div>
-              <div class="settings-row-lbl">Mode ${S.darkMode?'sombre':'clair'}</div>
+              <div class="settings-row-lbl">${S.darkMode?t('darkMode'):t('lightMode')}</div>
             </div>
           </div>
           <label class="toggle-switch">
@@ -2399,49 +2424,66 @@ function vSettings() {
     </div>
 
     <div class="settings-section">
-      <div class="settings-label">Données</div>
+      <div class="settings-label">${t('language')}</div>
       <div class="settings-row-block">
         <div class="settings-row" style="cursor:default">
-          <div class="settings-row-inner"><span class="settings-row-ico">${IC.box}</span><div class="settings-row-lbl">${S.articles.length} article${S.articles.length!==1?'s':''}</div></div>
-        </div>
-        <div class="settings-row" style="cursor:default">
-          <div class="settings-row-inner"><span class="settings-row-ico">${IC.tag}</span><div class="settings-row-lbl">${S.products.length} produit${S.products.length!==1?'s':''}</div></div>
-        </div>
-        <div class="settings-row" style="cursor:default">
-          <div class="settings-row-inner"><span class="settings-row-ico">${IC.dollar}</span><div class="settings-row-lbl">${S.sales.length} vente${S.sales.length!==1?'s':''}</div></div>
+          <div class="settings-row-inner">
+            <span class="settings-row-ico">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </span>
+            <div style="display:flex;gap:8px">
+              <button onclick="setLang('fr')" style="padding:6px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid ${_lang==='fr'?'var(--accent)':'var(--border)'};background:${_lang==='fr'?'var(--accent-light)':'transparent'};color:${_lang==='fr'?'var(--accent)':'var(--text-3)'}">Français</button>
+              <button onclick="setLang('en')" style="padding:6px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid ${_lang==='en'?'var(--accent)':'var(--border)'};background:${_lang==='en'?'var(--accent-light)':'transparent'};color:${_lang==='en'?'var(--accent)':'var(--text-3)'}">English</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="settings-section">
-      <div class="settings-label">Exporter (CSV)</div>
+      <div class="settings-label">${t('data')}</div>
+      <div class="settings-row-block">
+        <div class="settings-row" style="cursor:default">
+          <div class="settings-row-inner"><span class="settings-row-ico">${IC.box}</span><div class="settings-row-lbl">${S.articles.length} ${t('articles').toLowerCase()}</div></div>
+        </div>
+        <div class="settings-row" style="cursor:default">
+          <div class="settings-row-inner"><span class="settings-row-ico">${IC.tag}</span><div class="settings-row-lbl">${S.products.length} ${t('products').toLowerCase()}</div></div>
+        </div>
+        <div class="settings-row" style="cursor:default">
+          <div class="settings-row-inner"><span class="settings-row-ico">${IC.dollar}</span><div class="settings-row-lbl">${S.sales.length} ${t('saleOf')}</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-label">${t('exportCSV')}</div>
       <div class="settings-row-block">
         <div class="settings-row" onclick="exportArticlesCSV()">
-          <div class="settings-row-inner"><span class="settings-row-ico">${IC.download}</span><div class="settings-row-lbl">Articles</div></div>
+          <div class="settings-row-inner"><span class="settings-row-ico">${IC.download}</span><div class="settings-row-lbl">${t('exportArticles')}</div></div>
           ${IC.chevron}
         </div>
         <div class="settings-row" onclick="exportProductsCSV()">
-          <div class="settings-row-inner"><span class="settings-row-ico">${IC.download}</span><div class="settings-row-lbl">Produits + marges</div></div>
+          <div class="settings-row-inner"><span class="settings-row-ico">${IC.download}</span><div class="settings-row-lbl">${t('exportProducts')}</div></div>
           ${IC.chevron}
         </div>
         <div class="settings-row" onclick="exportSalesCSV()">
-          <div class="settings-row-inner"><span class="settings-row-ico">${IC.download}</span><div class="settings-row-lbl">Historique ventes</div></div>
+          <div class="settings-row-inner"><span class="settings-row-ico">${IC.download}</span><div class="settings-row-lbl">${t('exportSales')}</div></div>
           ${IC.chevron}
         </div>
         <div class="settings-row" onclick="exportAllCSV()">
-          <div class="settings-row-inner"><span class="settings-row-ico" style="color:var(--accent)">${IC.download}</span><div class="settings-row-lbl" style="color:var(--accent)">Tout exporter</div></div>
+          <div class="settings-row-inner"><span class="settings-row-ico" style="color:var(--accent)">${IC.download}</span><div class="settings-row-lbl" style="color:var(--accent)">${t('exportAll')}</div></div>
           ${IC.chevron}
         </div>
       </div>
     </div>
 
     <div class="settings-section">
-      <div class="settings-label">Session</div>
+      <div class="settings-label">${t('session')}</div>
       <div class="settings-row-block">
         <div class="settings-row" onclick="doLogout()">
           <div class="settings-row-inner">
             <span class="settings-row-ico">${IC.logout}</span>
-            <div class="settings-row-lbl">Se déconnecter</div>
+            <div class="settings-row-lbl">${t('logout')}</div>
           </div>
           ${IC.chevron}
         </div>
@@ -2450,7 +2492,7 @@ function vSettings() {
 
     ${_deferredInstall ? `
     <div class="settings-section">
-      <div class="settings-label">Application</div>
+      <div class="settings-label">${t('app')}</div>
       <div class="settings-row-block">
         <div class="settings-row" onclick="installPWA()">
           <div class="settings-row-inner">
@@ -2458,8 +2500,8 @@ function vSettings() {
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             </span>
             <div>
-              <div class="settings-row-lbl" style="color:var(--accent)">Installer STOCKR</div>
-              <div class="settings-row-sub">Ajouter à l'écran d'accueil</div>
+              <div class="settings-row-lbl" style="color:var(--accent)">${t('installApp')}</div>
+              <div class="settings-row-sub">${t('installSub')}</div>
             </div>
           </div>
           ${IC.chevron}
@@ -2560,6 +2602,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.exportProductsCSV    = exportProductsCSV;
   window.exportSalesCSV       = exportSalesCSV;
   window.exportAllCSV         = exportAllCSV;
+  window.setLang              = setLang;
 
   // Restaurer la session + token si existants
   const saved = getSession();
