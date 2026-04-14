@@ -12,7 +12,9 @@ Article (pantry):
     Détail:
     *il faudrait faire une modification pour les lots aussi. il faut que chaque truc du lot on puisse mettre sa contenance et son unité dans le 
     sens où on peut avoir un lot de six  t-shirt, ou un lot de 6 bouteilles de lait et en consommer 10ml dans une recette par exemple
-
+    
+    Vue:
+    ce serait bien que les trucs qui sont presque finis soient highlighted en rouge
 Sales:
     il faut juste faire un bouton "faire un panier?" mais pas automatiquement mettre un panier quoi
 

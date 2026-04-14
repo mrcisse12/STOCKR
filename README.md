@@ -17,7 +17,7 @@ Stack : Flask (Python) + SQLite + Vanilla JS (SPA)
 
 ```bash
 # 1. Cloner le repo
-git clone https://github.com/<ton-username>/STOCKR.git
+git clone https://github.com/elisam-09/STOCKR.git
 cd STOCKR
 
 # 2. Créer un environnement virtuel et installer les dépendances
@@ -46,7 +46,7 @@ python3 -m http.server 3456
 
 ```bash
 # 1. Cloner le repo
-git clone https://github.com/<ton-username>/STOCKR.git
+git clone https://github.com/elisam-09/STOCKR.git
 cd STOCKR
 
 # 2. Créer un environnement virtuel et installer les dépendances
