@@ -190,6 +190,13 @@ const LANGS = {
     spectraInventory:'Inventaire rapide', spectraCompare:'Comparer au stock',
     spectraMatch:'Correspond', spectraMissing:'Manquant', spectraExtra:'Excédent',
     spectraScanSub:'Scanne tes étagères pour vérifier le stock rapidement.',
+    spectraAudit:'Audit Express', spectraAuditSub:'Détecte les écarts et vols en un scan',
+    spectraReception:'Réception Magique', spectraReceptionSub:'Entrée de stock en 1 clic',
+    spectraReceptionDone:'Arrivage confirmé',
+    spectraAdjust:'Ajuster le stock', spectraSignalLoss:'Signaler une perte',
+    spectraGap:'Écart détecté', spectraGapMsg:'articles manquants vs le système',
+    spectraNewDelivery:'Nouvel arrivage détecté', spectraConfirmReception:'Confirmer la réception',
+    spectraItemsReceived:'articles reçus',
     // Invoice
     invoice:'Facture', invoiceNumber:'N° Facture', invoiceDate:'Date',
     invoiceClient:'Client', invoiceItems:'Articles', invoiceQty:'Qté',
@@ -210,6 +217,10 @@ const LANGS = {
     pwdShort:'Mot de passe trop court (min. 6 caractères)',
     welcome:'Bienvenue', offlineMode:'Mode hors-ligne activé', delete:'Supprimer',
     emptyCartMsg:'Le panier est vide', search:'Rechercher…',
+    errLoad:'Erreur de chargement', nameRequired:'Nom requis', chooseProduct:'Choisis un produit',
+    insufficientStock:'Stock insuffisant', pdfOffline:'PDF non disponible hors-ligne',
+    infoUpdated:'Infos mises à jour', installed:'Installé sur votre écran d\'accueil',
+    updateAvailable:'Mise à jour disponible — rechargez',
   },
   en: {
     home:'Home', stock:'Stock', products:'Products', sales:'Sales', bilan:'Reports',
@@ -284,6 +295,13 @@ const LANGS = {
     spectraInventory:'Quick inventory', spectraCompare:'Compare to stock',
     spectraMatch:'Match', spectraMissing:'Missing', spectraExtra:'Extra',
     spectraScanSub:'Scan your shelves to quickly verify stock.',
+    spectraAudit:'Express Audit', spectraAuditSub:'Detect gaps and theft in one scan',
+    spectraReception:'Magic Reception', spectraReceptionSub:'Stock entry in 1 click',
+    spectraReceptionDone:'Delivery confirmed',
+    spectraAdjust:'Adjust stock', spectraSignalLoss:'Report loss',
+    spectraGap:'Gap detected', spectraGapMsg:'items missing vs system',
+    spectraNewDelivery:'New delivery detected', spectraConfirmReception:'Confirm reception',
+    spectraItemsReceived:'items received',
     invoice:'Invoice', invoiceNumber:'Invoice #', invoiceDate:'Date',
     invoiceClient:'Client', invoiceItems:'Items', invoiceQty:'Qty',
     invoiceUnitPrice:'Unit price', invoiceTotal:'Total', invoiceSubtotal:'Subtotal',
@@ -301,6 +319,10 @@ const LANGS = {
     pwdShort:'Password too short (min 6 characters)',
     welcome:'Welcome', offlineMode:'Offline mode activated', delete:'Delete',
     emptyCartMsg:'Cart is empty', search:'Search…',
+    errLoad:'Loading error', nameRequired:'Name required', chooseProduct:'Choose a product',
+    insufficientStock:'Insufficient stock', pdfOffline:'PDF unavailable offline',
+    infoUpdated:'Info updated', installed:'Installed on home screen',
+    updateAvailable:'Update available — reload',
   }
 };
 let _lang = localStorage.getItem('stockr_lang') || 'fr';
@@ -312,7 +334,7 @@ function _invNum(id) { return 'INV-' + String(id).slice(-6).toUpperCase(); }
 
 function generateInvoicePDF(sales) {
   if (!Array.isArray(sales)) sales = [sales];
-  if (typeof window.jspdf === 'undefined') { showToast('PDF non disponible (hors-ligne)', 'error'); return; }
+  if (typeof window.jspdf === 'undefined') { showToast(t('pdfOffline'), 'error'); return; }
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
   const sym  = S.session?.currency_symbol || 'FCFA';
@@ -713,7 +735,7 @@ async function api(method, path, body) {
   } catch(e) {
     if (e.message === 'Failed to fetch' || e.name === 'TypeError' || e.message.includes('503')) {
       USE_LOCAL = true;
-      showToast('Mode hors-ligne activé', '');
+      showToast(t('offlineMode'), '');
       return _localApi(method, path, body);
     }
     throw e;
@@ -761,7 +783,7 @@ async function loadData() {
     recalcAllMins();
     render();
   } catch(e) {
-    showToast('Erreur de chargement des données', 'error');
+    showToast(t('errLoad'), 'error');
   }
 }
 
@@ -837,7 +859,7 @@ function showToast(msg, type='') {
 async function doLogin() {
   const email = S.authEmail.trim();
   const pwd   = S.authPwd;
-  if (!email || !pwd) { showToast('Remplis tous les champs', 'error'); return; }
+  if (!email || !pwd) { showToast(t('fillAll'), 'error'); return; }
   try {
     const data = await api('POST', '/api/auth/login', { email, password: pwd });
     const u = data.user;
@@ -866,9 +888,9 @@ function authNextStep() {
   const email = S.authEmail.trim();
   const pwd   = S.authPwd;
   const pwd2  = S.authPwd2;
-  if (!name || !email || !pwd) { showToast('Remplis tous les champs obligatoires', 'error'); return; }
-  if (pwd !== pwd2)            { showToast('Les mots de passe ne correspondent pas', 'error'); return; }
-  if (pwd.length < 6)          { showToast('Mot de passe trop court (min. 6 caractères)', 'error'); return; }
+  if (!name || !email || !pwd) { showToast(t('fillAll'), 'error'); return; }
+  if (pwd !== pwd2)            { showToast(t('pwdMismatch'), 'error'); return; }
+  if (pwd.length < 6)          { showToast(t('pwdShort'), 'error'); return; }
   S.authStep = 2;
   render();
 }
@@ -965,7 +987,7 @@ async function doLogout() {
 async function applyStock() {
   const art = S.articles.find(a => a.id === S.selectedId);
   if (!art) return;
-  if (S.action === 'remove' && art.stock < S.qty) { showToast('Stock insuffisant', 'error'); return; }
+  if (S.action === 'remove' && art.stock < S.qty) { showToast(t('insufficientStock'), 'error'); return; }
   const newStock = S.action === 'add'
     ? Math.round((art.stock + S.qty) * 10) / 10
     : Math.round((art.stock - S.qty) * 10) / 10;
@@ -997,7 +1019,7 @@ async function deleteArticle(id) {
 function recordSale() {
   const sel   = $('sale-product');
   const qtyEl = $('sale-qty');
-  if (!sel || !sel.value) { showToast('Choisis un produit', 'error'); return; }
+  if (!sel || !sel.value) { showToast(t('chooseProduct'), 'error'); return; }
   const product = S.products.find(p => p.id === parseInt(sel.value));
   if (!product) return;
   const qty = Math.max(1, parseInt(qtyEl.value) || 1);
@@ -1019,7 +1041,7 @@ function recordSale() {
 
 async function saveArticle() {
   const f = S.form;
-  if (!f.name.trim()) { showToast('Nom requis', 'error'); return; }
+  if (!f.name.trim()) { showToast(t('nameRequired'), 'error'); return; }
   try {
     const data = await api('POST', '/api/articles/', {
       name:            f.name.trim(),
@@ -1040,7 +1062,7 @@ async function saveArticle() {
 async function saveProduct() {
   const nameEl  = $('prod-name');
   const priceEl = $('prod-price');
-  if (!nameEl || !nameEl.value.trim()) { showToast('Nom requis', 'error'); return; }
+  if (!nameEl || !nameEl.value.trim()) { showToast(t('nameRequired'), 'error'); return; }
   const composition = [];
   document.querySelectorAll('.comp-input').forEach(row => {
     const artId = parseInt(row.dataset.id);
@@ -1151,7 +1173,7 @@ async function deleteProduct(id) {
 async function saveEditProduct() {
   const nameEl  = $('prod-name');
   const priceEl = $('prod-price');
-  if (!nameEl?.value.trim()) { showToast('Nom requis', 'error'); return; }
+  if (!nameEl?.value.trim()) { showToast(t('nameRequired'), 'error'); return; }
   const p = S.products.find(p => p.id === S.editProductId);
   if (!p) return;
   const composition = [];
@@ -1203,7 +1225,7 @@ function toggleAuthPwd(e) {
 function addToCart() {
   const sel   = $('sale-product');
   const qtyEl = $('sale-qty');
-  if (!sel?.value) { showToast('Choisis un produit', 'error'); return; }
+  if (!sel?.value) { showToast(t('chooseProduct'), 'error'); return; }
   const product = S.products.find(p => p.id === parseInt(sel.value));
   if (!product) return;
   const qty = Math.max(1, parseInt(qtyEl?.value) || 1);
@@ -1292,14 +1314,14 @@ function selectUnitCond(v) { S.unitCondVal = v; S.unitCondOther = ''; render(); 
 async function saveAccountInfo() {
   const nameVal  = ($('set-name')?.value  || '').trim();
   const bizVal   = ($('set-biz')?.value   || '').trim();
-  if (!nameVal) { showToast('Nom requis', 'error'); return; }
+  if (!nameVal) { showToast(t('nameRequired'), 'error'); return; }
   try {
     await api('PUT', '/api/auth/profile', { name: nameVal, business_name: bizVal });
     S.session.name     = nameVal;
     S.session.business = bizVal;
     saveSession({ ...S.session, token: S.token });
     S.settingsEdit = false;
-    showToast('Infos mises à jour');
+    showToast(t('infoUpdated'));
     render();
   } catch(e) {
     showToast(e.message, 'error');
@@ -1597,6 +1619,12 @@ function vHome() {
       <div>
         <div class="hero-greeting">${t('hello')}, ${S.session.name.split(' ')[0]}</div>
         <div class="hero-name">${S.session.business || S.session.name}</div>
+        ${S.locations.length > 0 ? `<div class="hero-location">
+          <select class="location-select" onchange="setLocation(this.value?Number(this.value):null)">
+            <option value="">${t('allLocations')}</option>
+            ${S.locations.map(l => `<option value="${l.id}" ${S.currentLocation===l.id?'selected':''}>${l.name}</option>`).join('')}
+          </select>
+        </div>` : ''}
       </div>
       <div style="display:flex;gap:8px">
         <button class="hero-btn" onclick="nav('notifications')" style="position:relative">${IC.bell}${low.length>0?`<span style="position:absolute;top:-2px;right:-2px;width:18px;height:18px;border-radius:50%;background:var(--danger);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center">${low.length}</span>`:''}</button>
@@ -2028,7 +2056,7 @@ function vSales() {
       </div>
       <div class="sale-actions">
         <button class="sale-act-btn" title="Facture PDF" onclick="generateInvoicePDF(window['${sid}'])">${IC.pdf}</button>
-        <button class="sale-act-btn sale-act-wa" title="Partager WhatsApp" onclick="shareViaWhatsApp(window['${sid}'])">${IC.whatsapp}</button>
+        <button class="sale-act-btn sale-act-wa" title="WhatsApp" onclick="shareViaWhatsApp(window['${sid}'])">${IC.whatsapp}</button>
       </div>
     </div>`;}).join('');
     })()}
@@ -2117,7 +2145,7 @@ function vFinancial() {
         ${p.status !== 'no_data' && p.daily_demand > 0 ? `
         <div class="pred-stats">
           <div class="pred-stat">Stock <strong>${p.current_stock} ${p.unit}</strong></div>
-          ${p.days_remaining !== null ? `<div class="pred-stat">Jours restants <strong>${p.days_remaining}j</strong></div>` : ''}
+          ${p.days_remaining !== null ? `<div class="pred-stat">${_lang==='fr'?'Jours restants':'Days left'} <strong>${p.days_remaining}${_lang==='fr'?'j':'d'}</strong></div>` : ''}
           <div class="pred-stat">EOQ <strong>${p.eoq} ${p.unit}</strong></div>
           <div class="pred-stat">Safety Stock <strong>${p.safety_stock} ${p.unit}</strong></div>
         </div>` : ''}
@@ -2627,7 +2655,7 @@ function vClientDetail() {
 function vSpectra() {
   const sp = S.spectra;
 
-  // ── Inventory compare mode ──
+  // ── Inventory compare / audit mode ──
   if (sp.step === 'compare') {
     const artMap = {};
     S.articles.forEach(a => { artMap[a.name.toLowerCase()] = a; });
@@ -2636,26 +2664,43 @@ function vSpectra() {
     detected.forEach(d => {
       const art = artMap[(d.matched_name || d.detected_name).toLowerCase()];
       if (art) {
-        if (Math.abs(art.stock - d.quantity) <= 1) matches.push({ name: art.name, stock: art.stock, scanned: d.quantity });
-        else if (d.quantity < art.stock) missing.push({ name: art.name, stock: art.stock, scanned: d.quantity, diff: art.stock - d.quantity });
-        else extra.push({ name: art.name, stock: art.stock, scanned: d.quantity, diff: d.quantity - art.stock });
+        const stk = art.qty !== undefined ? art.qty : art.stock;
+        if (Math.abs(stk - d.quantity) <= 1) matches.push({ name: art.name, stock: stk, scanned: d.quantity, id: art.id });
+        else if (d.quantity < stk) missing.push({ name: art.name, stock: stk, scanned: d.quantity, diff: stk - d.quantity, id: art.id });
+        else extra.push({ name: art.name, stock: stk, scanned: d.quantity, diff: d.quantity - stk, id: art.id });
       } else {
         extra.push({ name: d.matched_name || d.detected_name, stock: 0, scanned: d.quantity, diff: d.quantity });
       }
     });
     S.articles.forEach(a => {
+      const stk = a.qty !== undefined ? a.qty : a.stock;
       if (!detected.some(d => (d.matched_name || d.detected_name).toLowerCase() === a.name.toLowerCase())) {
-        if (a.stock > 0) missing.push({ name: a.name, stock: a.stock, scanned: 0, diff: a.stock });
+        if (stk > 0) missing.push({ name: a.name, stock: stk, scanned: 0, diff: stk, id: a.id });
       }
     });
+    const totalMissing = missing.reduce((s,m) => s + m.diff, 0);
 
     return `
   <div class="spectra-wrap">
     <button class="back-btn" onclick="spectraReset()" style="align-self:flex-start;margin-bottom:8px">${IC.left}</button>
     <div class="spectra-hero" style="margin-bottom:12px">
-      <div class="spectra-title">${t('spectraCompare')}</div>
+      <div class="spectra-title">${t('spectraAudit')}</div>
       <div class="spectra-sub">${detected.length} ${t('spectraDetected').toLowerCase()}</div>
     </div>
+
+    ${totalMissing > 0 ? `
+    <div class="card" style="background:rgba(239,68,68,.08);border:1px solid var(--danger);padding:14px;margin-bottom:12px;text-align:center">
+      <div style="font-size:28px;font-weight:900;color:var(--danger)">${totalMissing}</div>
+      <div style="font-size:12px;color:var(--danger);font-weight:600">${t('spectraGapMsg')}</div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn" style="flex:1;background:var(--danger);color:#fff;font-size:12px;padding:10px" onclick="spectraAdjustStock()">
+          ${t('spectraAdjust')}
+        </button>
+        <button class="btn btn-ghost" style="flex:1;font-size:12px;padding:10px;border:1px solid var(--danger);color:var(--danger)" onclick="spectraSignalLoss()">
+          ${t('spectraSignalLoss')}
+        </button>
+      </div>
+    </div>` : ''}
 
     <div class="metric-grid" style="margin-bottom:12px">
       <div class="metric-card" style="border-left:3px solid var(--success)">
@@ -2703,8 +2748,41 @@ function vSpectra() {
   </div>`;
   }
 
+  // ── Réception magique : résultats ──
+  if (sp.step === 'reception') {
+    const items = sp.receptionItems || [];
+    const total = items.reduce((s,i) => s + i.quantity, 0);
+    return `
+  <div class="spectra-wrap">
+    <button class="back-btn" onclick="spectraReset()" style="align-self:flex-start;margin-bottom:8px">${IC.left}</button>
+    <div class="spectra-hero" style="margin-bottom:12px">
+      <div class="spectra-title">${t('spectraReception')}</div>
+      <div class="spectra-sub">${t('spectraNewDelivery')}</div>
+    </div>
+
+    <div class="card" style="background:rgba(16,185,129,.08);border:1px solid var(--success);padding:14px;margin-bottom:12px;text-align:center">
+      <div style="font-size:32px;font-weight:900;color:var(--success)">${total}</div>
+      <div style="font-size:12px;color:var(--success);font-weight:600">${t('spectraItemsReceived')}</div>
+    </div>
+
+    ${items.map(it => `<div class="card" style="margin-bottom:4px;border-left:3px solid var(--success)">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-weight:700;font-size:13px">${it.matched_name || it.detected_name}</div>
+        <div style="font-weight:800;color:var(--success)">+${it.quantity}</div>
+      </div>
+    </div>`).join('')}
+
+    <button class="btn btn-primary" style="margin-top:16px;padding:14px" onclick="spectraConfirmReception()">
+      ${IC.check} &nbsp; ${t('spectraConfirmReception')}
+    </button>
+    <button class="btn btn-ghost" style="margin-top:8px" onclick="spectraReset()">${t('cancel')}</button>
+  </div>`;
+  }
+
   // ── Étape : caméra ──
-  if (sp.step === 'camera') return `
+  if (sp.step === 'camera') {
+    const lowItems = S.articles.filter(a => a.qty !== undefined ? (a.qty > 0 && a.qty <= (a.minQty||0)) : (a.stock > 0 && a.stock <= (a.min||0)));
+    return `
   <div class="spectra-wrap">
     <button class="back-btn" onclick="nav('home')" style="align-self:flex-start;margin-bottom:8px">${IC.left}</button>
     <div class="spectra-hero">
@@ -2713,19 +2791,45 @@ function vSpectra() {
       <div class="spectra-sub">${t('spectraScanSub')}</div>
     </div>
 
-    <div style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:320px">
-      <label class="btn btn-primary spectra-capture-btn" for="spectra-file" style="margin:0">
+    <div style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:340px">
+      <label class="btn btn-primary spectra-capture-btn" for="spectra-file" style="margin:0;padding:14px 18px;font-size:15px">
         ${IC.camera} &nbsp; ${t('spectraCapture')}
       </label>
-      <button class="btn btn-ghost" onclick="spectraStartCompare()" style="border:1px solid var(--border)">
-        ${IC.bar} &nbsp; ${t('spectraCompare')} — ${t('spectraInventory')}
-      </button>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="spectra-feature-btn" onclick="spectraStartCompare()">
+          <div class="spectra-feat-ico" style="color:var(--danger)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div class="spectra-feat-title">${t('spectraAudit')}</div>
+          <div class="spectra-feat-sub">${t('spectraAuditSub')}</div>
+        </button>
+        <button class="spectra-feature-btn" onclick="spectraStartReception()">
+          <div class="spectra-feat-ico" style="color:var(--success)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          </div>
+          <div class="spectra-feat-title">${t('spectraReception')}</div>
+          <div class="spectra-feat-sub">${t('spectraReceptionSub')}</div>
+        </button>
+      </div>
     </div>
 
     <input id="spectra-file" type="file" accept="image/*" capture="environment"
            style="display:none" onchange="spectraOnFile(this)">
     <div class="spectra-hint">${_lang === 'fr' ? "L'image ne quitte jamais ton appareil." : "The image never leaves your device."}</div>
+
+    ${lowItems.length > 0 ? `
+    <div style="width:100%;max-width:340px;margin-top:12px">
+      <div class="section-hd"><div class="section-lbl" style="color:var(--danger)">${t('alerts')} (${lowItems.length})</div></div>
+      ${lowItems.slice(0,3).map(a => `<div class="card" style="margin-bottom:4px;border-left:3px solid var(--danger);padding:10px 12px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:600;font-size:12px">${a.name}</div>
+          <div style="font-size:11px;color:var(--danger);font-weight:700">${a.qty||a.stock} ${t('unitsRemaining')}</div>
+        </div>
+      </div>`).join('')}
+    </div>` : ''}
   </div>`;
+  }
 
   // ── Étape : chargement ──
   if (sp.step === 'loading') return `
@@ -2838,7 +2942,7 @@ async function spectraOnFile(input) {
       S.spectra.step    = 'confirm';
       render();
     } catch (err) {
-      showToast(err.message || 'Erreur Spectra', 'error');
+      showToast(err.message || 'Spectra error', 'error');
       S.spectra.step = 'camera';
       render();
     }
@@ -2866,7 +2970,7 @@ function spectraConfirmNo() {
 function spectraSubmitName() {
   const input = document.getElementById('spectra-name-input');
   const name = input?.value?.trim();
-  if (!name) { showToast('Saisis un nom', 'error'); return; }
+  if (!name) { showToast(t('articleName'), 'error'); return; }
 
   const item = S.spectra.queue[S.spectra.current];
   S.spectra.confirmed.push({
@@ -2901,7 +3005,7 @@ async function spectraFinish() {
     await loadData();
     render();
   } catch (err) {
-    showToast(err.message || 'Erreur lors de la sauvegarde', 'error');
+    showToast(err.message || t('errLoad'), 'error');
     S.spectra.step = 'confirm';
     render();
   }
@@ -2942,6 +3046,120 @@ function spectraStartCompare() {
     reader.readAsDataURL(file);
   };
   input.click();
+}
+
+// ── Spectra : Réception Magique ──────────────
+function spectraStartReception() {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = 'image/*'; input.capture = 'environment';
+  input.onchange = () => {
+    const file = input.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      S.spectra.step = 'loading'; render();
+      try {
+        const data = await api('POST', '/api/spectra/scan', { image: e.target.result });
+        if (!data.detections || data.detections.length === 0) {
+          showToast(t('spectraNoDetection'), 'error');
+          S.spectra.step = 'camera'; render(); return;
+        }
+        S.spectra.receptionItems = data.detections;
+        S.spectra.step = 'reception';
+        render();
+      } catch (err) {
+        showToast(err.message || 'Error', 'error');
+        S.spectra.step = 'camera'; render();
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
+async function spectraConfirmReception() {
+  const items = S.spectra.receptionItems || [];
+  if (items.length === 0) return;
+  S.spectra.step = 'loading'; render();
+  try {
+    const confirmed = items.map(it => ({
+      article_id: it.matched_id || null,
+      name: it.matched_name || it.detected_name,
+      quantity: it.quantity,
+      unit: it.matched_unit || 'pce',
+    }));
+    const data = await api('POST', '/api/spectra/confirm', { items: confirmed });
+    S.spectra.results = data.results || [];
+    S.spectra.step = 'done';
+    showToast(t('spectraReceptionDone'), 'success');
+    await loadData();
+    render();
+  } catch (err) {
+    // Offline mode: update local stock directly
+    items.forEach(it => {
+      const art = S.articles.find(a => a.name.toLowerCase() === (it.matched_name || it.detected_name).toLowerCase());
+      if (art) {
+        if (art.qty !== undefined) art.qty += it.quantity;
+        else art.stock = (art.stock || 0) + it.quantity;
+      }
+    });
+    localStorage.setItem('stockr_articles', JSON.stringify(S.articles));
+    S.spectra.results = items.map(it => ({ name: it.matched_name || it.detected_name, new_qty: it.quantity, unit: it.matched_unit || 'pce' }));
+    S.spectra.step = 'done';
+    showToast(t('spectraReceptionDone'), 'success');
+    render();
+  }
+}
+
+function spectraAdjustStock() {
+  // Adjust local stock to match scanned quantities
+  const detected = S.spectra.compareResults || [];
+  let adjusted = 0;
+  detected.forEach(d => {
+    const art = S.articles.find(a => a.name.toLowerCase() === (d.matched_name || d.detected_name).toLowerCase());
+    if (art) {
+      if (art.qty !== undefined) art.qty = d.quantity;
+      else art.stock = d.quantity;
+      adjusted++;
+    }
+  });
+  localStorage.setItem('stockr_articles', JSON.stringify(S.articles));
+  showToast(`${t('spectraAdjust')}: ${adjusted} ${t('articles').toLowerCase()}`, 'success');
+  spectraReset();
+  nav('pantry');
+}
+
+function spectraSignalLoss() {
+  const detected = S.spectra.compareResults || [];
+  const artMap = {};
+  S.articles.forEach(a => { artMap[a.name.toLowerCase()] = a; });
+  const losses = [];
+  detected.forEach(d => {
+    const art = artMap[(d.matched_name || d.detected_name).toLowerCase()];
+    if (art) {
+      const stk = art.qty !== undefined ? art.qty : art.stock;
+      if (d.quantity < stk) losses.push({ name: art.name, diff: stk - d.quantity });
+    }
+  });
+  S.articles.forEach(a => {
+    const stk = a.qty !== undefined ? a.qty : a.stock;
+    if (!detected.some(d => (d.matched_name || d.detected_name).toLowerCase() === a.name.toLowerCase()) && stk > 0) {
+      losses.push({ name: a.name, diff: stk });
+    }
+  });
+  const totalLoss = losses.reduce((s,l) => s + l.diff, 0);
+  const msg = losses.map(l => `${l.name}: -${l.diff}`).join('\n');
+  const date = new Date().toLocaleString();
+  const report = `${t('spectraSignalLoss')} — ${date}\n${t('spectraGap')}: ${totalLoss} ${t('spectraGapMsg')}\n\n${msg}`;
+  // Save to localStorage as loss report
+  const reports = JSON.parse(localStorage.getItem('stockr_loss_reports') || '[]');
+  reports.unshift({ date, items: losses, total: totalLoss });
+  localStorage.setItem('stockr_loss_reports', JSON.stringify(reports.slice(0, 50)));
+  showToast(`${t('spectraSignalLoss')}: ${totalLoss} ${t('articles').toLowerCase()}`, 'error');
+  // Try to share the report
+  if (navigator.share) {
+    navigator.share({ title: t('spectraSignalLoss'), text: report }).catch(() => {});
+  }
+  spectraReset();
 }
 
 // ── LOCATIONS ────────────────────────────────
@@ -3082,18 +3300,239 @@ function toggleCatalogProduct(id) {
   render();
 }
 
-function shareCatalogWhatsApp() {
+function generateCatalogImage() {
+  const sym = S.session?.currency_symbol || 'FCFA';
+  const biz = S.session?.business || S.session?.name || 'Mon Commerce';
+  const selected = S.products.filter(p => S.catalogSelected.includes(p.id));
+  const logo = localStorage.getItem('stockr_logo');
+
+  const W = 1080, rowH = 64, headerH = logo ? 200 : 160;
+  const H = headerH + selected.length * rowH + 100;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // Background gradient
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, '#1a1a2e');
+  grad.addColorStop(1, '#16213e');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Accent line
+  ctx.fillStyle = '#e94560';
+  ctx.fillRect(0, 0, W, 4);
+
+  return new Promise(resolve => {
+    const draw = () => {
+      let y = 40;
+      // Logo
+      if (logo) {
+        const img = new Image();
+        img.onload = () => {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(W/2, y + 50, 45, 0, Math.PI * 2);
+          ctx.clip();
+          ctx.drawImage(img, W/2 - 45, y + 5, 90, 90);
+          ctx.restore();
+          ctx.strokeStyle = '#e94560';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(W/2, y + 50, 46, 0, Math.PI * 2);
+          ctx.stroke();
+          drawContent(y + 110);
+        };
+        img.src = logo;
+      } else {
+        drawContent(y);
+      }
+
+      function drawContent(startY) {
+        let cy = startY;
+        // Business name
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 42px -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(biz, W/2, cy + 40);
+
+        // Subtitle
+        ctx.fillStyle = '#e94560';
+        ctx.font = '600 20px -apple-system, sans-serif';
+        ctx.fillText(t('catalog').toUpperCase(), W/2, cy + 70);
+
+        cy += 100;
+
+        // Products
+        selected.forEach((p, i) => {
+          // Row bg
+          ctx.fillStyle = i % 2 === 0 ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.08)';
+          ctx.fillRect(60, cy, W - 120, rowH);
+
+          // Product name
+          ctx.fillStyle = '#ffffff';
+          ctx.font = '600 24px -apple-system, sans-serif';
+          ctx.textAlign = 'left';
+          ctx.fillText(p.name, 90, cy + 40);
+
+          // Price
+          ctx.fillStyle = '#e94560';
+          ctx.font = 'bold 26px -apple-system, sans-serif';
+          ctx.textAlign = 'right';
+          ctx.fillText(`${fmt(p.price)} ${sym}`, W - 90, cy + 40);
+
+          cy += rowH;
+        });
+
+        cy += 30;
+        // Footer
+        ctx.fillStyle = 'rgba(255,255,255,0.4)';
+        ctx.font = '16px -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Powered by STOCKR', W/2, cy + 20);
+
+        resolve(canvas);
+      }
+    };
+    draw();
+  });
+}
+
+async function shareCatalogWhatsApp() {
   const sym = S.session?.currency_symbol || 'FCFA';
   const biz = S.session?.business || S.session?.name || '';
   const selected = S.products.filter(p => S.catalogSelected.includes(p.id));
+
+  // Try canvas image share first
+  try {
+    const canvas = await generateCatalogImage();
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+    const file = new File([blob], 'catalogue-stockr.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        title: biz + ' — ' + t('catalog'),
+        files: [file],
+      });
+      return;
+    }
+  } catch (e) { /* fallback to text */ }
+
+  // Text fallback for WhatsApp
   const lines = [`*${biz}*`, `_${t('catalog')}_`, ''];
   selected.forEach(p => lines.push(`${p.name} — *${fmt(p.price)} ${sym}*`));
   lines.push('', `_${t('invoiceThankYou')}_`);
   window.open('https://wa.me/?text=' + encodeURIComponent(lines.join('\n')), '_blank');
 }
 
-function shareFOMO(name, stock) {
+function generateFOMOImage(name, stock) {
+  const biz = S.session?.business || S.session?.name || 'Mon Commerce';
+  const logo = localStorage.getItem('stockr_logo');
+
+  const W = 1080, H = 1080;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // Background
+  const grad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W);
+  grad.addColorStop(0, '#dc2626');
+  grad.addColorStop(1, '#991b1b');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Diagonal stripes
+  ctx.save();
+  ctx.globalAlpha = 0.06;
+  for (let i = -H; i < W + H; i += 60) {
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(i, 0, 20, H);
+    ctx.setTransform(1, 0, -0.5, 1, 0, 0);
+  }
+  ctx.restore();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+  return new Promise(resolve => {
+    const drawContent = () => {
+      ctx.textAlign = 'center';
+
+      // Alert icon
+      ctx.fillStyle = 'rgba(255,255,255,0.15)';
+      ctx.font = '160px -apple-system, sans-serif';
+      ctx.fillText('\u26A0', W/2, 220);
+
+      // LAST PIECES
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 72px -apple-system, sans-serif';
+      ctx.fillText(t('catalogLastPieces').toUpperCase(), W/2, 360);
+
+      // Product name
+      ctx.font = 'bold 56px -apple-system, sans-serif';
+      ctx.fillStyle = '#fef08a';
+      ctx.fillText(name, W/2, 480);
+
+      // Stock count
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 180px -apple-system, sans-serif';
+      ctx.fillText(String(stock), W/2, 680);
+
+      ctx.font = '600 32px -apple-system, sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.8)';
+      ctx.fillText(t('unitsRemaining').toUpperCase(), W/2, 730);
+
+      // Hurry
+      ctx.fillStyle = '#fef08a';
+      ctx.font = 'bold 40px -apple-system, sans-serif';
+      ctx.fillText(t('catalogHurry').toUpperCase(), W/2, 820);
+
+      // Business name
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.font = '600 28px -apple-system, sans-serif';
+      ctx.fillText(biz, W/2, 940);
+
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.font = '18px -apple-system, sans-serif';
+      ctx.fillText('Powered by STOCKR', W/2, 1040);
+
+      resolve(canvas);
+    };
+
+    if (logo) {
+      const img = new Image();
+      img.onload = () => {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(W/2, 900, 30, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(img, W/2 - 30, 870, 60, 60);
+        ctx.restore();
+        drawContent();
+      };
+      img.onerror = drawContent;
+      img.src = logo;
+    } else {
+      drawContent();
+    }
+  });
+}
+
+async function shareFOMO(name, stock) {
   const biz = S.session?.business || S.session?.name || '';
+
+  // Try image share first
+  try {
+    const canvas = await generateFOMOImage(name, stock);
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+    const file = new File([blob], 'fomo-stockr.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        title: t('catalogLastPieces') + ' — ' + name,
+        files: [file],
+      });
+      return;
+    }
+  } catch (e) { /* fallback to text */ }
+
+  // Text fallback
   const msg = `*${biz}*\n\n${t('catalogLastPieces')} ${t('catalogHurry')}\n\n${name} — ${stock} ${t('unitsRemaining')}\n\n_STOCKR_`;
   window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
 }
@@ -3331,7 +3770,7 @@ window.addEventListener('beforeinstallprompt', e => {
 
 window.addEventListener('appinstalled', () => {
   _deferredInstall = null;
-  showToast('STOCKR installé sur votre écran d\'accueil !');
+  showToast(t('installed'));
   render();
 });
 
@@ -3352,7 +3791,7 @@ if ('serviceWorker' in navigator) {
           const newSW = reg.installing;
           newSW.addEventListener('statechange', () => {
             if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-              showToast('Mise à jour disponible — rechargez l\'app');
+              showToast(t('updateAvailable'));
             }
           });
         });
@@ -3419,7 +3858,11 @@ document.addEventListener('DOMContentLoaded', () => {
   window.toggleCatalogProduct = toggleCatalogProduct;
   window.shareCatalogWhatsApp = shareCatalogWhatsApp;
   window.shareFOMO            = shareFOMO;
-  window.spectraStartCompare  = spectraStartCompare;
+  window.spectraStartCompare    = spectraStartCompare;
+  window.spectraStartReception   = spectraStartReception;
+  window.spectraConfirmReception = spectraConfirmReception;
+  window.spectraAdjustStock      = spectraAdjustStock;
+  window.spectraSignalLoss       = spectraSignalLoss;
 
   // Restaurer la session + token si existants
   const saved = getSession();
