@@ -221,6 +221,28 @@ const LANGS = {
     insufficientStock:'Stock insuffisant', pdfOffline:'PDF non disponible hors-ligne',
     infoUpdated:'Infos mises à jour', installed:'Installé sur votre écran d\'accueil',
     updateAvailable:'Mise à jour disponible — rechargez',
+    // Suppliers
+    suppliers:'Fournisseurs', addSupplier:'Ajouter un fournisseur', supplierName:'Nom du fournisseur',
+    supplierPhone:'Téléphone', supplierEmail:'Email', supplierNotes:'Notes / Produits fournis',
+    noSuppliers:'Aucun fournisseur', noSuppliersSub:'Enregistre tes fournisseurs pour mieux gérer tes commandes.',
+    supplierDetail:'Fiche fournisseur', supplierOf:'fournisseur(s)',
+    // Stock history
+    stockHistory:'Historique mouvements', entry:'Entrée', exit:'Sortie', adjustment:'Ajustement',
+    noMovements:'Aucun mouvement', movementDate:'Date', movementType:'Type', movementQty:'Quantité',
+    // Export
+    exportSuccess:'Export réussi', downloading:'Téléchargement…',
+    // Quick sale
+    quickSale:'Vente rapide', quickSaleSub:'Enregistre une vente en un clic',
+    // Spectra demo
+    spectraDemo:'Mode Démo', spectraDemoSub:'Tester Spectra sans caméra',
+    spectraDemoRunning:'Simulation en cours…',
+    // Onboarding
+    getStarted:'Commencer', step1:'Ajoute tes articles en stock',
+    step2:'Crée des produits finis', step3:'Enregistre tes ventes',
+    welcomeMsg:'Bienvenue sur STOCKR ! Commence par ajouter tes premiers articles.',
+    // Misc extra
+    copied:'Copié !', shared:'Partagé !', noData:'Pas de données',
+    profitChart:'Évolution bénéfice', clientsChart:'Répartition clients',
   },
   en: {
     home:'Home', stock:'Stock', products:'Products', sales:'Sales', bilan:'Reports',
@@ -323,6 +345,28 @@ const LANGS = {
     insufficientStock:'Insufficient stock', pdfOffline:'PDF unavailable offline',
     infoUpdated:'Info updated', installed:'Installed on home screen',
     updateAvailable:'Update available — reload',
+    // Suppliers
+    suppliers:'Suppliers', addSupplier:'Add supplier', supplierName:'Supplier name',
+    supplierPhone:'Phone', supplierEmail:'Email', supplierNotes:'Notes / Products supplied',
+    noSuppliers:'No suppliers', noSuppliersSub:'Register your suppliers to better manage orders.',
+    supplierDetail:'Supplier details', supplierOf:'supplier(s)',
+    // Stock history
+    stockHistory:'Movement history', entry:'Entry', exit:'Exit', adjustment:'Adjustment',
+    noMovements:'No movements', movementDate:'Date', movementType:'Type', movementQty:'Quantity',
+    // Export
+    exportSuccess:'Export successful', downloading:'Downloading…',
+    // Quick sale
+    quickSale:'Quick sale', quickSaleSub:'Record a sale in one click',
+    // Spectra demo
+    spectraDemo:'Demo Mode', spectraDemoSub:'Test Spectra without camera',
+    spectraDemoRunning:'Simulation running…',
+    // Onboarding
+    getStarted:'Get started', step1:'Add your stock items',
+    step2:'Create finished products', step3:'Record your sales',
+    welcomeMsg:'Welcome to STOCKR! Start by adding your first items.',
+    // Misc extra
+    copied:'Copied!', shared:'Shared!', noData:'No data',
+    profitChart:'Profit evolution', clientsChart:'Client breakdown',
   }
 };
 let _lang = localStorage.getItem('stockr_lang') || 'fr';
@@ -590,6 +634,11 @@ const S = {
   // Catalog
   catalogView:      'select', // 'select' | 'preview'
   catalogSelected:  [],
+  // Suppliers
+  suppliers:        JSON.parse(localStorage.getItem('stockr_suppliers') || '[]'),
+  selectedSupplierId: null,
+  // Stock movements
+  stockMovements:   JSON.parse(localStorage.getItem('stockr_movements') || '[]'),
   form: { name: '', stock: 0, min: 0, unit: '', lead: 7 },
   spectra: {
     step:      'camera',   // 'camera' | 'loading' | 'confirm' | 'done'
@@ -994,7 +1043,8 @@ async function applyStock() {
   try {
     await api('PUT', `/api/articles/${art.id}`, { quantity: newStock });
     art.stock = newStock;
-    showToast(S.action === 'add' ? `+${S.qty} ${art.unit} ajouté` : `-${S.qty} ${art.unit} retiré`);
+    logMovement(art.name, S.action === 'add' ? 'entry' : 'exit', S.qty, S.action === 'add' ? t('reception') : t('withdrawal'));
+    showToast(S.action === 'add' ? `+${S.qty} ${art.unit}` : `-${S.qty} ${art.unit}`);
     S.qty = 1;
     render();
   } catch(e) {
@@ -1390,7 +1440,9 @@ function render() {
     'edit-product': vEditProduct, settings: vSettings,
     spectra: vSpectra, clients: vClients, 'add-client': vAddClient,
     'client-detail': vClientDetail, notifications: vNotifications,
-    catalog: vCatalog,
+    catalog: vCatalog, suppliers: vSuppliers,
+    'add-supplier': vAddSupplier, 'supplier-detail': vSupplierDetail,
+    'stock-history': vStockHistory,
   };
   viewEl.innerHTML = (map[S.view] || vHome)();
   if (!S.globalSearch) viewEl.scrollTop = 0;
@@ -1403,7 +1455,7 @@ function render() {
     if (gs) { gs.focus(); gs.setSelectionRange(gs.value.length, gs.value.length); }
   }
 
-  const hideNav = ['detail','add','add-product','edit-product','add-client','client-detail','notifications','catalog'].includes(S.view);
+  const hideNav = ['detail','add','add-product','edit-product','add-client','client-detail','notifications','catalog','add-supplier','supplier-detail','stock-history'].includes(S.view);
   navEl.style.display = hideNav ? 'none' : '';
   if (!hideNav) navEl.innerHTML = renderNav();
 }
@@ -1835,6 +1887,16 @@ function vHome() {
         <div class="quick-sub">${t('catalogSub')}</div>
       </button>
     </div>
+
+    ${S.products.length > 0 ? `
+    <div class="section-hd"><div class="section-lbl">${t('quickSale')}</div></div>
+    <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px">
+      ${S.products.slice(0,6).map(p => `
+      <button class="quick-sale-chip" onclick="quickSaleProduct(${p.id})">
+        <span style="font-weight:700;font-size:12px">${p.name}</span>
+        <span style="font-size:11px;color:var(--accent)">${fmt(p.price)} ${S.session?.currency_symbol||'FCFA'}</span>
+      </button>`).join('')}
+    </div>` : ''}
 
     <div class="section-hd">
       <div class="section-lbl">${t('recentSales')}</div>
@@ -2816,6 +2878,9 @@ function vSpectra() {
 
     <input id="spectra-file" type="file" accept="image/*" capture="environment"
            style="display:none" onchange="spectraOnFile(this)">
+    <button class="spectra-demo-btn" onclick="spectraRunDemo()">
+      ${IC.eye} &nbsp; ${t('spectraDemo')} — ${t('spectraDemoSub')}
+    </button>
     <div class="spectra-hint">${_lang === 'fr' ? "L'image ne quitte jamais ton appareil." : "The image never leaves your device."}</div>
 
     ${lowItems.length > 0 ? `
@@ -3160,6 +3225,294 @@ function spectraSignalLoss() {
     navigator.share({ title: t('spectraSignalLoss'), text: report }).catch(() => {});
   }
   spectraReset();
+}
+
+// ── SUPPLIERS ────────────────────────────────
+function vSuppliers() {
+  const q = S.clientSearch.toLowerCase();
+  const filtered = q ? S.suppliers.filter(s => s.name.toLowerCase().includes(q) || (s.phone||'').includes(q)) : S.suppliers;
+  return `
+  <div class="sub-hero">
+    <button class="back-btn-dark" style="margin-bottom:14px" onclick="nav('settings')">${IC.left}</button>
+    <div class="sub-hero-title">${t('suppliers')}</div>
+    <div class="sub-hero-sub">${S.suppliers.length} ${t('supplierOf')}</div>
+  </div>
+  <div class="container">
+    <button class="btn btn-primary" style="margin-bottom:12px" onclick="nav('add-supplier')">
+      ${IC.plus} &nbsp; ${t('addSupplier')}
+    </button>
+    ${filtered.length === 0 ? `
+    <div class="empty-state">
+      ${IC.truck}
+      <div class="empty-title">${t('noSuppliers')}</div>
+      <div class="empty-sub">${t('noSuppliersSub')}</div>
+    </div>` : filtered.map((s, i) => `
+    <div class="card card-tap anim" style="margin-bottom:6px;animation-delay:${i*0.03}s" onclick="nav('supplier-detail',{selectedSupplierId:${s.id}})">
+      <div class="article-row">
+        <div class="article-avatar">${initials(s.name)}</div>
+        <div class="article-info">
+          <div class="article-name">${s.name}</div>
+          <div class="article-meta">${s.phone ? IC.phone+' '+s.phone : ''}${s.phone && s.email ? ' · ' : ''}${s.email || ''}</div>
+        </div>
+        <div style="color:var(--gray-4)">${IC.chevron}</div>
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function vAddSupplier() {
+  return `
+  <div class="sub-hero">
+    <button class="back-btn-dark" style="margin-bottom:14px" onclick="nav('suppliers')">${IC.left}</button>
+    <div class="sub-hero-title">${t('addSupplier')}</div>
+  </div>
+  <div class="container">
+    <div class="card" style="padding:16px">
+      <div class="form-group">
+        <label class="form-label">${t('supplierName')} *</label>
+        <input class="input" id="sup-name" type="text" placeholder="Ex: Fournisseur ABC">
+      </div>
+      <div class="form-group">
+        <label class="form-label">${t('supplierPhone')}</label>
+        <input class="input" id="sup-phone" type="tel" placeholder="Ex: +225 07 00 00 00">
+      </div>
+      <div class="form-group">
+        <label class="form-label">${t('supplierEmail')}</label>
+        <input class="input" id="sup-email" type="email" placeholder="email@fournisseur.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">${t('supplierNotes')}</label>
+        <textarea class="input" id="sup-notes" rows="3" style="resize:vertical" placeholder="${t('supplierNotes')}…"></textarea>
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="saveSupplier()">
+        ${IC.check} &nbsp; ${t('addSupplier')}
+      </button>
+    </div>
+  </div>`;
+}
+
+function vSupplierDetail() {
+  const sup = S.suppliers.find(s => s.id === S.selectedSupplierId);
+  if (!sup) return `<div class="container"><p>${t('noSuppliers')}</p></div>`;
+  return `
+  <div class="sub-hero">
+    <button class="back-btn-dark" style="margin-bottom:14px" onclick="nav('suppliers')">${IC.left}</button>
+    <div class="sub-hero-title">${sup.name}</div>
+    <div class="sub-hero-sub">${t('supplierDetail')}</div>
+  </div>
+  <div class="container">
+    <div class="card" style="padding:16px">
+      ${sup.phone ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="color:var(--gray-5)">${IC.phone}</span><span style="font-size:14px">${sup.phone}</span></div>` : ''}
+      ${sup.email ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="color:var(--gray-5)">${IC.info}</span><span style="font-size:14px">${sup.email}</span></div>` : ''}
+      ${sup.notes ? `<div style="margin-top:8px;padding:10px;background:var(--bg-2);border-radius:8px;font-size:13px;color:var(--text-2);line-height:1.5">${sup.notes}</div>` : ''}
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      ${sup.phone ? `<a href="tel:${sup.phone}" class="btn btn-primary" style="flex:1;text-align:center;text-decoration:none">${IC.phone} &nbsp; ${t('supplierPhone')}</a>` : ''}
+      ${sup.phone ? `<a href="https://wa.me/${sup.phone.replace(/[^0-9]/g,'')}" class="btn" style="flex:1;text-align:center;text-decoration:none;background:#25D366;color:#fff" target="_blank">${IC.whatsapp} &nbsp; WhatsApp</a>` : ''}
+    </div>
+    <button class="btn btn-ghost" style="width:100%;margin-top:12px;color:var(--danger);border-color:var(--danger)" onclick="deleteSupplier(${sup.id})">
+      ${IC.trash} &nbsp; ${t('delete')}
+    </button>
+  </div>`;
+}
+
+function saveSupplier() {
+  const name = document.getElementById('sup-name')?.value?.trim();
+  if (!name) { showToast(t('nameRequired'), 'error'); return; }
+  const sup = {
+    id: Date.now(),
+    name,
+    phone: document.getElementById('sup-phone')?.value?.trim() || '',
+    email: document.getElementById('sup-email')?.value?.trim() || '',
+    notes: document.getElementById('sup-notes')?.value?.trim() || '',
+    created: new Date().toISOString(),
+  };
+  S.suppliers.push(sup);
+  localStorage.setItem('stockr_suppliers', JSON.stringify(S.suppliers));
+  showToast(t('addSupplier') + ' OK');
+  nav('suppliers');
+}
+
+function deleteSupplier(id) {
+  S.suppliers = S.suppliers.filter(s => s.id !== id);
+  localStorage.setItem('stockr_suppliers', JSON.stringify(S.suppliers));
+  nav('suppliers');
+}
+
+// ── STOCK MOVEMENT HISTORY ──────────────────
+function logMovement(articleName, type, qty, note) {
+  const mv = {
+    id: Date.now(),
+    article: articleName,
+    type, // 'entry' | 'exit' | 'adjustment'
+    qty,
+    note: note || '',
+    date: new Date().toISOString(),
+  };
+  S.stockMovements.unshift(mv);
+  if (S.stockMovements.length > 500) S.stockMovements = S.stockMovements.slice(0, 500);
+  localStorage.setItem('stockr_movements', JSON.stringify(S.stockMovements));
+}
+
+function vStockHistory() {
+  const movements = S.stockMovements.slice(0, 100);
+  return `
+  <div class="sub-hero">
+    <button class="back-btn-dark" style="margin-bottom:14px" onclick="nav('settings')">${IC.left}</button>
+    <div class="sub-hero-title">${t('stockHistory')}</div>
+    <div class="sub-hero-sub">${S.stockMovements.length} ${t('articles').toLowerCase()}</div>
+  </div>
+  <div class="container">
+    ${movements.length === 0 ? `
+    <div class="empty-state">
+      ${IC.inbox}
+      <div class="empty-title">${t('noMovements')}</div>
+    </div>` : movements.map((m, i) => {
+      const typeColor = m.type === 'entry' ? 'var(--success)' : m.type === 'exit' ? 'var(--danger)' : 'var(--warning)';
+      const typeLabel = m.type === 'entry' ? t('entry') : m.type === 'exit' ? t('exit') : t('adjustment');
+      const sign = m.type === 'entry' ? '+' : m.type === 'exit' ? '-' : '';
+      return `
+    <div class="card anim" style="margin-bottom:4px;border-left:3px solid ${typeColor};animation-delay:${i*0.02}s">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:700;font-size:13px">${m.article}</div>
+          <div style="font-size:11px;color:var(--text-3)">${typeLabel} · ${fmtDate(m.date)}${m.note ? ' · '+m.note : ''}</div>
+        </div>
+        <div style="font-weight:800;color:${typeColor};font-size:15px">${sign}${m.qty}</div>
+      </div>
+    </div>`;
+    }).join('')}
+  </div>`;
+}
+
+// ── SPECTRA DEMO MODE ───────────────────────
+function spectraRunDemo() {
+  S.spectra.step = 'loading';
+  render();
+  // Simulate detection after 2s using existing articles
+  setTimeout(() => {
+    const demoItems = S.articles.slice(0, 5).map(a => ({
+      detected_name: a.name,
+      matched_name: a.name,
+      matched_id: a.id,
+      matched_unit: a.unit || 'pce',
+      quantity: Math.max(1, Math.floor(Math.random() * ((a.qty || a.stock || 5) + 3))),
+      confidence: Math.floor(85 + Math.random() * 14),
+    }));
+    if (demoItems.length === 0) {
+      demoItems.push(
+        { detected_name: 'Riz 5kg', matched_name: 'Riz 5kg', quantity: 8, confidence: 92, matched_unit: 'sac' },
+        { detected_name: 'Huile 1L', matched_name: 'Huile 1L', quantity: 15, confidence: 88, matched_unit: 'l' },
+        { detected_name: 'Sucre 1kg', matched_name: 'Sucre 1kg', quantity: 3, confidence: 95, matched_unit: 'kg' }
+      );
+    }
+    S.spectra.compareResults = demoItems;
+    S.spectra.step = 'compare';
+    render();
+  }, 2000);
+}
+
+// ── QUICK SALE ──────────────────────────────
+function quickSaleProduct(productId) {
+  const prod = S.products.find(p => p.id === productId);
+  if (!prod) return;
+  const sym = S.session?.currency_symbol || 'FCFA';
+
+  // Check stock availability
+  const canMake = prod.items ? Math.min(...prod.items.map(it => {
+    const art = S.articles.find(a => a.id === it.articleId);
+    return art ? Math.floor((art.qty !== undefined ? art.qty : art.stock) / (it.qty || 1)) : 0;
+  })) : 999;
+
+  if (canMake < 1) {
+    showToast(t('insufficientStock'), 'error');
+    return;
+  }
+
+  // Create sale
+  const sale = {
+    id: Date.now(),
+    productId: prod.id,
+    productName: prod.name,
+    qty: 1,
+    total: prod.price,
+    profit: prod.price - (prod.cost || 0),
+    date: new Date().toISOString(),
+    method: 'cash',
+  };
+
+  // Deduct stock
+  if (prod.items) {
+    prod.items.forEach(it => {
+      const art = S.articles.find(a => a.id === it.articleId);
+      if (art) {
+        if (art.qty !== undefined) art.qty -= (it.qty || 1);
+        else art.stock -= (it.qty || 1);
+        logMovement(art.name, 'exit', it.qty || 1, t('quickSale') + ': ' + prod.name);
+      }
+    });
+    localStorage.setItem('stockr_articles', JSON.stringify(S.articles));
+  }
+
+  S.sales.unshift(sale);
+  localStorage.setItem('stockr_sales', JSON.stringify(S.sales));
+  showToast(`${t('saleConfirmed')}: ${prod.name} — ${fmt(prod.price)} ${sym}`, 'success');
+  render();
+}
+
+// ── IMPROVED CSV EXPORT ─────────────────────
+function exportFullCSV(type) {
+  let csv = '', filename = 'stockr-export.csv';
+  const sep = ',';
+  const sym = S.session?.currency_symbol || 'FCFA';
+
+  if (type === 'articles') {
+    filename = 'stockr-articles.csv';
+    csv = 'Nom,Stock,Unité,Seuil alerte,Prix,' + sym + ',Coût,' + sym + '\n';
+    S.articles.forEach(a => {
+      const stk = a.qty !== undefined ? a.qty : a.stock;
+      csv += `"${a.name}",${stk},"${a.unit||''}",${a.minQty||a.min||0},${a.price||0},${a.cost||0}\n`;
+    });
+  } else if (type === 'sales') {
+    filename = 'stockr-ventes.csv';
+    csv = 'Date,Produit,Quantité,Total ' + sym + ',Bénéfice ' + sym + ',Client,Paiement\n';
+    S.sales.forEach(s => {
+      csv += `"${new Date(s.date).toLocaleString()}","${s.productName}",${s.qty},${s.total},${s.profit||0},"${s.clientName||''}","${s.method||''}"\n`;
+    });
+  } else if (type === 'clients') {
+    filename = 'stockr-clients.csv';
+    csv = 'Nom,Téléphone,Email,Notes,Nb achats,Total dépensé ' + sym + '\n';
+    S.clients.forEach(c => {
+      const sales = S.sales.filter(s => s.clientId && String(s.clientId) === String(c.id));
+      const spent = sales.reduce((s,v) => s + v.total, 0);
+      csv += `"${c.name}","${c.phone||''}","${c.email||''}","${(c.notes||'').replace(/"/g,'""')}",${sales.length},${spent}\n`;
+    });
+  } else if (type === 'suppliers') {
+    filename = 'stockr-fournisseurs.csv';
+    csv = 'Nom,Téléphone,Email,Notes\n';
+    S.suppliers.forEach(s => {
+      csv += `"${s.name}","${s.phone||''}","${s.email||''}","${(s.notes||'').replace(/"/g,'""')}"\n`;
+    });
+  } else if (type === 'movements') {
+    filename = 'stockr-mouvements.csv';
+    csv = 'Date,Article,Type,Quantité,Note\n';
+    S.stockMovements.forEach(m => {
+      csv += `"${new Date(m.date).toLocaleString()}","${m.article}","${m.type}",${m.qty},"${m.note||''}"\n`;
+    });
+  } else {
+    // Export all
+    exportFullCSV('articles');
+    exportFullCSV('sales');
+    exportFullCSV('clients');
+    return;
+  }
+
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+  showToast(t('exportSuccess') + ': ' + filename);
 }
 
 // ── LOCATIONS ────────────────────────────────
@@ -3697,25 +4050,41 @@ function vSettings() {
         <div class="settings-row" style="cursor:default">
           <div class="settings-row-inner"><span class="settings-row-ico">${IC.dollar}</span><div class="settings-row-lbl">${S.sales.length} ${t('saleOf')}</div></div>
         </div>
+        <div class="settings-row" onclick="nav('suppliers')">
+          <div class="settings-row-inner"><span class="settings-row-ico">${IC.truck}</span><div><div class="settings-row-lbl">${t('suppliers')}</div><div class="settings-row-sub">${S.suppliers.length} ${t('supplierOf')}</div></div></div>
+          ${IC.chevron}
+        </div>
+        <div class="settings-row" onclick="nav('stock-history')">
+          <div class="settings-row-inner"><span class="settings-row-ico">${IC.trending}</span><div><div class="settings-row-lbl">${t('stockHistory')}</div><div class="settings-row-sub">${S.stockMovements.length} ${t('articles').toLowerCase()}</div></div></div>
+          ${IC.chevron}
+        </div>
       </div>
     </div>
 
     <div class="settings-section">
       <div class="settings-label">${t('exportCSV')}</div>
       <div class="settings-row-block">
-        <div class="settings-row" onclick="exportArticlesCSV()">
+        <div class="settings-row" onclick="exportFullCSV('articles')">
           <div class="settings-row-inner"><span class="settings-row-ico">${IC.download}</span><div class="settings-row-lbl">${t('exportArticles')}</div></div>
           ${IC.chevron}
         </div>
-        <div class="settings-row" onclick="exportProductsCSV()">
-          <div class="settings-row-inner"><span class="settings-row-ico">${IC.download}</span><div class="settings-row-lbl">${t('exportProducts')}</div></div>
-          ${IC.chevron}
-        </div>
-        <div class="settings-row" onclick="exportSalesCSV()">
+        <div class="settings-row" onclick="exportFullCSV('sales')">
           <div class="settings-row-inner"><span class="settings-row-ico">${IC.download}</span><div class="settings-row-lbl">${t('exportSales')}</div></div>
           ${IC.chevron}
         </div>
-        <div class="settings-row" onclick="exportAllCSV()">
+        <div class="settings-row" onclick="exportFullCSV('clients')">
+          <div class="settings-row-inner"><span class="settings-row-ico">${IC.download}</span><div class="settings-row-lbl">${t('clients')}</div></div>
+          ${IC.chevron}
+        </div>
+        <div class="settings-row" onclick="exportFullCSV('suppliers')">
+          <div class="settings-row-inner"><span class="settings-row-ico">${IC.download}</span><div class="settings-row-lbl">${t('suppliers')}</div></div>
+          ${IC.chevron}
+        </div>
+        <div class="settings-row" onclick="exportFullCSV('movements')">
+          <div class="settings-row-inner"><span class="settings-row-ico">${IC.download}</span><div class="settings-row-lbl">${t('stockHistory')}</div></div>
+          ${IC.chevron}
+        </div>
+        <div class="settings-row" onclick="exportFullCSV('all')">
           <div class="settings-row-inner"><span class="settings-row-ico" style="color:var(--accent)">${IC.download}</span><div class="settings-row-lbl" style="color:var(--accent)">${t('exportAll')}</div></div>
           ${IC.chevron}
         </div>
@@ -3863,6 +4232,12 @@ document.addEventListener('DOMContentLoaded', () => {
   window.spectraConfirmReception = spectraConfirmReception;
   window.spectraAdjustStock      = spectraAdjustStock;
   window.spectraSignalLoss       = spectraSignalLoss;
+  window.spectraRunDemo          = spectraRunDemo;
+  window.saveSupplier            = saveSupplier;
+  window.deleteSupplier          = deleteSupplier;
+  window.quickSaleProduct        = quickSaleProduct;
+  window.exportFullCSV           = exportFullCSV;
+  window.logMovement             = logMovement;
 
   // Restaurer la session + token si existants
   const saved = getSession();
