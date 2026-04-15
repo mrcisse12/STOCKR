@@ -2979,27 +2979,29 @@ function vSpectra() {
 
     return `
   <div class="spectra-wrap">
-    <button class="back-btn" onclick="spectraReset()" style="align-self:flex-start;margin-bottom:8px">${IC.left}</button>
-    <div class="spectra-hero" style="margin-bottom:12px">
-      <div class="spectra-title">${t('spectraAudit')}</div>
-      <div class="spectra-sub">${detected.length} ${t('spectraDetected').toLowerCase()}</div>
+    <div class="spectra-audit-hero ${totalMissing > 0 ? 'has-gap' : 'all-good'}">
+      <button class="back-btn" onclick="spectraReset()" style="position:absolute;top:16px;left:16px;color:#fff;z-index:3">${IC.left}</button>
+      <div class="spectra-badge"><div class="spectra-badge-dot"></div> ${t('spectraAudit').toUpperCase()}</div>
+      <div class="spectra-title">${totalMissing > 0 ? (IC.alert + ' ' + t('spectraGap')) : '✓ ' + t('spectraMatch')}</div>
+      ${totalMissing > 0 ? `<div class="spectra-audit-big-num">${totalMissing}</div>
+      <div class="spectra-audit-label">${t('spectraGapMsg')}</div>` : `
+      <div class="spectra-audit-big-num" style="color:#34d399">${matches.length}</div>
+      <div class="spectra-audit-label">${t('articles')} OK</div>`}
     </div>
 
+    <div style="width:100%;max-width:380px;margin-top:-10px;position:relative;z-index:2">
+
     ${totalMissing > 0 ? `
-    <div class="card" style="background:rgba(239,68,68,.08);border:1px solid var(--danger);padding:14px;margin-bottom:12px;text-align:center">
-      <div style="font-size:28px;font-weight:900;color:var(--danger)">${totalMissing}</div>
-      <div style="font-size:12px;color:var(--danger);font-weight:600">${t('spectraGapMsg')}</div>
-      <div style="display:flex;gap:8px;margin-top:10px">
-        <button class="btn" style="flex:1;background:var(--danger);color:#fff;font-size:12px;padding:10px" onclick="spectraAdjustStock()">
-          ${t('spectraAdjust')}
-        </button>
-        <button class="btn btn-ghost" style="flex:1;font-size:12px;padding:10px;border:1px solid var(--danger);color:var(--danger)" onclick="spectraSignalLoss()">
-          ${t('spectraSignalLoss')}
-        </button>
-      </div>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button class="btn" style="flex:1;background:var(--danger);color:#fff;font-size:13px;padding:12px;border:none;border-radius:12px;font-weight:700" onclick="spectraAdjustStock()">
+        ${IC.check} &nbsp; ${t('spectraAdjust')}
+      </button>
+      <button class="btn" style="flex:1;background:transparent;color:var(--danger);font-size:13px;padding:12px;border:1.5px solid var(--danger);border-radius:12px;font-weight:700" onclick="spectraSignalLoss()">
+        ${IC.alert} &nbsp; ${t('spectraSignalLoss')}
+      </button>
     </div>` : ''}
 
-    <div class="metric-grid" style="margin-bottom:12px">
+    <div class="metric-grid" style="margin-bottom:14px">
       <div class="metric-card" style="border-left:3px solid var(--success)">
         <div class="metric-val" style="color:var(--success)">${matches.length}</div>
         <div class="metric-lbl">${t('spectraMatch')}</div>
@@ -3015,33 +3017,34 @@ function vSpectra() {
     </div>
 
     ${missing.length > 0 ? `
-    <div class="section-hd"><div class="section-lbl" style="color:var(--danger)">${t('spectraMissing')} (${missing.length})</div></div>
-    ${missing.map(m => `<div class="card" style="margin-bottom:4px;border-left:3px solid var(--danger)">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div><div style="font-weight:700;font-size:13px">${m.name}</div><div style="font-size:11px;color:var(--text-3)">${t('stock')}: ${m.stock} | ${t('spectraScan')}: ${m.scanned}</div></div>
-        <div style="font-weight:800;color:var(--danger)">-${m.diff}</div>
+    <div class="section-hd"><div class="section-lbl" style="color:var(--danger)">${IC.alert} ${t('spectraMissing')} (${missing.length})</div></div>
+    ${missing.map((m, i) => `<div class="spectra-det-card" style="border-left:3px solid var(--danger);animation-delay:${i*0.05}s">
+      <div>
+        <div class="spectra-det-name">${m.name}</div>
+        <div class="spectra-det-meta">${t('stock')}: ${m.stock} → ${t('spectraScan')}: ${m.scanned}</div>
       </div>
+      <div class="spectra-det-diff diff-missing">-${m.diff}</div>
     </div>`).join('')}` : ''}
 
     ${extra.length > 0 ? `
     <div class="section-hd"><div class="section-lbl" style="color:var(--warning)">${t('spectraExtra')} (${extra.length})</div></div>
-    ${extra.map(m => `<div class="card" style="margin-bottom:4px;border-left:3px solid var(--warning)">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div><div style="font-weight:700;font-size:13px">${m.name}</div><div style="font-size:11px;color:var(--text-3)">${t('stock')}: ${m.stock} | ${t('spectraScan')}: ${m.scanned}</div></div>
-        <div style="font-weight:800;color:var(--warning)">+${m.diff}</div>
+    ${extra.map((m, i) => `<div class="spectra-det-card" style="border-left:3px solid var(--warning);animation-delay:${i*0.05}s">
+      <div>
+        <div class="spectra-det-name">${m.name}</div>
+        <div class="spectra-det-meta">${t('stock')}: ${m.stock} → ${t('spectraScan')}: ${m.scanned}</div>
       </div>
+      <div class="spectra-det-diff diff-extra">+${m.diff}</div>
     </div>`).join('')}` : ''}
 
     ${matches.length > 0 ? `
-    <div class="section-hd"><div class="section-lbl" style="color:var(--success)">${t('spectraMatch')} (${matches.length})</div></div>
-    ${matches.map(m => `<div class="card" style="margin-bottom:4px;border-left:3px solid var(--success)">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div style="font-weight:600;font-size:13px">${m.name}</div>
-        <div style="font-weight:700;color:var(--success)">${m.scanned}</div>
-      </div>
+    <div class="section-hd"><div class="section-lbl" style="color:var(--success)">${IC.check} ${t('spectraMatch')} (${matches.length})</div></div>
+    ${matches.map((m, i) => `<div class="spectra-det-card" style="animation-delay:${i*0.05}s">
+      <div class="spectra-det-name">${m.name}</div>
+      <div class="spectra-det-diff diff-ok">${m.scanned}</div>
     </div>`).join('')}` : ''}
 
-    <button class="btn btn-primary" style="margin-top:16px" onclick="spectraReset();nav('pantry')">${t('spectraViewStock')}</button>
+    <button class="btn btn-primary" style="margin-top:16px;width:100%" onclick="spectraReset();nav('pantry')">${t('spectraViewStock')}</button>
+    </div>
   </div>`;
   }
 
@@ -3051,81 +3054,91 @@ function vSpectra() {
     const total = items.reduce((s,i) => s + i.quantity, 0);
     return `
   <div class="spectra-wrap">
-    <button class="back-btn" onclick="spectraReset()" style="align-self:flex-start;margin-bottom:8px">${IC.left}</button>
-    <div class="spectra-hero" style="margin-bottom:12px">
-      <div class="spectra-title">${t('spectraReception')}</div>
-      <div class="spectra-sub">${t('spectraNewDelivery')}</div>
+    <div class="spectra-reception-hero">
+      <button class="back-btn" onclick="spectraReset()" style="position:absolute;top:16px;left:16px;color:#fff;z-index:3">${IC.left}</button>
+      <div class="spectra-badge"><div class="spectra-badge-dot"></div> ${t('spectraReception').toUpperCase()}</div>
+      <div class="spectra-title">${t('spectraNewDelivery')}</div>
+      <div class="spectra-audit-big-num" style="color:#34d399">${total}</div>
+      <div class="spectra-audit-label">${t('spectraItemsReceived')}</div>
     </div>
 
-    <div class="card" style="background:rgba(16,185,129,.08);border:1px solid var(--success);padding:14px;margin-bottom:12px;text-align:center">
-      <div style="font-size:32px;font-weight:900;color:var(--success)">${total}</div>
-      <div style="font-size:12px;color:var(--success);font-weight:600">${t('spectraItemsReceived')}</div>
-    </div>
-
-    ${items.map(it => `<div class="card" style="margin-bottom:4px;border-left:3px solid var(--success)">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div style="font-weight:700;font-size:13px">${it.matched_name || it.detected_name}</div>
-        <div style="font-weight:800;color:var(--success)">+${it.quantity}</div>
-      </div>
+    <div style="width:100%;max-width:380px;margin-top:-10px;position:relative;z-index:2">
+    ${items.map((it, i) => `<div class="spectra-det-card" style="border-left:3px solid var(--success);animation-delay:${i*0.05}s">
+      <div class="spectra-det-name">${it.matched_name || it.detected_name}</div>
+      <div class="spectra-det-diff diff-plus">+${it.quantity}</div>
     </div>`).join('')}
 
-    <button class="btn btn-primary" style="margin-top:16px;padding:14px" onclick="spectraConfirmReception()">
+    <button class="btn btn-primary" style="margin-top:16px;width:100%;padding:14px;font-size:15px" onclick="spectraConfirmReception()">
       ${IC.check} &nbsp; ${t('spectraConfirmReception')}
     </button>
-    <button class="btn btn-ghost" style="margin-top:8px" onclick="spectraReset()">${t('cancel')}</button>
+    <button class="btn btn-ghost" style="margin-top:8px;width:100%" onclick="spectraReset()">${t('cancel')}</button>
+    </div>
   </div>`;
   }
 
   // ── Étape : caméra ──
   if (sp.step === 'camera') {
-    const lowItems = S.articles.filter(a => a.qty !== undefined ? (a.qty > 0 && a.qty <= (a.minQty||0)) : (a.stock > 0 && a.stock <= (a.min||0)));
+    const lowItems = S.articles.filter(a => {
+      const stk = a.qty !== undefined ? a.qty : a.stock;
+      const mn = a.minQty || a.min || 0;
+      return stk > 0 && mn > 0 && stk <= mn;
+    });
     return `
   <div class="spectra-wrap">
-    <button class="back-btn" onclick="nav('home')" style="align-self:flex-start;margin-bottom:8px">${IC.left}</button>
-    <div class="spectra-hero">
-      <div class="spectra-logo">${IC.cameraLg}</div>
+    <div class="spectra-header">
+      <button class="back-btn" onclick="nav('home')" style="position:absolute;top:16px;left:16px;color:#fff;z-index:3">${IC.left}</button>
+      <div class="spectra-badge"><div class="spectra-badge-dot"></div> SPECTRA IA</div>
+      <div class="spectra-logo-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      </div>
       <div class="spectra-title">${t('spectraTitle')}</div>
       <div class="spectra-sub">${t('spectraScanSub')}</div>
     </div>
 
-    <div style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:340px">
-      <label class="btn btn-primary spectra-capture-btn" for="spectra-file" style="margin:0;padding:14px 18px;font-size:15px">
+    <div class="spectra-features">
+      <label class="spectra-main-btn" for="spectra-file">
         ${IC.camera} &nbsp; ${t('spectraCapture')}
       </label>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <button class="spectra-feature-btn" onclick="spectraStartCompare()">
-          <div class="spectra-feat-ico" style="color:var(--danger)">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div class="spectra-feat-grid">
+        <button class="spectra-feature-btn feat-audit" onclick="spectraStartCompare()">
+          <div class="spectra-feat-ico ico-audit">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           </div>
           <div class="spectra-feat-title">${t('spectraAudit')}</div>
           <div class="spectra-feat-sub">${t('spectraAuditSub')}</div>
         </button>
-        <button class="spectra-feature-btn" onclick="spectraStartReception()">
-          <div class="spectra-feat-ico" style="color:var(--success)">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        <button class="spectra-feature-btn feat-reception" onclick="spectraStartReception()">
+          <div class="spectra-feat-ico ico-reception">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
           </div>
           <div class="spectra-feat-title">${t('spectraReception')}</div>
           <div class="spectra-feat-sub">${t('spectraReceptionSub')}</div>
         </button>
       </div>
+
+      <button class="spectra-demo-btn" onclick="spectraRunDemo()">
+        ${IC.eye} &nbsp; ${t('spectraDemo')} — ${t('spectraDemoSub')}
+      </button>
     </div>
 
     <input id="spectra-file" type="file" accept="image/*" capture="environment"
            style="display:none" onchange="spectraOnFile(this)">
-    <button class="spectra-demo-btn" onclick="spectraRunDemo()">
-      ${IC.eye} &nbsp; ${t('spectraDemo')} — ${t('spectraDemoSub')}
-    </button>
-    <div class="spectra-hint">${_lang === 'fr' ? "L'image ne quitte jamais ton appareil." : "The image never leaves your device."}</div>
+
+    <div class="spectra-privacy">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      ${_lang === 'fr' ? "L'image ne quitte jamais ton appareil." : "The image never leaves your device."}
+    </div>
 
     ${lowItems.length > 0 ? `
-    <div style="width:100%;max-width:340px;margin-top:12px">
-      <div class="section-hd"><div class="section-lbl" style="color:var(--danger)">${t('alerts')} (${lowItems.length})</div></div>
-      ${lowItems.slice(0,3).map(a => `<div class="card" style="margin-bottom:4px;border-left:3px solid var(--danger);padding:10px 12px">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div style="font-weight:600;font-size:12px">${a.name}</div>
-          <div style="font-size:11px;color:var(--danger);font-weight:700">${a.qty||a.stock} ${t('unitsRemaining')}</div>
+    <div style="width:100%;max-width:380px;margin-top:16px">
+      <div class="section-hd"><div class="section-lbl" style="color:var(--danger)">${IC.alert} ${t('alerts')} (${lowItems.length})</div></div>
+      ${lowItems.slice(0,3).map((a, i) => `<div class="spectra-det-card" style="border-left:3px solid var(--danger);animation-delay:${i*0.05}s">
+        <div>
+          <div class="spectra-det-name">${a.name}</div>
+          <div class="spectra-det-meta">${a.qty||a.stock} ${a.unit} ${t('unitsRemaining')}</div>
         </div>
+        <div class="spectra-det-diff diff-missing">${a.qty||a.stock}</div>
       </div>`).join('')}
     </div>` : ''}
   </div>`;
@@ -3134,9 +3147,24 @@ function vSpectra() {
   // ── Étape : chargement ──
   if (sp.step === 'loading') return `
   <div class="spectra-wrap spectra-center">
-    <div class="spectra-spinner"></div>
+    <div class="spectra-scan-box">
+      <div class="spectra-scan-grid"></div>
+      <div class="spectra-scan-corners"></div>
+      <div class="spectra-scan-line"></div>
+      <div class="spectra-scan-label">SCANNING</div>
+    </div>
     <div class="spectra-loading-title">${t('spectraAnalyzing')}</div>
-    <div class="spectra-sub">Spectra AI</div>
+    <div class="spectra-loading-sub">Spectra IA · ${_lang==='fr'?'Reconnaissance en cours':'Recognition in progress'}…</div>
+    <div class="spectra-live-stats">
+      <div class="spectra-live-stat" style="animation-delay:.2s">
+        <div class="spectra-live-stat-val">—</div>
+        <div class="spectra-live-stat-lbl">${t('articles')}</div>
+      </div>
+      <div class="spectra-live-stat" style="animation-delay:.4s">
+        <div class="spectra-live-stat-val">—</div>
+        <div class="spectra-live-stat-lbl">${_lang==='fr'?'Confiance':'Confidence'}</div>
+      </div>
+    </div>
   </div>`;
 
   // ── Étape : confirmation ──
@@ -4434,38 +4462,38 @@ function vSettings() {
     </div>
 
     <div class="settings-section">
-      <div class="settings-label">${t('locations')}</div>
-      <div class="settings-row-block">
-        <div class="settings-row ${!S.currentLocation?'':'card-tap'}" onclick="setLocation(null)" style="${!S.currentLocation?'background:var(--accent-light)':''}">
-          <div class="settings-row-inner">
-            <span class="settings-row-ico">${IC.home}</span>
-            <div class="settings-row-lbl" style="${!S.currentLocation?'color:var(--accent);font-weight:700':''}">${t('allLocations')}</div>
-          </div>
-          ${!S.currentLocation ? '<div style="color:var(--accent);font-size:12px;font-weight:700">✓</div>' : ''}
+      <div class="settings-label">${t('locations')} (${S.locations.length + 1})</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="loc-card ${!S.currentLocation?'loc-active':''}" onclick="setLocation(null)" style="cursor:pointer">
+          <div class="loc-card-ico" style="background:linear-gradient(135deg,#4F46E5,#6366f1)">${IC.home}</div>
+          <div class="loc-card-name">${t('allLocations')}</div>
+          <div class="loc-card-count">${S.articles.length} ${t('articles').toLowerCase()}</div>
+          ${!S.currentLocation?'<div class="loc-card-check">✓</div>':''}
         </div>
-        ${S.locations.map(l => `
-        <div class="settings-row ${String(S.currentLocation)===String(l.id)?'':'card-tap'}" onclick="setLocation(${l.id})" style="${String(S.currentLocation)===String(l.id)?'background:var(--accent-light)':''}">
-          <div class="settings-row-inner">
-            <span class="settings-row-ico">${IC.box}</span>
-            <div class="settings-row-lbl" style="${String(S.currentLocation)===String(l.id)?'color:var(--accent);font-weight:700':''}">${l.name}</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:6px">
-            ${String(S.currentLocation)===String(l.id) ? '<div style="color:var(--accent);font-size:12px;font-weight:700">✓</div>' : ''}
-            <button onclick="event.stopPropagation();removeLocation(${l.id})" style="background:none;border:none;cursor:pointer;color:var(--danger);font-size:14px;padding:4px">✕</button>
-          </div>
-        </div>`).join('')}
+        ${S.locations.map((l, i) => {
+          const colors = ['#059669,#10b981','#d97706,#f59e0b','#dc2626,#ef4444','#7c3aed,#8b5cf6','#0891b2,#06b6d4','#be185d,#ec4899'];
+          const c = colors[i % colors.length];
+          const isActive = String(S.currentLocation)===String(l.id);
+          return `
+        <div class="loc-card ${isActive?'loc-active':''}" onclick="setLocation(${l.id})" style="cursor:pointer">
+          <div class="loc-card-ico" style="background:linear-gradient(135deg,#${c.split(',')[0].slice(1)},${c.split(',')[1]})">${IC.box}</div>
+          <div class="loc-card-name">${l.name}</div>
+          <div class="loc-card-count">${S.articles.filter(a => !a.location || a.location === l.id).length} ${t('articles').toLowerCase()}</div>
+          ${isActive?'<div class="loc-card-check">✓</div>':''}
+          <button onclick="event.stopPropagation();removeLocation(${l.id})" class="loc-card-del">✕</button>
+        </div>`;
+        }).join('')}
         ${S.locationAdd ? `
-        <div class="settings-row" style="cursor:default;padding:8px 12px">
-          <input class="input" id="loc-name" type="text" placeholder="${t('locationPlaceholder')}" style="flex:1;margin-right:8px">
-          <button class="btn btn-primary" style="padding:8px 14px;font-size:12px" onclick="addLocation()">${t('addLocation')}</button>
-          <button class="btn btn-ghost" style="padding:8px 10px;font-size:12px;margin-left:4px" onclick="S.locationAdd=false;render()">${t('cancel')}</button>
-        </div>` : `
-        <div class="settings-row" onclick="S.locationAdd=true;render()">
-          <div class="settings-row-inner">
-            <span class="settings-row-ico" style="color:var(--accent)">${IC.plus}</span>
-            <div class="settings-row-lbl" style="color:var(--accent)">${t('addLocation')}</div>
+        <div class="loc-card" style="cursor:default;padding:12px">
+          <input class="input" id="loc-name" type="text" placeholder="${t('locationPlaceholder')}" style="width:100%;margin-bottom:8px;font-size:12px">
+          <div style="display:flex;gap:4px">
+            <button class="btn btn-primary" style="flex:1;padding:6px;font-size:11px" onclick="addLocation()">OK</button>
+            <button class="btn btn-ghost" style="padding:6px 8px;font-size:11px" onclick="S.locationAdd=false;render()">✕</button>
           </div>
-          ${IC.chevron}
+        </div>` : `
+        <div class="loc-card loc-add" onclick="S.locationAdd=true;render()" style="cursor:pointer">
+          <div style="color:var(--accent);opacity:.6">${IC.plus}</div>
+          <div class="loc-card-name" style="color:var(--accent)">${t('addLocation')}</div>
         </div>`}
       </div>
     </div>
