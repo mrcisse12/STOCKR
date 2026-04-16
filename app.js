@@ -45,6 +45,7 @@ const IC = {
   cameraLg: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
   logo:     `<svg width="22" height="22" viewBox="0 0 576 512" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18zM288 102.2l52.8 107.5c4.6 9.3 13.4 15.8 23.7 17.3l118.1 17.2-85.5 83.5c-7.4 7.2-10.8 17.6-9 27.8L411 473.1l-105.6-56.3c-9.3-5-20.4-5-29.7 0L170.1 473.1l20.2-117.6c1.8-10.2-1.6-20.6-9-27.8L95.8 244.2l118.1-17.2c10.3-1.5 19.1-8 23.7-17.3L288 102.2zm195.2-61.7c-5.6-11.2-16.9-18.5-29.5-18.5s-23.9 7.2-29.5 18.5l-21.8 44.4-48.8 7.1c-12.1 1.8-22.2 10.2-25.9 21.8s-.7 24.4 7.9 32.9l35.4 34.5-8.3 48.8c-2.1 12.1 3 24.4 13 31.6s23.2 8.1 34.1 2.3l43.8-23 43.8 23c10.9 5.7 24.1 4.9 34.1-2.3s15.1-19.5 13-31.6l-8.4-48.8 35.4-34.5c8.6-8.5 11.7-21.4 7.9-32.9s-13.8-20-25.9-21.8l-48.8-7.1-21.5-44.3z"/></svg>`,
   logoLg:   `<svg width="40" height="40" viewBox="0 0 576 512" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18zM288 102.2l52.8 107.5c4.6 9.3 13.4 15.8 23.7 17.3l118.1 17.2-85.5 83.5c-7.4 7.2-10.8 17.6-9 27.8L411 473.1l-105.6-56.3c-9.3-5-20.4-5-29.7 0L170.1 473.1l20.2-117.6c1.8-10.2-1.6-20.6-9-27.8L95.8 244.2l118.1-17.2c10.3-1.5 19.1-8 23.7-17.3L288 102.2zm195.2-61.7c-5.6-11.2-16.9-18.5-29.5-18.5s-23.9 7.2-29.5 18.5l-21.8 44.4-48.8 7.1c-12.1 1.8-22.2 10.2-25.9 21.8s-.7 24.4 7.9 32.9l35.4 34.5-8.3 48.8c-2.1 12.1 3 24.4 13 31.6s23.2 8.1 34.1 2.3l43.8-23 43.8 23c10.9 5.7 24.1 4.9 34.1-2.3s15.1-19.5 13-31.6l-8.4-48.8 35.4-34.5c8.6-8.5 11.7-21.4 7.9-32.9s-13.8-20-25.9-21.8l-48.8-7.1-21.5-44.3z"/></svg>`,
+  cart:     `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>`,
 };
 
 // ── Auth store (localStorage) ──────────────────
@@ -315,113 +316,186 @@ function generateInvoicePDF(sales) {
   if (typeof window.jspdf === 'undefined') { showToast('PDF non disponible (hors-ligne)', 'error'); return; }
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  const sym  = S.session?.currency_symbol || 'FCFA';
-  const biz  = S.session?.business || S.session?.name || 'Mon Commerce';
-  const invId = _invNum(sales[0].id);
-  const locale = _lang === 'en' ? 'en-US' : 'fr-FR';
-  const date  = new Date(sales[0].date).toLocaleDateString(locale, { day:'numeric', month:'long', year:'numeric' });
+
+  const sym        = S.session?.currency_symbol || 'FCFA';
+  const biz        = S.session?.business || S.session?.name || 'Mon Commerce';
+  const email      = S.session?.email || '';
+  const invId      = _invNum(sales[0].id);
+  const locale     = _lang === 'en' ? 'en-US' : 'fr-FR';
+  const now        = new Date();
+  const dateStr    = now.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
+  const timeStr    = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
   const clientName = sales[0]?.clientName || null;
-  const logoData = localStorage.getItem('stockr_logo') || null;
-  const loc = S.currentLocation ? S.locations.find(l => l.id === S.currentLocation) : null;
+  const clientPhone= sales[0]?.clientPhone || null;
+  const logoData   = localStorage.getItem('stockr_logo') || null;
+  const loc        = S.currentLocation ? S.locations.find(l => l.id === S.currentLocation) : null;
 
-  // ── Header indigo ──
-  doc.setFillColor(79, 70, 229);
-  doc.rect(0, 0, 210, 46, 'F');
+  // ── Fond crème ──────────────────────────────────────────
+  doc.setFillColor(249, 246, 241);
+  doc.rect(0, 0, 210, 297, 'F');
 
-  // Logo if available
-  let logoX = 16;
+  // ── Zone supérieure : logo + infos entreprise (gauche) | INVOICE (droite) ──
+  const topY   = 22;
+  const logoSz = 22;   // diamètre du cercle / côté du logo
+
+  // Logo ou cercle placeholder
   if (logoData) {
-    try { doc.addImage(logoData, 'JPEG', 16, 6, 18, 18); logoX = 38; } catch(e) {}
+    try {
+      // Clip circulaire simulé avec un rect arrondi
+      doc.addImage(logoData, 'JPEG', 14, topY - logoSz / 2, logoSz, logoSz);
+    } catch(e) {
+      doc.setFillColor(30, 30, 30);
+      doc.circle(14 + logoSz / 2, topY, logoSz / 2, 'F');
+    }
+  } else {
+    doc.setFillColor(30, 30, 30);
+    doc.circle(14 + logoSz / 2, topY, logoSz / 2, 'F');
   }
 
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(22); doc.setFont('helvetica', 'bold');
-  doc.text(biz, logoX, 16);
+  // Nom entreprise + email sous le logo
+  const infoX = 14 + logoSz + 5;
+  doc.setTextColor(20, 20, 20);
+  doc.setFontSize(13); doc.setFont('helvetica', 'bold');
+  doc.text(biz, infoX, topY - 3);
+  doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+  doc.setTextColor(100, 100, 100);
+  if (email) doc.text(email, infoX, topY + 4);
+  if (loc)   doc.text(loc.name, infoX, topY + 10);
+
+  // "INVOICE" côté droit
+  doc.setTextColor(20, 20, 20);
+  doc.setFontSize(30); doc.setFont('helvetica', 'bold');
+  doc.text('INVOICE', 196, topY + 4, { align: 'right' });
+
+  // Numéro + date + heure sous "INVOICE"
+  doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+  doc.setTextColor(100, 100, 100);
+  doc.text(`#${invId}`, 196, topY + 12, { align: 'right' });
+  doc.text(`${dateStr}  ${timeStr}`, 196, topY + 18, { align: 'right' });
+
+  // ── Séparateur ─────────────────────────────────────────
+  let y = topY + 28;
+  doc.setDrawColor(200, 195, 188);
+  doc.setLineWidth(0.4);
+  doc.line(14, y, 196, y);
+  y += 10;
+
+  // ── BILLED TO ──────────────────────────────────────────
+  doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+  doc.setTextColor(130, 120, 110);
+  doc.text('BILLED TO', 14, y);
+  y += 5;
+  doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+  doc.setTextColor(20, 20, 20);
+  doc.text(clientName || 'Client', 14, y);
+  y += 5;
+  if (clientPhone) {
+    doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+    doc.setTextColor(80, 80, 80);
+    doc.text(clientPhone, 14, y);
+    y += 5;
+  }
+  y += 6;
+
+  // ── En-tête tableau ────────────────────────────────────
+  doc.setDrawColor(200, 195, 188);
+  doc.setLineWidth(0.3);
+  doc.line(14, y, 196, y);
+  y += 1;
+  doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+  doc.setTextColor(100, 95, 88);
+  doc.text('ITEM',       18,  y + 5);
+  doc.text('QTY',        118, y + 5, { align: 'center' });
+  doc.text('UNIT PRICE', 158, y + 5, { align: 'right' });
+  doc.text('TOTAL',      193, y + 5, { align: 'right' });
+  y += 7;
+  doc.line(14, y, 196, y);
+  y += 7;
+
+  // ── Lignes produits ────────────────────────────────────
+  let grandTotal = 0;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
+  for (const s of sales) {
+    const itemTotal = s.total || 0;
+    const itemQty   = s.qty   || 1;
+    const unitPrice = itemQty > 0 ? Math.round(itemTotal / itemQty) : 0;
+    grandTotal += itemTotal;
+
+    const name = String(s.productName || '—').slice(0, 50); // sécurisé
+
+    doc.setTextColor(20, 20, 20); doc.setFont('helvetica', 'normal');
+    doc.text(name,                              18,  y);
+    doc.text(String(itemQty),                  118, y, { align: 'center' });
+    doc.setTextColor(110, 105, 98);
+    doc.text(fmt(unitPrice) + ' ' + sym,       158, y, { align: 'right' });
+    doc.setTextColor(20, 20, 20); doc.setFont('helvetica', 'bold');
+    doc.text(fmt(itemTotal) + ' ' + sym,       193, y, { align: 'right' });
+
+    y += 9;
+    doc.setDrawColor(220, 215, 208); doc.setLineWidth(0.2);
+    doc.line(14, y - 2, 196, y - 2);
+  }
+
+  y += 4;
+  // ── Bloc totaux ────────────────────────────────────────
+  const taxRate    = parseFloat(S.session?.tax_rate) || 0;
+  const taxAmount  = taxRate > 0 ? Math.round(grandTotal * taxRate / 100) : 0;
+  const totalDue   = grandTotal + taxAmount;
+  const totColL    = 138;  // x gauche de la colonne des labels
+  const totColR    = 193;  // x droite (valeurs)
+
   doc.setFontSize(9); doc.setFont('helvetica', 'normal');
-  doc.text(S.session?.email || '', logoX, 23);
-  if (loc) doc.text(loc.name, logoX, 29);
+  doc.setTextColor(80, 80, 80);
 
-  doc.setFontSize(16); doc.setFont('helvetica', 'bold');
-  doc.text(t('invoice').toUpperCase(), 195, 16, { align: 'right' });
-  doc.setFontSize(10); doc.setFont('helvetica', 'normal');
-  doc.text(t('invoiceNumber') + ' ' + invId, 195, 24, { align: 'right' });
-  doc.text(t('invoiceDate') + ' : ' + date, 195, 31, { align: 'right' });
-  if (clientName) {
-    doc.text(t('invoiceClient') + ' : ' + clientName, 195, 38, { align: 'right' });
-  }
+  // Subtotal
+  doc.text('Subtotal',               totColL, y, { align: 'right' });
+  doc.text(fmt(grandTotal) + ' ' + sym, totColR, y, { align: 'right' });
+  y += 7;
 
-  // ── Client info block ──
-  let y = 56;
-  if (clientName) {
-    doc.setFillColor(248, 250, 252);
-    doc.roundedRect(16, y - 4, 178, 12, 2, 2, 'F');
-    doc.setTextColor(60, 60, 60); doc.setFontSize(9); doc.setFont('helvetica', 'bold');
-    doc.text(t('invoiceClient') + ':', 20, y + 3);
-    doc.setFont('helvetica', 'normal');
-    doc.text(clientName, 50, y + 3);
-    y += 16;
-  }
-
-  // ── En-tête tableau ──
-  doc.setFillColor(238, 242, 255);
-  doc.roundedRect(16, y, 178, 8, 1, 1, 'F');
-  doc.setTextColor(79, 70, 229); doc.setFontSize(8); doc.setFont('helvetica', 'bold');
-  doc.text(t('invoiceItems').toUpperCase(), 20, y + 5.5);
-  doc.text(t('invoiceQty').toUpperCase(), 120, y + 5.5, { align: 'center' });
-  doc.text(t('invoiceUnitPrice').toUpperCase(), 155, y + 5.5, { align: 'right' });
-  doc.text(t('invoiceTotal').toUpperCase(), 192, y + 5.5, { align: 'right' });
-
-  // ── Lignes produits ──
-  y += 14; let grandTotal = 0; let totalProfit = 0;
-  doc.setTextColor(30, 30, 30); doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
-  sales.forEach((s, i) => {
-    const unitPrice = s.qty > 0 ? Math.round(s.total / s.qty) : 0;
-    grandTotal += s.total;
-    totalProfit += (s.profit || 0);
-    if (i % 2 === 1) { doc.setFillColor(249, 250, 251); doc.rect(16, y - 5, 178, 9, 'F'); }
-    doc.text(s.productName, 20, y);
-    doc.text(String(s.qty), 120, y, { align: 'center' });
-    doc.text(fmt(unitPrice) + ' ' + sym, 155, y, { align: 'right' });
-    doc.setFont('helvetica', 'bold');
-    doc.text(fmt(s.total) + ' ' + sym, 192, y, { align: 'right' });
-    doc.setFont('helvetica', 'normal');
-    y += 10;
-  });
-
-  // ── Totals block ──
-  doc.setDrawColor(229, 231, 235); doc.line(16, y, 194, y); y += 8;
-  const taxRate = parseFloat(S.session?.tax_rate) || 0;
-  doc.setFontSize(9); doc.setTextColor(100, 100, 100);
-  doc.text(t('invoiceSubtotal'), 155, y, { align: 'right' });
-  doc.text(fmt(grandTotal) + ' ' + sym, 192, y, { align: 'right' }); y += 7;
+  // TVA
   if (taxRate > 0) {
-    const tva = Math.round(grandTotal * taxRate / 100);
-    doc.text(`${t('invoiceTax')} (${taxRate}%)`, 155, y, { align: 'right' });
-    doc.text(fmt(tva) + ' ' + sym, 192, y, { align: 'right' }); y += 7;
-    grandTotal += tva;
+    doc.text(`Tax (${taxRate}%)`,    totColL, y, { align: 'right' });
+    doc.text(fmt(taxAmount) + ' ' + sym, totColR, y, { align: 'right' });
+    y += 7;
   }
-  doc.text(t('articles') + ': ' + sales.length, 20, y);
-  doc.text(t('invoiceQty') + ': ' + sales.reduce((s,v) => s + v.qty, 0), 60, y);
 
-  doc.setFillColor(79, 70, 229);
-  doc.roundedRect(120, y - 1, 74, 10, 1, 1, 'F');
-  doc.setTextColor(255, 255, 255); doc.setFontSize(11); doc.setFont('helvetica', 'bold');
-  doc.text(t('invoiceTotal').toUpperCase(), 140, y + 6, { align: 'right' });
-  doc.text(fmt(grandTotal) + ' ' + sym, 192, y + 6, { align: 'right' });
+  // Ligne séparatrice
+  doc.setDrawColor(180, 175, 168); doc.setLineWidth(0.4);
+  doc.line(totColL - 24, y - 2, 196, y - 2);
+  y += 3;
 
-  // ── Payment method ──
-  y += 18;
-  doc.setTextColor(80, 80, 80); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
-  doc.text(t('invoicePayment') + ' : ' + t('invoiceCash') + ' / ' + t('invoiceMobile'), 16, y);
+  // Total Due — plus grand et gras
+  doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+  doc.setTextColor(20, 20, 20);
+  doc.text('Total Due',              totColL, y, { align: 'right' });
+  doc.text(fmt(totalDue) + ' ' + sym,   totColR, y, { align: 'right' });
+  y += 16;
 
-  // ── Pied de page ──
-  doc.setTextColor(160, 160, 160); doc.setFontSize(7); doc.setFont('helvetica', 'normal');
-  doc.text(t('invoiceThankYou'), 105, 275, { align: 'center' });
-  doc.text('STOCKR — ' + biz, 105, 280, { align: 'center' });
-  doc.text(S.session?.email || '', 105, 285, { align: 'center' });
+  // ── Merci ──────────────────────────────────────────────
+  doc.setFontSize(14); doc.setFont('helvetica', 'bolditalic');
+  doc.setTextColor(60, 55, 50);
+  doc.text('Thank you for your Business!', 105, y, { align: 'center' });
+  y += 8;
 
-  doc.save(`${t('invoice')}-${invId}.pdf`);
-  showToast(t('invoice') + ' PDF');
+  // ── Infos paiement ────────────────────────────────────
+  doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+  doc.setTextColor(120, 115, 108);
+  doc.text('Payment: Cash / Mobile Money', 105, y, { align: 'center' });
+
+  // ── Pied de page : séparateur + branding ──────────────
+  doc.setDrawColor(200, 195, 188); doc.setLineWidth(0.3);
+  doc.line(14, 280, 196, 280);
+
+  doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+  doc.setTextColor(80, 80, 80);
+  doc.text(biz, 14, 286);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(150, 145, 138);
+  doc.text('Généré par STOCKR', 196, 286, { align: 'right' });
+
+  doc.save(`Invoice-${invId}.pdf`);
+  showToast(t('invoice') + ' PDF ✓');
 }
 
 function shareViaWhatsApp(sales) {
@@ -695,7 +769,9 @@ function _localApi(method, path, body) {
 
 // ── API helper ────────────────────────────────
 async function api(method, path, body) {
-  if (USE_LOCAL) {
+  // Si mode local actif ET on a un token → on tente quand même le vrai backend
+  // (évite de rester bloqué en offline après une coupure réseau temporaire)
+  if (USE_LOCAL && !S.token) {
     try { return _localApi(method, path, body); }
     catch(e) { throw new Error(e.message); }
   }
@@ -705,15 +781,18 @@ async function api(method, path, body) {
       headers: { 'Content-Type': 'application/json', ...(S.token ? { 'Authorization': `Bearer ${S.token}` } : {}) },
       body: body ? JSON.stringify(body) : undefined
     });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(typeof err.error === 'string' ? err.error : (err.error?.error || err.message || `Erreur ${res.status}`));
+    if (res.ok) {
+      USE_LOCAL = false; // Connexion rétablie → reset offline mode
+      return res.json();
     }
-    return res.json();
+    const err = await res.json().catch(() => ({}));
+    throw new Error(typeof err.error === 'string' ? err.error : (err.error?.error || err.message || `Erreur ${res.status}`));
   } catch(e) {
     if (e.message === 'Failed to fetch' || e.name === 'TypeError' || e.message.includes('503')) {
-      USE_LOCAL = true;
-      showToast('Mode hors-ligne activé', '');
+      if (!USE_LOCAL) {
+        USE_LOCAL = true;
+        showToast('Mode hors-ligne activé', '');
+      }
       return _localApi(method, path, body);
     }
     throw e;
@@ -1222,24 +1301,64 @@ function removeFromCart(idx) {
 async function confirmCart() {
   if (!S.cart.length) { showToast(t('emptyCartMsg'), 'error'); return; }
   const clientSel = $('sale-client');
-  const clientId = clientSel ? parseInt(clientSel.value) || null : null;
-  const client = clientId ? S.clients.find(c => c.id === clientId) : null;
+  const clientId  = clientSel ? parseInt(clientSel.value) || null : null;
+  const client    = clientId ? S.clients.find(c => c.id === clientId) : null;
+  const sessionId = 'sess_' + Date.now();
+  const now       = new Date().toISOString();
+
+  // ── Construire la facture depuis le panier AVANT les appels API ──
+  // (garantit que tous les articles y sont, peu importe la réponse serveur)
+  let invoiceItems = S.cart.map(item => {
+    const product = S.products.find(p => p.id === item.productId);
+    return {
+      id:          item.productId,           // provisoire, remplacé après API
+      productId:   item.productId,
+      productName: item.productName || (product?.name) || '?',
+      qty:         item.qty,
+      total:       (item.unitPrice || product?.price || 0) * item.qty,
+      profit:      ((item.unitPrice || product?.price || 0) - (item.unitCost || product?.purchasePrice || 0)) * item.qty,
+      date:        now,
+      clientId,
+      clientName:  client?.name || null,
+      sessionId,
+    };
+  });
+
+  const cartTotal = invoiceItems.reduce((s, v) => s + v.total, 0);
+  const cartCount = invoiceItems.reduce((s, v) => s + v.qty, 0);
+
   try {
-    let total = 0, count = 0, newSales = [];
+    // ── Appels API (enregistrement côté serveur) ──
+    const apiSales = [];
     for (const item of S.cart) {
-      const data = await api('POST', '/api/sales/', { product_id: item.productId, quantity: item.qty, client_id: clientId, client_name: client?.name || null });
-      const product = S.products.find(p => p.id === item.productId);
-      const lineTotal = (product?.price || 0) * item.qty;
-      const lineProfit = ((product?.price || 0) - (product?.purchasePrice || 0)) * item.qty;
-      total += lineTotal;
-      count += item.qty;
-      const newSale = { id: data.sale.id, productId: data.sale.product_id, productName: data.sale.product_name, qty: data.sale.quantity, total: lineTotal, profit: lineProfit, date: data.sale.timestamp, clientId, clientName: client?.name || null };
-      S.sales.unshift(newSale);
-      newSales.push(newSale);
+      const data = await api('POST', '/api/sales/', {
+        product_id:  item.productId,
+        quantity:    item.qty,
+        client_id:   clientId,
+        client_name: client?.name || null,
+      });
+      apiSales.push(data.sale);
     }
+
+    // Mettre à jour les IDs réels retournés par l'API dans invoiceItems
+    apiSales.forEach((sale, i) => {
+      if (invoiceItems[i]) {
+        invoiceItems[i].id   = sale.id;
+        invoiceItems[i].date = sale.timestamp || now;
+      }
+    });
+
+    // Ajouter à S.sales pour la liste
+    invoiceItems.forEach(s => S.sales.unshift(s));
+
+    // Stocker la session panier (accessible depuis la liste des ventes)
+    S.lastSession = sessionId;
+    window['__session_' + sessionId] = invoiceItems;
+
     S.cart = [];
-    showToast(`${count} ${t('unitsSold')} — ${fmt(total)} FCFA`);
-    showReceiptBanner(newSales, total);
+    showToast(`${cartCount} ${t('unitsSold')} — ${fmt(cartTotal)} ${S.session?.currency_symbol || 'FCFA'}`);
+    showReceiptBanner(invoiceItems, cartTotal);
+
     // Recharger les articles pour avoir les stocks à jour
     const arts = await api('GET', '/api/articles/');
     S.articles = arts.map(articleFromAPI);
@@ -2005,32 +2124,87 @@ function vSales() {
       <button class="filter-chip ${S.saleClientFilter===c.id?'active':''}" onclick="S.saleClientFilter=${c.id};render()">${c.name}</button>`).join('')}
     </div>` : ''}
     ${(() => {
-      const filtered = S.saleClientFilter ? S.sales.filter(s => s.clientId && String(s.clientId) === String(S.saleClientFilter)) : S.sales;
-      if (filtered.length === 0) return `
+      const sym = S.session?.currency_symbol || 'FCFA';
+      let sales = S.saleClientFilter
+        ? S.sales.filter(s => s.clientId && String(s.clientId) === String(S.saleClientFilter))
+        : S.sales;
+
+      if (sales.length === 0) return `
     <div class="empty">
       <div class="empty-ico">${IC.dollarLg}</div>
       <div class="empty-title">${t('noSales')}</div>
       <div class="empty-text">${t('noSalesSub')}</div>
     </div>`;
-      return filtered.map(s=>{
-      const sid = 'sale_' + s.id;
-      window[sid] = s;
-      return `
+
+      // ── Grouper par sessionId (panier), les sans sessionId = vente solo ──
+      const groups = [];
+      const seen   = new Set();
+      for (const s of sales) {
+        if (s.sessionId) {
+          if (seen.has(s.sessionId)) continue; // déjà traité
+          seen.add(s.sessionId);
+          // Reconstruire le groupe depuis S.sales (fonctionne même après reload)
+          const grp = S.sales.filter(x => x.sessionId === s.sessionId);
+          groups.push({ isCart: true, items: grp, date: grp[0].date, clientName: grp[0].clientName, sessionId: s.sessionId });
+        } else {
+          groups.push({ isCart: false, items: [s], date: s.date, clientName: s.clientName, sessionId: null });
+        }
+      }
+
+      return groups.map(g => {
+        const cartTotal  = g.items.reduce((acc, x) => acc + (x.total || 0), 0);
+        const cartProfit = g.items.reduce((acc, x) => acc + (x.profit || 0), 0);
+        const sid        = 'grp_' + (g.sessionId || g.items[0].id);
+        window[sid]      = g.items;
+
+        if (g.isCart && g.items.length > 1) {
+          // ── Affichage panier multi-articles ──
+          return `
+    <div class="sale-card">
+      <div class="sale-card-header">
+        <div>
+          <div class="sale-card-title">${IC.cart} Panier · ${g.items.length} articles</div>
+          <div class="sale-card-meta">${fmtDate(g.date)}${g.clientName ? ` · <span style="color:var(--accent)">${g.clientName}</span>` : ''}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="sale-card-total">${fmt(cartTotal)} ${sym}</div>
+          ${cartProfit > 0 ? `<div class="sale-card-profit">+${fmt(cartProfit)} bénéf.</div>` : ''}
+        </div>
+      </div>
+      <div class="sale-card-items">
+        ${g.items.map(s => `
+        <div class="sale-card-line">
+          <span class="sale-card-name">${s.productName || '—'}</span>
+          <span class="sale-card-qty">×${s.qty}</span>
+          <span class="sale-card-price">${fmt(s.total || 0)} ${sym}</span>
+        </div>`).join('')}
+      </div>
+      <div class="sale-card-footer">
+        <button class="sale-act-btn" title="Facture PDF" onclick="generateInvoicePDF(window['${sid}'])">${IC.pdf} Facture</button>
+        <button class="sale-act-btn sale-act-wa" title="Partager WhatsApp" onclick="shareViaWhatsApp(window['${sid}'])">${IC.whatsapp} WhatsApp</button>
+      </div>
+    </div>`;
+        } else {
+          // ── Vente solo (1 article ou pas de sessionId) ──
+          const s = g.items[0];
+          return `
     <div class="sale-item">
       <div class="sale-dot"></div>
       <div class="sale-info">
-        <div class="sale-prod">${s.productName}</div>
+        <div class="sale-prod">${s.productName || '—'}</div>
         <div class="sale-date">${fmtDate(s.date)}${s.clientName ? ` · <span style="color:var(--accent)">${s.clientName}</span>` : ''}</div>
       </div>
       <div class="sale-right">
-        <div class="sale-total">${fmt(s.total)} ${S.session?.currency_symbol||'FCFA'}</div>
+        <div class="sale-total">${fmt(s.total || 0)} ${sym}</div>
         <div class="sale-qty">×${s.qty}${s.profit ? ` · <span style="color:var(--success)">+${fmt(s.profit)}</span>` : ''}</div>
       </div>
       <div class="sale-actions">
         <button class="sale-act-btn" title="Facture PDF" onclick="generateInvoicePDF(window['${sid}'])">${IC.pdf}</button>
-        <button class="sale-act-btn sale-act-wa" title="Partager WhatsApp" onclick="shareViaWhatsApp(window['${sid}'])">${IC.whatsapp}</button>
+        <button class="sale-act-btn sale-act-wa" title="WhatsApp" onclick="shareViaWhatsApp(window['${sid}'])">${IC.whatsapp}</button>
       </div>
-    </div>`;}).join('');
+    </div>`;
+        }
+      }).join('');
     })()}
   </div>`;
 }
@@ -2319,7 +2493,7 @@ function vAddProduct() {
           <div style="flex:1;font-size:13px;font-weight:600;color:var(--text-2)">${a.name}
             <span style="color:var(--text-3);font-weight:400;font-size:11px">(${fmtQty(a.stock)} ${a.unit} dispo)</span>
           </div>
-          <input type="number" class="input comp-qty" placeholder="0" step="0.5" min="0" style="width:76px;text-align:center">
+          <input type="number" class="input comp-qty" placeholder="0" step="any" min="0" style="width:76px;text-align:center">
           <select class="input" style="width:70px;padding:8px 4px"
             onchange="S.compUnits[${a.id}]=this.value">
             ${compatibleUnits(a.unit).map(u =>
@@ -2375,7 +2549,7 @@ function vEditProduct() {
             <div style="flex:1;font-size:13px;font-weight:600;color:var(--text-2)">${a.name}
               <span style="color:var(--text-3);font-weight:400;font-size:11px">(${fmtQty(a.stock)} ${a.unit} dispo)</span>
             </div>
-            <input type="number" class="input comp-qty" placeholder="0" step="0.5" min="0" style="width:76px;text-align:center" value="${existing ? existing.qty : ''}">
+            <input type="number" class="input comp-qty" placeholder="0" step="any" min="0" style="width:76px;text-align:center" value="${existing ? existing.qty : ''}">
             <select class="input" style="width:70px;padding:8px 4px"
               onchange="S.compUnits[${a.id}]=this.value">
               ${compatibleUnits(a.unit).map(u =>
