@@ -10,9 +10,12 @@ def create_app():
     CORS(app)
     db.init_app(app)
     
+    # Importer tous les modèles avant create_all pour que SQLAlchemy connaisse les tables
+    from routes.client_routes import Client  # noqa: F401
+
     with app.app_context():
         db.create_all()
-    
+
     from routes.article_routes import article_bp
     from routes.product_routes import product_bp
     from routes.sale_routes import sale_bp
@@ -20,6 +23,7 @@ def create_app():
     from routes.auth_routes import auth_bp
     from routes.prediction_routes import prediction_bp
     from routes.spectra_routes import spectra_bp
+    from routes.client_routes import client_bp
 
     app.register_blueprint(article_bp, url_prefix='/api/articles')
     app.register_blueprint(product_bp, url_prefix='/api/products')
@@ -28,6 +32,7 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(prediction_bp, url_prefix='/api/predictions')
     app.register_blueprint(spectra_bp, url_prefix='/api/spectra')
+    app.register_blueprint(client_bp, url_prefix='/api/clients')
     
     
     @app.route('/api/health')
