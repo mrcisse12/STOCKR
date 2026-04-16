@@ -911,50 +911,274 @@ body.dark textarea.input:focus { background: var(--surface); color: var(--text);
 }
 
 /* ── SPECTRA ─────────────────────────────── */
+/* ── SPECTRA IA ──────────────────────────────── */
 .spectra-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 32px 20px 100px;
+  padding: 0 20px 100px;
   min-height: 100vh;
 }
-.spectra-center { justify-content: center; padding-top: 80px; }
+.spectra-center { justify-content: center; padding-top: 60px; }
 
-.spectra-hero { text-align: center; margin-bottom: 40px; }
-.spectra-logo { color: var(--text); margin-bottom: 16px; opacity: 0.9; }
-.spectra-title { font-size: 28px; font-weight: 900; letter-spacing: -1px; color: var(--text); }
-.spectra-sub { font-size: 14px; color: var(--text-2); margin-top: 8px; line-height: 1.5; }
-.spectra-hint { font-size: 11px; color: var(--text-3); margin-top: 16px; text-align: center; max-width: 260px; }
-
-.spectra-capture-btn {
-  display: flex;
+/* Spectra dark header */
+.spectra-header {
+  width: calc(100% + 40px);
+  margin: 0 -20px;
+  background: linear-gradient(135deg, #0f0a2e 0%, #1e1b4b 40%, #312e81 100%);
+  padding: 48px 24px 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.spectra-header::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle at 30% 50%, rgba(99,102,241,.15) 0%, transparent 50%),
+              radial-gradient(circle at 70% 30%, rgba(139,92,246,.1) 0%, transparent 40%);
+  animation: spectraGlow 6s ease-in-out infinite alternate;
+}
+@keyframes spectraGlow {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-3%, 2%) scale(1.05); }
+}
+.spectra-header .spectra-badge {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  max-width: 320px;
-  padding: 16px;
-  font-size: 16px;
-  cursor: pointer;
-  border: none;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 99px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.12);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.7);
+  margin-bottom: 16px;
+  position: relative;
+}
+.spectra-badge-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #34d399;
+  animation: spectraPulse 2s ease-in-out infinite;
+}
+@keyframes spectraPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .5; transform: scale(.7); }
+}
+.spectra-header .spectra-logo-icon {
+  width: 56px; height: 56px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.1);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px;
+  color: #a5b4fc;
+}
+.spectra-header .spectra-title {
+  font-size: 28px; font-weight: 900;
+  letter-spacing: -1px;
+  color: #fff;
+  margin-bottom: 6px;
+}
+.spectra-header .spectra-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,.55);
+  margin-top: 0;
+  line-height: 1.5;
 }
 
-/* Loading */
-.spectra-spinner {
-  width: 48px; height: 48px;
-  border: 3px solid var(--border);
-  border-top-color: var(--text);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin-bottom: 24px;
+/* Feature grid */
+.spectra-features {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 380px;
+  margin-top: -20px;
+  position: relative;
+  z-index: 2;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
-.spectra-loading-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+.spectra-main-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%;
+  padding: 16px 20px;
+  font-size: 15px; font-weight: 700;
+  cursor: pointer; border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #4F46E5, #6366f1);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(79,70,229,.35);
+  transition: transform .15s, box-shadow .15s;
+}
+.spectra-main-btn:active { transform: scale(.97); box-shadow: 0 2px 8px rgba(79,70,229,.25); }
+
+.spectra-feat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.spectra-feature-btn {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
+  padding: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s, border-color .15s;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+}
+.spectra-feature-btn::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 60px; height: 60px;
+  border-radius: 0 0 0 60px;
+  opacity: .06;
+}
+.spectra-feature-btn.feat-audit::after { background: var(--danger); }
+.spectra-feature-btn.feat-reception::after { background: var(--success); }
+.spectra-feature-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.08); }
+.spectra-feature-btn:active { transform: scale(.97); }
+.spectra-feat-ico {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 10px;
+}
+.spectra-feat-ico.ico-audit { background: rgba(239,68,68,.1); color: var(--danger); }
+.spectra-feat-ico.ico-reception { background: rgba(16,185,129,.1); color: var(--success); }
+.spectra-feat-title { font-size: 14px; font-weight: 800; color: var(--text); }
+.spectra-feat-sub { font-size: 11px; color: var(--text-3); line-height: 1.3; }
+
+[data-theme="dark"] .spectra-feature-btn { background: var(--gray-8); border-color: var(--gray-7); }
+[data-theme="dark"] .spectra-feature-btn:hover { background: var(--gray-7); box-shadow: 0 6px 20px rgba(0,0,0,.3); }
+
+/* Demo button */
+.spectra-demo-row {
+  display: flex; gap: 8px;
+  width: 100%; max-width: 380px;
+  margin-top: 6px;
+}
+.spectra-demo-btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  flex: 1;
+  padding: 10px 10px;
+  font-size: 11px; font-weight: 600;
+  cursor: pointer;
+  border: 1.5px dashed var(--border);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text-3);
+  transition: all .2s;
+}
+.spectra-demo-btn:active { transform: scale(.95); }
+.spectra-demo-btn:hover { background: var(--bg-2); color: var(--text); border-color: var(--accent); }
+[data-theme="dark"] .spectra-demo-btn { border-color: var(--gray-6); }
+
+.spectra-privacy {
+  font-size: 11px; color: var(--text-3);
+  margin-top: 14px; text-align: center;
+  max-width: 260px;
+  display: flex; align-items: center; gap: 6px; justify-content: center;
+}
+.spectra-privacy svg { opacity: .5; flex-shrink: 0; }
+
+/* Loading — scanning animation */
+.spectra-scan-box {
+  width: 220px; height: 220px;
+  border-radius: 24px;
+  position: relative;
+  background: linear-gradient(135deg, #0f0a2e, #1e1b4b);
+  overflow: hidden;
+  margin-bottom: 28px;
+  box-shadow: 0 8px 40px rgba(79,70,229,.2);
+}
+.spectra-scan-corners {
+  position: absolute;
+  inset: 16px;
+  border: 2px solid rgba(255,255,255,.2);
+  border-radius: 12px;
+}
+.spectra-scan-corners::before, .spectra-scan-corners::after {
+  content: '';
+  position: absolute;
+  width: 20px; height: 20px;
+}
+.spectra-scan-corners::before {
+  top: -2px; left: -2px;
+  border-top: 3px solid #818cf8;
+  border-left: 3px solid #818cf8;
+  border-radius: 4px 0 0 0;
+}
+.spectra-scan-corners::after {
+  bottom: -2px; right: -2px;
+  border-bottom: 3px solid #818cf8;
+  border-right: 3px solid #818cf8;
+  border-radius: 0 0 4px 0;
+}
+.spectra-scan-line {
+  position: absolute;
+  left: 16px; right: 16px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #818cf8 20%, #a5b4fc 50%, #818cf8 80%, transparent);
+  box-shadow: 0 0 12px rgba(129,140,248,.6);
+  animation: spectraScanLine 2s ease-in-out infinite;
+}
+@keyframes spectraScanLine {
+  0% { top: 20px; opacity: .3; }
+  50% { top: calc(100% - 20px); opacity: 1; }
+  100% { top: 20px; opacity: .3; }
+}
+.spectra-scan-grid {
+  position: absolute; inset: 20px;
+  background-image:
+    linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+.spectra-scan-label {
+  position: absolute; bottom: 20px; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(79,70,229,.8);
+  color: #fff; font-size: 10px; font-weight: 700;
+  padding: 4px 12px; border-radius: 99px;
+  letter-spacing: 1px; text-transform: uppercase;
+  animation: spectraPulse 2s ease-in-out infinite;
+}
+.spectra-loading-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+.spectra-loading-sub { font-size: 12px; color: var(--text-3); }
+
+/* Stats animated on scan */
+.spectra-live-stats {
+  display: flex; gap: 16px;
+  margin-top: 16px;
+}
+.spectra-live-stat {
+  text-align: center;
+  animation: fadeInUp .4s ease both;
+}
+.spectra-live-stat-val {
+  font-size: 18px; font-weight: 800;
+  color: var(--accent);
+}
+.spectra-live-stat-lbl {
+  font-size: 10px; color: var(--text-3);
+  text-transform: uppercase; letter-spacing: .5px;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 /* Progress bar */
 .spectra-progress-bar {
-  width: 100%;
-  max-width: 360px;
+  width: 100%; max-width: 360px;
   height: 3px;
   background: var(--border);
   border-radius: 99px;
@@ -974,12 +1198,8 @@ body.dark textarea.input:focus { background: var(--surface); color: var(--text);
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 28px 24px;
-  width: 100%;
-  max-width: 360px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+  width: 100%; max-width: 360px;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
   animation: slideIn 0.25s ease;
 }
 .spectra-conf-badge {
@@ -993,17 +1213,12 @@ body.dark textarea.input:focus { background: var(--surface); color: var(--text);
 .spectra-conf-meta { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
 .spectra-pill {
   font-size: 11px; font-weight: 600;
-  background: var(--bg-2);
-  border: 1px solid var(--border);
-  border-radius: 99px;
-  padding: 3px 10px;
-  color: var(--text-2);
+  background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: 99px; padding: 3px 10px; color: var(--text-2);
 }
 .spectra-pill-match { background: #dcfce7; border-color: #bbf7d0; color: #16a34a; }
 .spectra-pill-new   { background: #fef9c3; border-color: #fde68a; color: #92400e; }
-
 .spectra-conf-question { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 20px; }
-
 .spectra-conf-actions { display: flex; gap: 10px; width: 100%; }
 .spectra-btn-yes {
   flex: 1; padding: 14px;
@@ -1015,45 +1230,255 @@ body.dark textarea.input:focus { background: var(--surface); color: var(--text);
 .spectra-btn-no {
   flex: 1; padding: 14px;
   background: transparent; color: var(--text);
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
+  border: 1.5px solid var(--border); border-radius: 12px;
   font-weight: 700; font-size: 14px;
   display: flex; align-items: center; justify-content: center; gap: 6px;
 }
 
 .spectra-name-input-wrap { width: 100%; }
 .spectra-name-input {
-  width: 100%;
-  padding: 14px 16px;
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  font-size: 15px;
-  background: var(--bg);
-  color: var(--text);
-  outline: none;
+  width: 100%; padding: 14px 16px;
+  border: 1.5px solid var(--border); border-radius: 12px;
+  font-size: 15px; background: var(--bg); color: var(--text); outline: none;
 }
 .spectra-name-input:focus { border-color: var(--text); }
 
 /* Done screen */
 .spectra-done-icon {
-  width: 72px; height: 72px;
+  width: 80px; height: 80px;
   border-radius: 50%;
-  background: #dcfce7;
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
   color: #16a34a;
   display: flex; align-items: center; justify-content: center;
   margin-bottom: 20px;
+  animation: scaleIn .4s ease;
 }
+@keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
 .spectra-results { width: 100%; max-width: 360px; margin-top: 20px; }
 .spectra-result-row {
   display: flex; align-items: center; gap: 8px;
   padding: 12px 0;
   border-bottom: 1px solid var(--border);
   font-size: 14px;
+  animation: fadeInUp .3s ease both;
 }
 .spectra-result-row:last-child { border-bottom: none; }
 .spectra-result-name { flex: 1; font-weight: 600; color: var(--text); }
-.spectra-result-qty  { font-weight: 700; color: var(--text); }
+.spectra-result-qty  { font-weight: 700; color: var(--success); }
 .spectra-result-action { font-size: 11px; color: var(--text-3); }
+
+/* Audit results — enhanced */
+.spectra-audit-hero {
+  width: calc(100% + 40px);
+  margin: 0 -20px;
+  padding: 40px 24px 28px;
+  text-align: center;
+  position: relative;
+}
+.spectra-audit-hero.has-gap {
+  background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 50%, #991b1b 100%);
+}
+.spectra-audit-hero.all-good {
+  background: linear-gradient(135deg, #052e16 0%, #065f46 50%, #059669 100%);
+}
+.spectra-audit-hero .spectra-title { color: #fff; }
+.spectra-audit-hero .spectra-sub { color: rgba(255,255,255,.6); }
+.spectra-audit-big-num {
+  font-size: 56px; font-weight: 900; color: #fff;
+  line-height: 1; margin: 12px 0 4px;
+  text-shadow: 0 2px 20px rgba(0,0,0,.3);
+}
+.spectra-audit-label {
+  font-size: 12px; font-weight: 600; color: rgba(255,255,255,.7);
+  text-transform: uppercase; letter-spacing: 1px;
+}
+
+/* Reception results — enhanced */
+.spectra-reception-hero {
+  width: calc(100% + 40px);
+  margin: 0 -20px;
+  padding: 40px 24px 28px;
+  text-align: center;
+  background: linear-gradient(135deg, #052e16 0%, #065f46 50%, #059669 100%);
+}
+.spectra-reception-hero .spectra-title { color: #fff; }
+.spectra-reception-hero .spectra-sub { color: rgba(255,255,255,.6); }
+
+/* Detection card */
+.spectra-det-card {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 6px;
+  animation: fadeInUp .3s ease both;
+}
+.spectra-det-name { font-weight: 700; font-size: 14px; color: var(--text); }
+.spectra-det-meta { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+.spectra-det-diff {
+  font-weight: 900; font-size: 16px;
+  padding: 4px 12px; border-radius: 8px;
+}
+.spectra-det-diff.diff-missing { color: var(--danger); background: rgba(239,68,68,.08); }
+.spectra-det-diff.diff-extra { color: var(--warning); background: rgba(217,119,6,.08); }
+.spectra-det-diff.diff-ok { color: var(--success); background: rgba(16,185,129,.08); }
+.spectra-det-diff.diff-plus { color: var(--success); background: rgba(16,185,129,.08); }
+
+/* ── Location cards ──────────────────────────── */
+.loc-card {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  transition: border-color .2s, box-shadow .2s, transform .15s;
+}
+.loc-card:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.06); }
+.loc-card:active { transform: scale(.97); }
+.loc-active {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  box-shadow: 0 0 0 3px rgba(79,70,229,.08);
+}
+.loc-card-ico {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  margin-bottom: 2px;
+}
+.loc-card-ico svg { width: 16px; height: 16px; }
+.loc-card-name { font-size: 12px; font-weight: 700; color: var(--text); text-align: center; }
+.loc-card-count { font-size: 10px; color: var(--text-3); }
+.loc-card-check {
+  position: absolute; top: 8px; right: 8px;
+  font-size: 10px; font-weight: 800;
+  color: var(--accent);
+  background: var(--accent-light);
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.loc-card-del {
+  position: absolute; top: 6px; right: 6px;
+  background: none; border: none; cursor: pointer;
+  color: var(--text-3); font-size: 12px; padding: 2px;
+  opacity: 0; transition: opacity .2s;
+}
+.loc-card:hover .loc-card-del { opacity: 1; }
+.loc-active .loc-card-del { display: none; }
+.loc-add {
+  border-style: dashed;
+  justify-content: center;
+  gap: 8px;
+  opacity: .7;
+  transition: opacity .2s, border-color .2s;
+}
+.loc-add:hover { opacity: 1; border-color: var(--accent); }
+[data-theme="dark"] .loc-card { background: var(--gray-8); border-color: var(--gray-7); }
+[data-theme="dark"] .loc-active { background: rgba(79,70,229,.15); border-color: var(--accent); }
+
+/* ── QUICK ACTIONS BAR ────────────────────────── */
+.quick-actions-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 4px 0;
+}
+.qa-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 6px 12px;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.qa-btn:active { transform: scale(.94); }
+.qa-ico {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-size: 15px;
+}
+.qa-spectra .qa-ico { background: linear-gradient(135deg, #7C3AED, #4F46E5); }
+.qa-sale .qa-ico { background: linear-gradient(135deg, #059669, #10b981); }
+.qa-article .qa-ico { background: linear-gradient(135deg, #D97706, #f59e0b); }
+.qa-report .qa-ico { background: linear-gradient(135deg, #2563EB, #3b82f6); }
+.qa-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+}
+
+/* ── ACTIVITY FEED ───────────────────────────── */
+.activity-feed { padding: 2px 0 !important; }
+.activity-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+}
+.activity-item.bordered {
+  border-top: 1px solid var(--border);
+}
+.activity-ico {
+  width: 32px; height: 32px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.activity-body { flex: 1; min-width: 0; }
+.activity-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.activity-time {
+  font-size: 10px;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+
+/* ── EXPIRY BADGES ───────────────────────────── */
+.expiry-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+.expiry-badge-sm {
+  font-size: 9px;
+  font-weight: 700;
+  display: block;
+  margin-top: 2px;
+}
+.expiry-alert {
+  border-color: rgba(245, 158, 11, .3) !important;
+  background: rgba(245, 158, 11, .04) !important;
+}
+
+/* ── SUBSCRIPTION CARD ENHANCEMENTS ──────────── */
+[data-theme="dark"] .qa-btn { background: var(--gray-8); border-color: var(--gray-7); }
+[data-theme="dark"] .activity-item.bordered { border-color: var(--gray-7); }
 
 /* ── AUTH STEP 2 — profil cards ─────────────── */
 .profile-cards {
@@ -1081,3 +1506,202 @@ body.dark textarea.input:focus { background: var(--surface); color: var(--text);
 .profile-card-label { font-size: 15px; font-weight: 700; color: var(--text); }
 .profile-card-desc  { font-size: 12px; color: var(--text-2); line-height: 1.4; }
 .form-hint { font-size: 11px; color: var(--text-3); margin-top: 5px; }
+
+/* ── Spectra Feature Buttons ────────────────── */
+.spectra-feature-btn {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  transition: all .2s;
+}
+.spectra-feature-btn:hover { background: var(--bg-2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.06); }
+.spectra-feature-btn:active { transform: scale(.97); }
+.spectra-feat-ico { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; }
+.spectra-feat-title { font-size: 13px; font-weight: 800; color: var(--text); }
+.spectra-feat-sub { font-size: 10px; color: var(--text-3); line-height: 1.3; }
+[data-theme="dark"] .spectra-feature-btn { background: var(--gray-8); border-color: var(--gray-7); }
+[data-theme="dark"] .spectra-feature-btn:hover { background: var(--gray-7); }
+
+/* ── Location Quick-Switch ──────────────────── */
+.hero-location { margin-top: 4px; }
+.location-select {
+  background: rgba(255,255,255,.15);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='white' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 24px;
+}
+.location-select option { color: #000; background: #fff; }
+
+/* ── Quick Sale Chips ───────────────────────── */
+.quick-sale-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all .15s;
+}
+.quick-sale-chip:hover { background: var(--bg-2); border-color: var(--accent); }
+.quick-sale-chip:active { transform: scale(.95); background: var(--accent-light); }
+[data-theme="dark"] .quick-sale-chip { background: var(--gray-8); border-color: var(--gray-7); }
+[data-theme="dark"] .quick-sale-chip:hover { background: var(--gray-7); }
+
+/* ── Spectra Demo Button ────────────────────── */
+.spectra-demo-btn {
+  margin-top: 12px;
+  padding: 8px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-3);
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.spectra-demo-btn:hover { background: var(--bg-2); color: var(--text); border-color: var(--accent); }
+[data-theme="dark"] .spectra-demo-btn { border-color: var(--gray-6); }
+
+/* ── Empty states ───────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-3);
+}
+.empty-title { font-size: 15px; font-weight: 700; margin-top: 12px; color: var(--text-2); }
+.empty-sub { font-size: 12px; margin-top: 4px; line-height: 1.4; }
+
+/* ── POLISH — Micro-interactions & Transitions ── */
+
+/* Page view fade-in */
+#view {
+  animation: viewFadeIn .25s ease-out;
+}
+@keyframes viewFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Hero shimmer effect */
+.hero::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 200%; height: 100%;
+  background: linear-gradient(90deg, transparent 40%, rgba(255,255,255,.03) 50%, transparent 60%);
+  animation: heroShimmer 8s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes heroShimmer {
+  0%, 100% { transform: translateX(-30%); }
+  50% { transform: translateX(30%); }
+}
+
+/* Card hover shine */
+.card-tap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, transparent 30%, rgba(79,70,229,.02) 50%, transparent 70%);
+  opacity: 0;
+  transition: opacity .3s;
+  pointer-events: none;
+}
+.card-tap:hover::after { opacity: 1; }
+.card-tap { position: relative; overflow: hidden; }
+
+/* Metric card hover lift */
+.metric-card {
+  transition: transform .2s, box-shadow .2s;
+}
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.06);
+}
+
+/* Button press micro-animation */
+.btn:active {
+  transform: scale(.96);
+  transition: transform .08s;
+}
+
+/* Nav tab indicator animation */
+.nav-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 20px; height: 3px;
+  background: var(--accent);
+  border-radius: 3px;
+  animation: navDotPop .25s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes navDotPop {
+  from { transform: translateX(-50%) scale(0); }
+  to   { transform: translateX(-50%) scale(1); }
+}
+.nav-tab { position: relative; }
+
+/* Alert banner pulse */
+.alert-banner {
+  animation: alertPulse 3s ease-in-out infinite;
+}
+@keyframes alertPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(217,119,6,.1); }
+  50% { box-shadow: 0 0 0 4px rgba(217,119,6,.08); }
+}
+
+/* Quick sale chip press */
+.quick-sale-chip:active {
+  transform: scale(.93);
+  transition: transform .08s;
+}
+
+/* Status badge gentle pulse for danger */
+.status.s-out {
+  animation: statusPulse 2s ease-in-out infinite;
+}
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .7; }
+}
+
+/* Smooth progress bar fill */
+.progress-bar {
+  transition: width .6s cubic-bezier(.25,.46,.45,.94) !important;
+}
+
+/* Hero stat hover */
+.hero-stat {
+  transition: transform .15s, background .15s;
+}
+.hero-stat:active {
+  transform: scale(.95);
+}
