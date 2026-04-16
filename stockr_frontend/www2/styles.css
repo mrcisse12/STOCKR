@@ -475,6 +475,44 @@ select.input { cursor: pointer; }
 }
 .sale-item:active { transform: scale(0.98); }
 .sale-item + .sale-item { margin-top: 6px; }
+
+/* ── Sale card (panier multi-articles) ───────── */
+.sale-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-bottom: 8px;
+  animation: fadeUp 0.3s cubic-bezier(0.2, 0, 0, 1) both;
+}
+.sale-card-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 13px 16px 10px;
+  border-bottom: 1px solid var(--gray-2);
+}
+.sale-card-title {
+  font-weight: 700; font-size: 13px; color: var(--text-1);
+  display: flex; align-items: center; gap: 6px;
+}
+.sale-card-meta { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+.sale-card-total { font-weight: 800; font-size: 16px; color: var(--text-1); }
+.sale-card-profit { font-size: 11px; color: var(--success); font-weight: 600; text-align: right; }
+.sale-card-items { padding: 6px 16px; }
+.sale-card-line {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--gray-1);
+  font-size: 12px;
+}
+.sale-card-line:last-child { border-bottom: none; }
+.sale-card-name { flex: 1; color: var(--text-2); font-weight: 500; }
+.sale-card-qty  { color: var(--text-3); font-size: 11px; flex-shrink: 0; }
+.sale-card-price { font-weight: 700; color: var(--text-1); flex-shrink: 0; min-width: 80px; text-align: right; }
+.sale-card-footer {
+  display: flex; gap: 8px; padding: 10px 16px;
+  background: var(--gray-1); border-top: 1px solid var(--gray-2);
+}
 .sale-dot   { width: 8px; height: 8px; background: var(--success); border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 6px rgba(5,150,105,0.4); }
 .sale-info  { flex: 1; }
 .sale-prod  { font-weight: 700; font-size: 13px; }
