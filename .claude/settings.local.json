@@ -3,7 +3,19 @@
     "allow": [
       "Bash(index\")",
       "Bash(pip install:*)",
-      "Bash(node -c app.js)"
+      "Bash(node -c app.js)",
+      "Bash(node -c sw.js)",
+      "Bash(gh pr:*)",
+      "Bash(where gh:*)",
+      "Bash(where gh.exe)",
+      "Read(//c/Program Files/GitHub CLI/**)",
+      "Read(//c/Program Files \\(x86\\)/GitHub CLI/**)",
+      "Read(//c/Users/ELITEBOOK/scoop/shims/**)",
+      "Read(//c/Users/ELITEBOOK/AppData/Local/Programs/gh/**)",
+      "Bash(winget install:*)",
+      "Bash(export PATH=\"$PATH:/c/Program Files/GitHub CLI\")",
+      "Bash(gh --version)",
+      "Bash(node -c \"C:\\\\Users\\\\ELITEBOOK\\\\STOCKR\\\\.claude\\\\worktrees\\\\flamboyant-cartwright\\\\stockr_frontend\\\\www2\\\\app.js\")"
     ]
   }
 }
