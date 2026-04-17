@@ -2,7 +2,7 @@
 // Stratégie : Cache-first pour assets statiques,
 //             Network-first pour l'API
 
-const CACHE_NAME = 'stockr-v16';
+const CACHE_NAME = 'stockr-v17';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

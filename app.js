@@ -1080,6 +1080,12 @@ const S = {
   compUnits:     {},
   cart:          [],
   cartOpen:      false,
+  // Multi-cart (vente en lot)
+  saleMode:      'simple', // 'simple' | 'multi'
+  multiCart:     {},
+  multiSearch:   '',
+  productSearch: '',
+  productFilter: 'all',
   editProductId: null,
   clients:       [],
   selectedClientId: null,
@@ -1957,18 +1963,157 @@ function addToCart() {
   const sel   = $('sale-product');
   const qtyEl = $('sale-qty');
   if (!sel?.value) { showToast(t('chooseProduct'), 'error'); return; }
-  const product = S.products.find(p => p.id === parseInt(sel.value));
-  if (!product) return;
+  const val = String(sel.value);
+  // Handle both prefixed (prod_X / art_X) and raw product id
+  let item = null;
+  const sellable = bt_sellableItems();
+  item = sellable.find(it => it.id === val) || sellable.find(it => String(it.productId||'') === val);
+  if (!item && /^\d+$/.test(val)) {
+    // backwards compat : pure numeric id means a product
+    const product = S.products.find(p => p.id === parseInt(val));
+    if (product) item = { id:'prod_'+product.id, productId:product.id, name:product.name, price:product.price, purchasePrice:product.purchasePrice||0, kind:'product' };
+  }
+  if (!item) return;
   const qty = Math.max(1, parseInt(qtyEl?.value) || 1);
-  const existing = S.cart.find(c => c.productId === product.id);
+  const existing = S.cart.find(c => c.cartId === item.id);
   if (existing) { existing.qty += qty; }
-  else { S.cart.push({ productId:product.id, productName:product.name, qty, unitPrice:product.price, unitCost:product.purchasePrice }); }
-  showToast(`${product.name} ajouté au panier`);
+  else {
+    S.cart.push({
+      cartId: item.id,
+      kind: item.kind,
+      productId: item.productId || null,
+      articleId: item.articleId || null,
+      productName: item.name,
+      qty,
+      unitPrice: item.price,
+      unitCost: item.purchasePrice,
+    });
+  }
+  showToast(`${item.name} ajouté au panier`);
   render();
 }
 
 function removeFromCart(idx) {
   S.cart.splice(idx, 1);
+  render();
+}
+
+// ── Multi-cart (vente en lot) ─────────────────
+function setSaleMode(mode) {
+  S.saleMode = mode;
+  render();
+}
+function toggleMultiCart(itemId) {
+  if (!S.multiCart) S.multiCart = {};
+  if (S.multiCart[itemId]) delete S.multiCart[itemId];
+  else S.multiCart[itemId] = 1;
+  render();
+}
+function updateMultiCartQty(itemId, delta) {
+  if (!S.multiCart) S.multiCart = {};
+  const sellable = bt_sellableItems();
+  const it = sellable.find(i => i.id === itemId);
+  const max = it ? it.stock : 9999;
+  const current = S.multiCart[itemId] || 0;
+  const next = Math.max(1, Math.min(max, current + delta));
+  S.multiCart[itemId] = next;
+  render();
+}
+function setMultiCartQty(itemId, val) {
+  if (!S.multiCart) S.multiCart = {};
+  const sellable = bt_sellableItems();
+  const it = sellable.find(i => i.id === itemId);
+  const max = it ? it.stock : 9999;
+  const n = Math.max(1, Math.min(max, parseInt(val) || 1));
+  S.multiCart[itemId] = n;
+  render();
+}
+function clearMultiCart() {
+  S.multiCart = {};
+  render();
+}
+async function confirmMultiSale() {
+  if (!S.multiCart || !Object.keys(S.multiCart).length) { showToast('Panier vide', 'error'); return; }
+  const sellable = bt_sellableItems();
+  const clientSel = $('multi-client');
+  const clientId = clientSel ? parseInt(clientSel.value) || null : null;
+  const client = clientId ? S.clients.find(c => c.id === clientId) : null;
+  const pmSel = $('multi-payment');
+  const payMethod = pmSel ? pmSel.value : 'cash';
+
+  let total = 0, newSales = [];
+  for (const [itemId, qty] of Object.entries(S.multiCart)) {
+    const it = sellable.find(i => i.id === itemId);
+    if (!it) continue;
+    let lineTotal = it.price * qty;
+    let lineProfit = (it.price - (it.purchasePrice||0)) * qty;
+    let promoName = null, promoDiscount = 0;
+    if (it.kind === 'product') {
+      const promo = _getActivePromo(it.productId);
+      if (promo) { promoDiscount = promo.discount; promoName = promo.name; const d = Math.round(lineTotal*promoDiscount/100); lineTotal -= d; lineProfit -= d; }
+    }
+    try {
+      let saleData = null;
+      if (it.kind === 'product') {
+        try {
+          const data = await api('POST', '/api/sales/', { product_id: it.productId, quantity: qty, client_id: clientId, client_name: client?.name || null });
+          saleData = data.sale;
+        } catch(e) { /* fallback offline */ }
+      } else if (it.kind === 'article') {
+        // Décrémente directement l'article
+        const article = S.articles.find(a => a.id === it.articleId);
+        if (article) {
+          article.stock = Math.max(0, (article.stock||0) - qty);
+          localStorage.setItem('stockr_articles', JSON.stringify(S.articles));
+          try { await api('PUT', `/api/articles/${article.id}`, { stock: article.stock }); } catch(e) {}
+          S.stockMovements.unshift({ id:Date.now()+Math.random(), articleId:article.id, articleName:article.name, type:'out', qty, reason:'Vente directe', date:new Date().toISOString() });
+          localStorage.setItem('stockr_stock_movements', JSON.stringify(S.stockMovements));
+        }
+      }
+      const newSale = {
+        id: saleData?.id || Date.now() + Math.random(),
+        productId: it.productId || null,
+        articleId: it.articleId || null,
+        productName: it.name,
+        qty,
+        total: lineTotal,
+        profit: lineProfit,
+        date: saleData?.timestamp || new Date().toISOString(),
+        clientId, clientName: client?.name || null,
+        paymentMethod: payMethod, promoName, promoDiscount,
+        kind: it.kind,
+      };
+      S.sales.unshift(newSale);
+      newSales.push(newSale);
+      total += lineTotal;
+    } catch(e) { console.warn('sale error', e); }
+  }
+  localStorage.setItem('stockr_sales', JSON.stringify(S.sales));
+
+  // Loyalty with tier multiplier
+  if (S.loyaltyConfig?.enabled && clientId) {
+    const cl = S.clients.find(c => c.id === clientId);
+    if (cl) {
+      const tier = _getClientTier(cl);
+      const mult = tier?.multiplier || 1;
+      const pts = Math.floor(total * (S.loyaltyConfig.pointsPerFcfa||1) * mult);
+      cl.loyaltyPoints = (cl.loyaltyPoints||0) + pts;
+      localStorage.setItem('stockr_clients', JSON.stringify(S.clients));
+      const newTier = _getClientTier(cl);
+      if (newTier && tier && newTier.id !== tier.id && newTier.min > tier.min) {
+        showToast(`🎉 ${cl.name} → palier ${newTier.name} ${newTier.icon||''} !`, 'success');
+      }
+    }
+  }
+  if (payMethod !== 'cash') {
+    S.paymentHistory.unshift({ id:Date.now(), provider:payMethod, amount:total, clientName:client?.name||'Client', date:new Date().toISOString() });
+    localStorage.setItem('stockr_payment_history', JSON.stringify(S.paymentHistory));
+  }
+  logActivity('sale', `Vente multi: ${newSales.length} article(s) — ${fmt(total)} ${sym()}`);
+  showToast(`✅ ${newSales.length} articles vendus — ${fmt(total)} ${sym()}`, 'success');
+  S.multiCart = {};
+  S.multiSearch = '';
+  showReceiptBanner(newSales, total);
   render();
 }
 
@@ -2119,6 +2264,50 @@ function changeTaxRate(val) {
   showToast(t('infoUpdated'));
 }
 
+// ── Type d'activité : Revendeur / Transformateur / Mixte ─────
+function getBusinessType() {
+  return S.session?.businessType || localStorage.getItem('stockr_business_type') || 'maker';
+}
+function changeBusinessType(type) {
+  if (!['reseller','maker','mixed'].includes(type)) return;
+  if (!S.session) S.session = {};
+  S.session.businessType = type;
+  localStorage.setItem('stockr_business_type', type);
+  const saved = JSON.parse(localStorage.getItem('stockr_session') || '{}');
+  saved.businessType = type;
+  localStorage.setItem('stockr_session', JSON.stringify(saved));
+  const labels = { reseller:'🏪 Revendeur', maker:'🏭 Transformateur', mixed:'🔀 Mixte' };
+  showToast(`Mode ${labels[type]} activé`);
+  render();
+}
+// Helpers pour l'UI
+function bt_showProducts() { const t = getBusinessType(); return t === 'maker' || t === 'mixed'; }
+function bt_showStock()    { const t = getBusinessType(); return t === 'reseller' || t === 'maker' || t === 'mixed'; }
+// Pour un revendeur, les ventes se font directement sur les articles
+function bt_sellableItems() {
+  const t = getBusinessType();
+  if (t === 'reseller') {
+    // L'article est le produit : doit avoir un prix de vente
+    return S.articles.filter(a => (a.price||0) > 0 && (a.stock||0) > 0).map(a => ({
+      id: 'art_' + a.id,
+      articleId: a.id,
+      name: a.name,
+      price: a.price,
+      purchasePrice: a.purchasePrice || 0,
+      stock: a.stock,
+      unit: a.unit,
+      kind: 'article',
+    }));
+  }
+  // maker / mixed : produits classiques (+ articles si mixte)
+  const prods = S.products.map(p => ({ id:'prod_'+p.id, productId:p.id, name:p.name, price:p.price, purchasePrice:p.purchasePrice||0, stock:productMaxMake(p), unit:'u', kind:'product' }));
+  if (t === 'mixed') {
+    const arts = S.articles.filter(a => (a.price||0) > 0 && (a.stock||0) > 0).map(a => ({ id:'art_'+a.id, articleId:a.id, name:a.name+' (stock direct)', price:a.price, purchasePrice:a.purchasePrice||0, stock:a.stock, unit:a.unit, kind:'article' }));
+    return [...prods, ...arts];
+  }
+  return prods;
+}
+
 // ── Bannière reçu post-vente ──────────────────
 function showReceiptBanner(sales, total) {
   const existing = document.getElementById('receipt-banner');
@@ -2168,6 +2357,10 @@ function render() {
     return;
   }
 
+  // Redirect si onglet masqué par businessType
+  if (S.view === 'products' && !bt_showProducts()) S.view = 'home';
+  if (S.view === 'pantry'   && !bt_showStock())    S.view = 'home';
+
   const map = {
     home: vHome, pantry: vPantry, products: vProducts,
     sales: vSales, financial: vFinancial,
@@ -2215,18 +2408,19 @@ function render() {
 }
 
 function renderNav() {
+  const bt = getBusinessType();
   const tabs = [
     { id:'home',      icon:IC.home,    label:t('home')     },
-    { id:'pantry',    icon:IC.box,     label:t('stock')    },
-    { id:'products',  icon:IC.tag,     label:t('products') },
+    bt_showStock() ? { id:'pantry', icon:IC.box, label:t('stock') } : null,
+    bt_showProducts() ? { id:'products', icon:IC.tag, label:t('products') } : null,
     { id:'sales',     icon:IC.dollar,  label:t('sales')    },
     { id:'financial', icon:IC.bar,     label:t('bilan')    },
     { id:'more',      icon:IC.grid,    label:t('more')||'Plus' },
-  ];
-  return tabs.map(t => `
-    <button class="nav-tab ${S.view===t.id?'active':''}" onclick="nav('${t.id}')">
-      ${t.icon}
-      <span class="nav-label">${t.label}</span>
+  ].filter(Boolean);
+  return tabs.map(tb => `
+    <button class="nav-tab ${S.view===tb.id?'active':''}" onclick="nav('${tb.id}')">
+      ${tb.icon}
+      <span class="nav-label">${tb.label}</span>
     </button>`).join('');
 }
 
@@ -2667,16 +2861,16 @@ function vHome() {
 
     ${!_showSearch ? `<div class="section-hd"><div class="section-lbl">${t('nav')}</div></div>
     <div class="quick-grid">
-      <button class="quick-btn" onclick="nav('pantry')">
+      ${bt_showStock() ? `<button class="quick-btn" onclick="nav('pantry')">
         <span class="quick-ico">${IC.box}</span>
         <div class="quick-label">${t('stock')}</div>
         <div class="quick-sub">${S.articles.length} ${t('articles').toLowerCase()}</div>
-      </button>
-      <button class="quick-btn" onclick="nav('products')">
+      </button>` : ''}
+      ${bt_showProducts() ? `<button class="quick-btn" onclick="nav('products')">
         <span class="quick-ico">${IC.tag}</span>
         <div class="quick-label">${t('products')}</div>
         <div class="quick-sub">${S.products.length} ${t('products').toLowerCase()}</div>
-      </button>
+      </button>` : ''}
       <button class="quick-btn" onclick="nav('sales')">
         <span class="quick-ico">${IC.dollar}</span>
         <div class="quick-label">${t('sales')}</div>
@@ -2910,23 +3104,41 @@ function vProducts() {
 function vSales() {
   const today   = new Date().toDateString();
   const todayCA = S.sales.filter(s=>new Date(s.date).toDateString()===today).reduce((s,v)=>s+v.total,0);
-  const avail   = S.products.filter(p=>productMaxMake(p)>0);
+  const bt = getBusinessType();
+  const sellable = bt_sellableItems().filter(it => (it.stock||0) > 0);
+  const mode = S.saleMode || 'simple'; // 'simple' | 'multi'
+  if (!S.multiCart) S.multiCart = {}; // { [itemId]: qty }
+  const multiQ = S.multiSearch || '';
+  const filteredSell = multiQ ? sellable.filter(it => it.name.toLowerCase().includes(multiQ.toLowerCase())) : sellable;
+
+  const typeLabels = { reseller:'🏪 Revendeur', maker:'🏭 Transformateur', mixed:'🔀 Mixte' };
 
   return `
   <div class="sub-hero">
     <button class="back-btn-dark" style="margin-bottom:14px" onclick="nav('home')">${IC.left}</button>
     <div class="sub-hero-title">${t('sales')}</div>
     <div class="sub-hero-big">${fmt(todayCA)} <span style="font-size:16px;color:var(--gray-5)">${sym()}</span></div>
-    <div class="sub-hero-sub">${t('today')} · ${S.sales.filter(s=>new Date(s.date).toDateString()===new Date().toDateString()).length} ${t('saleOf')}</div>
+    <div class="sub-hero-sub">${t('today')} · ${S.sales.filter(s=>new Date(s.date).toDateString()===new Date().toDateString()).length} ${t('saleOf')} · ${typeLabels[bt]}</div>
   </div>
   <div class="container">
+    <div class="filter-row" style="margin-bottom:10px">
+      <button class="filter-chip ${mode==='simple'?'active':''}" onclick="setSaleMode('simple')">⚡ Vente rapide</button>
+      <button class="filter-chip ${mode==='multi'?'active':''}" onclick="setSaleMode('multi')">🛒 Panier multi-produits</button>
+    </div>
+
+    ${mode === 'simple' ? `
     <div class="card" style="margin-bottom:14px">
       <div class="card-title">${t('newSale')}</div>
       <div class="form-group">
-        <label class="form-label">${t('product')}</label>
+        <label class="form-label">${bt==='reseller'?'Article à vendre':t('product')}</label>
         <select class="input" id="sale-product">
           <option value="">${t('select')}</option>
-          ${avail.map(p=>{const pr=_getActivePromo(p.id);return `<option value="${p.id}">${p.name} — ${pr?fmt(Math.round(p.price*(100-pr.discount)/100))+' (-'+pr.discount+'%)':fmt(p.price)} ${sym()} (${productMaxMake(p)} fab.)${pr?' PROMO':''}</option>`;}).join('')}
+          ${sellable.map(it => {
+            const p = it.kind === 'product' ? S.products.find(pp => pp.id === it.productId) : null;
+            const pr = p ? _getActivePromo(p.id) : null;
+            const priceShown = pr ? fmt(Math.round(it.price * (100 - pr.discount) / 100)) + ' (-' + pr.discount + '%)' : fmt(it.price);
+            return `<option value="${it.id}">${it.name} — ${priceShown} ${sym()} (${it.stock} ${it.unit})${pr?' PROMO':''}</option>`;
+          }).join('')}
         </select>
       </div>
       <div class="form-group">
@@ -2956,7 +3168,7 @@ function vSales() {
       </div>
     </div>
     ${S.cartOpen ? `
-    <div class="card" style="margin-bottom:14px;border:2px solid var(--black)">
+    <div class="card" style="margin-bottom:14px;border:2px solid var(--accent)">
       <div class="card-title">${t('cart')} (${S.cart.length})</div>
       ${S.cart.length===0 ? `<div style="font-size:13px;color:var(--text-3);padding:8px 0">${t('emptyCart')}</div>` :
         S.cart.map((c,i) => `
@@ -2970,7 +3182,86 @@ function vSales() {
       ${S.cart.length>0 ? `
       <div class="cart-total">${t('total')} : <strong>${fmt(S.cart.reduce((s,c)=>s+c.unitPrice*c.qty,0))} ${sym()}</strong></div>
       <button class="btn btn-primary" style="margin-top:10px" onclick="confirmCart()">${t('validateSale')}</button>` : ''}
-    </div>` : ''}
+    </div>` : ''}` : `
+
+    <!-- MODE MULTI-PRODUITS -->
+    <div class="card" style="margin-bottom:12px;padding:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:14px;font-weight:700">🛒 Sélectionnez plusieurs articles</div>
+        <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px" onclick="clearMultiCart()">Vider</button>
+      </div>
+      <div class="search-wrap" style="margin-bottom:10px">
+        <span class="search-ico">${IC.search}</span>
+        <input class="input input-search" type="text" placeholder="    Rechercher..." value="${multiQ.replace(/"/g,'&quot;')}" oninput="S.multiSearch=this.value;render()">
+      </div>
+      ${sellable.length === 0 ? `
+      <div style="text-align:center;padding:16px;color:var(--text-3);font-size:13px">Aucun article disponible</div>` :
+      filteredSell.length === 0 ? `
+      <div style="text-align:center;padding:16px;color:var(--text-3);font-size:13px">Aucun résultat</div>` :
+      `<div style="display:flex;flex-direction:column;gap:6px;max-height:360px;overflow-y:auto">
+        ${filteredSell.map(it => {
+          const inCart = (S.multiCart[it.id]||0);
+          return `
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${inCart>0?'var(--accent-light)':'var(--surface)'};border:1px solid ${inCart>0?'var(--accent)':'var(--border)'};border-radius:10px">
+            <label style="flex:1;cursor:pointer;display:flex;align-items:center;gap:10px">
+              <input type="checkbox" ${inCart>0?'checked':''} onchange="toggleMultiCart('${it.id}')" style="width:18px;height:18px;accent-color:var(--accent)">
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:700">${it.name}</div>
+                <div style="font-size:11px;color:var(--text-3)">${fmt(it.price)} ${sym()} · Stock: ${it.stock} ${it.unit}${it.kind==='article'?' <span style="color:var(--accent)">•article</span>':''}</div>
+              </div>
+            </label>
+            ${inCart>0 ? `
+            <div style="display:flex;align-items:center;gap:4px">
+              <button onclick="updateMultiCartQty('${it.id}',-1)" style="width:26px;height:26px;border-radius:6px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-weight:700">−</button>
+              <input type="number" value="${inCart}" min="1" max="${it.stock}" onchange="setMultiCartQty('${it.id}',this.value)" style="width:44px;height:26px;text-align:center;border:1px solid var(--border);border-radius:6px;font-weight:700;background:var(--surface);color:var(--text-1)">
+              <button onclick="updateMultiCartQty('${it.id}',1)" style="width:26px;height:26px;border-radius:6px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-weight:700">+</button>
+            </div>` : ''}
+          </div>`;
+        }).join('')}
+      </div>`}
+    </div>
+
+    ${Object.keys(S.multiCart).length > 0 ? (() => {
+      const entries = Object.entries(S.multiCart);
+      const total = entries.reduce((s, [id, q]) => {
+        const it = sellable.find(i => i.id === id);
+        return it ? s + it.price * q : s;
+      }, 0);
+      return `
+    <div class="card" style="margin-bottom:14px;border:2px solid var(--accent);background:var(--surface)">
+      <div class="card-title">✅ ${entries.length} article${entries.length>1?'s':''} sélectionné${entries.length>1?'s':''}</div>
+      ${entries.map(([id,q]) => {
+        const it = sellable.find(i => i.id === id);
+        if (!it) return '';
+        return `
+        <div class="cart-item">
+          <div class="cart-item-info">
+            <div class="cart-item-name">${it.name}</div>
+            <div class="cart-item-sub">×${q} · ${fmt(it.price*q)} ${sym()}</div>
+          </div>
+          <button class="cart-remove" onclick="toggleMultiCart('${id}')">${IC.xmark}</button>
+        </div>`;
+      }).join('')}
+      <div class="cart-total">Total : <strong style="color:var(--accent)">${fmt(total)} ${sym()}</strong></div>
+      ${S.clients.length > 0 ? `
+      <div class="form-group" style="margin-top:10px">
+        <label class="form-label">${t('clients')}</label>
+        <select class="input" id="multi-client">
+          <option value="">${t('selectClient')}</option>
+          ${S.clients.map(c=>`<option value="${c.id}">${c.name}${c.phone?' · '+c.phone:''}</option>`).join('')}
+        </select>
+      </div>` : ''}
+      <div class="form-group">
+        <label class="form-label">Mode de paiement</label>
+        <select class="input" id="multi-payment">
+          <option value="cash">Espèces</option>
+          ${(S.paymentMethods||[]).filter(m=>m.active).map(m=>`<option value="${m.provider}">${m.name}</option>`).join('')}
+        </select>
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:6px" onclick="confirmMultiSale()">💰 Valider la vente — ${fmt(total)} ${sym()}</button>
+    </div>`;
+    })() : ''}
+    `}
     <div class="section-hd">
       <div class="section-lbl">${t('history')}</div>
       <div style="font-size:12px;color:var(--text-3)">${S.sales.length} ${t('saleOf')}</div>
@@ -5519,6 +5810,32 @@ function vSettings() {
             <span class="toggle-track"></span>
           </label>
         </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-label">Type d'activité</div>
+      <div class="settings-row-block">
+        ${[
+          { id:'reseller', icon:'🏪', label:'Revendeur', sub:'Je revends des produits — stock uniquement' },
+          { id:'maker',    icon:'🏭', label:'Transformateur', sub:'Je transforme des matières en produits finis' },
+          { id:'mixed',    icon:'🔀', label:'Mixte',    sub:'Les deux — vente directe + fabrication' },
+        ].map(bt => `
+        <div class="settings-row" onclick="changeBusinessType('${bt.id}')" style="border-left:3px solid ${getBusinessType()===bt.id?'var(--accent)':'transparent'}">
+          <div class="settings-row-inner">
+            <span class="settings-row-ico" style="font-size:22px">${bt.icon}</span>
+            <div>
+              <div class="settings-row-lbl" style="${getBusinessType()===bt.id?'color:var(--accent);font-weight:800':''}">${bt.label}</div>
+              <div class="settings-row-sub">${bt.sub}</div>
+            </div>
+          </div>
+          ${getBusinessType()===bt.id?`<span style="color:var(--accent);font-size:18px">✓</span>`:''}
+        </div>`).join('')}
+      </div>
+      <div style="font-size:11px;color:var(--text-3);padding:6px 16px;line-height:1.5">
+        💡 <strong>Revendeur :</strong> masque l'onglet Produits, ventes directes depuis le stock.<br>
+        💡 <strong>Transformateur :</strong> onglet Produits activé, recettes depuis le stock.<br>
+        💡 <strong>Mixte :</strong> les deux à la fois — idéal si tu fais les deux.
       </div>
     </div>
 
@@ -10349,6 +10666,17 @@ document.addEventListener('DOMContentLoaded', () => {
   window.sendLoyaltyCampaign     = sendLoyaltyCampaign;
   window.exportLoyaltyReport     = exportLoyaltyReport;
   window.exportStockCSV          = exportStockCSV;
+  window.getBusinessType         = getBusinessType;
+  window.changeBusinessType      = changeBusinessType;
+  window.bt_showProducts         = bt_showProducts;
+  window.bt_showStock            = bt_showStock;
+  window.bt_sellableItems        = bt_sellableItems;
+  window.setSaleMode             = setSaleMode;
+  window.toggleMultiCart         = toggleMultiCart;
+  window.updateMultiCartQty      = updateMultiCartQty;
+  window.setMultiCartQty         = setMultiCartQty;
+  window.clearMultiCart          = clearMultiCart;
+  window.confirmMultiSale        = confirmMultiSale;
   window._getClientTier          = _getClientTier;
   window._renderTierBadge        = _renderTierBadge;
   window.toggleSocialAccount     = toggleSocialAccount;
