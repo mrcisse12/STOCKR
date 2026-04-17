@@ -2191,12 +2191,6 @@ function renderNav() {
     { id:'clients',   icon:IC.users,  label:t('clients')  },
     { id:'sova',      icon:IC.sova,   label:'SOVA'        },
     { id:'financial', icon:IC.bar,    label:t('bilan')    },
-    { id:'home',      icon:IC.home,    label:t('home')     },
-    { id:'pantry',    icon:IC.box,     label:t('stock')    },
-    { id:'products',  icon:IC.tag,     label:t('products') },
-    { id:'sales',     icon:IC.dollar,  label:t('sales')    },
-    { id:'financial', icon:IC.bar,     label:t('bilan')    },
-    { id:'more',      icon:IC.grid,    label:t('more')||'Plus' },
   ];
   return tabs.map(t => `
     <button class="nav-tab ${S.view===t.id?'active':''}" onclick="nav('${t.id}')">
@@ -2662,6 +2656,11 @@ function vHome() {
         <div class="quick-label">${t('bilan')}</div>
         <div class="quick-sub">${S.sales.length} ${t('saleOf')}</div>
       </button>
+      <button class="quick-btn quick-btn-sova" onclick="nav('sova')">
+        <span class="quick-ico" style="font-size:22px">🦉</span>
+        <div class="quick-label" style="color:#8A6729;font-family:Georgia,serif;font-weight:700">SOVA</div>
+        <div class="quick-sub">IA · prévisions</div>
+      </button>
       <button class="quick-btn" onclick="nav('boutique')">
         <span class="quick-ico">${IC.shop}</span>
         <div class="quick-label">${t('boutique')||'Boutique'}</div>
@@ -3046,6 +3045,16 @@ function vFinancial() {
       <div class="metric-card"><div class="metric-val">${fmt(avg)}</div><div class="metric-lbl">${t('avgTicket')}</div></div>
       <div class="metric-card"><div class="metric-val">${fmt(stockVal)}</div><div class="metric-lbl">${t('stockVal')}</div></div>
     </div>
+    <button class="sova-fin-banner" onclick="nav('sova')">
+      <div class="sova-fin-left">
+        <span style="font-size:26px">🦉</span>
+        <div>
+          <div style="font-family:Georgia,serif;font-size:16px;font-weight:700;color:#8A6729;letter-spacing:2px">SOVA</div>
+          <div style="font-size:12px;color:#a08040;margin-top:1px">Voir les prévisions et alertes stock</div>
+        </div>
+      </div>
+      <div style="color:#8A6729;font-size:18px">›</div>
+    </button>
     <div class="card">
       <div class="card-title">${t('topProducts')}</div>
       ${top.length===0
