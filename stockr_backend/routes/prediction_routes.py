@@ -153,7 +153,7 @@ def get_predictions(current_user):
         nonzero = [v for v in daily_series if v > 0]
         mean_nonzero = sum(nonzero) / len(nonzero) if nonzero else 0
         sigma = statistics.stdev(daily_series) if len(set(daily_series)) > 1 else daily_demand * 0.2
-        trend_pct = round((trend_val / daily_demand * 100), 1) if daily_demand > 0 else 0
+        trend_pct = round((trend_val / daily_demand * 100), 1) if daily_demand > 0.01 else 0
 
         # Safety stock (Z=1.65 pour 95%)
         safety_stock = 1.65 * sigma * math.sqrt(lead)

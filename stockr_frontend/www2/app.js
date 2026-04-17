@@ -3389,21 +3389,41 @@ function vSova() {
     ${sel ? `
     <div class="sova-detail-card">
       <div class="sova-detail-name">${sel.article_name}</div>
+      ${(() => {
+        // Phrase de traduction humaine
+        const hasDemand = sel.daily_demand > 0.01;
+        const daysLeft = sel.days_remaining;
+        const trend = sel.trend_pct;
+        const conf = sel.confidence;
+        let phrase = '';
+        if (!hasDemand) {
+          phrase = `SOVA n'a pas encore assez de ventes pour cet article. Continue à enregistrer tes ventes et les prévisions s'affineront.`;
+        } else if (sel.status === 'critical') {
+          phrase = `⚠️ Stock critique — il ne reste que ${daysLeft}j de stock. SOVA recommande de commander ${sel.order_quantity} ${sel.unit} maintenant.`;
+        } else if (sel.status === 'warning') {
+          phrase = `Tu approches du seuil de réapprovisionnement. Pense à commander bientôt pour ne pas être pris de court.`;
+        } else if (daysLeft && daysLeft > 30) {
+          phrase = `Ton stock est bien approvisionné pour encore ${daysLeft} jours. ${trend > 5 ? "La demande est en hausse — surveille l'évolution." : trend < -5 ? "La demande ralentit un peu." : "La demande est stable."}`;
+        } else {
+          phrase = `Consommation moyenne : ${sel.daily_demand?.toFixed(2)} ${sel.unit}/jour. ${conf >= 70 ? 'Les prévisions sont fiables.' : 'Enregistre plus de ventes pour améliorer la fiabilité.'}`;
+        }
+        return `<div class="sova-translation">${phrase}</div>`;
+      })()}
       <div class="sova-detail-grid">
         <div class="sova-detail-kpi">
           <div class="sova-detail-kpi-val">${sel.current_stock} <span style="font-size:14px;font-weight:500">${sel.unit}</span></div>
           <div class="sova-detail-kpi-label">En stock</div>
         </div>
         <div class="sova-detail-kpi">
-          <div class="sova-detail-kpi-val">${sel.daily_demand?.toFixed(2)} <span style="font-size:14px;font-weight:500">${sel.unit}/j</span></div>
+          <div class="sova-detail-kpi-val">${sel.daily_demand > 0.01 ? sel.daily_demand?.toFixed(2) : '—'} <span style="font-size:14px;font-weight:500">${sel.daily_demand > 0.01 ? sel.unit+'/j' : ''}</span></div>
           <div class="sova-detail-kpi-label">Demande moy.</div>
         </div>
         <div class="sova-detail-kpi">
-          <div class="sova-detail-kpi-val" style="color:${sel.trend_pct >= 0 ? '#22c55e' : '#ef4444'}">${sel.trend_pct >= 0 ? '+' : ''}${sel.trend_pct}%</div>
+          <div class="sova-detail-kpi-val" style="color:${sel.trend_pct > 0 ? '#22c55e' : sel.trend_pct < 0 ? '#ef4444' : '#9ca3af'}">${sel.daily_demand > 0.01 && sel.trend_pct !== 0 ? (sel.trend_pct >= 0 ? '+' : '') + sel.trend_pct + '%' : '—'}</div>
           <div class="sova-detail-kpi-label">Tendance / sem.</div>
         </div>
         <div class="sova-detail-kpi">
-          <div class="sova-detail-kpi-val">${sel.days_remaining !== null ? sel.days_remaining + 'j' : '∞'}</div>
+          <div class="sova-detail-kpi-val">${sel.days_remaining !== null && sel.daily_demand > 0.01 ? sel.days_remaining + 'j' : '∞'}</div>
           <div class="sova-detail-kpi-label">Jours restants</div>
         </div>
       </div>
@@ -3413,12 +3433,25 @@ function vSova() {
           <div class="sova-conf-fill" style="width:${sel.confidence}%"></div>
         </div>
       </div>
+      ${sel.daily_demand > 0.01 ? `
       <div class="sova-detail-metrics">
-        <div class="sova-metric"><span class="sova-metric-label">Safety Stock</span><span class="sova-metric-val">${sel.safety_stock} ${sel.unit}</span></div>
-        <div class="sova-metric"><span class="sova-metric-label">Reorder Point</span><span class="sova-metric-val">${sel.reorder_point} ${sel.unit}</span></div>
-        <div class="sova-metric"><span class="sova-metric-label">À commander</span><span class="sova-metric-val">${sel.order_quantity} ${sel.unit}</span></div>
-        <div class="sova-metric"><span class="sova-metric-label">Risque rupture</span><span class="sova-metric-val">${sel.rupture_probability?.toFixed(1)}%</span></div>
-      </div>
+        <div class="sova-metric">
+          <span class="sova-metric-label">Stock de sécurité</span>
+          <span class="sova-metric-val">${sel.safety_stock} ${sel.unit} <span style="font-size:11px;color:#9ca3af;font-weight:400">— marge en cas de pic</span></span>
+        </div>
+        <div class="sova-metric">
+          <span class="sova-metric-label">Seuil de commande</span>
+          <span class="sova-metric-val">${sel.reorder_point} ${sel.unit} <span style="font-size:11px;color:#9ca3af;font-weight:400">— commander si stock ≤ ça</span></span>
+        </div>
+        <div class="sova-metric">
+          <span class="sova-metric-label">Quantité à commander</span>
+          <span class="sova-metric-val">${sel.order_quantity} ${sel.unit}</span>
+        </div>
+        <div class="sova-metric">
+          <span class="sova-metric-label">Risque de rupture</span>
+          <span class="sova-metric-val" style="color:${sel.rupture_probability >= 70 ? '#ef4444' : sel.rupture_probability >= 40 ? '#f59e0b' : '#22c55e'}">${sel.rupture_probability?.toFixed(1)}% <span style="font-size:11px;color:#9ca3af;font-weight:400">— probabilité de manquer</span></span>
+        </div>
+      </div>` : ''}
       ${sel.action ? `
       <div class="sova-action-banner sova-action-${sel.action.urgency}">
         <div class="sova-action-verb">${sel.action.verb}</div>
