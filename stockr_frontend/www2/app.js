@@ -1295,6 +1295,13 @@ async function api(method, path, body) {
       headers: { 'Content-Type': 'application/json', ...(S.token ? { 'Authorization': `Bearer ${S.token}` } : {}) },
       body: body ? JSON.stringify(body) : undefined
     });
+    if (res.status === 401) {
+      // Token invalide ou expiré → déconnexion automatique
+      clearSession();
+      S.session = null; S.token = null; USE_LOCAL = false;
+      render();
+      return;
+    }
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(typeof err.error === 'string' ? err.error : (err.error?.error || err.message || `Erreur ${res.status}`));
