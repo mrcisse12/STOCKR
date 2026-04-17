@@ -1718,38 +1718,43 @@ body.dark textarea.input:focus { background: var(--surface); color: var(--text);
 
 /* Header */
 .sova-header {
-  background: linear-gradient(135deg, #f0f7ee 0%, #e8f5e2 60%, #faf8f3 100%);
-  padding: 20px 20px 0;
-  border-bottom: 1px solid #d4e8cc;
+  background: linear-gradient(160deg, #fdf6e8 0%, #f5edd8 50%, #eef5e8 100%);
+  padding: 32px 24px 0;
+  border-bottom: 1px solid #e2d4b0;
 }
 .sova-header-top {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 24px;
 }
 .sova-brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 .sova-owl {
-  font-size: 24px;
+  font-size: 36px;
   line-height: 1;
+  filter: drop-shadow(0 2px 6px rgba(138,103,41,.2));
 }
 .sova-brand-name {
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 22px;
+  font-size: 38px;
   font-weight: 700;
-  letter-spacing: 2px;
-  color: #1a3a12;
+  letter-spacing: 4px;
+  color: #8A6729;
+  line-height: 1;
 }
 .sova-tagline {
-  font-size: 11px;
-  color: #6b8f63;
+  font-size: 12px;
+  color: #a08040;
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
+  margin-left: 2px;
+  margin-top: 2px;
 }
 
 /* Tabs */
@@ -2966,4 +2971,39 @@ body.dark textarea.input:focus { background: var(--surface); color: var(--text);
   font-weight: 700;
   font-size: 13px;
   margin-top: 2px;
+}
+
+/* SOVA quick-btn accent */
+.quick-btn-sova {
+  background: linear-gradient(135deg, #fdf6e8 0%, #f5edd8 100%) !important;
+  border: 1.5px solid #e2d4b0 !important;
+}
+.quick-btn-sova:active {
+  background: #f0e4c4 !important;
+}
+
+/* SOVA banner in financial */
+.sova-fin-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #fdf6e8 0%, #f5edd8 100%);
+  border: 1.5px solid #e2d4b0;
+  border-radius: 16px;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  width: 100%;
+  cursor: pointer;
+  text-align: left;
+  box-shadow: 0 2px 10px rgba(138,103,41,.08);
+  transition: transform .15s, box-shadow .15s;
+}
+.sova-fin-banner:active {
+  transform: scale(0.98);
+  box-shadow: 0 1px 6px rgba(138,103,41,.12);
+}
+.sova-fin-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
