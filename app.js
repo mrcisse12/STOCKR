@@ -46,6 +46,7 @@ const IC = {
   logo:     `<svg width="22" height="22" viewBox="0 0 576 512" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18zM288 102.2l52.8 107.5c4.6 9.3 13.4 15.8 23.7 17.3l118.1 17.2-85.5 83.5c-7.4 7.2-10.8 17.6-9 27.8L411 473.1l-105.6-56.3c-9.3-5-20.4-5-29.7 0L170.1 473.1l20.2-117.6c1.8-10.2-1.6-20.6-9-27.8L95.8 244.2l118.1-17.2c10.3-1.5 19.1-8 23.7-17.3L288 102.2zm195.2-61.7c-5.6-11.2-16.9-18.5-29.5-18.5s-23.9 7.2-29.5 18.5l-21.8 44.4-48.8 7.1c-12.1 1.8-22.2 10.2-25.9 21.8s-.7 24.4 7.9 32.9l35.4 34.5-8.3 48.8c-2.1 12.1 3 24.4 13 31.6s23.2 8.1 34.1 2.3l43.8-23 43.8 23c10.9 5.7 24.1 4.9 34.1-2.3s15.1-19.5 13-31.6l-8.4-48.8 35.4-34.5c8.6-8.5 11.7-21.4 7.9-32.9s-13.8-20-25.9-21.8l-48.8-7.1-21.5-44.3z"/></svg>`,
   logoLg:   `<svg width="40" height="40" viewBox="0 0 576 512" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18zM288 102.2l52.8 107.5c4.6 9.3 13.4 15.8 23.7 17.3l118.1 17.2-85.5 83.5c-7.4 7.2-10.8 17.6-9 27.8L411 473.1l-105.6-56.3c-9.3-5-20.4-5-29.7 0L170.1 473.1l20.2-117.6c1.8-10.2-1.6-20.6-9-27.8L95.8 244.2l118.1-17.2c10.3-1.5 19.1-8 23.7-17.3L288 102.2zm195.2-61.7c-5.6-11.2-16.9-18.5-29.5-18.5s-23.9 7.2-29.5 18.5l-21.8 44.4-48.8 7.1c-12.1 1.8-22.2 10.2-25.9 21.8s-.7 24.4 7.9 32.9l35.4 34.5-8.3 48.8c-2.1 12.1 3 24.4 13 31.6s23.2 8.1 34.1 2.3l43.8-23 43.8 23c10.9 5.7 24.1 4.9 34.1-2.3s15.1-19.5 13-31.6l-8.4-48.8 35.4-34.5c8.6-8.5 11.7-21.4 7.9-32.9s-13.8-20-25.9-21.8l-48.8-7.1-21.5-44.3z"/></svg>`,
   cart:     `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>`,
+  sova: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.5 2 6 4.5 6 8c0 1.5.5 3 1.5 4L6 14l2 1-1 3h10l-1-3 2-1-1.5-2c1-1 1.5-2.5 1.5-4 0-3.5-2.5-6-6-6z"/><path d="M9 10h.01M15 10h.01"/><path d="M10 14s.5 1 2 1 2-1 2-1"/></svg>`,
 };
 
 // ── Auth store (localStorage) ──────────────────
@@ -848,6 +849,8 @@ const S = {
   saleClientFilter: null,
   globalSearch:  '',
   predictions:   [],
+  sovaTab: 'overview',  // 'overview' | 'alerts' | 'tomorrow' | 'articles'
+  sovaArticle: null,    // article_id sélectionné dans tab articles
   // Locations
   locations:        JSON.parse(localStorage.getItem('stockr_locations') || '[]'),
   currentLocation:  localStorage.getItem('stockr_current_location') || null,
@@ -1484,6 +1487,9 @@ async function saveProduct() {
       composition
     });
     S.products.push(productFromAPI(data));
+    // Recharger les articles (stocks peuvent avoir changé)
+    const arts = await api('GET', '/api/articles/');
+    S.articles = arts.map(articleFromAPI);
     recalcAllMins();
     showToast(`Produit "${nameEl.value}" créé`);
     nav('products');
@@ -1532,6 +1538,26 @@ function exportAllCSV() {
   exportArticlesCSV();
   setTimeout(() => exportProductsCSV(), 300);
   setTimeout(() => exportSalesCSV(), 600);
+}
+
+function calcCompCost() {
+  let total = 0;
+  document.querySelectorAll('.comp-input').forEach(row => {
+    const artId = parseInt(row.dataset.id);
+    const art   = S.articles.find(a => a.id === artId);
+    const qtyEl = row.querySelector('.comp-qty');
+    const rawQty = parseFloat(qtyEl?.value) || 0;
+    if (rawQty > 0 && art && art.price > 0) {
+      const selUnit   = S.compUnits[artId] || art.unit;
+      const converted = convertQty(rawQty, selUnit, art.unit);
+      total += converted * art.price;
+    }
+  });
+  const costEl = $('prod-cost');
+  if (costEl && total > 0) {
+    costEl.value = Math.round(total);
+    updateMarginPreview();
+  }
 }
 
 function updateMarginPreview() {
@@ -1600,6 +1626,9 @@ async function saveEditProduct() {
     p.price = data.price;
     p.purchasePrice = data.purchase_price || 0;
     p.composition = (data.composition || []).map(c => ({ id: c.article.id, qty: c.quantity_used }));
+    // Recharger les articles (stocks peuvent avoir changé)
+    const arts = await api('GET', '/api/articles/');
+    S.articles = arts.map(articleFromAPI);
     recalcAllMins();
     showToast(`"${p.name}" mis à jour`);
     nav('products');
@@ -1857,6 +1886,7 @@ function render() {
     'add-supplier': vAddSupplier, 'supplier-detail': vSupplierDetail,
     'stock-history': vStockHistory, 'purchase-orders': vPurchaseOrders,
     'add-order': vAddOrder, pricing: vPricing, subscription: vSubscription,
+    sova: vSova,
   };
   viewEl.innerHTML = (map[S.view] || vHome)();
   if (!S.globalSearch) viewEl.scrollTop = 0;
@@ -1881,6 +1911,7 @@ function renderNav() {
     { id:'products',  icon:IC.tag,    label:t('products') },
     { id:'sales',     icon:IC.dollar, label:t('sales')    },
     { id:'clients',   icon:IC.users,  label:t('clients')  },
+    { id:'sova',      icon:IC.sova,   label:'SOVA'        },
     { id:'financial', icon:IC.bar,    label:t('bilan')    },
   ];
   return tabs.map(t => `
@@ -2801,6 +2832,350 @@ function vFinancial() {
   </div>`;
 }
 
+// ── SOVA phrases ─────────────────────────────
+const SOVA_INTROS = {
+  excellent: [
+    name => `Tout se porte à merveille, ${name} !`,
+    name => `${name}, ton stock respire. 🌿`,
+    name => `Beau travail, ${name} — rien à signaler.`,
+    name => `Tout roule. SOVA veille, mais elle n'a rien à dire ce soir.`,
+    name => `${name}, tes étagères sont heureuses.`,
+  ],
+  good: [
+    name => `${name}, ça tient bien. Quelques détails à surveiller.`,
+    name => `Bonne santé globale, ${name}. SOVA a l'œil sur quelques points.`,
+    name => `Presque parfait, ${name} — juste quelques nuages à l'horizon.`,
+    name => `${name}, tes stocks sont stables. Une ou deux choses à anticiper.`,
+    name => `Tout va bien, ${name}. SOVA reste aux aguets.`,
+  ],
+  warning_one: [
+    name => `${name}, un article mérite ton attention.`,
+    name => `Attention, ${name} — SOVA a repéré quelque chose.`,
+    name => `${name}, un signal faible à ne pas ignorer.`,
+    name => `Presque tout va bien, ${name}. Mais il y a un "mais".`,
+    name => `${name}, un article te glisse entre les doigts.`,
+  ],
+  warning_multi: [
+    name => `${name}, quelques articles réclament ta vigilance.`,
+    name => `SOVA a des choses à te dire, ${name}.`,
+    name => `${name}, le tableau est bon — mais pas tout à fait.`,
+    name => `Quelques signaux, ${name}. Rien d'urgent, mais ça approche.`,
+    name => `${name}, SOVA a repéré plusieurs points à surveiller.`,
+  ],
+  critical_one: [
+    name => `${name}, agis vite — une rupture approche.`,
+    name => `SOVA sonne l'alarme, ${name}. Un article est critique.`,
+    name => `${name}, il faut commander. Maintenant.`,
+    name => `Un article risque de te faire faux bond, ${name}.`,
+    name => `${name}, SOVA a vu ce que tu n'as pas encore vu.`,
+  ],
+  critical_multi: [
+    name => `${name}, plusieurs ruptures sont imminentes.`,
+    name => `Alerte rouge, ${name}. SOVA a besoin que tu agisses.`,
+    name => `${name}, le stock souffre. SOVA est là — agissons.`,
+    name => `Plusieurs articles critiques, ${name}. La situation est sérieuse.`,
+    name => `${name}, SOVA a les yeux grands ouverts. Et ce qu'elle voit est urgent.`,
+  ],
+  neutral: [
+    name => `${name}, SOVA analyse tes données.`,
+    name => `Bonjour ${name} — SOVA commence à apprendre tes habitudes.`,
+    name => `${name}, enregistre quelques ventes pour que SOVA s'affûte.`,
+    name => `Pas encore assez de données, ${name}. SOVA observe.`,
+    name => `${name}, SOVA prend ses marques dans ton commerce.`,
+  ],
+};
+
+function sovaIntro(key, name) {
+  const arr = SOVA_INTROS[key] || SOVA_INTROS.neutral;
+  // Déterministe basé sur la date (change chaque jour)
+  const idx = new Date().getDate() % arr.length;
+  return arr[idx](name || 'toi');
+}
+
+// ── SOVA ─────────────────────────────────────
+function vSova() {
+  const d = S.predictions;
+  // Gestion ancienne structure (array) vs nouvelle (objet)
+  const isNew = d && !Array.isArray(d);
+  const score       = isNew ? (d.score ?? 50) : 50;
+  const introKey    = isNew ? (d.intro_key || 'neutral') : 'neutral';
+  const revRisk     = isNew ? (d.revenue_at_risk || 0) : 0;
+  const revRiskList = isNew ? (d.revenue_at_risk_articles || []) : [];
+  const producible  = isNew ? (d.producible || []) : [];
+  const blocked     = isNew ? (d.blocked || []) : [];
+  const tomorrow    = isNew ? (d.tomorrow || null) : null;
+  const preds       = isNew ? (d.predictions || []) : (Array.isArray(d) ? d : []);
+
+  const name = S.session?.name?.split(' ')[0] || '';
+  const introText = sovaIntro(introKey, name);
+
+  // Score color
+  const scoreColor = score >= 80 ? '#22c55e' : score >= 60 ? '#f59e0b' : '#ef4444';
+  const scoreLabel = score >= 80 ? 'Excellent' : score >= 60 ? 'Attention' : 'Critique';
+
+  // Alertes
+  const alertPreds = preds.filter(p => p.status === 'critical' || p.status === 'warning');
+  const criticalPreds = preds.filter(p => p.status === 'critical');
+  const warningPreds  = preds.filter(p => p.status === 'warning');
+
+  const tabs = [
+    { id: 'overview',  label: 'Aperçu'    },
+    { id: 'alerts',    label: `Alertes${alertPreds.length > 0 ? ` · ${alertPreds.length}` : ''}`  },
+    { id: 'tomorrow',  label: 'Demain'    },
+    { id: 'articles',  label: 'Articles'  },
+  ];
+
+  // ── Circumference SVG pour score ring
+  const R = 40, C = 2 * Math.PI * R;
+  const dash = (score / 100) * C;
+
+  function tabOverview() {
+    return `
+    <!-- SOVA Score -->
+    <div class="sova-score-card">
+      <div class="sova-score-ring-wrap">
+        <svg width="100" height="100" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="${R}" fill="none" stroke="#e8e4d9" stroke-width="8"/>
+          <circle cx="50" cy="50" r="${R}" fill="none" stroke="${scoreColor}" stroke-width="8"
+            stroke-dasharray="${dash.toFixed(1)} ${C.toFixed(1)}"
+            stroke-dashoffset="${(C/4).toFixed(1)}"
+            stroke-linecap="round"
+            style="transition:stroke-dasharray .8s ease"/>
+        </svg>
+        <div class="sova-score-inner">
+          <div class="sova-score-num" style="color:${scoreColor}">${score}</div>
+          <div class="sova-score-sub">/100</div>
+        </div>
+      </div>
+      <div class="sova-score-right">
+        <div class="sova-score-label" style="color:${scoreColor}">${scoreLabel}</div>
+        <div class="sova-intro-text">${introText}</div>
+        ${criticalPreds.length > 0 ? `<div class="sova-score-detail sova-critical-dot">${criticalPreds.length} rupture${criticalPreds.length>1?'s':''} imminente${criticalPreds.length>1?'s':''}</div>` : ''}
+        ${warningPreds.length > 0 ? `<div class="sova-score-detail sova-warning-dot">${warningPreds.length} article${warningPreds.length>1?'s':''} à surveiller</div>` : ''}
+      </div>
+    </div>
+
+    <!-- Revenue at Risk -->
+    ${revRisk > 0 ? `
+    <div class="sova-rar-card">
+      <div class="sova-rar-header">
+        <span class="sova-rar-icon">⚠️</span>
+        <div>
+          <div class="sova-rar-amount">${fmt(revRisk)} ${sym()}</div>
+          <div class="sova-rar-label">en danger si tu n'agis pas</div>
+        </div>
+      </div>
+      ${revRiskList.map(r => `
+      <div class="sova-rar-line">
+        <span class="sova-rar-art">${r.article_name}</span>
+        <span class="sova-rar-val">−${fmt(r.amount)} ${sym()} sur ${r.shortfall_days?.toFixed(1)}j</span>
+      </div>`).join('')}
+    </div>` : ''}
+
+    <!-- Producible / Blocked -->
+    ${(producible.length > 0 || blocked.length > 0) ? `
+    <div class="sova-fab-card">
+      <div class="sova-fab-title">Ce que tu peux encore faire</div>
+      <div class="sova-fab-grid">
+        ${producible.map(p => `
+        <div class="sova-fab-item sova-fab-ok">
+          <span class="sova-fab-check">✓</span>
+          <span class="sova-fab-name">${p.name}</span>
+          <span class="sova-fab-qty">× ${p.max_units}</span>
+        </div>`).join('')}
+        ${blocked.map(p => `
+        <div class="sova-fab-item sova-fab-blocked">
+          <span class="sova-fab-check">✗</span>
+          <span class="sova-fab-name">${p.name}</span>
+          <span class="sova-fab-qty">bloqué</span>
+        </div>`).join('')}
+      </div>
+    </div>` : ''}
+
+    ${preds.length === 0 ? `
+    <div class="sova-empty">
+      <div style="font-size:40px">🦉</div>
+      <div class="sova-empty-title">SOVA observe</div>
+      <div class="sova-empty-sub">Enregistre des ventes pour que SOVA s'affûte et commence à prédire.</div>
+    </div>` : ''}
+    `;
+  }
+
+  function tabAlerts() {
+    if (alertPreds.length === 0) return `
+    <div class="sova-empty">
+      <div style="font-size:40px">🌿</div>
+      <div class="sova-empty-title">Aucune alerte</div>
+      <div class="sova-empty-sub">Tout est bien approvisionné. SOVA veille.</div>
+    </div>`;
+
+    return alertPreds.map((p, i) => {
+      const isCrit = p.status === 'critical';
+      const probColor = p.rupture_probability >= 70 ? '#ef4444' : p.rupture_probability >= 40 ? '#f59e0b' : '#22c55e';
+      return `
+      <div class="sova-alert-card ${isCrit ? 'sova-alert-critical' : 'sova-alert-warning'}" style="animation-delay:${i*0.05}s">
+        <div class="sova-alert-top">
+          <div>
+            <div class="sova-alert-name">${p.article_name}</div>
+            <div class="sova-alert-msg">${p.action ? `${p.action.verb} — ${p.action.quantity} ${p.action.unit} avant le ${p.action.before}` : p.message || ''}</div>
+          </div>
+          <div class="sova-alert-risk" style="color:${probColor}">${p.rupture_probability?.toFixed(0) || '—'}%</div>
+        </div>
+        <div class="sova-alert-stats">
+          <div class="sova-alert-stat">
+            <div class="sova-alert-stat-label">Stock</div>
+            <div class="sova-alert-stat-val">${p.current_stock} ${p.unit}</div>
+          </div>
+          ${p.days_remaining !== null && p.days_remaining !== undefined ? `
+          <div class="sova-alert-stat">
+            <div class="sova-alert-stat-label">Jours restants</div>
+            <div class="sova-alert-stat-val">${p.days_remaining}j</div>
+          </div>` : ''}
+          <div class="sova-alert-stat">
+            <div class="sova-alert-stat-label">À commander</div>
+            <div class="sova-alert-stat-val">${p.order_quantity} ${p.unit}</div>
+          </div>
+          <div class="sova-alert-stat">
+            <div class="sova-alert-stat-label">Confiance</div>
+            <div class="sova-alert-stat-val">${p.confidence}%</div>
+          </div>
+        </div>
+        <div class="sova-conf-bar">
+          <div class="sova-conf-fill" style="width:${p.confidence}%"></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function tabTomorrow() {
+    if (!tomorrow || !tomorrow.plan || tomorrow.plan.length === 0) return `
+    <div class="sova-empty">
+      <div style="font-size:40px">📅</div>
+      <div class="sova-empty-title">Pas encore assez de données</div>
+      <div class="sova-empty-sub">SOVA a besoin de quelques jours de ventes pour planifier ta production.</div>
+    </div>`;
+
+    const seasonBadge = (f) => {
+      if (!f || f === 1) return '';
+      const pct = Math.round((f - 1) * 100);
+      return `<span class="sova-season-badge ${pct >= 0 ? 'sova-season-up' : 'sova-season-down'}">${pct >= 0 ? '+' : ''}${pct}%</span>`;
+    };
+
+    return `
+    <div class="sova-tomorrow-header">
+      <div class="sova-tomorrow-day">${tomorrow.weekday}</div>
+      <div class="sova-tomorrow-sub">Plan de production suggéré</div>
+    </div>
+    ${tomorrow.plan.map((item, i) => `
+    <div class="sova-plan-card" style="animation-delay:${i*0.06}s">
+      <div class="sova-plan-top">
+        <div class="sova-plan-name">${item.product_name} ${seasonBadge(item.seasonality_factor)}</div>
+        <div class="sova-plan-qty">${item.expected_qty} unités</div>
+      </div>
+      <div class="sova-plan-ingredients">
+        ${(item.ingredients || []).map(ing => `
+        <div class="sova-plan-ing ${ing.sufficient ? '' : 'sova-ing-warn'}">
+          <span class="sova-ing-name">${ing.article_name}</span>
+          <span class="sova-ing-need">${ing.needed.toFixed(2)} ${ing.unit}</span>
+          <span class="sova-ing-avail">${ing.sufficient ? '✓' : '⚠️'} ${ing.available.toFixed(2)} dispo</span>
+        </div>`).join('')}
+      </div>
+    </div>`).join('')}`;
+  }
+
+  function tabArticles() {
+    const filtered = preds.filter(p => p.status !== 'no_data');
+    if (filtered.length === 0) return `
+    <div class="sova-empty">
+      <div style="font-size:40px">📊</div>
+      <div class="sova-empty-title">Pas encore de données</div>
+      <div class="sova-empty-sub">Enregistre tes premières ventes pour voir les analyses SOVA.</div>
+    </div>`;
+
+    const sel = S.sovaArticle ? filtered.find(p => p.article_id === S.sovaArticle) : filtered[0];
+
+    return `
+    <div class="sova-art-selector">
+      ${filtered.map(p => `
+      <button class="sova-art-chip ${(sel && sel.article_id === p.article_id) ? 'active' : ''}"
+        onclick="S.sovaArticle=${p.article_id};render()">
+        <span class="sova-art-dot sova-dot-${p.status}"></span>
+        ${p.article_name}
+      </button>`).join('')}
+    </div>
+    ${sel ? `
+    <div class="sova-detail-card">
+      <div class="sova-detail-name">${sel.article_name}</div>
+      <div class="sova-detail-grid">
+        <div class="sova-detail-kpi">
+          <div class="sova-detail-kpi-val">${sel.current_stock} <span style="font-size:14px;font-weight:500">${sel.unit}</span></div>
+          <div class="sova-detail-kpi-label">En stock</div>
+        </div>
+        <div class="sova-detail-kpi">
+          <div class="sova-detail-kpi-val">${sel.daily_demand?.toFixed(2)} <span style="font-size:14px;font-weight:500">${sel.unit}/j</span></div>
+          <div class="sova-detail-kpi-label">Demande moy.</div>
+        </div>
+        <div class="sova-detail-kpi">
+          <div class="sova-detail-kpi-val" style="color:${sel.trend_pct >= 0 ? '#22c55e' : '#ef4444'}">${sel.trend_pct >= 0 ? '+' : ''}${sel.trend_pct}%</div>
+          <div class="sova-detail-kpi-label">Tendance / sem.</div>
+        </div>
+        <div class="sova-detail-kpi">
+          <div class="sova-detail-kpi-val">${sel.days_remaining !== null ? sel.days_remaining + 'j' : '∞'}</div>
+          <div class="sova-detail-kpi-label">Jours restants</div>
+        </div>
+      </div>
+      <div class="sova-conf-section">
+        <div class="sova-conf-label">Fiabilité de la prévision · <strong>${sel.confidence}%</strong></div>
+        <div class="sova-conf-bar">
+          <div class="sova-conf-fill" style="width:${sel.confidence}%"></div>
+        </div>
+      </div>
+      <div class="sova-detail-metrics">
+        <div class="sova-metric"><span class="sova-metric-label">Safety Stock</span><span class="sova-metric-val">${sel.safety_stock} ${sel.unit}</span></div>
+        <div class="sova-metric"><span class="sova-metric-label">Reorder Point</span><span class="sova-metric-val">${sel.reorder_point} ${sel.unit}</span></div>
+        <div class="sova-metric"><span class="sova-metric-label">À commander</span><span class="sova-metric-val">${sel.order_quantity} ${sel.unit}</span></div>
+        <div class="sova-metric"><span class="sova-metric-label">Risque rupture</span><span class="sova-metric-val">${sel.rupture_probability?.toFixed(1)}%</span></div>
+      </div>
+      ${sel.action ? `
+      <div class="sova-action-banner sova-action-${sel.action.urgency}">
+        <div class="sova-action-verb">${sel.action.verb}</div>
+        <div class="sova-action-detail">${sel.action.quantity} ${sel.action.unit} · avant le ${sel.action.before}</div>
+      </div>` : ''}
+    </div>` : ''}`;
+  }
+
+  const tabContent = S.sovaTab === 'overview' ? tabOverview()
+    : S.sovaTab === 'alerts' ? tabAlerts()
+    : S.sovaTab === 'tomorrow' ? tabTomorrow()
+    : tabArticles();
+
+  return `
+  <div class="sova-wrap">
+    <!-- Header -->
+    <div class="sova-header">
+      <div class="sova-header-top">
+        <div class="sova-brand">
+          <span class="sova-owl">🦉</span>
+          <span class="sova-brand-name">SOVA</span>
+        </div>
+        <div class="sova-tagline">Intelligence de stock</div>
+      </div>
+      <!-- Tabs -->
+      <div class="sova-tabs">
+        ${tabs.map(tab => `
+        <button class="sova-tab ${S.sovaTab === tab.id ? 'active' : ''}"
+          onclick="S.sovaTab='${tab.id}';render()">
+          ${tab.label}
+        </button>`).join('')}
+      </div>
+    </div>
+
+    <div class="sova-content container">
+      ${tabContent}
+    </div>
+  </div>`;
+}
+
 // ── DETAIL ────────────────────────────────────
 function vDetail() {
   const art = S.articles.find(a => a.id===S.selectedId);
@@ -3001,7 +3376,7 @@ function vAdd() {
           <input class="input" type="number" placeholder="0" step="0.5" value="${f.stock}" oninput="S.form.stock=this.value">
         </div>
         <div>
-          <label class="form-label">${t('articlePrice')} (${sym()})</label>
+          <label class="form-label">${t('purchasePrice')} (${sym()})</label>
           <input class="input" type="number" placeholder="0" step="10" value="${f.price||0}" oninput="S.form.price=this.value">
         </div>
       </div>
@@ -3040,7 +3415,8 @@ function vAddProduct() {
       <div style="display:flex;gap:10px">
         <div class="form-group" style="flex:1">
           <label class="form-label">${t('purchasePrice')} (${sym()})</label>
-          <input class="input" id="prod-cost" type="number" placeholder="0" step="100" oninput="updateMarginPreview()">
+          <input class="input" id="prod-cost" type="number" placeholder="auto" step="1" oninput="updateMarginPreview()">
+          <div style="font-size:11px;color:var(--text-3);margin-top:4px">Auto-calculé depuis la composition</div>
         </div>
         <div class="form-group" style="flex:1">
           <label class="form-label">${t('sellingPrice')} (${sym()})</label>
@@ -3058,7 +3434,7 @@ function vAddProduct() {
           <div style="flex:1;font-size:13px;font-weight:600;color:var(--text-2)">${a.name}
             <span style="color:var(--text-3);font-weight:400;font-size:11px">(${fmtQty(a.stock)} ${a.unit} dispo)</span>
           </div>
-          <input type="number" class="input comp-qty" placeholder="0" step="any" min="0" style="width:76px;text-align:center">
+          <input type="number" class="input comp-qty" placeholder="0" step="any" min="0" style="width:76px;text-align:center" oninput="calcCompCost()">
           <select class="input" style="width:70px;padding:8px 4px"
             onchange="S.compUnits[${a.id}]=this.value">
             ${compatibleUnits(a.unit).map(u =>
@@ -3114,7 +3490,7 @@ function vEditProduct() {
             <div style="flex:1;font-size:13px;font-weight:600;color:var(--text-2)">${a.name}
               <span style="color:var(--text-3);font-weight:400;font-size:11px">(${fmtQty(a.stock)} ${a.unit} dispo)</span>
             </div>
-            <input type="number" class="input comp-qty" placeholder="0" step="any" min="0" style="width:76px;text-align:center" value="${existing ? existing.qty : ''}">
+            <input type="number" class="input comp-qty" placeholder="0" step="any" min="0" style="width:76px;text-align:center" value="${existing ? existing.qty : ''}" oninput="calcCompCost()">
             <select class="input" style="width:70px;padding:8px 4px"
               onchange="S.compUnits[${a.id}]=this.value">
               ${compatibleUnits(a.unit).map(u =>
@@ -5302,6 +5678,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.shareViaWhatsApp    = shareViaWhatsApp;
   window.showReceiptBanner   = showReceiptBanner;
   window.updateMarginPreview = updateMarginPreview;
+  window.calcCompCost        = calcCompCost;
   window.exportArticlesCSV    = exportArticlesCSV;
   window.exportProductsCSV    = exportProductsCSV;
   window.exportSalesCSV       = exportSalesCSV;
