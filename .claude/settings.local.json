@@ -30,7 +30,10 @@
       "Bash(curl -s http://localhost:5001/api/health)",
       "Bash(xargs kill:*)",
       "Bash(grep -n \"^function \\\\|^async function \\\\|^class \" /Users/MacdeElisam/STOCKR/stockr_backend/routes/*.py /Users/MacdeElisam/STOCKR/stockr_backend/models/*.py /Users/MacdeElisam/STOCKR/stockr_backend/services/*.py)",
-      "Bash(grep -n \"^def \\\\|^    def \\\\|^class \" /Users/MacdeElisam/STOCKR/stockr_backend/routes/*.py /Users/MacdeElisam/STOCKR/stockr_backend/models/*.py /Users/MacdeElisam/STOCKR/stockr_backend/services/*.py)"
+      "Bash(grep -n \"^def \\\\|^    def \\\\|^class \" /Users/MacdeElisam/STOCKR/stockr_backend/routes/*.py /Users/MacdeElisam/STOCKR/stockr_backend/models/*.py /Users/MacdeElisam/STOCKR/stockr_backend/services/*.py)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(git push:*)"
     ]
   }
 }
