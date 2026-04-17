@@ -1134,6 +1134,24 @@ const S = {
   },
 };
 
+// Helper pour accéder aux données SOVA selon l'ancien ou nouveau format
+function sovaData() {
+  const d = S.predictions;
+  if (!d) return { preds: [], score: 50, isNew: false };
+  if (Array.isArray(d)) return { preds: d, score: 50, isNew: false };
+  return {
+    preds: d.predictions || [],
+    score: d.score || 50,
+    isNew: true,
+    introKey: d.intro_key,
+    revRisk: d.revenue_at_risk || 0,
+    revRiskList: d.revenue_at_risk_articles || [],
+    producible: d.producible || [],
+    blocked: d.blocked || [],
+    tomorrow: d.tomorrow || null,
+  };
+}
+
 // ── Mode local (localStorage) ─────────────────
 let USE_LOCAL = false; // basculé automatiquement si l'API n'est pas joignable
 
@@ -1355,7 +1373,7 @@ async function loadData() {
     S.products    = prods.map(productFromAPI);
     S.articles    = arts.map(articleFromAPI);
     S.sales       = sales.map(saleFromAPI);
-    S.predictions = preds || [];
+    S.predictions = preds || null;
     S.clients     = clients || [];
     recalcAllMins();
     render();
@@ -2490,7 +2508,7 @@ function vHome() {
 
     ${(() => {
       if (_showSearch) return '';
-      const critical = S.predictions.filter(p => p.status === 'critical');
+      const critical = sovaData().preds.filter(p => p.status === 'critical');
       if (!critical.length) return '';
       return `
       <div class="section-hd"><div class="section-lbl">${t('aiPredictions')}</div></div>
@@ -2499,7 +2517,7 @@ function vHome() {
         <div class="pred-dot"></div>
         <div class="pred-body">
           <div class="pred-name">${p.article_name}</div>
-          <div class="pred-msg">${p.message}</div>
+          <div class="pred-msg">${p.message || (p.action ? p.action.verb : '')}</div>
         </div>
       </div>`).join('')}`;
     })()}
@@ -3075,22 +3093,21 @@ function vFinancial() {
             <div class="rank-rev">${fmt(d.rev)} ${sym()}</div>
           </div>`).join('')}
     </div>
-    ${S.predictions.length > 0 ? `
+    ${sovaData().preds.length > 0 ? `
     <div class="section-hd" style="margin-top:8px">
       <div class="section-lbl">${t('aiPredictions')}</div>
       <div style="font-size:11px;color:var(--text-3)">WMA · EOQ · Safety Stock</div>
     </div>
-    ${S.predictions.filter(p => p.status !== 'no_data').map((p, i) => `
+    ${sovaData().preds.filter(p => p.status !== 'no_data').map((p, i) => `
     <div class="pred-card ${p.status}" style="animation-delay:${i * 0.06}s">
       <div class="pred-dot"></div>
       <div class="pred-body">
         <div class="pred-name">${p.article_name}</div>
-        <div class="pred-msg">${p.message}</div>
+        <div class="pred-msg">${p.message || (p.action ? p.action.verb : '')}</div>
         ${p.status !== 'no_data' && p.daily_demand > 0 ? `
         <div class="pred-stats">
           <div class="pred-stat">Stock <strong>${p.current_stock} ${p.unit}</strong></div>
           ${p.days_remaining !== null ? `<div class="pred-stat">${_lang==='fr'?'Jours restants':'Days left'} <strong>${p.days_remaining}${_lang==='fr'?'j':'d'}</strong></div>` : ''}
-          <div class="pred-stat">EOQ <strong>${p.eoq} ${p.unit}</strong></div>
           <div class="pred-stat">Safety Stock <strong>${p.safety_stock} ${p.unit}</strong></div>
         </div>` : ''}
       </div>
