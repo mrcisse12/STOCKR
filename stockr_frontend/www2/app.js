@@ -712,19 +712,35 @@ function generateInvoicePDF(sales) {
   doc.text('TOTAL', 192, y + 4.5, { align: 'right' });
 
   // ── Lignes produits ──
-  y += 14; let grandTotal = 0; let totalProfit = 0;
+  y += 14; let grandTotal = 0; let totalProfit = 0; let totalCost = 0;
   doc.setTextColor(30, 30, 30); doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
   sales.forEach((s, i) => {
     const unitPrice = s.qty > 0 ? Math.round(s.total / s.qty) : 0;
     grandTotal += s.total;
     totalProfit += (s.profit || 0);
-    if (i % 2 === 1) { doc.setFillColor(249, 250, 251); doc.rect(16, y - 5, 178, 9, 'F'); }
+    totalCost += (s.total - (s.profit||0));
+    // Détection pack → afficher composants
+    const pack = s.packId ? S.packs?.find(p => p.id === s.packId) : null;
+    const lineHeight = pack && pack.items?.length ? 9 + pack.items.length * 5 + 2 : 9;
+    if (i % 2 === 1) { doc.setFillColor(249, 250, 251); doc.rect(16, y - 5, 178, lineHeight, 'F'); }
     doc.text(s.productName.length > 40 ? s.productName.substring(0, 40) + '...' : s.productName, 20, y);
     doc.text(String(s.qty), 120, y, { align: 'center' });
     doc.text(fmt(unitPrice) + ' ' + sym, 155, y, { align: 'right' });
     doc.setFont('helvetica', 'bold');
     doc.text(fmt(s.total) + ' ' + sym, 192, y, { align: 'right' });
     doc.setFont('helvetica', 'normal');
+    if (pack && pack.items?.length) {
+      doc.setFontSize(7); doc.setTextColor(120, 120, 120); doc.setFont('helvetica', 'italic');
+      doc.text('Contenu du pack :', 22, y + 4);
+      pack.items.forEach((it, j) => {
+        const p = S.products.find(pp => pp.id === it.productId);
+        if (p) {
+          doc.text(`  • ${it.qty}× ${p.name}`, 25, y + 8 + j * 5);
+        }
+      });
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(30, 30, 30);
+      y += pack.items.length * 5 + 4;
+    }
     y += 9;
   });
 
@@ -1087,6 +1103,11 @@ const S = {
   productSearch: '',
   productFilter: 'all',
   editProductId: null,
+  // Packs / Bundles
+  packs:         JSON.parse(localStorage.getItem('stockr_packs') || '[]'),
+  editPackId:    null,
+  packForm:      { name:'', description:'', items:[], price:0, discount:0, autoPrice:true, active:true },
+  productsTab:   'products', // 'products' | 'packs'
   clients:       [],
   selectedClientId: null,
   clientSearch:  '',
@@ -1871,6 +1892,283 @@ function exportAllCSV() {
   setTimeout(() => exportSalesCSV(), 600);
 }
 
+// ── EXCEL XLSX (format HTML-as-XLS, ouvrable par Excel, LibreOffice, Numbers) ──
+function _xlsEscape(v) {
+  if (v === null || v === undefined) return '';
+  return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function _buildXlsSheet(title, headers, rows, meta = {}) {
+  const header = `<tr style="background:#4F46E5;color:#fff;font-weight:bold">${headers.map(h => `<th style="padding:6px 8px;border:1px solid #333">${_xlsEscape(h)}</th>`).join('')}</tr>`;
+  const body = rows.map((r,i) => `<tr style="${i%2?'background:#F9FAFB':''}">${r.map(c => {
+    const n = Number(c);
+    const isNum = !isNaN(n) && String(c).trim() !== '' && /^-?\d+(\.\d+)?$/.test(String(c).trim());
+    return `<td style="padding:4px 8px;border:1px solid #D1D5DB${isNum?';text-align:right':''}">${_xlsEscape(c)}</td>`;
+  }).join('')}</tr>`).join('');
+  const footer = meta.totalRow ? `<tr style="background:#E0E7FF;font-weight:bold"><td colspan="${headers.length-1}" style="padding:6px 8px;border:1px solid #333">TOTAL</td><td style="padding:6px 8px;border:1px solid #333;text-align:right">${_xlsEscape(meta.totalRow)}</td></tr>` : '';
+  return `<h2 style="font-family:Arial;color:#4F46E5">${_xlsEscape(title)}</h2><table border="1" cellspacing="0" style="border-collapse:collapse;font-family:Arial;font-size:11px">${header}${body}${footer}</table><br/>`;
+}
+function downloadXLSX(filename, sheets) {
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>${filename.replace('.xls','')}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body>${sheets}</body></html>`;
+  const blob = new Blob(['\uFEFF' + html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+  showToast(`${filename} téléchargé`);
+}
+function exportArticlesXLSX() {
+  const rows = S.articles.map(a => [a.name, a.ref||'', a.stock, a.unit, a.min||0, a.lead||7, a.price||0, a.expiry||'']);
+  const sheet = _buildXlsSheet('Articles / Stock', ['Nom','Référence','Stock','Unité','Seuil min','Délai (j)','Prix ('+sym()+')','Expiration'], rows);
+  downloadXLSX(`stockr_articles_${new Date().toISOString().slice(0,10)}.xls`, sheet);
+}
+function exportProductsXLSX() {
+  const rows = S.products.map(p => {
+    const comp = p.composition.map(c => {
+      const a = S.articles.find(a => a.id === c.id);
+      return a ? `${c.qty} ${a.unit} ${a.name}` : '';
+    }).filter(Boolean).join(' + ');
+    return [p.name, p.purchasePrice||0, p.price, marginPct(p)+'%', profitUnit(p), productMaxMake(p), comp];
+  });
+  const sheet = _buildXlsSheet('Produits finis', ['Nom','Coût ('+sym()+')','Prix vente ('+sym()+')','Marge %','Bénéfice/u','Dispo','Composition'], rows);
+  downloadXLSX(`stockr_produits_${new Date().toISOString().slice(0,10)}.xls`, sheet);
+}
+function exportSalesXLSX() {
+  const rows = S.sales.map(s => [
+    fmtDate(s.date), s.productName, s.qty, s.total, s.profit||0,
+    s.clientName || '', s.paymentMethod || 'cash', s.promoName || ''
+  ]);
+  const total = S.sales.reduce((sum,s)=>sum+s.total, 0);
+  const sheet = _buildXlsSheet('Historique des ventes', ['Date','Produit','Qté','Total ('+sym()+')','Bénéfice','Client','Paiement','Promo'], rows, { totalRow: fmt(total)+' '+sym() });
+  downloadXLSX(`stockr_ventes_${new Date().toISOString().slice(0,10)}.xls`, sheet);
+}
+function exportClientsXLSX() {
+  const rows = (S.clients||[]).map(c => {
+    const spent = S.sales.filter(s=>s.clientId===c.id).reduce((sum,s)=>sum+s.total, 0);
+    const orders = S.sales.filter(s=>s.clientId===c.id).length;
+    return [c.name, c.phone||'', c.email||'', c.address||'', orders, spent, c.loyaltyPoints||0, fmtDate(c.createdAt||new Date().toISOString())];
+  });
+  const sheet = _buildXlsSheet('Clients', ['Nom','Téléphone','Email','Adresse','Commandes','Total dépensé ('+sym()+')','Points fidélité','Date création'], rows);
+  downloadXLSX(`stockr_clients_${new Date().toISOString().slice(0,10)}.xls`, sheet);
+}
+function exportFullXLSX() {
+  // Un seul fichier multi-feuilles simulé (plusieurs tableaux dans un doc HTML)
+  const s1 = _buildXlsSheet('Articles / Stock',
+    ['Nom','Référence','Stock','Unité','Seuil min','Prix ('+sym()+')'],
+    S.articles.map(a => [a.name, a.ref||'', a.stock, a.unit, a.min||0, a.price||0]));
+  const s2 = _buildXlsSheet('Produits finis',
+    ['Nom','Coût','Prix vente','Marge %','Dispo'],
+    S.products.map(p => [p.name, p.purchasePrice||0, p.price, marginPct(p)+'%', productMaxMake(p)]));
+  const s3 = _buildXlsSheet('Ventes',
+    ['Date','Produit','Qté','Total','Bénéfice','Client','Paiement'],
+    S.sales.map(s => [fmtDate(s.date), s.productName, s.qty, s.total, s.profit||0, s.clientName||'', s.paymentMethod||'cash']),
+    { totalRow: fmt(S.sales.reduce((sum,s)=>sum+s.total, 0))+' '+sym() });
+  const s4 = _buildXlsSheet('Clients',
+    ['Nom','Téléphone','Email','Points fidélité'],
+    (S.clients||[]).map(c => [c.name, c.phone||'', c.email||'', c.loyaltyPoints||0]));
+  const s5 = _buildXlsSheet('Packs',
+    ['Nom','Nb produits','Prix original','Prix final','Économie','Dispo','Actif'],
+    (S.packs||[]).map(pk => [pk.name, pk.items?.length||0, packOriginalPrice(pk), packFinalPrice(pk), packSavings(pk), packMaxAvailable(pk), pk.active!==false?'Oui':'Non']));
+  downloadXLSX(`stockr_export_complet_${new Date().toISOString().slice(0,10)}.xls`, s1+s2+s3+s4+s5);
+}
+
+// ── RAPPORT PDF GLOBAL ────────────────────────
+function generateStockReportPDF() {
+  if (typeof window.jspdf === 'undefined') { showToast('jsPDF indisponible', 'error'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'mm', format:'a4' });
+  const biz = S.session?.business || S.session?.name || 'Mon Commerce';
+  const date = new Date().toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
+  // Header
+  doc.setFillColor(79,70,229); doc.rect(0,0,210,32,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(20); doc.setFont('helvetica','bold');
+  doc.text('RAPPORT DE STOCK', 16, 15);
+  doc.setFontSize(10); doc.setFont('helvetica','normal');
+  doc.text(biz + ' · ' + date, 16, 23);
+  // Stats
+  let y = 42;
+  const total = S.articles.length;
+  const outOfStock = S.articles.filter(a => a.stock === 0).length;
+  const lowStock = S.articles.filter(a => a.stock > 0 && a.min > 0 && a.stock < a.min).length;
+  const stockValue = S.articles.reduce((s,a) => s + (a.stock||0) * (a.purchasePrice||0), 0);
+  doc.setTextColor(30,30,30); doc.setFontSize(9);
+  doc.text(`Total articles : ${total}   ·   Ruptures : ${outOfStock}   ·   Stock bas : ${lowStock}   ·   Valeur stock : ${fmt(stockValue)} ${sym()}`, 16, y);
+  y += 10;
+  // En-tête tableau
+  doc.setFillColor(79,70,229); doc.rect(16, y-5, 178, 9, 'F');
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(9);
+  doc.text('ARTICLE', 20, y);
+  doc.text('STOCK', 120, y, { align:'center' });
+  doc.text('SEUIL', 145, y, { align:'center' });
+  doc.text('VALEUR', 190, y, { align:'right' });
+  y += 8;
+  doc.setFont('helvetica','normal'); doc.setTextColor(30,30,30);
+  S.articles.slice(0, 40).forEach((a,i) => {
+    if (y > 265) { doc.addPage(); y = 20; }
+    if (i%2===1) { doc.setFillColor(249,250,251); doc.rect(16, y-5, 178, 8, 'F'); }
+    const st = a.stock === 0 ? 'danger' : (a.min && a.stock < a.min ? 'warning' : 'ok');
+    doc.text(a.name.slice(0, 44), 20, y);
+    if (st === 'danger') doc.setTextColor(220,38,38);
+    else if (st === 'warning') doc.setTextColor(180,83,9);
+    doc.text(`${fmtQty(a.stock)} ${a.unit||''}`, 120, y, { align:'center' });
+    doc.setTextColor(30,30,30);
+    doc.text(String(a.min || '—'), 145, y, { align:'center' });
+    doc.text(fmt((a.stock||0) * (a.purchasePrice||0)) + ' ' + sym(), 190, y, { align:'right' });
+    y += 7;
+  });
+  if (S.articles.length > 40) {
+    doc.setFontSize(8); doc.setTextColor(100,100,100);
+    doc.text(`+ ${S.articles.length - 40} autres articles non affichés…`, 105, y+5, { align:'center' });
+  }
+  // Footer
+  doc.setFontSize(8); doc.setTextColor(100,100,100);
+  doc.text('Généré par STOCKR · ' + date, 105, 288, { align:'center' });
+  doc.save(`rapport_stock_${new Date().toISOString().slice(0,10)}.pdf`);
+  showToast('Rapport PDF généré');
+}
+
+function generateSalesReportPDF(period = 'all') {
+  if (typeof window.jspdf === 'undefined') { showToast('jsPDF indisponible', 'error'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'mm', format:'a4' });
+  const biz = S.session?.business || S.session?.name || 'Mon Commerce';
+  const date = new Date().toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
+  const perLabel = {all:'Global', today:"Aujourd'hui", week:'7 derniers jours', month:'30 derniers jours'}[period] || 'Global';
+  // Filter
+  let sales = S.sales.slice();
+  const now = Date.now();
+  if (period === 'today') sales = sales.filter(s => new Date(s.date).toDateString() === new Date().toDateString());
+  else if (period === 'week') sales = sales.filter(s => now - new Date(s.date).getTime() < 7*86400000);
+  else if (period === 'month') sales = sales.filter(s => now - new Date(s.date).getTime() < 30*86400000);
+  // Header
+  doc.setFillColor(16,185,129); doc.rect(0,0,210,32,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(20); doc.setFont('helvetica','bold');
+  doc.text('RAPPORT DES VENTES', 16, 15);
+  doc.setFontSize(10); doc.setFont('helvetica','normal');
+  doc.text(biz + ' · ' + perLabel + ' · ' + date, 16, 23);
+  // Stats
+  let y = 42;
+  const total = sales.reduce((s,v) => s + v.total, 0);
+  const profit = sales.reduce((s,v) => s + (v.profit||0), 0);
+  const count = sales.length;
+  const avgTicket = count ? Math.round(total / count) : 0;
+  // Stat cards
+  const cards = [
+    { label:'Ventes', val: count + ' opérations', color:[79,70,229] },
+    { label:'CA', val: fmt(total) + ' ' + sym(), color:[16,185,129] },
+    { label:'Bénéfice', val: fmt(profit) + ' ' + sym(), color:[245,158,11] },
+    { label:'Panier moyen', val: fmt(avgTicket) + ' ' + sym(), color:[139,92,246] },
+  ];
+  cards.forEach((c,i) => {
+    const x = 16 + i*46;
+    doc.setFillColor(c.color[0], c.color[1], c.color[2]);
+    doc.roundedRect(x, y, 42, 20, 2, 2, 'F');
+    doc.setTextColor(255,255,255); doc.setFontSize(7); doc.setFont('helvetica','normal');
+    doc.text(c.label, x+3, y+5);
+    doc.setFontSize(10); doc.setFont('helvetica','bold');
+    doc.text(c.val, x+3, y+13);
+  });
+  y += 28;
+  // Top 5 products
+  const byProduct = {};
+  sales.forEach(s => {
+    if (!byProduct[s.productName]) byProduct[s.productName] = { qty:0, total:0 };
+    byProduct[s.productName].qty += s.qty;
+    byProduct[s.productName].total += s.total;
+  });
+  const top5 = Object.entries(byProduct).sort((a,b) => b[1].total - a[1].total).slice(0, 5);
+  if (top5.length) {
+    doc.setTextColor(30,30,30); doc.setFontSize(12); doc.setFont('helvetica','bold');
+    doc.text('Top 5 produits', 16, y); y += 7;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9);
+    top5.forEach((entry, i) => {
+      const [name, d] = entry;
+      doc.setFillColor(i%2?249:255, 250, 251); doc.rect(16, y-4, 178, 7, 'F');
+      doc.text(`${i+1}. ${name.slice(0,50)}`, 20, y);
+      doc.text(`${d.qty} u`, 135, y, { align:'center' });
+      doc.setFont('helvetica','bold');
+      doc.text(fmt(d.total) + ' ' + sym(), 190, y, { align:'right' });
+      doc.setFont('helvetica','normal');
+      y += 7;
+    });
+    y += 6;
+  }
+  // Ventes récentes
+  doc.setTextColor(30,30,30); doc.setFontSize(12); doc.setFont('helvetica','bold');
+  doc.text('Ventes récentes', 16, y); y += 7;
+  doc.setFillColor(79,70,229); doc.rect(16, y-5, 178, 9, 'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','bold');
+  doc.text('DATE', 20, y);
+  doc.text('PRODUIT', 55, y);
+  doc.text('QTE', 125, y, { align:'center' });
+  doc.text('TOTAL', 190, y, { align:'right' });
+  y += 8;
+  doc.setFont('helvetica','normal'); doc.setTextColor(30,30,30); doc.setFontSize(8);
+  sales.slice(0, 35).forEach((s,i) => {
+    if (y > 275) { doc.addPage(); y = 20; }
+    if (i%2) { doc.setFillColor(249,250,251); doc.rect(16, y-4, 178, 7, 'F'); }
+    doc.text(fmtDate(s.date).slice(0,16), 20, y);
+    doc.text(s.productName.slice(0,32), 55, y);
+    doc.text(String(s.qty), 125, y, { align:'center' });
+    doc.setFont('helvetica','bold');
+    doc.text(fmt(s.total) + ' ' + sym(), 190, y, { align:'right' });
+    doc.setFont('helvetica','normal');
+    y += 7;
+  });
+  // Footer
+  doc.setFontSize(8); doc.setTextColor(100,100,100);
+  doc.text('Généré par STOCKR · ' + date, 105, 288, { align:'center' });
+  doc.save(`rapport_ventes_${period}_${new Date().toISOString().slice(0,10)}.pdf`);
+  showToast('Rapport PDF généré');
+}
+
+function generateClientsReportPDF() {
+  if (typeof window.jspdf === 'undefined') { showToast('jsPDF indisponible', 'error'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'mm', format:'a4' });
+  const biz = S.session?.business || S.session?.name || 'Mon Commerce';
+  const date = new Date().toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
+  // Enrich clients with stats
+  const clients = (S.clients||[]).map(c => {
+    const mySales = S.sales.filter(s => s.clientId === c.id);
+    const totalSpent = mySales.reduce((s,v) => s + v.total, 0);
+    return { ...c, orderCount: mySales.length, totalSpent, tier: _getClientTier(c) };
+  }).sort((a,b) => b.totalSpent - a.totalSpent);
+  // Header
+  doc.setFillColor(139,92,246); doc.rect(0,0,210,32,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(20); doc.setFont('helvetica','bold');
+  doc.text('RAPPORT CLIENTS', 16, 15);
+  doc.setFontSize(10); doc.setFont('helvetica','normal');
+  doc.text(biz + ' · ' + date, 16, 23);
+  // Tableau
+  let y = 42;
+  doc.setFillColor(139,92,246); doc.rect(16, y-5, 178, 9, 'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','bold');
+  doc.text('CLIENT', 20, y);
+  doc.text('TEL.', 70, y);
+  doc.text('CMD.', 115, y, { align:'center' });
+  doc.text('TOTAL', 150, y, { align:'right' });
+  doc.text('PALIER', 190, y, { align:'right' });
+  y += 8;
+  doc.setFont('helvetica','normal'); doc.setTextColor(30,30,30); doc.setFontSize(8);
+  clients.slice(0, 35).forEach((c,i) => {
+    if (y > 275) { doc.addPage(); y = 20; }
+    if (i%2) { doc.setFillColor(249,250,251); doc.rect(16, y-4, 178, 7, 'F'); }
+    doc.text((c.name||'?').slice(0,28), 20, y);
+    doc.text((c.phone||'').slice(0,16), 70, y);
+    doc.text(String(c.orderCount), 115, y, { align:'center' });
+    doc.setFont('helvetica','bold');
+    doc.text(fmt(c.totalSpent) + ' ' + sym(), 150, y, { align:'right' });
+    doc.setFont('helvetica','normal');
+    doc.text(c.tier?.name || '-', 190, y, { align:'right' });
+    y += 7;
+  });
+  // Footer
+  doc.setFontSize(8); doc.setTextColor(100,100,100);
+  doc.text('Généré par STOCKR · ' + date, 105, 288, { align:'center' });
+  doc.save(`rapport_clients_${new Date().toISOString().slice(0,10)}.pdf`);
+  showToast('Rapport clients généré');
+}
+
 function updateMarginPreview() {
   const cost = parseFloat($('prod-cost')?.value) || 0;
   const price = parseFloat($('prod-price')?.value) || 0;
@@ -2069,11 +2367,25 @@ async function confirmMultiSale() {
           S.stockMovements.unshift({ id:Date.now()+Math.random(), articleId:article.id, articleName:article.name, type:'out', qty, reason:'Vente directe', date:new Date().toISOString() });
           localStorage.setItem('stockr_stock_movements', JSON.stringify(S.stockMovements));
         }
+      } else if (it.kind === 'pack') {
+        // Pack : vendre chaque produit du pack au prorata du pack
+        const pack = S.packs.find(p => p.id === it.packId);
+        if (pack) {
+          for (const comp of (pack.items||[])) {
+            try {
+              await api('POST', '/api/sales/', { product_id: comp.productId, quantity: (comp.qty||1)*qty, client_id: clientId, client_name: client?.name || null });
+            } catch(e) { /* fallback offline */ }
+          }
+          // Tracer la vente du pack
+          S.stockMovements.unshift({ id:Date.now()+Math.random(), type:'out', qty, reason:`Vente pack "${pack.name}"`, date:new Date().toISOString() });
+          localStorage.setItem('stockr_stock_movements', JSON.stringify(S.stockMovements));
+        }
       }
       const newSale = {
         id: saleData?.id || Date.now() + Math.random(),
         productId: it.productId || null,
         articleId: it.articleId || null,
+        packId:    it.packId    || null,
         productName: it.name,
         qty,
         total: lineTotal,
@@ -2180,6 +2492,113 @@ async function confirmCart() {
   }
 }
 
+// ── PACKS MANAGEMENT ──────────────────────────
+function setProductsTab(tab) {
+  S.productsTab = tab;
+  render();
+}
+function resetPackForm() {
+  S.packForm = { name:'', description:'', items:[], price:0, discount:0, autoPrice:true, active:true };
+  S.editPackId = null;
+}
+function addPackComponent(productId) {
+  if (!S.packForm) resetPackForm();
+  productId = parseInt(productId);
+  if (!productId) return;
+  const existing = S.packForm.items.find(it => it.productId === productId);
+  if (existing) { existing.qty = (existing.qty||1) + 1; }
+  else { S.packForm.items.push({ productId, qty: 1 }); }
+  render();
+}
+function removePackComponent(productId) {
+  if (!S.packForm) return;
+  productId = parseInt(productId);
+  S.packForm.items = S.packForm.items.filter(it => it.productId !== productId);
+  render();
+}
+function updatePackComponentQty(productId, qty) {
+  productId = parseInt(productId);
+  const q = Math.max(1, parseInt(qty) || 1);
+  const it = S.packForm.items.find(i => i.productId === productId);
+  if (it) { it.qty = q; render(); }
+}
+function updatePackFormField(key, val) {
+  if (!S.packForm) resetPackForm();
+  if (key === 'autoPrice') S.packForm.autoPrice = !!val;
+  else if (key === 'active') S.packForm.active = !!val;
+  else if (key === 'discount') S.packForm.discount = Math.max(0, Math.min(100, parseFloat(val)||0));
+  else if (key === 'price') S.packForm.price = Math.max(0, parseFloat(val)||0);
+  else S.packForm[key] = val;
+}
+function savePack() {
+  const f = S.packForm;
+  if (!f?.name?.trim()) { showToast('Nom requis', 'error'); return; }
+  if (!f.items?.length) { showToast('Ajoutez au moins un produit', 'error'); return; }
+  if (!Array.isArray(S.packs)) S.packs = [];
+  if (S.editPackId) {
+    const idx = S.packs.findIndex(p => p.id === S.editPackId);
+    if (idx >= 0) {
+      S.packs[idx] = { ...S.packs[idx], ...f, id: S.editPackId, updatedAt: new Date().toISOString() };
+    }
+    showToast(`Pack "${f.name}" mis à jour`);
+  } else {
+    S.packs.unshift({ id: Date.now(), ...f, createdAt: new Date().toISOString() });
+    showToast(`Pack "${f.name}" créé`);
+    logActivity('pack', `Création pack "${f.name}"`);
+  }
+  persistPacks();
+  resetPackForm();
+  S.view = 'products';
+  S.productsTab = 'packs';
+  render();
+}
+function editPack(id) {
+  const pk = S.packs.find(p => p.id === id);
+  if (!pk) return;
+  S.editPackId = id;
+  S.packForm = {
+    name: pk.name || '',
+    description: pk.description || '',
+    items: (pk.items||[]).map(it => ({ ...it })),
+    price: pk.price || 0,
+    discount: pk.discount || 0,
+    autoPrice: pk.autoPrice !== false,
+    active: pk.active !== false,
+  };
+  S.view = 'pack-form';
+  render();
+}
+function deletePack(id) {
+  const pk = S.packs.find(p => p.id === id);
+  if (!pk) return;
+  if (!confirm(`Supprimer le pack "${pk.name}" ?`)) return;
+  S.packs = S.packs.filter(p => p.id !== id);
+  persistPacks();
+  showToast(`Pack "${pk.name}" supprimé`);
+  render();
+}
+function togglePackActive(id) {
+  const pk = S.packs.find(p => p.id === id);
+  if (!pk) return;
+  pk.active = !pk.active;
+  persistPacks();
+  showToast(pk.active ? `"${pk.name}" activé` : `"${pk.name}" désactivé`);
+  render();
+}
+function duplicatePack(id) {
+  const pk = S.packs.find(p => p.id === id);
+  if (!pk) return;
+  S.packs.unshift({ ...pk, id: Date.now(), name: pk.name + ' (copie)', createdAt: new Date().toISOString() });
+  persistPacks();
+  showToast('Pack dupliqué');
+  render();
+}
+function startNewPack() {
+  resetPackForm();
+  S.view = 'pack-form';
+  render();
+}
+
 // ── Unit combobox actions (DOM direct — zéro render() pendant la frappe) ──
 function _unitDropHTML() {
   const q = (S.form.unit || '').toLowerCase();
@@ -2283,9 +2702,60 @@ function changeBusinessType(type) {
 // Helpers pour l'UI
 function bt_showProducts() { const t = getBusinessType(); return t === 'maker' || t === 'mixed'; }
 function bt_showStock()    { const t = getBusinessType(); return t === 'reseller' || t === 'maker' || t === 'mixed'; }
+
+// ── PACKS / BUNDLES ───────────────────────────
+function packOriginalPrice(pack) {
+  if (!pack?.items?.length) return 0;
+  return pack.items.reduce((s, it) => {
+    const p = S.products.find(pp => pp.id === it.productId);
+    return p ? s + (p.price || 0) * (it.qty || 1) : s;
+  }, 0);
+}
+function packFinalPrice(pack) {
+  if (!pack) return 0;
+  if (pack.autoPrice) {
+    const orig = packOriginalPrice(pack);
+    return Math.max(0, Math.round(orig * (100 - (pack.discount||0)) / 100));
+  }
+  return Math.max(0, pack.price || 0);
+}
+function packCostPrice(pack) {
+  if (!pack?.items?.length) return 0;
+  return pack.items.reduce((s, it) => {
+    const p = S.products.find(pp => pp.id === it.productId);
+    return p ? s + (p.purchasePrice || 0) * (it.qty || 1) : s;
+  }, 0);
+}
+function packMaxAvailable(pack) {
+  if (!pack?.items?.length) return 0;
+  let min = Infinity;
+  for (const it of pack.items) {
+    const p = S.products.find(pp => pp.id === it.productId);
+    if (!p) return 0;
+    const avail = productMaxMake(p);
+    const canForThis = Math.floor(avail / (it.qty || 1));
+    if (canForThis < min) min = canForThis;
+  }
+  return min === Infinity ? 0 : min;
+}
+function packSavings(pack) {
+  const orig = packOriginalPrice(pack);
+  const fin  = packFinalPrice(pack);
+  return Math.max(0, orig - fin);
+}
+function persistPacks() { localStorage.setItem('stockr_packs', JSON.stringify(S.packs||[])); }
 // Pour un revendeur, les ventes se font directement sur les articles
 function bt_sellableItems() {
   const t = getBusinessType();
+  // Packs (uniquement si produits visibles - un pack est fait de produits)
+  const packs = (bt_showProducts() && Array.isArray(S.packs)) ? S.packs
+    .filter(pk => pk.active !== false && pk.items?.length)
+    .map(pk => ({
+      id: 'pack_' + pk.id, packId: pk.id, name: '📦 ' + pk.name,
+      price: packFinalPrice(pk), purchasePrice: packCostPrice(pk),
+      stock: packMaxAvailable(pk), unit: 'pack', kind: 'pack',
+    })) : [];
+
   if (t === 'reseller') {
     // L'article est le produit : doit avoir un prix de vente
     return S.articles.filter(a => (a.price||0) > 0 && (a.stock||0) > 0).map(a => ({
@@ -2299,13 +2769,13 @@ function bt_sellableItems() {
       kind: 'article',
     }));
   }
-  // maker / mixed : produits classiques (+ articles si mixte)
+  // maker / mixed : produits classiques (+ articles si mixte) + packs
   const prods = S.products.map(p => ({ id:'prod_'+p.id, productId:p.id, name:p.name, price:p.price, purchasePrice:p.purchasePrice||0, stock:productMaxMake(p), unit:'u', kind:'product' }));
   if (t === 'mixed') {
     const arts = S.articles.filter(a => (a.price||0) > 0 && (a.stock||0) > 0).map(a => ({ id:'art_'+a.id, articleId:a.id, name:a.name+' (stock direct)', price:a.price, purchasePrice:a.purchasePrice||0, stock:a.stock, unit:a.unit, kind:'article' }));
-    return [...prods, ...arts];
+    return [...packs, ...prods, ...arts];
   }
-  return prods;
+  return [...packs, ...prods];
 }
 
 // ── Bannière reçu post-vente ──────────────────
@@ -2390,6 +2860,8 @@ function render() {
     'api-settings': vApiSettings,
     'loyalty': () => { S.marketingTab = 'loyalty'; S.view = 'marketing'; return vMarketing(); },
     'boutique-orders': () => { S.view = 'boutique'; return vBoutique(); },
+    'pack-form': vPackForm,
+    'exports': vExports,
   };
   viewEl.innerHTML = (map[S.view] || vHome)();
   if (!S.globalSearch) viewEl.scrollTop = 0;
@@ -2402,7 +2874,7 @@ function render() {
     if (gs) { gs.focus(); gs.setSelectionRange(gs.value.length, gs.value.length); }
   }
 
-  const hideNav = ['detail','add','add-product','edit-product','add-client','client-detail','notifications','catalog','add-supplier','supplier-detail','stock-history','purchase-orders','add-order','pricing','subscription','boutique','boutique-appearance','boutique-domain','boutique-pixels','boutique-code','boutique-seo','boutique-hours','boutique-policies','boutique-faq','marketing','social-media','payments-setup','integrations','api-settings','spectra','clients'].includes(S.view);
+  const hideNav = ['detail','add','add-product','edit-product','pack-form','add-client','client-detail','notifications','catalog','add-supplier','supplier-detail','stock-history','purchase-orders','add-order','pricing','subscription','boutique','boutique-appearance','boutique-domain','boutique-pixels','boutique-code','boutique-seo','boutique-hours','boutique-policies','boutique-faq','marketing','social-media','payments-setup','integrations','api-settings','spectra','clients','exports'].includes(S.view);
   navEl.style.display = hideNav ? 'none' : '';
   if (!hideNav) navEl.innerHTML = renderNav();
 }
@@ -3032,18 +3504,29 @@ function vProducts() {
   const totalAvail = S.products.filter(p => productMaxMake(p) > 0).length;
   const totalPromo = S.products.filter(p => _getActivePromo(p.id)).length;
   const totalBoutique = S.products.filter(p => (S.boutiqueConfig?.products||[]).includes(p.id)).length;
+  const tab = S.productsTab || 'products';
+  const packs = Array.isArray(S.packs) ? S.packs : [];
+  const packsFiltered = q ? packs.filter(pk => (pk.name||'').toLowerCase().includes(q)) : packs;
 
   return `
   <div class="page-header">
     <div class="page-header-row">
       <button class="back-btn" onclick="nav('home')">${IC.left}</button>
-      <div class="page-title">${t('finishedProducts')}</div>
+      <div class="page-title">${tab==='packs'?'📦 Packs & Bundles':t('finishedProducts')}</div>
       <div style="display:flex;gap:6px">
-        <button class="fab fab-outline" onclick="importProductsFromCSV()" title="Importer CSV">${IC.upload||'⬆'}</button>
-        <button class="fab" onclick="nav('add-product')">${IC.plus}</button>
+        ${tab==='products' ? `
+          <button class="fab fab-outline" onclick="importProductsFromCSV()" title="Importer CSV">${IC.upload||'⬆'}</button>
+          <button class="fab" onclick="nav('add-product')">${IC.plus}</button>
+        ` : `
+          <button class="fab" onclick="startNewPack()" title="Créer un pack">${IC.plus}</button>
+        `}
       </div>
     </div>
-    ${S.products.length > 0 ? `
+    <div class="filter-row" style="margin-top:8px;margin-bottom:6px">
+      <button class="filter-chip ${tab==='products'?'active':''}" onclick="setProductsTab('products')">🏷️ Produits (${S.products.length})</button>
+      <button class="filter-chip ${tab==='packs'?'active':''}" onclick="setProductsTab('packs')">📦 Packs (${packs.length})</button>
+    </div>
+    ${tab==='products' && S.products.length > 0 ? `
     <div class="search-wrap">
       <span class="search-ico">${IC.search}</span>
       <input class="input input-search" type="text" placeholder="    Rechercher un produit" value="${q.replace(/"/g,'&quot;')}" oninput="S.productSearch=this.value;render()">
@@ -3055,9 +3538,60 @@ function vProducts() {
       ${totalPromo>0?`<button class="filter-chip ${filter==='promo'?'active':''}" onclick="S.productFilter='promo';render()">🎯 Promo (${totalPromo})</button>`:''}
       ${totalBoutique>0?`<button class="filter-chip ${filter==='boutique'?'active':''}" onclick="S.productFilter='boutique';render()">🛍️ Boutique (${totalBoutique})</button>`:''}
     </div>` : ''}
+    ${tab==='packs' && packs.length > 0 ? `
+    <div class="search-wrap">
+      <span class="search-ico">${IC.search}</span>
+      <input class="input input-search" type="text" placeholder="    Rechercher un pack" value="${q.replace(/"/g,'&quot;')}" oninput="S.productSearch=this.value;render()">
+    </div>` : ''}
   </div>
   <div class="container">
-    ${S.products.length===0 ? `
+    ${tab === 'packs' ? (packs.length === 0 ? `
+    <div class="empty">
+      <div class="empty-ico" style="font-size:48px">📦</div>
+      <div class="empty-title">Aucun pack</div>
+      <div class="empty-text">Créez un pack de plusieurs produits vendu à un prix groupé avantageux.</div>
+      ${S.products.length < 2 ? `
+      <div style="margin-top:12px;padding:10px 14px;background:var(--warning)15;border:1px solid var(--warning);border-radius:var(--r-md);font-size:12px;color:var(--warning)">
+        Ajoutez d'abord au moins 2 produits avant de créer un pack.
+      </div>` : `
+      <button class="btn btn-primary" style="width:auto;padding:11px 24px" onclick="startNewPack()">➕ Créer un pack</button>`}
+    </div>` : packsFiltered.length === 0 ? `
+    <div class="empty" style="padding:30px 18px">
+      <div style="font-size:32px;margin-bottom:8px">🔍</div>
+      <div class="empty-title">${t('noResults')}</div>
+    </div>` : packsFiltered.map((pk,i) => {
+      const orig = packOriginalPrice(pk);
+      const fin  = packFinalPrice(pk);
+      const save = orig - fin;
+      const avail = packMaxAvailable(pk);
+      const itemsLbl = pk.items.map(it => {
+        const p = S.products.find(pp => pp.id === it.productId);
+        return p ? `${it.qty}× ${p.name}` : null;
+      }).filter(Boolean).join(' · ');
+      return `
+      <div class="card anim" style="animation-delay:${i*0.05}s;${pk.active===false?'opacity:0.6':''}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px">
+          <div style="flex:1">
+            <div style="font-size:15px;font-weight:700;color:var(--text-1)">📦 ${pk.name}${pk.active===false?' <span style="font-size:10px;padding:1px 6px;border-radius:4px;background:#ef444415;color:#ef4444;font-weight:700;margin-left:4px">INACTIF</span>':''}</div>
+            ${pk.description ? `<div style="font-size:11px;color:var(--text-3);margin-top:2px">${pk.description}</div>` : ''}
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:17px;font-weight:800;color:var(--accent)">${fmt(fin)} ${sym()}</div>
+            ${save > 0 ? `<div style="font-size:10px;color:var(--text-3);text-decoration:line-through">${fmt(orig)} ${sym()}</div><div style="font-size:10px;color:var(--success);font-weight:700">Économie ${fmt(save)} ${sym()}</div>` : ''}
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--text-2);padding:8px 10px;background:var(--gray-1);border-radius:8px;margin-bottom:8px">${itemsLbl}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <span class="status ${avail>0?'st-ok':'st-out'}">${avail>0?IC.check:IC.xmark} ${avail>0?avail+' packs dispo.':'Rupture'}</span>
+          <div style="display:flex;gap:6px">
+            <button onclick="togglePackActive(${pk.id})" title="${pk.active===false?'Activer':'Désactiver'}" style="background:${pk.active!==false?'var(--accent-light)':'none'};border:1px solid ${pk.active!==false?'var(--accent)':'var(--gray-3)'};border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;font-weight:700;color:${pk.active!==false?'var(--accent)':'var(--text-3)'}">${pk.active!==false?'✓ Actif':'○ Inactif'}</button>
+            <button onclick="duplicatePack(${pk.id})" title="Dupliquer" style="background:none;border:1px solid var(--gray-3);border-radius:6px;padding:4px 8px;cursor:pointer;color:var(--text-2)">📋</button>
+            <button onclick="editPack(${pk.id})" title="Modifier" style="background:none;border:1px solid var(--gray-3);border-radius:6px;padding:4px 8px;cursor:pointer;color:var(--text-2)">${IC.settings}</button>
+            <button onclick="deletePack(${pk.id})" title="Supprimer" style="background:none;border:1px solid var(--gray-3);border-radius:6px;padding:4px 8px;cursor:pointer;color:var(--text-2)">${IC.trash}</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('')) : (S.products.length===0 ? `
     <div class="empty">
       <div class="empty-ico">${IC.tagLg}</div>
       <div class="empty-title">${t('noProducts')}</div>
@@ -3096,7 +3630,7 @@ function vProducts() {
           </div>
         </div>
       </div>`;
-    }).join('')}
+    }).join(''))}
   </div>`;
 }
 
@@ -3428,6 +3962,16 @@ function vFinancial() {
         </div>` : ''}
       </div>
     </div>`).join('')}` : ''}
+
+    <!-- Exports rapides ──────────────────────────-->
+    <div class="card" style="margin-top:14px;background:linear-gradient(135deg,var(--accent-light),var(--surface))">
+      <div class="card-title" style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">📊</span> Exports & Rapports</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="btn btn-primary" onclick="generateSalesReportPDF(S.period==='today'?'today':S.period==='7d'?'week':S.period==='30d'?'month':'all')" style="padding:10px;font-size:12px">📑 Rapport PDF</button>
+        <button class="btn btn-primary" onclick="exportSalesXLSX()" style="padding:10px;font-size:12px;background:linear-gradient(135deg,#059669,#0d9488)">📗 Excel</button>
+        <button class="btn btn-ghost" onclick="nav('exports')" style="padding:10px;font-size:12px;grid-column:1/-1">⚙️ Tous les exports (Stock, Clients, Packs...)</button>
+      </div>
+    </div>
   </div>`;
 }
 
@@ -3758,6 +4302,135 @@ function vEditProduct() {
         }).join('')}
       </div>` : ''}
       <button class="btn btn-primary" onclick="saveEditProduct()">${t('update')}</button>
+    </div>
+  </div>`;
+}
+
+// ── PACK FORM ─────────────────────────────────
+function vPackForm() {
+  if (!S.packForm) resetPackForm();
+  const f = S.packForm;
+  const isEdit = !!S.editPackId;
+  const orig = (f.items||[]).reduce((s,it)=>{
+    const p = S.products.find(pp=>pp.id===it.productId);
+    return p ? s + (p.price||0)*(it.qty||1) : s;
+  }, 0);
+  const finalPrice = f.autoPrice ? Math.max(0, Math.round(orig * (100 - (f.discount||0)) / 100)) : (f.price||0);
+  const cost = (f.items||[]).reduce((s,it)=>{
+    const p = S.products.find(pp=>pp.id===it.productId);
+    return p ? s + (p.purchasePrice||0)*(it.qty||1) : s;
+  }, 0);
+  const profit = finalPrice - cost;
+  const margin = finalPrice > 0 ? Math.round((profit / finalPrice) * 100) : 0;
+  const availablePacks = f.items.length ? Math.min(...f.items.map(it => {
+    const p = S.products.find(pp=>pp.id===it.productId);
+    return p ? Math.floor(productMaxMake(p) / (it.qty||1)) : 0;
+  })) : 0;
+
+  const availProducts = S.products.filter(p => !f.items.find(it => it.productId === p.id));
+
+  return `
+  <div class="sub-hero">
+    <button class="back-btn-dark" style="margin-bottom:14px" onclick="nav('products')">${IC.left}</button>
+    <div class="sub-hero-title">${isEdit ? '📦 Modifier le pack' : '📦 Nouveau pack'}</div>
+    <div class="sub-hero-sub">${isEdit ? f.name : 'Groupez plusieurs produits en un pack'}</div>
+  </div>
+  <div class="container">
+    <div class="card">
+      <div class="form-group">
+        <label class="form-label">Nom du pack *</label>
+        <input class="input" type="text" placeholder="ex: Pack Famille, Pack Démarrage..." value="${(f.name||'').replace(/"/g,'&quot;')}" oninput="S.packForm.name=this.value">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="input" rows="2" placeholder="ex: 3 savons + 1 shampoing à prix réduit" oninput="S.packForm.description=this.value">${(f.description||'').replace(/</g,'&lt;')}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Composition du pack</label>
+        ${f.items.length === 0 ? `
+        <div style="padding:14px;background:var(--gray-1);border:1px dashed var(--border);border-radius:var(--r-md);font-size:12px;color:var(--text-3);text-align:center;margin-bottom:10px">
+          Aucun produit dans le pack. Ajoutez-en ci-dessous.
+        </div>` : `
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
+          ${f.items.map(it => {
+            const p = S.products.find(pp => pp.id === it.productId);
+            if (!p) return '';
+            return `
+            <div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--surface);border:1px solid var(--border);border-radius:10px">
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:700">${p.name}</div>
+                <div style="font-size:11px;color:var(--text-3)">${fmt(p.price)} ${sym()} · Stock : ${productMaxMake(p)}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:4px">
+                <button onclick="updatePackComponentQty(${it.productId}, ${Math.max(1, (it.qty||1)-1)})" style="width:26px;height:26px;border-radius:6px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-weight:700">−</button>
+                <input type="number" value="${it.qty||1}" min="1" onchange="updatePackComponentQty(${it.productId},this.value)" style="width:50px;height:28px;text-align:center;border:1px solid var(--border);border-radius:6px;font-weight:700;background:var(--surface);color:var(--text-1)">
+                <button onclick="updatePackComponentQty(${it.productId}, ${(it.qty||1)+1})" style="width:26px;height:26px;border-radius:6px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-weight:700">+</button>
+              </div>
+              <button onclick="removePackComponent(${it.productId})" style="background:none;border:1px solid var(--danger);border-radius:6px;padding:4px 8px;cursor:pointer;color:var(--danger)">${IC.trash}</button>
+            </div>`;
+          }).join('')}
+        </div>`}
+
+        ${availProducts.length > 0 ? `
+        <div style="display:flex;gap:6px">
+          <select class="input" id="pack-product-sel" style="flex:1">
+            <option value="">+ Ajouter un produit au pack</option>
+            ${availProducts.map(p => `<option value="${p.id}">${p.name} — ${fmt(p.price)} ${sym()}</option>`).join('')}
+          </select>
+          <button class="btn btn-primary" style="width:auto;padding:8px 16px" onclick="addPackComponent($('pack-product-sel').value)">+</button>
+        </div>` : `
+        <div style="font-size:11px;color:var(--text-3);text-align:center;padding:8px">Tous les produits sont dans le pack ✓</div>`}
+      </div>
+
+      ${f.items.length > 0 ? `
+      <div class="form-group">
+        <label class="form-label">Tarification</label>
+        <div style="background:var(--gray-1);border:1px solid var(--border);border-radius:var(--r-md);padding:12px;margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+            <span>Prix cumulé des produits :</span>
+            <strong>${fmt(orig)} ${sym()}</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3)">
+            <span>Coût total (matière) :</span>
+            <span>${fmt(cost)} ${sym()}</span>
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;cursor:pointer">
+          <input type="checkbox" ${f.autoPrice?'checked':''} onchange="updatePackFormField('autoPrice',this.checked);render()" style="width:16px;height:16px;accent-color:var(--accent)">
+          <span style="font-size:13px;font-weight:600">Tarification automatique (remise %)</span>
+        </label>
+        ${f.autoPrice ? `
+        <div class="form-group">
+          <label class="form-label">Remise pack (%)</label>
+          <input class="input" type="number" min="0" max="100" step="1" value="${f.discount||0}" oninput="updatePackFormField('discount',this.value);render()" placeholder="ex: 10">
+        </div>` : `
+        <div class="form-group">
+          <label class="form-label">Prix fixe du pack (${sym()})</label>
+          <input class="input" type="number" min="0" step="100" value="${f.price||0}" oninput="updatePackFormField('price',this.value);render()">
+        </div>`}
+        <div style="background:${profit>0?'var(--success)15':'var(--danger)15'};border:1px solid ${profit>0?'var(--success)':'var(--danger)'};border-radius:var(--r-md);padding:12px">
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+            <span style="color:var(--text-2)">Prix final :</span>
+            <strong style="font-size:16px;color:var(--accent)">${fmt(finalPrice)} ${sym()}</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3)">
+            <span>Économie client : ${fmt(Math.max(0,orig-finalPrice))} ${sym()}</span>
+            <span>Marge ${margin}% · ${fmt(profit)} ${sym()}/pack</span>
+          </div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:4px">📦 ${availablePacks} pack${availablePacks>1?'s':''} réalisable${availablePacks>1?'s':''} avec le stock actuel</div>
+        </div>
+      </div>` : ''}
+
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:14px;cursor:pointer">
+        <input type="checkbox" ${f.active!==false?'checked':''} onchange="updatePackFormField('active',this.checked)" style="width:16px;height:16px;accent-color:var(--accent)">
+        <span style="font-size:13px;font-weight:600">Pack actif (visible à la vente & boutique)</span>
+      </label>
+
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" style="flex:1" onclick="resetPackForm();nav('products')">Annuler</button>
+        <button class="btn btn-primary" style="flex:2" onclick="savePack()">${isEdit?'Mettre à jour':'Créer le pack'}</button>
+      </div>
     </div>
   </div>`;
 }
@@ -6062,6 +6735,7 @@ function vMore() {
     { id:'stock-history',   icon:IC.trending,   label:t('stockHistory')||'Mouvements', sub:`${S.stockMovements.length} entrees`, color:'#334155' },
     { id:'spectra',         icon:IC.camera,     label:'Spectra AI',                    sub:'Scanner & compter',        color:'#6366f1' },
     { id:'catalog',         icon:IC.pdf,        label:t('catalog')||'Catalogue',       sub:'WhatsApp & PDF',           color:'#16a34a' },
+    { id:'exports',         icon:IC.download||IC.pdf, label:'Exports & Rapports',      sub:'PDF · Excel · CSV',        color:'#0d9488' },
     { id:'pricing',         icon:IC.star,       label:t('pricing')||'Tarifs',          sub:t('myPlan')||'Mon plan',    color:'#eab308' },
     { id:'settings',        icon:IC.settings,   label:t('settings')||'Parametres',     sub:t('myAccount')||'Compte',   color:'#64748b' },
   ];
@@ -6097,6 +6771,91 @@ function vMore() {
         <div class="more-lbl">${it.label}</div>
         <div class="more-sub">${it.sub}</div>
       </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ── EXPORTS & RAPPORTS ────────────────────────
+function vExports() {
+  const totalCA = S.sales.reduce((s,v)=>s+v.total, 0);
+  const totalProfit = S.sales.reduce((s,v)=>s+(v.profit||0), 0);
+  const stockValue = S.articles.reduce((s,a) => s + (a.stock||0) * (a.purchasePrice||0), 0);
+  return `
+  <div class="sub-hero">
+    <button class="back-btn-dark" style="margin-bottom:14px" onclick="nav('more')">${IC.left}</button>
+    <div class="sub-hero-title">📊 Exports & Rapports</div>
+    <div class="sub-hero-sub">PDF professionnels · Excel · CSV</div>
+  </div>
+  <div class="container">
+
+    <!-- Rapports PDF -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title" style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">📑</span> Rapports PDF</div>
+      <div style="font-size:12px;color:var(--text-3);margin-bottom:10px">Rapports professionnels imprimables (A4, en-tête coloré, stats)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="btn btn-ghost" onclick="generateStockReportPDF()" style="padding:12px;text-align:left;display:flex;flex-direction:column;align-items:flex-start;gap:2px">
+          <div style="font-weight:700;font-size:13px;color:var(--text-1)">📦 Rapport Stock</div>
+          <div style="font-size:11px;color:var(--text-3)">${S.articles.length} articles · ${fmt(stockValue)} ${sym()}</div>
+        </button>
+        <button class="btn btn-ghost" onclick="generateSalesReportPDF('all')" style="padding:12px;text-align:left;display:flex;flex-direction:column;align-items:flex-start;gap:2px">
+          <div style="font-weight:700;font-size:13px;color:var(--text-1)">💰 Rapport Ventes</div>
+          <div style="font-size:11px;color:var(--text-3)">${S.sales.length} ventes · ${fmt(totalCA)} ${sym()}</div>
+        </button>
+        <button class="btn btn-ghost" onclick="generateSalesReportPDF('month')" style="padding:12px;text-align:left;display:flex;flex-direction:column;align-items:flex-start;gap:2px">
+          <div style="font-weight:700;font-size:13px;color:var(--text-1)">📆 Ventes 30j</div>
+          <div style="font-size:11px;color:var(--text-3)">Mois courant</div>
+        </button>
+        <button class="btn btn-ghost" onclick="generateSalesReportPDF('week')" style="padding:12px;text-align:left;display:flex;flex-direction:column;align-items:flex-start;gap:2px">
+          <div style="font-weight:700;font-size:13px;color:var(--text-1)">🗓️ Ventes 7j</div>
+          <div style="font-size:11px;color:var(--text-3)">Semaine courante</div>
+        </button>
+        <button class="btn btn-ghost" onclick="generateClientsReportPDF()" style="padding:12px;text-align:left;display:flex;flex-direction:column;align-items:flex-start;gap:2px;grid-column:1/-1">
+          <div style="font-weight:700;font-size:13px;color:var(--text-1)">👥 Rapport Clients (CRM)</div>
+          <div style="font-size:11px;color:var(--text-3)">${(S.clients||[]).length} clients triés par CA avec paliers</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Excel / XLSX -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title" style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">📗</span> Exports Excel</div>
+      <div style="font-size:12px;color:var(--text-3);margin-bottom:10px">Fichiers <strong>.xls</strong> ouvrables directement dans Excel, LibreOffice, Numbers</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="btn btn-primary" onclick="exportArticlesXLSX()" style="padding:11px">📦 Articles</button>
+        <button class="btn btn-primary" onclick="exportProductsXLSX()" style="padding:11px">🏷️ Produits</button>
+        <button class="btn btn-primary" onclick="exportSalesXLSX()" style="padding:11px">💰 Ventes</button>
+        <button class="btn btn-primary" onclick="exportClientsXLSX()" style="padding:11px">👥 Clients</button>
+      </div>
+      <button class="btn btn-primary" onclick="exportFullXLSX()" style="margin-top:10px;background:linear-gradient(135deg,#059669,#0d9488);width:100%">📚 Export complet (toutes les tables)</button>
+    </div>
+
+    <!-- CSV -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title" style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">📄</span> Exports CSV</div>
+      <div style="font-size:12px;color:var(--text-3);margin-bottom:10px">Format universel (comptable, base de données)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="btn btn-ghost" onclick="exportArticlesCSV()">Articles CSV</button>
+        <button class="btn btn-ghost" onclick="exportProductsCSV()">Produits CSV</button>
+        <button class="btn btn-ghost" onclick="exportSalesCSV()">Ventes CSV</button>
+        <button class="btn btn-ghost" onclick="exportAllCSV()">Tout en CSV</button>
+      </div>
+    </div>
+
+    <!-- Comptabilité / Intégrations -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title" style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">🧾</span> Comptabilité & e-commerce</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="btn btn-ghost" onclick="_exportComptable()" style="padding:11px;font-size:12px">📊 Export Comptable</button>
+        <button class="btn btn-ghost" onclick="exportToJumia()" style="padding:11px;font-size:12px">🏪 Jumia</button>
+        <button class="btn btn-ghost" onclick="exportToShopify()" style="padding:11px;font-size:12px">🛍️ Shopify</button>
+        <button class="btn btn-ghost" onclick="exportToWooCommerce()" style="padding:11px;font-size:12px">🔷 WooCommerce</button>
+        <button class="btn btn-ghost" onclick="exportToGoogleSheets()" style="padding:11px;font-size:12px;grid-column:1/-1">📈 Google Sheets</button>
+      </div>
+    </div>
+
+    <!-- Infos -->
+    <div style="padding:12px;background:var(--gray-1);border:1px solid var(--border);border-radius:var(--r-md);font-size:11px;color:var(--text-3)">
+      💡 Astuce : les PDF sont prêts à imprimer. Les fichiers .xls s'ouvrent dans Excel directement. Les CSV passent dans tout logiciel comptable.
     </div>
   </div>`;
 }
@@ -10677,6 +11436,32 @@ document.addEventListener('DOMContentLoaded', () => {
   window.setMultiCartQty         = setMultiCartQty;
   window.clearMultiCart          = clearMultiCart;
   window.confirmMultiSale        = confirmMultiSale;
+  // Packs / bundles
+  window.setProductsTab          = setProductsTab;
+  window.resetPackForm           = resetPackForm;
+  window.addPackComponent        = addPackComponent;
+  window.removePackComponent     = removePackComponent;
+  window.updatePackComponentQty  = updatePackComponentQty;
+  window.updatePackFormField     = updatePackFormField;
+  window.savePack                = savePack;
+  window.editPack                = editPack;
+  window.deletePack              = deletePack;
+  window.togglePackActive        = togglePackActive;
+  window.duplicatePack           = duplicatePack;
+  window.startNewPack            = startNewPack;
+  window.packOriginalPrice       = packOriginalPrice;
+  window.packFinalPrice          = packFinalPrice;
+  window.packMaxAvailable        = packMaxAvailable;
+  window.packSavings             = packSavings;
+  // Excel / PDF reports
+  window.exportArticlesXLSX      = exportArticlesXLSX;
+  window.exportProductsXLSX      = exportProductsXLSX;
+  window.exportSalesXLSX         = exportSalesXLSX;
+  window.exportClientsXLSX       = exportClientsXLSX;
+  window.exportFullXLSX          = exportFullXLSX;
+  window.generateStockReportPDF  = generateStockReportPDF;
+  window.generateSalesReportPDF  = generateSalesReportPDF;
+  window.generateClientsReportPDF= generateClientsReportPDF;
   window._getClientTier          = _getClientTier;
   window._renderTierBadge        = _renderTierBadge;
   window.toggleSocialAccount     = toggleSocialAccount;
