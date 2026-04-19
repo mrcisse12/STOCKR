@@ -39,3 +39,4 @@ stockr_backend/instance/
 *.pem
 *.key
 secrets.json
+.claude/
