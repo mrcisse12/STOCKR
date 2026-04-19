@@ -129,7 +129,7 @@ function fmtQty(n) {
 // ── API base ──────────────────────────────────
 const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
   ? 'http://localhost:5001'
-  : (window.__STOCKR_API_URL__ || 'https://stockr-api.onrender.com');
+  : (window.__STOCKR_API_URL__ || 'https://stockr-production-c175.up.railway.app');
 
 // ── i18n ─────────────────────────────────────
 const LANGS = {
