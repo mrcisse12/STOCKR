@@ -10,7 +10,7 @@ sale_bp = Blueprint('sale', __name__)
 @token_required
 def get_sales(current_user):
     """Récupère uniquement les ventes de l'utilisateur connecté"""
-    sales = Sale.query.filter_by(user_id=current_user.id).order_by(Sale.timestamp.desc()).limit(100).all()
+    sales = Sale.query.filter_by(user_id=current_user.id).order_by(Sale.timestamp.desc()).limit(500).all()
     return jsonify([s.to_dict() for s in sales])
 
 @sale_bp.route('/', methods=['POST'])

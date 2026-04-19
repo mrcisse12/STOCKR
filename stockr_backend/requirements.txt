@@ -5,6 +5,4 @@ SQLAlchemy==2.0.19
 bcrypt==4.0.1
 gunicorn==21.2.0
 psycopg2-binary==2.9.9
-ultralytics
-opencv-python
-numpy
+numpy==1.26.4
