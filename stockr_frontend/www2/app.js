@@ -46,7 +46,8 @@ const IC = {
   logo:     `<svg width="22" height="22" viewBox="0 0 576 512" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18zM288 102.2l52.8 107.5c4.6 9.3 13.4 15.8 23.7 17.3l118.1 17.2-85.5 83.5c-7.4 7.2-10.8 17.6-9 27.8L411 473.1l-105.6-56.3c-9.3-5-20.4-5-29.7 0L170.1 473.1l20.2-117.6c1.8-10.2-1.6-20.6-9-27.8L95.8 244.2l118.1-17.2c10.3-1.5 19.1-8 23.7-17.3L288 102.2zm195.2-61.7c-5.6-11.2-16.9-18.5-29.5-18.5s-23.9 7.2-29.5 18.5l-21.8 44.4-48.8 7.1c-12.1 1.8-22.2 10.2-25.9 21.8s-.7 24.4 7.9 32.9l35.4 34.5-8.3 48.8c-2.1 12.1 3 24.4 13 31.6s23.2 8.1 34.1 2.3l43.8-23 43.8 23c10.9 5.7 24.1 4.9 34.1-2.3s15.1-19.5 13-31.6l-8.4-48.8 35.4-34.5c8.6-8.5 11.7-21.4 7.9-32.9s-13.8-20-25.9-21.8l-48.8-7.1-21.5-44.3z"/></svg>`,
   logoLg:   `<svg width="40" height="40" viewBox="0 0 576 512" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18zM288 102.2l52.8 107.5c4.6 9.3 13.4 15.8 23.7 17.3l118.1 17.2-85.5 83.5c-7.4 7.2-10.8 17.6-9 27.8L411 473.1l-105.6-56.3c-9.3-5-20.4-5-29.7 0L170.1 473.1l20.2-117.6c1.8-10.2-1.6-20.6-9-27.8L95.8 244.2l118.1-17.2c10.3-1.5 19.1-8 23.7-17.3L288 102.2zm195.2-61.7c-5.6-11.2-16.9-18.5-29.5-18.5s-23.9 7.2-29.5 18.5l-21.8 44.4-48.8 7.1c-12.1 1.8-22.2 10.2-25.9 21.8s-.7 24.4 7.9 32.9l35.4 34.5-8.3 48.8c-2.1 12.1 3 24.4 13 31.6s23.2 8.1 34.1 2.3l43.8-23 43.8 23c10.9 5.7 24.1 4.9 34.1-2.3s15.1-19.5 13-31.6l-8.4-48.8 35.4-34.5c8.6-8.5 11.7-21.4 7.9-32.9s-13.8-20-25.9-21.8l-48.8-7.1-21.5-44.3z"/></svg>`,
   cart:     `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>`,
-  sova: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.5 2 6 4.5 6 8c0 1.5.5 3 1.5 4L6 14l2 1-1 3h10l-1-3 2-1-1.5-2c1-1 1.5-2.5 1.5-4 0-3.5-2.5-6-6-6z"/><path d="M9 10h.01M15 10h.01"/><path d="M10 14s.5 1 2 1 2-1 2-1"/></svg>`,
+  sova: `<svg width="22" height="28" viewBox="0 0 82 110" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><rect x="12" y="2" width="46" height="50" rx="10"/><path d="M20 20 Q30 30 40 20"/><path d="M12 50 C2 66 0 86 6 100 C11 110 26 116 42 116"/><path d="M58 50 C76 63 84 83 78 100 C73 111 58 117 42 116"/><path d="M34 76 C54 72 72 84 74 100"/><line x1="24" y1="116" x2="18" y2="128"/><line x1="8" y1="128" x2="32" y2="128"/><line x1="40" y1="116" x2="44" y2="128"/><line x1="32" y1="128" x2="58" y2="128"/><line x1="68" y1="92" x2="80" y2="110"/></svg>`,
+  spectraEye: `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5C7.45 5 3.57 7.95 2 12c1.57 4.05 5.45 7 10 7s8.43-2.95 10-7c-1.57-4.05-5.45-7-10-7zm0 11.5a4.5 4.5 0 110-9 4.5 4.5 0 010 9z"/><text x="12" y="14.5" text-anchor="middle" font-size="5.5" font-weight="800" fill="white" font-family="system-ui">$</text></svg>`,
   // New feature icons
   shop:     `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-4h16l1 4"/><path d="M3 9v10a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9"/><path d="M9 21V9"/><path d="M3 9h18"/><rect x="13" y="13" width="5" height="4" rx="1"/></svg>`,
   megaphone:`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>`,
@@ -723,9 +724,9 @@ function generateInvoicePDF(sales) {
     if (i % 2 === 1) { doc.setFillColor(249, 250, 251); doc.rect(16, y - 5, 178, 9, 'F'); }
     doc.text(s.productName.length > 40 ? s.productName.substring(0, 40) + '...' : s.productName, 20, y);
     doc.text(String(s.qty), 120, y, { align: 'center' });
-    doc.text(fmt(unitPrice) + ' ' + sym, 155, y, { align: 'right' });
+    doc.text(fmtPDF(unitPrice) + ' ' + sym, 155, y, { align: 'right' });
     doc.setFont('helvetica', 'bold');
-    doc.text(fmt(s.total) + ' ' + sym, 192, y, { align: 'right' });
+    doc.text(fmtPDF(s.total) + ' ' + sym, 192, y, { align: 'right' });
     doc.setFont('helvetica', 'normal');
     y += 9;
   });
@@ -736,7 +737,7 @@ function generateInvoicePDF(sales) {
   const taxRate = parseFloat(S.session?.tax_rate) || 0;
   doc.setFontSize(9); doc.setTextColor(100, 100, 100); doc.setFont('helvetica', 'normal');
   doc.text('Sous-total', 155, y, { align: 'right' });
-  doc.text(fmt(grandTotal) + ' ' + sym, 192, y, { align: 'right' }); y += 7;
+  doc.text(fmtPDF(grandTotal) + ' ' + sym, 192, y, { align: 'right' }); y += 7;
   if (sales[0]?.promoName && sales[0]?.promoDiscount) {
     doc.setTextColor(220, 38, 38);
     doc.text(`Promo "${sales[0].promoName}" (-${sales[0].promoDiscount}%)`, 155, y, { align: 'right' });
@@ -747,7 +748,7 @@ function generateInvoicePDF(sales) {
   if (taxRate > 0) {
     const tva = Math.round(grandTotal * taxRate / 100);
     doc.text(`TVA (${taxRate}%)`, 155, y, { align: 'right' });
-    doc.text(fmt(tva) + ' ' + sym, 192, y, { align: 'right' }); y += 7;
+    doc.text(fmtPDF(tva) + ' ' + sym, 192, y, { align: 'right' }); y += 7;
     grandTotal += tva;
   }
 
@@ -758,7 +759,7 @@ function generateInvoicePDF(sales) {
   doc.setTextColor(255, 255, 255); doc.setFontSize(12); doc.setFont('helvetica', 'bold');
   doc.text('TOTAL A PAYER', 140, y + 7, { align: 'right' });
   doc.setFontSize(13);
-  doc.text(fmt(grandTotal) + ' ' + sym, 192, y + 7, { align: 'right' });
+  doc.text(fmtPDF(grandTotal) + ' ' + sym, 192, y + 7, { align: 'right' });
   // Side stats
   doc.setTextColor(100, 100, 100); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
   doc.text(sales.length + ' article' + (sales.length>1?'s':''), 20, y + 4);
@@ -1389,6 +1390,9 @@ const $ = id => document.getElementById(id);
 
 function fmt(n) {
   return Math.round(n).toLocaleString('fr-FR');
+}
+function fmtPDF(n) {
+  return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0');
 }
 function fmtCurrency(n) {
   const sym = S.session?.currency_symbol || 'FCFA';
@@ -2460,10 +2464,27 @@ function vHome() {
     </div>
     ${_showSearch ? _searchHTML : ''}
     ${!_showSearch ? `
+    <div class="section-hd" style="margin-top:4px"><div class="section-lbl" style="font-size:12px;letter-spacing:.5px;color:var(--text-3);font-weight:700">✦ TES AGENTS IA</div></div>
+    <div class="agent-card agent-sova" onclick="nav('sova')">
+      <div class="agent-icon agent-icon-sova">${IC.sova}</div>
+      <div class="agent-info">
+        <div class="agent-name agent-name-sova">SOVA</div>
+        <div class="agent-sub">Intelligence de stock · prévisions & alertes</div>
+      </div>
+      <svg class="agent-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a96e" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+    <div class="agent-card agent-spectra" onclick="nav('spectra')">
+      <div class="agent-icon agent-icon-spectra">${IC.spectraEye}</div>
+      <div class="agent-info">
+        <div class="agent-name agent-name-spectra">Spectra</div>
+        <div class="agent-sub">Scanner IA · audit automatique du stock</div>
+      </div>
+      <svg class="agent-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
     <div class="quick-actions-bar">
-      <button class="qa-btn qa-spectra" onclick="nav('spectra')">
-        <div class="qa-ico">${IC.camera}</div>
-        <div class="qa-lbl">${t('scanStock')}</div>
+      <button class="qa-btn qa-product" onclick="nav('add-product')">
+        <div class="qa-ico">${IC.tag}</div>
+        <div class="qa-lbl">Produit</div>
       </button>
       <button class="qa-btn qa-sale" onclick="nav('sales')">
         <div class="qa-ico">${IC.dollar}</div>
@@ -2511,7 +2532,7 @@ function vHome() {
       const critical = sovaData().preds.filter(p => p.status === 'critical');
       if (!critical.length) return '';
       return `
-      <div class="section-hd"><div class="section-lbl">${t('aiPredictions')}</div></div>
+      <div class="section-hd"><div class="section-lbl" style="display:flex;align-items:center;gap:6px"><span style="color:#8A6729">${IC.sova}</span>SOVA IA</div></div>
       ${critical.slice(0, 3).map((p, i) => `
       <div class="pred-card critical" style="animation-delay:${i * 0.06}s">
         <div class="pred-dot"></div>
@@ -2547,7 +2568,7 @@ function vHome() {
       </div>`).join('')}`;
     })()}
 
-    ${_showSearch ? '' : `<div class="section-hd"><div class="section-lbl">${t('overview')}</div></div>
+    ${_showSearch ? 'w' : `<div class="section-hd"><div class="section-lbl">${t('overview')}</div></div>
     <div class="metric-grid">
       <div class="metric-card anim" style="animation-delay:0s">
         <div class="metric-val">${fmt(totalCA)}</div>
@@ -2663,31 +2684,6 @@ function vHome() {
 
     ${!_showSearch ? `<div class="section-hd"><div class="section-lbl">${t('nav')}</div></div>
     <div class="quick-grid">
-      <button class="quick-btn" onclick="nav('pantry')">
-        <span class="quick-ico">${IC.box}</span>
-        <div class="quick-label">${t('stock')}</div>
-        <div class="quick-sub">${S.articles.length} ${t('articles').toLowerCase()}</div>
-      </button>
-      <button class="quick-btn" onclick="nav('products')">
-        <span class="quick-ico">${IC.tag}</span>
-        <div class="quick-label">${t('products')}</div>
-        <div class="quick-sub">${S.products.length} ${t('products').toLowerCase()}</div>
-      </button>
-      <button class="quick-btn" onclick="nav('sales')">
-        <span class="quick-ico">${IC.dollar}</span>
-        <div class="quick-label">${t('sales')}</div>
-        <div class="quick-sub">${fmt(totalCA)} ${sym()}</div>
-      </button>
-      <button class="quick-btn" onclick="nav('financial')">
-        <span class="quick-ico">${IC.trending}</span>
-        <div class="quick-label">${t('bilan')}</div>
-        <div class="quick-sub">${S.sales.length} ${t('saleOf')}</div>
-      </button>
-      <button class="quick-btn quick-btn-sova" onclick="nav('sova')">
-        <span class="quick-ico" style="font-size:22px">🦉</span>
-        <div class="quick-label" style="color:#8A6729;font-family:Georgia,serif;font-weight:700">SOVA</div>
-        <div class="quick-sub">IA · prévisions</div>
-      </button>
       <button class="quick-btn" onclick="nav('boutique')">
         <span class="quick-ico">${IC.shop}</span>
         <div class="quick-label">${t('boutique')||'Boutique'}</div>
@@ -2775,7 +2771,7 @@ function vPantry() {
       <button class="back-btn" onclick="nav('home')">${IC.left}</button>
       <div class="page-title">${t('stock')}</div>
       <div style="display:flex;gap:8px;align-items:center">
-        <button class="fab fab-outline" onclick="nav('spectra')" title="Spectra">${IC.camera}</button>
+        <button class="fab fab-outline" onclick="nav('spectra')" title="Spectra" style="color:#7c3aed;border-color:#c4b5fd;background:rgba(124,58,237,0.08)">${IC.spectraEye}</button>
         <button class="fab" onclick="nav('add')">${IC.plus}</button>
       </div>
     </div>
@@ -3074,13 +3070,13 @@ function vFinancial() {
     </div>
     <button class="sova-fin-banner" onclick="nav('sova')">
       <div class="sova-fin-left">
-        <span style="font-size:26px">🦉</span>
+        <div style="width:40px;height:40px;border-radius:12px;background:rgba(138,103,41,0.12);display:flex;align-items:center;justify-content:center;color:#8A6729;flex-shrink:0">${IC.sova}</div>
         <div>
           <div style="font-family:Georgia,serif;font-size:16px;font-weight:700;color:#8A6729;letter-spacing:2px">SOVA</div>
           <div style="font-size:12px;color:#a08040;margin-top:1px">Voir les prévisions et alertes stock</div>
         </div>
       </div>
-      <div style="color:#8A6729;font-size:18px">›</div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8A6729" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
     </button>
     <div class="card">
       <div class="card-title">${t('topProducts')}</div>
@@ -3173,6 +3169,80 @@ function sovaIntro(key, name) {
   // Déterministe basé sur la date (change chaque jour)
   const idx = new Date().getDate() % arr.length;
   return arr[idx](name || 'toi');
+}
+
+// ── SOVA helpers graphes ──────────────────────
+function sovaChartCoverage(preds) {
+  const items = preds.filter(p => p.daily_demand > 0.01 && p.days_remaining !== null)
+    .sort((a, b) => (a.days_remaining || 99) - (b.days_remaining || 99)).slice(0, 12);
+  if (!items.length) return '';
+  const maxDays = 30;
+  return `
+  <div class="sova-chart-card">
+    <div class="sova-chart-title">Couverture de stock · jours restants</div>
+    <div class="sova-legend">
+      <span class="sova-leg-item"><span class="sova-leg-dot" style="background:#fca5a5;border-color:#ef4444"></span><span class="sova-leg-text">Critique &lt; 3j</span></span>
+      <span class="sova-leg-item"><span class="sova-leg-dot" style="background:#fde68a;border-color:#f59e0b"></span><span class="sova-leg-text">Attention 3–7j</span></span>
+      <span class="sova-leg-item"><span class="sova-leg-dot" style="background:#a7f3d0;border-color:#10b981"></span><span class="sova-leg-text">OK &gt; 7j</span></span>
+    </div>
+    <div class="sova-coverage-list">
+      ${items.map((p, i) => {
+        const days = Math.min(p.days_remaining || 0, maxDays);
+        const pct  = Math.max(2, (days / maxDays) * 100);
+        const fill = days < 3 ? '#fca5a5' : days < 7 ? '#fde68a' : '#a7f3d0';
+        const bord = days < 3 ? '#ef4444' : days < 7 ? '#f59e0b' : '#10b981';
+        const label= days < maxDays ? (p.days_remaining || 0).toFixed(1) + 'j' : '30j+';
+        return `
+        <div class="sova-cov-row" style="animation-delay:${i*0.05}s">
+          <div class="sova-cov-name">${p.article_name}</div>
+          <div class="sova-cov-track">
+            <div class="sova-cov-bar" style="width:${pct}%;background:${fill};border-right:2px solid ${bord}"></div>
+          </div>
+          <div class="sova-cov-days" style="color:${bord}">${label}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+function sovaChartForecast(sel) {
+  if (!sel || sel.daily_demand <= 0.01) return '';
+  const W = 260, H = 90, DAYS = 14;
+  const maxY = Math.max(sel.current_stock * 1.15, sel.reorder_point * 1.5, 0.1);
+  const pts = [];
+  for (let d = 0; d <= DAYS; d++) {
+    const stock = Math.max(0, sel.current_stock - sel.daily_demand * d);
+    pts.push(`${(d / DAYS) * W},${H - (stock / maxY) * H}`);
+  }
+  const polyStr = pts.join(' ');
+  const rpY  = H - (sel.reorder_point / maxY) * H;
+  const rDay = Math.min(sel.days_remaining || DAYS, DAYS);
+  const rX   = (rDay / DAYS) * W;
+  const fillPoly = `0,${H} ${polyStr} ${(Math.min(rDay, DAYS) / DAYS * W).toFixed(1)},${H}`;
+  return `
+  <div class="sova-forecast-wrap">
+    <div class="sova-forecast-title">Projection 14 jours</div>
+    <svg class="sova-forecast-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" width="100%" height="80">
+      <line x1="0" y1="${H*0.5}" x2="${W}" y2="${H*0.5}" stroke="#e5e7eb" stroke-width="0.5" stroke-dasharray="3,3"/>
+      ${sel.reorder_point > 0 && rpY > 0 && rpY < H ? `
+      <line x1="0" y1="${rpY.toFixed(1)}" x2="${W}" y2="${rpY.toFixed(1)}" stroke="#f59e0b" stroke-width="1.2" stroke-dasharray="5,3" opacity="0.9"/>
+      <text x="3" y="${Math.max(rpY - 4, 10)}" fill="#f59e0b" font-size="7" font-family="system-ui">seuil</text>` : ''}
+      ${rDay < DAYS ? `<line x1="${rX.toFixed(1)}" y1="0" x2="${rX.toFixed(1)}" y2="${H}" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="3,2" opacity="0.7"/>` : ''}
+      <polygon points="${fillPoly}" fill="rgba(138,103,41,0.09)"/>
+      <polyline points="${polyStr}" fill="none" stroke="#8A6729" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="sova-forecast-legend">
+      <span class="sova-fl-item" style="color:#8A6729">
+        <svg width="14" height="5" style="flex-shrink:0"><line x1="0" y1="2.5" x2="14" y2="2.5" stroke="#8A6729" stroke-width="2"/></svg>Stock projeté
+      </span>
+      ${sel.reorder_point > 0 ? `<span class="sova-fl-item" style="color:#f59e0b">
+        <svg width="14" height="5" style="flex-shrink:0"><line x1="0" y1="2.5" x2="14" y2="2.5" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,2"/></svg>Seuil commande
+      </span>` : ''}
+      ${rDay < DAYS ? `<span class="sova-fl-item" style="color:#ef4444">
+        <svg width="14" height="5" style="flex-shrink:0"><line x1="0" y1="2.5" x2="14" y2="2.5" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,2"/></svg>Rupture prévue j${rDay.toFixed(0)}
+      </span>` : ''}
+    </div>
+  </div>`;
 }
 
 // ── SOVA ─────────────────────────────────────
@@ -3275,12 +3345,12 @@ function vSova() {
       </div>
     </div>` : ''}
 
-    ${preds.length === 0 ? `
+    ${preds.length > 0 ? sovaChartCoverage(preds) : `
     <div class="sova-empty">
-      <div style="font-size:40px">🦉</div>
+      <div style="margin-bottom:4px"><svg width="48" height="60" viewBox="0 0 82 110" fill="none" stroke="#8A6729" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity=".5"><rect x="12" y="2" width="46" height="50" rx="10"/><path d="M20 20 Q30 30 40 20"/><path d="M12 50 C2 66 0 86 6 100 C11 110 26 116 42 116"/><path d="M58 50 C76 63 84 83 78 100 C73 111 58 117 42 116"/><path d="M34 76 C54 72 72 84 74 100"/><line x1="24" y1="116" x2="18" y2="128"/><line x1="8" y1="128" x2="32" y2="128"/><line x1="40" y1="116" x2="44" y2="128"/><line x1="32" y1="128" x2="58" y2="128"/><line x1="68" y1="92" x2="80" y2="110"/></svg></div>
       <div class="sova-empty-title">SOVA observe</div>
       <div class="sova-empty-sub">Enregistre des ventes pour que SOVA s'affûte et commence à prédire.</div>
-    </div>` : ''}
+    </div>`}
     `;
   }
 
@@ -3433,6 +3503,7 @@ function vSova() {
           <div class="sova-conf-fill" style="width:${sel.confidence}%"></div>
         </div>
       </div>
+      ${sovaChartForecast(sel)}
       ${sel.daily_demand > 0.01 ? `
       <div class="sova-detail-metrics">
         <div class="sova-metric">
@@ -3470,9 +3541,12 @@ function vSova() {
     <!-- Header -->
     <div class="sova-header">
       <div class="sova-header-top">
-        <div class="sova-brand">
-          <span class="sova-owl">🦉</span>
-          <span class="sova-brand-name">SOVA</span>
+        <div class="sova-header-nav">
+          <button class="sova-back-btn" onclick="nav('home')">${IC.left}</button>
+          <div class="sova-brand">
+            <span class="sova-owl"><svg width="38" height="48" viewBox="0 0 82 110" fill="none" stroke="#8A6729" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><rect x="12" y="2" width="46" height="50" rx="10"/><path d="M20 20 Q30 30 40 20"/><path d="M12 50 C2 66 0 86 6 100 C11 110 26 116 42 116"/><path d="M58 50 C76 63 84 83 78 100 C73 111 58 117 42 116"/><path d="M34 76 C54 72 72 84 74 100"/><line x1="24" y1="116" x2="18" y2="128"/><line x1="8" y1="128" x2="32" y2="128"/><line x1="40" y1="116" x2="44" y2="128"/><line x1="32" y1="128" x2="58" y2="128"/><line x1="68" y1="92" x2="80" y2="110"/></svg></span>
+            <span class="sova-brand-name">SOVA</span>
+          </div>
         </div>
         <div class="sova-tagline">Intelligence de stock</div>
       </div>
@@ -9843,7 +9917,7 @@ function vSpectraEnhanced() {
 
   if (S.spectra.step === 'loading') {
     return `
-    <div class="sub-hero"><div class="page-header-row"><button class="back-btn-dark" onclick="spectraReset();nav('more')">${IC.left}</button><div style="flex:1"><div class="sub-hero-title">Spectra AI</div><div class="sub-hero-sub">${t('spectraAnalyzing')}</div></div></div></div>
+    <div class="sub-hero"><div class="page-header-row"><button class="back-btn-dark" onclick="spectraReset();nav('home')">${IC.left}</button><div style="flex:1"><div class="sub-hero-title">Spectra AI</div><div class="sub-hero-sub">${t('spectraAnalyzing')}</div></div></div></div>
     <div class="container" style="text-align:center;padding:60px 24px">
       <div style="width:80px;height:80px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;animation:pulse 1.5s infinite">${IC.camera}</div>
       <div style="font-size:16px;font-weight:700">${t('spectraAnalyzing')}</div>
@@ -9854,7 +9928,7 @@ function vSpectraEnhanced() {
   if (S.spectra.step === 'confirm' && S.spectra.queue.length > 0) {
     const item = S.spectra.queue[S.spectra.current];
     return `
-    <div class="sub-hero"><div class="page-header-row"><button class="back-btn-dark" onclick="spectraReset();nav('more')">${IC.left}</button><div style="flex:1"><div class="sub-hero-title">${t('spectraDetected')}</div><div class="sub-hero-sub">${S.spectra.current+1}/${S.spectra.queue.length} articles détectés</div></div></div></div>
+    <div class="sub-hero"><div class="page-header-row"><button class="back-btn-dark" onclick="spectraReset();nav('home')">${IC.left}</button><div style="flex:1"><div class="sub-hero-title">${t('spectraDetected')}</div><div class="sub-hero-sub">${S.spectra.current+1}/${S.spectra.queue.length} articles détectés</div></div></div></div>
     <div class="container">
       <div class="spectra-count-result" style="margin-bottom:14px;border-color:var(--accent)">
         <div class="spectra-count-num">${item.quantity}</div>
@@ -9891,7 +9965,7 @@ function vSpectraEnhanced() {
     }
     return `
     <div class="sub-hero" style="background:linear-gradient(135deg,#064e3b,#059669)">
-      <div class="page-header-row"><button class="back-btn-dark" onclick="spectraReset();nav('more')">${IC.left}</button><div style="flex:1"><div class="sub-hero-title">${t('spectraDone')}</div><div class="sub-hero-sub">${S.spectra.results.length} articles mis à jour</div></div></div>
+      <div class="page-header-row"><button class="back-btn-dark" onclick="spectraReset();nav('home')">${IC.left}</button><div style="flex:1"><div class="sub-hero-title">${t('spectraDone')}</div><div class="sub-hero-sub">${S.spectra.results.length} articles mis à jour</div></div></div>
     </div>
     <div class="container">
       ${S.spectra.results.map(r => `
@@ -9906,7 +9980,7 @@ function vSpectraEnhanced() {
   return `
   <div class="sub-hero">
     <div class="page-header-row" style="margin-bottom:14px">
-      <button class="back-btn-dark" onclick="nav('more')">${IC.left}</button>
+      <button class="back-btn-dark" onclick="nav('home')">${IC.left}</button>
       <div style="flex:1"><div class="sub-hero-title">Spectra AI</div><div class="sub-hero-sub">Scanner, détecter, compter automatiquement</div></div>
     </div>
   </div>

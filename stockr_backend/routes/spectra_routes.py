@@ -1,7 +1,10 @@
 from flask import Blueprint, request, jsonify
 from models import db, Article, token_required
 import base64
-import numpy as np
+try:
+    import numpy as np
+except ImportError:
+    np = None
 
 spectra_bp = Blueprint('spectra', __name__)
 

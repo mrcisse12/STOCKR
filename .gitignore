@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Environnements virtuels
+venv/
+env/
+.env
+.venv
+
+# Base de données locale (SQLite)
+*.db
+*.sqlite
+*.sqlite3
+stockr_backend/instance/
+
+# Logs
+*.log
+
+# macOS
+.DS_Store
+.AppleDouble
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Claude worktrees
+.claude/worktrees/
+
+# Clés secrètes
+*.pem
+*.key
+secrets.json
