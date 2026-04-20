@@ -760,17 +760,18 @@ function generateInvoicePDF(sales) {
   }
 
   // Total final
-  y += 2;
-  doc.setFillColor(79, 70, 229);
-  doc.roundedRect(110, y - 1, 84, 12, 2, 2, 'F');
-  doc.setTextColor(255, 255, 255); doc.setFontSize(12); doc.setFont('helvetica', 'bold');
-  doc.text('TOTAL A PAYER', 140, y + 7, { align: 'right' });
-  doc.setFontSize(13);
-  doc.text(fmtPDF(grandTotal) + ' ' + sym, 192, y + 7, { align: 'right' });
-  // Side stats
+  y += 4;
+  // Side stats (left)
   doc.setTextColor(100, 100, 100); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
-  doc.text(sales.length + ' article' + (sales.length>1?'s':''), 20, y + 4);
-  doc.text(sales.reduce((s,v) => s + v.qty, 0) + ' unites', 20, y + 9);
+  doc.text(sales.length + ' article' + (sales.length>1?'s':''), 16, y + 5);
+  doc.text(sales.reduce((s,v) => s + v.qty, 0) + ' unite(s) vendue(s)', 16, y + 11);
+  // Total box (right)
+  doc.setFillColor(79, 70, 229);
+  doc.roundedRect(108, y - 2, 86, 16, 2, 2, 'F');
+  doc.setTextColor(255, 255, 255); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+  doc.text('TOTAL A PAYER', 113, y + 4);
+  doc.setFontSize(14); doc.setFont('helvetica', 'bold');
+  doc.text(fmtPDF(grandTotal) + ' ' + sym, 192, y + 11, { align: 'right' });
 
   // ── Loyalty points earned block ──
   y += 18;
@@ -1073,6 +1074,7 @@ const S = {
   selectedClientId: null,
   clientSearch:  '',
   saleClientFilter: null,
+  saleNewClient: false,
   globalSearch:  '',
   predictions:   [],
   sovaTab: 'overview',  // 'overview' | 'alerts' | 'tomorrow' | 'articles'
@@ -1697,6 +1699,27 @@ async function deleteArticle(id) {
   }
 }
 
+function _resolveClientForSale() {
+  if (S.saleNewClient) {
+    const nameEl  = $('sale-new-client-name');
+    const phoneEl = $('sale-new-client-phone');
+    const name  = nameEl?.value?.trim();
+    const phone = phoneEl?.value?.trim() || '';
+    if (!name) return { clientId: null, clientName: null };
+    const existing = S.clients.find(c => c.name.toLowerCase() === name.toLowerCase());
+    if (existing) return { clientId: existing.id, clientName: existing.name };
+    const newClient = { id: Date.now(), name, phone, email: '', address: '', loyaltyPoints: 0, createdAt: new Date().toISOString() };
+    S.clients.push(newClient);
+    localStorage.setItem('baro_clients', JSON.stringify(S.clients));
+    S.saleNewClient = false;
+    return { clientId: newClient.id, clientName: newClient.name };
+  }
+  const sel = $('sale-client');
+  const clientId = sel ? parseInt(sel.value) || null : null;
+  const client   = clientId ? S.clients.find(c => c.id === clientId) : null;
+  return { clientId, clientName: client?.name || null };
+}
+
 function recordSale() {
   const sel   = $('sale-product');
   const qtyEl = $('sale-qty');
@@ -1716,10 +1739,8 @@ function recordSale() {
     const profit    = (salePrice - costPrice) * qty;
     const pmSel = $('sale-payment');
     const payMethod = pmSel ? pmSel.value : 'cash';
-    const clientSel = $('sale-client');
-    const clientId  = clientSel ? parseInt(clientSel.value) || null : null;
-    const client    = clientId ? S.clients.find(c => c.id === clientId) : null;
-    S.sales.unshift({ id: Date.now(), productId: art.id, productName: art.name, qty, total: saleTotal, profit, date: new Date().toISOString(), paymentMethod: payMethod, clientId, clientName: client?.name || null });
+    const { clientId, clientName } = _resolveClientForSale();
+    S.sales.unshift({ id: Date.now(), productId: art.id, productName: art.name, qty, total: saleTotal, profit, date: new Date().toISOString(), paymentMethod: payMethod, clientId, clientName });
     localStorage.setItem('baro_articles', JSON.stringify(S.articles));
     logActivity('sale', `${art.name} x${qty} — ${fmt(saleTotal)} ${sym()}`);
     showToast(`${t('saleConfirmed')} — ${fmt(saleTotal)} ${sym()}`);
@@ -1746,15 +1767,13 @@ function recordSale() {
   const saleCost = (product.purchasePrice || 0) * qty;
   const pmSel = $('sale-payment');
   const payMethod = pmSel ? pmSel.value : 'cash';
-  const clientSel = $('sale-client');
-  const clientId = clientSel ? parseInt(clientSel.value) || null : null;
-  const client = clientId ? S.clients.find(c => c.id === clientId) : null;
+  const { clientId, clientName } = _resolveClientForSale();
   const PMLABELS = {cash:'Especes',wave:'Wave',orange:'Orange Money',moov:'Moov Money',mtn:'MTN MoMo'};
   // Apply promo
   const promo = _getActivePromo(product.id);
   let promoName = null, promoDiscount = 0;
   if (promo) { promoDiscount = promo.discount; promoName = promo.name; saleTotal = Math.round(saleTotal * (100 - promoDiscount) / 100); }
-  S.sales.unshift({ id: Date.now(), productId: product.id, productName: product.name, qty, total: saleTotal, profit: saleTotal - saleCost, date: new Date().toISOString(), paymentMethod: payMethod, clientId, clientName: client?.name || null, promoName, promoDiscount });
+  S.sales.unshift({ id: Date.now(), productId: product.id, productName: product.name, qty, total: saleTotal, profit: saleTotal - saleCost, date: new Date().toISOString(), paymentMethod: payMethod, clientId, clientName, promoName, promoDiscount });
   // Loyalty points (with tier multiplier)
   if (S.loyaltyConfig?.enabled && clientId) {
     const cl = S.clients.find(c => c.id === clientId);
@@ -2032,8 +2051,7 @@ function removeFromCart(idx) {
 
 async function confirmCart() {
   if (!S.cart.length) { showToast(t('emptyCartMsg'), 'error'); return; }
-  const clientSel = $('sale-client');
-  const clientId = clientSel ? parseInt(clientSel.value) || null : null;
+  const { clientId, clientName: resolvedClientName } = _resolveClientForSale();
   const client = clientId ? S.clients.find(c => c.id === clientId) : null;
   const pmSel = $('sale-payment');
   const payMethod = pmSel ? pmSel.value : 'cash';
@@ -2047,7 +2065,7 @@ async function confirmCart() {
         const lineTotal  = item.unitPrice * item.qty;
         const lineProfit = (item.unitPrice - (item.unitCost || 0)) * item.qty;
         total += lineTotal; count += item.qty;
-        const newSale = { id: Date.now() + Math.random(), productId: item._artId, productName: item.productName, qty: item.qty, total: lineTotal, profit: lineProfit, date: new Date().toISOString(), clientId, clientName: client?.name || null, paymentMethod: payMethod };
+        const newSale = { id: Date.now() + Math.random(), productId: item._artId, productName: item.productName, qty: item.qty, total: lineTotal, profit: lineProfit, date: new Date().toISOString(), clientId, clientName: resolvedClientName || client?.name || null, paymentMethod: payMethod };
         S.sales.unshift(newSale); newSales.push(newSale);
         continue;
       }
@@ -2067,7 +2085,7 @@ async function confirmCart() {
       }
       total += lineTotal;
       count += item.qty;
-      const newSale = { id: data.sale.id, productId: data.sale.product_id, productName: data.sale.product_name, qty: data.sale.quantity, total: lineTotal, profit: lineProfit, date: data.sale.timestamp, clientId, clientName: client?.name || null, paymentMethod: payMethod, promoName, promoDiscount };
+      const newSale = { id: data.sale.id, productId: data.sale.product_id, productName: data.sale.product_name, qty: data.sale.quantity, total: lineTotal, profit: lineProfit, date: data.sale.timestamp, clientId, clientName: resolvedClientName || client?.name || null, paymentMethod: payMethod, promoName, promoDiscount };
       S.sales.unshift(newSale);
       newSales.push(newSale);
     }
@@ -2961,14 +2979,21 @@ function vSales() {
         <label class="form-label">${t('quantity')}</label>
         <input type="number" class="input" id="sale-qty" value="1" min="1">
       </div>
-      ${S.clients.length > 0 ? `
       <div class="form-group">
-        <label class="form-label">${t('clients')}</label>
+        <label class="form-label">${t('clients')} <span style="color:var(--text-3);font-weight:400">(optionnel)</span></label>
+        <div style="display:flex;gap:6px;margin-bottom:8px">
+          <button type="button" class="chip ${!S.saleNewClient?'active':''}" onclick="S.saleNewClient=false;render()">Existant</button>
+          <button type="button" class="chip ${S.saleNewClient?'active':''}" onclick="S.saleNewClient=true;render()">+ Nouveau client</button>
+        </div>
+        ${S.saleNewClient ? `
+        <input class="input" type="text" id="sale-new-client-name" placeholder="Nom du client" style="margin-bottom:6px">
+        <input class="input" type="tel" id="sale-new-client-phone" placeholder="Téléphone (optionnel)">
+        ` : `
         <select class="input" id="sale-client">
-          <option value="">${t('selectClient')}</option>
+          <option value="">— Aucun client —</option>
           ${S.clients.map(c=>`<option value="${c.id}">${c.name}${c.phone?' · '+c.phone:''}</option>`).join('')}
-        </select>
-      </div>` : ''}
+        </select>`}
+      </div>
       <div class="form-group">
         <label class="form-label">Mode de paiement</label>
         <select class="input" id="sale-payment">
