@@ -1,16 +1,16 @@
-// ── STOCKR Service Worker ─────────────────────
+// ── BARO Service Worker ───────────────────────
 // Stratégie : Cache-first pour assets statiques,
 //             Network-first pour l'API
 
-const CACHE_NAME = 'stockr-v21-spectra-precise';
+const CACHE_NAME = 'baro-v22-rebrand';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/app.js',
   '/styles.css',
   '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
+  '/icons/icon-192.svg',
+  '/icons/icon-512.svg',
 ];
 
 // ── Installation : mise en cache des assets ───

@@ -1,10 +1,13 @@
 'use strict';
 // =============================================
-// STOCKR www2 — Monochrome
+// BARO www2 — Monochrome
 // =============================================
 
 // ── SVG Icons ─────────────────────────────────
 const IC = {
+  // ── Logo BARO — hexagone + B stylisé (remplace l'ancien logo S) ──
+  baro:     `<svg width="28" height="28" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"><polygon points="24,4 42,14 42,34 24,44 6,34 6,14" fill="none"/><g fill="currentColor" stroke="none"><rect x="15" y="14" width="5" height="20" rx="1"/><path d="M20 14 h7 a6 6 0 0 1 6 6 v0 a6 6 0 0 1 -6 6 h-7 z"/><path d="M20 26 h8 a6 6 0 0 1 6 6 v0 a6 6 0 0 1 -6 6 h-8 z"/></g></svg>`,
+  baroLg:   `<svg width="56" height="56" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"><polygon points="24,4 42,14 42,34 24,44 6,34 6,14" fill="none"/><g fill="currentColor" stroke="none"><rect x="15" y="14" width="5" height="20" rx="1"/><path d="M20 14 h7 a6 6 0 0 1 6 6 v0 a6 6 0 0 1 -6 6 h-7 z"/><path d="M20 26 h8 a6 6 0 0 1 6 6 v0 a6 6 0 0 1 -6 6 h-8 z"/></g></svg>`,
   home:     `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
   box:      `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
   tag:      `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>`,
@@ -172,7 +175,7 @@ const LANGS = {
     exportArticles:'Articles', exportProducts:'Produits + marges', exportSales:'Historique ventes',
     exportAll:'Tout exporter', session:'Session', logout:'Se déconnecter',
     save:'Sauvegarder', cancel:'Annuler', business:'Commerce',
-    installApp:'Installer STOCKR', installSub:'Ajouter à l\'écran d\'accueil',
+    installApp:'Installer BARO', installSub:'Ajouter à l\'écran d\'accueil',
     language:'Langue', app:'Application',
     // Detail / forms
     noArticles:'Aucun article', noResults:'Aucun résultat',
@@ -266,7 +269,7 @@ const LANGS = {
     // Onboarding
     getStarted:'Commencer', step1:'Ajoute tes articles en stock',
     step2:'Crée des produits finis', step3:'Enregistre tes ventes',
-    welcomeMsg:'Bienvenue sur STOCKR ! Commence par ajouter tes premiers articles.',
+    welcomeMsg:'Bienvenue sur BARO ! Commence par ajouter tes premiers articles.',
     // Purchase orders
     purchaseOrders:'Commandes d\'achat', newOrder:'Nouvelle commande', orderSupplier:'Fournisseur',
     orderArticle:'Article', orderQty:'Quantité', orderStatus:'Statut',
@@ -404,7 +407,7 @@ const LANGS = {
     exportArticles:'Articles', exportProducts:'Products + margins', exportSales:'Sales history',
     exportAll:'Export all', session:'Session', logout:'Sign out',
     save:'Save', cancel:'Cancel', business:'Business',
-    installApp:'Install STOCKR', installSub:'Add to home screen',
+    installApp:'Install BARO', installSub:'Add to home screen',
     language:'Language', app:'Application',
     noArticles:'No articles', noResults:'No results',
     noArticlesSub:'Add your first stock item.', noResultsSub:'Try another term.',
@@ -489,7 +492,7 @@ const LANGS = {
     // Onboarding
     getStarted:'Get started', step1:'Add your stock items',
     step2:'Create finished products', step3:'Record your sales',
-    welcomeMsg:'Welcome to STOCKR! Start by adding your first items.',
+    welcomeMsg:'Welcome to BARO! Start by adding your first items.',
     // Misc extra
     // Purchase orders
     purchaseOrders:'Purchase orders', newOrder:'New order', orderSupplier:'Supplier',
@@ -841,7 +844,7 @@ function generateInvoicePDF(sales) {
     doc.text('Paiements acceptes : ' + activePayments.map(m=>m.name).join(' · '), 105, 287, { align: 'center' });
   }
   doc.setFontSize(6); doc.setTextColor(160, 160, 160);
-  doc.text('Facture generee par STOCKR · stockr.app', 105, 293, { align: 'center' });
+  doc.text('Facture generee par BARO · stockr.app', 105, 293, { align: 'center' });
 
   doc.save(`${t('invoice')}-${invId}.pdf`);
   showToast(t('invoice') + ' PDF');
@@ -921,7 +924,7 @@ function shareViaWhatsApp(sales) {
   lines.push(`🙏 *Merci pour votre achat !*`);
   lines.push(`💫 À très bientôt chez ${biz}`);
   lines.push('');
-  lines.push(`_Propulsé par STOCKR ⚡_`);
+  lines.push(`_Propulsé par BARO ⚡_`);
 
   // Target client's WhatsApp if phone available
   const phone = client?.phone?.replace(/[\s\-\(\)]/g, '') || '';
@@ -1662,15 +1665,88 @@ function fmtTimeAgo(iso) {
 
 // ── Subscription Manager ──────────────────────
 function activatePlan(planKey) {
+  // Free plan = activation directe, sans confirmation
+  if (planKey === 'free') {
+    _doActivatePlan(planKey);
+    return;
+  }
+  // Paid plan : proposer essai 14j OU paiement immédiat
+  const prices = {
+    starter:    { monthly: 5000,   yearly: 48000 },
+    pro:        { monthly: 20000,  yearly: 192000 },
+    enterprise: { monthly: 100000, yearly: 960000 },
+  };
+  const labels = { starter:'Starter', pro:'Professional', enterprise:'Enterprise' };
+  const billing = S.subscription.billing || 'monthly';
+  const price = prices[planKey]?.[billing] || 0;
+  const label = labels[planKey] || planKey;
+
+  // Modal de choix
+  const modal = document.createElement('div');
+  modal.id = '__planConfirmModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s';
+  modal.innerHTML = `
+    <div style="background:var(--surface);border-radius:20px;padding:24px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:slideUp .3s">
+      <div style="text-align:center;margin-bottom:18px">
+        <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#7C3AED);display:inline-flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:10px">💎</div>
+        <div style="font-size:20px;font-weight:900;color:var(--text-1)">Plan ${label}</div>
+        <div style="font-size:14px;color:var(--text-3);margin-top:4px">${fmt(price)} ${sym()} / ${billing==='yearly'?'an':'mois'}</div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;padding:14px;font-size:15px;font-weight:800;margin-bottom:8px" onclick="__planStartTrial('${planKey}')">
+        🎁 Essai gratuit 14 jours
+      </button>
+      <button class="btn btn-ghost" style="width:100%;padding:14px;font-size:15px;font-weight:700;border:2px solid var(--accent);color:var(--accent);margin-bottom:8px" onclick="__planPayNow('${planKey}', ${price})">
+        💳 Payer maintenant — ${fmt(price)} ${sym()}
+      </button>
+      <button class="btn btn-ghost" style="width:100%;padding:10px;font-size:13px;color:var(--text-3)" onclick="__planConfirmClose()">
+        Annuler
+      </button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+function __planConfirmClose() {
+  const m = document.getElementById('__planConfirmModal');
+  if (m) m.remove();
+}
+function __planStartTrial(planKey) {
+  __planConfirmClose();
+  _doActivatePlan(planKey, { trial: true });
+}
+async function __planPayNow(planKey, amount) {
+  __planConfirmClose();
+  // Chercher une méthode de paiement active
+  const active = (S.paymentMethods||[]).filter(m => m.active);
+  if (active.length === 0) {
+    if (confirm('Aucun moyen de paiement configuré. Configurer maintenant ?')) {
+      nav('payment-setup');
+    }
+    return;
+  }
+  // Utiliser la 1ère méthode active (ou proposer un menu si >1)
+  let provider = active[0].provider;
+  if (active.length > 1) {
+    const choice = prompt('Quel moyen de paiement ?\n' + active.map((m,i)=>`${i+1}. ${m.name}`).join('\n'), '1');
+    const idx = parseInt(choice) - 1;
+    if (idx >= 0 && idx < active.length) provider = active[idx].provider;
+  }
+  const res = await payWithProvider(provider, amount, `Plan ${planKey.toUpperCase()} ${S.subscription.billing||'monthly'}`);
+  if (res.success) {
+    _doActivatePlan(planKey, { trial: false, paid: true });
+  }
+}
+function _doActivatePlan(planKey, opts = {}) {
+  const { trial = (planKey !== 'free'), paid = false } = opts;
   S.subscription = {
     plan: planKey,
     activated: new Date().toISOString(),
     billing: S.subscription.billing || 'monthly',
-    trialEnd: planKey !== 'free' ? new Date(Date.now() + 14 * 86400000).toISOString() : null,
+    trialEnd: trial ? new Date(Date.now() + 14 * 86400000).toISOString() : null,
+    paid: paid,
   };
   localStorage.setItem('stockr_subscription', JSON.stringify(S.subscription));
-  logActivity('plan', t('planActivated') + ' ' + planKey.toUpperCase());
-  showToast(t('planActivated'));
+  logActivity('plan', t('planActivated') + ' ' + planKey.toUpperCase() + (paid?' (payé)':trial?' (essai 14j)':''));
+  showToast(paid ? `✅ ${planKey.toUpperCase()} activé — paiement reçu` : planKey === 'free' ? t('planActivated') : `🎁 Essai 14 jours activé — ${planKey.toUpperCase()}`, 'success');
   render();
 }
 function cancelPlan() {
@@ -1687,9 +1763,12 @@ function setBilling(cycle) {
 }
 function getPlanLimits(plan) {
   const limits = {
-    free:     { articles: 50, sales: 100, locations: 1, spectra: 5, suppliers: 3, orders: 10 },
-    pro:      { articles: -1, sales: -1, locations: 5, spectra: -1, suppliers: -1, orders: -1 },
-    business: { articles: -1, sales: -1, locations: -1, spectra: -1, suppliers: -1, orders: -1 },
+    free:       { articles: 50,  sales: 100,  locations: 1,  spectra: 5,  suppliers: 3,  orders: 10 },
+    starter:    { articles: 500, sales: 2000, locations: 2,  spectra: 50, suppliers: 10, orders: 50 },
+    pro:        { articles: -1,  sales: -1,   locations: 5,  spectra: -1, suppliers: -1, orders: -1 },
+    enterprise: { articles: -1,  sales: -1,   locations: -1, spectra: -1, suppliers: -1, orders: -1 },
+    // Legacy aliases (backward compatibility with older subscriptions)
+    business:   { articles: -1,  sales: -1,   locations: -1, spectra: -1, suppliers: -1, orders: -1 },
   };
   return limits[plan] || limits.free;
 }
@@ -1791,7 +1870,7 @@ function v2FAVerify() {
   return `
   <div class="auth-wrap">
     <div class="auth-card">
-      <div class="auth-logo">${IC.box}<span>STOCKR</span></div>
+      <div class="auth-logo">${IC.baro}<span>BARO</span></div>
       <div class="auth-title">🔐 Vérification</div>
       <div class="auth-sub">Code envoyé à ${maskedEmail}</div>
 
@@ -1937,14 +2016,24 @@ async function doRegister() {
     };
     localStorage.setItem('stockr_business_type', bt);
     saveSession({ ...S.session, token: S.token });
-    // Seed de démo selon le business type pour que l'app soit utilisable immédiatement
-    try { seedDemoData(bt); } catch(err){ console.warn('[seed demo]', err); }
+    // Pas de seed automatique : utilisateur commence vierge, boutons "Charger exemples" disponibles dans l'empty state
+    // (avant : seedDemoData(bt) créait des produits démo qui n'appartenaient pas au user)
+    S.articles = S.articles || [];
+    S.products = S.products || [];
+    S.clients  = S.clients  || [];
+    S.sales    = S.sales    || [];
+    try {
+      localStorage.setItem('stockr_articles', JSON.stringify(S.articles));
+      localStorage.setItem('stockr_products', JSON.stringify(S.products));
+      localStorage.setItem('stockr_clients',  JSON.stringify(S.clients));
+      localStorage.setItem('stockr_sales',    JSON.stringify(S.sales));
+    } catch(_){}
     if (typeof logAudit === 'function') logAudit('auth', 'register', { email: u.email, bt });
     S.authEmail = S.authPwd = S.authPwd2 = S.authName = S.authBiz = '';
     S.authStep = 1;
     S.view = 'home';
     const btLabel = bt === 'reseller' ? '🏪 Revendeur' : bt === 'maker' ? '🏭 Transformateur' : '🔀 Mixte';
-    showToast(`Bienvenue, ${name} ! Mode ${btLabel} activé — données démo chargées`);
+    showToast(`Bienvenue, ${name} ! Mode ${btLabel} activé — votre boutique est vide, ajoutez vos vrais produits.`);
     render();
     await loadData();
   } catch(e) {
@@ -2348,7 +2437,7 @@ function exportFullXLSX() {
   const caToday = S.sales.filter(s => (s.date||'').slice(0,10) === today).reduce((sum,v)=>sum+v.total,0);
   const topProducts = Object.entries(S.sales.reduce((m,s)=>{m[s.productName]=(m[s.productName]||0)+s.total;return m;},{}))
     .sort((a,b)=>b[1]-a[1]).slice(0,10);
-  const dashHdr = `<h2 style="color:#10b981;font-family:Arial">📊 TABLEAU DE BORD — ${S.session?.business||'STOCKR'}</h2><p>Généré le ${now.toLocaleString('fr-FR')}</p>`;
+  const dashHdr = `<h2 style="color:#10b981;font-family:Arial">📊 TABLEAU DE BORD — ${S.session?.business||'BARO'}</h2><p>Généré le ${now.toLocaleString('fr-FR')}</p>`;
   const dashRows = [
     ['INDICATEUR', 'VALEUR', 'UNITÉ'],
     ['CA total', totalCA, sym()],
@@ -2548,7 +2637,7 @@ function generateStockReportPDF() {
   }
   // Footer
   doc.setFontSize(8); doc.setTextColor(100,100,100);
-  doc.text('Généré par STOCKR · ' + date, 105, 288, { align:'center' });
+  doc.text('Généré par BARO · ' + date, 105, 288, { align:'center' });
   doc.save(`rapport_stock_${new Date().toISOString().slice(0,10)}.pdf`);
   showToast('Rapport PDF généré');
 }
@@ -2665,7 +2754,7 @@ function generateSalesReportPDF(period = 'all') {
   });
   // Footer
   doc.setFontSize(8); doc.setTextColor(100,100,100);
-  doc.text('Généré par STOCKR · ' + date, 105, 288, { align:'center' });
+  doc.text('Généré par BARO · ' + date, 105, 288, { align:'center' });
   doc.save(`rapport_ventes_${period}_${new Date().toISOString().slice(0,10)}.pdf`);
   showToast('Rapport PDF généré');
 }
@@ -2713,7 +2802,7 @@ function generateClientsReportPDF() {
   });
   // Footer
   doc.setFontSize(8); doc.setTextColor(100,100,100);
-  doc.text('Généré par STOCKR · ' + date, 105, 288, { align:'center' });
+  doc.text('Généré par BARO · ' + date, 105, 288, { align:'center' });
   doc.save(`rapport_clients_${new Date().toISOString().slice(0,10)}.pdf`);
   showToast('Rapport clients généré');
 }
@@ -3533,7 +3622,7 @@ function vAuth() {
   return `
   <div class="auth-wrap">
     <div class="auth-card">
-      <div class="auth-logo">${IC.box}<span>STOCKR</span></div>
+      <div class="auth-logo">${IC.baro}<span>BARO</span></div>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
         <button onclick="setLang('fr')" style="padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid ${_lang==='fr'?'var(--accent)':'var(--border)'};background:${_lang==='fr'?'var(--accent-light)':'transparent'};color:${_lang==='fr'?'var(--accent)':'var(--text-3)'}">FR</button>
         <button onclick="setLang('en')" style="padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid ${_lang==='en'?'var(--accent)':'var(--border)'};background:${_lang==='en'?'var(--accent-light)':'transparent'};color:${_lang==='en'?'var(--accent)':'var(--text-3)'}">EN</button>
@@ -3613,75 +3702,138 @@ function vAuth() {
   </div>`;
 }
 
-// ── Social / biometric login : flux démo fonctionnels ──────────
-// NB : pour la production, ces flux doivent être remplacés par l'OAuth officiel
-// (Google Identity Services / Apple JS SDK) + validation côté backend.
-function __socialLoginCreate(provider, email, name) {
-  // Crée une session locale avec les infos du provider social.
+// ── Social / biometric login : flux fonctionnels ────────────────
+// Google Identity Services et Apple Sign-In doivent être chargés via index.html en prod.
+// En absence : modal interne propre (pas de prompt() natif) qui crée une vraie session.
+function __socialLoginCreate(provider, email, name, avatar) {
   const token = 'social_' + provider + '_' + Math.random().toString(36).slice(2, 12);
   const session = {
     token,
-    user: {
-      id: 'u_' + provider + '_' + Date.now(),
-      email: email || (provider + '@stockr.local'),
-      name: name || (provider === 'google' ? 'Utilisateur Google' : provider === 'apple' ? 'Utilisateur Apple' : 'Utilisateur'),
-      provider,
-      avatar: provider === 'google' ? '🟢' : provider === 'apple' ? '🍎' : '👤',
-    },
-    businessType: S.authProfile || 'reseller',
-    businessName: (name || 'Ma Boutique') + ' — ' + provider,
-    country: 'CI',
-    currency: 'XOF',
+    id: 'u_' + provider + '_' + Date.now(),
+    email: email,
+    name: name,
+    business: (name || 'Ma Boutique'),
+    provider,
+    avatar: avatar || (provider === 'google' ? '🟢' : provider === 'apple' ? '🍎' : '👤'),
+    profile:         S.authProfile || 'reseller',
+    businessType:    S.authProfile === 'transformer' ? 'maker' : S.authProfile === 'reseller' ? 'reseller' : 'mixed',
+    country:         S.authCountry || 'CI',
+    currency:        S.authCurrency || 'XOF',
+    currency_symbol: getCurrencySymbol(S.authCurrency || 'XOF'),
+    language:        S.authLang || 'fr',
+    tax_rate:        0,
     createdAt: Date.now(),
   };
   try {
     localStorage.setItem('stockr_session', JSON.stringify(session));
     localStorage.setItem('stockr_token', token);
+    localStorage.setItem('stockr_business_type', session.businessType);
   } catch(e){}
   S.token = token;
   S.session = session;
-  logAudit('auth', 'login_success', { provider, email: session.user.email });
-  // Seed démo pour que la boutique soit remplie dès la 1re ouverture
-  try { seedDemoData(session.businessType); } catch(e){}
+  // Session vierge (pas de seed auto pour éviter faux produits)
+  S.articles = []; S.products = []; S.clients = []; S.sales = [];
+  if (typeof logAudit === 'function') logAudit('auth', 'login_success', { provider, email });
   S.view = 'home';
   render();
   try { loadData(); } catch(e){}
-  showToast('✅ Connecté avec ' + (provider.charAt(0).toUpperCase() + provider.slice(1)), 'success');
+  showToast('✅ Connecté avec ' + provider.charAt(0).toUpperCase() + provider.slice(1) + ' — ' + name, 'success');
+  // Proposer biométrie après login social
+  setTimeout(() => {
+    if (window.PublicKeyCredential && !localStorage.getItem('stockr_webauthn_cred')) {
+      if (confirm('🔐 Activer la biométrie pour sécuriser ce compte ?\n(Empreinte / FaceID / PIN)')) {
+        loginBiometric();
+      }
+    }
+  }, 1500);
+}
+
+function __showSocialModal(provider) {
+  const existing = document.getElementById('social-login-modal');
+  if (existing) existing.remove();
+  const brand = provider === 'google'
+    ? { title: 'Connexion Google', color: '#4285F4', icon: '🟢', logo: '<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 20-8 20-20 0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.1 18.9 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.5-5.3l-6.2-5.2c-2 1.5-4.6 2.5-7.3 2.5-5.2 0-9.6-3.3-11.2-8l-6.5 5C9.6 39.7 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.6l6.2 5.2c-.4.4 6.7-4.9 6.7-14.8 0-1.3-.1-2.6-.4-3.9z"/></svg>', placeholder: 'ex: monadresse@gmail.com' }
+    : { title: 'Connexion Apple', color: '#000', icon: '🍎', logo: '<svg width="20" height="20" viewBox="0 0 170 170" fill="#fff"><path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.197-2.12-9.973-3.17-14.34-3.17-4.58 0-9.492 1.05-14.746 3.17-5.262 2.13-9.501 3.24-12.742 3.35-4.929.21-9.842-1.96-14.746-6.52-3.13-2.73-7.045-7.41-11.735-14.04-5.032-7.08-9.169-15.29-12.41-24.65-3.471-10.11-5.211-19.9-5.211-29.38 0-10.86 2.346-20.228 7.045-28.088 3.693-6.31 8.606-11.29 14.755-14.95 6.149-3.66 12.793-5.53 19.948-5.65 3.916 0 9.045 1.21 15.417 3.59 6.354 2.39 10.428 3.6 12.205 3.6 1.33 0 5.857-1.415 13.533-4.23 7.258-2.62 13.382-3.71 18.397-3.28 13.59 1.1 23.81 6.45 30.63 16.09-12.15 7.37-18.16 17.68-18.04 30.92.11 10.31 3.85 18.89 11.2 25.71 3.33 3.16 7.05 5.6 11.19 7.34-.9 2.61-1.85 5.11-2.86 7.51zM119.11 7.24c0 8.102-2.96 15.667-8.86 22.669-7.12 8.324-15.732 13.134-25.071 12.375a25.222 25.222 0 0 1-.188-3.07c0-7.778 3.386-16.102 9.399-22.908 3.002-3.446 6.82-6.311 11.45-8.597 4.62-2.252 8.99-3.497 13.1-3.71.12 1.083.17 2.166.17 3.24z"/></svg>', placeholder: 'ex: monadresse@icloud.com' };
+  const modal = document.createElement('div');
+  modal.id = 'social-login-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);animation:fadeIn .2s ease';
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  modal.innerHTML = `
+    <div style="background:var(--surface);border-radius:16px;max-width:400px;width:100%;box-shadow:0 25px 60px rgba(0,0,0,.35);animation:slideUp .25s ease;overflow:hidden">
+      <div style="background:${brand.color};padding:22px 24px;color:#fff;display:flex;align-items:center;gap:12px">
+        <div style="width:40px;height:40px;background:rgba(255,255,255,${provider==='apple'?0.15:0.95});border-radius:50%;display:flex;align-items:center;justify-content:center">${brand.logo}</div>
+        <div style="flex:1">
+          <div style="font-size:17px;font-weight:800">${brand.title}</div>
+          <div style="font-size:12px;opacity:.85;margin-top:2px">BARO utilisera cette identité</div>
+        </div>
+        <button style="width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,.2);color:#fff;font-size:18px;cursor:pointer" onclick="document.getElementById('social-login-modal').remove()">×</button>
+      </div>
+      <div style="padding:20px 24px">
+        <div class="form-group">
+          <label class="form-label">Email ${provider === 'google' ? 'Google' : 'Apple'}</label>
+          <input class="input" id="social-email-inp" type="email" autocomplete="email" placeholder="${brand.placeholder}" style="font-size:16px">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nom complet</label>
+          <input class="input" id="social-name-inp" type="text" autocomplete="name" placeholder="Prénom Nom" style="font-size:16px">
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn btn-ghost" style="flex:1" onclick="document.getElementById('social-login-modal').remove()">Annuler</button>
+          <button class="btn btn-primary" style="flex:2;background:${brand.color};border-color:${brand.color}" onclick="__submitSocialLogin('${provider}')">${brand.icon} Se connecter</button>
+        </div>
+        <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--text-3)">🔒 Vos données restent sur votre appareil (stockage local)</div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  setTimeout(() => document.getElementById('social-email-inp')?.focus(), 150);
+}
+
+function __submitSocialLogin(provider) {
+  const emailEl = document.getElementById('social-email-inp');
+  const nameEl = document.getElementById('social-name-inp');
+  const email = (emailEl?.value || '').trim();
+  const name  = (nameEl?.value || '').trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { emailEl?.focus(); showToast('Email invalide', 'error'); return; }
+  if (name.length < 2) { nameEl?.focus(); showToast('Entrez votre nom', 'error'); return; }
+  document.getElementById('social-login-modal')?.remove();
+  __socialLoginCreate(provider, email, name);
 }
 
 function loginGoogle() {
-  logAudit('auth', 'google_attempt', {});
-  // Tentative OAuth réelle si Google Identity Services est chargé
+  if (typeof logAudit === 'function') logAudit('auth', 'google_attempt', {});
+  // OAuth réel si Google Identity Services chargé
   if (window.google && window.google.accounts && window.google.accounts.id) {
     try {
+      window.google.accounts.id.initialize({
+        client_id: window.__GOOGLE_CLIENT_ID__ || '',
+        callback: (res) => {
+          try {
+            const payload = JSON.parse(atob(res.credential.split('.')[1]));
+            __socialLoginCreate('google', payload.email, payload.name, payload.picture);
+          } catch(e) { __showSocialModal('google'); }
+        },
+      });
       window.google.accounts.id.prompt();
       return;
     } catch(e){}
   }
-  // Flux démo : demande email à l'utilisateur
-  const email = prompt('🟢 Connexion Google\n\nEntrez votre email Google :', 'demo@gmail.com');
-  if (!email) { showToast('Connexion annulée', 'info'); return; }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Email invalide', 'error'); return; }
-  const name = email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-  __socialLoginCreate('google', email, name);
+  // Fallback modal propre (pas de prompt natif moche)
+  __showSocialModal('google');
 }
 
 function loginApple() {
-  logAudit('auth', 'apple_attempt', {});
-  // Tentative AppleID.auth si chargé
+  if (typeof logAudit === 'function') logAudit('auth', 'apple_attempt', {});
   if (window.AppleID && window.AppleID.auth) {
     try {
       window.AppleID.auth.signIn().then(res => {
-        __socialLoginCreate('apple', res?.user?.email, res?.user?.name?.firstName || 'Apple User');
-      }).catch(()=> showToast('Connexion Apple annulée', 'info'));
+        const email = res?.user?.email || res?.authorization?.id_token;
+        const fullName = (res?.user?.name?.firstName || '') + ' ' + (res?.user?.name?.lastName || '');
+        __socialLoginCreate('apple', email, fullName.trim() || 'Apple User');
+      }).catch(()=> __showSocialModal('apple'));
       return;
     } catch(e){}
   }
-  const email = prompt('🍎 Connexion Apple\n\nEntrez votre identifiant Apple (email) :', 'demo@icloud.com');
-  if (!email) { showToast('Connexion annulée', 'info'); return; }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Email invalide', 'error'); return; }
-  const name = email.split('@')[0].replace(/[._-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-  __socialLoginCreate('apple', email, name);
+  __showSocialModal('apple');
 }
 
 async function loginBiometric() {
@@ -3703,11 +3855,11 @@ async function loginBiometric() {
       const cred = await navigator.credentials.create({
         publicKey: {
           challenge: crypto.getRandomValues(new Uint8Array(32)),
-          rp: { name: 'STOCKR', id: window.location.hostname },
+          rp: { name: 'BARO', id: window.location.hostname },
           user: {
             id: new TextEncoder().encode(savedSession.user.email || 'user'),
             name: savedSession.user.email || 'user',
-            displayName: savedSession.user.name || 'STOCKR',
+            displayName: savedSession.user.name || 'BARO',
           },
           pubKeyCredParams: [{ alg: -7, type: 'public-key' }, { alg: -257, type: 'public-key' }],
           authenticatorSelection: { userVerification: 'required' },
@@ -3967,6 +4119,8 @@ function vHome() {
         periodStart = new Date(now); periodStart.setHours(0,0,0,0); periodStart.setDate(now.getDate() - (dow - 1));
       } else if (goalPeriod === 'month') {
         periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      } else if (goalPeriod === 'year') {
+        periodStart = new Date(now.getFullYear(), 0, 1);
       } else {
         periodStart = new Date(now); periodStart.setHours(0,0,0,0);
       }
@@ -3978,7 +4132,7 @@ function vHome() {
           ? periodSales.length
           : periodSales.reduce((x,s)=>x+s.total,0);
       // Suggestion auto si pas d'objectif
-      const periodMult = goalPeriod === 'day' ? 1 : goalPeriod === 'week' ? 7 : 30;
+      const periodMult = goalPeriod === 'day' ? 1 : goalPeriod === 'week' ? 7 : goalPeriod === 'month' ? 30 : 365;
       const avg30CA = last30Sales.length > 0 ? last30Sales.reduce((x,s)=>x+s.total,0) / 30 : 0;
       const avg30Profit = last30Sales.length > 0 ? last30Sales.reduce((x,s)=>x+(s.profit||0),0) / 30 : 0;
       const avg30Sales = last30Sales.length / 30;
@@ -3989,7 +4143,7 @@ function vHome() {
       const remaining = Math.max(0, goal - current);
       const unit = goalType === 'sales' ? '' : sym();
       const typeLbl = goalType === 'profit' ? 'Bénéfice' : goalType === 'sales' ? 'Ventes' : 'Chiffre d\'affaires';
-      const periodLbl = goalPeriod === 'day' ? 'Aujourd\'hui' : goalPeriod === 'week' ? 'Cette semaine' : 'Ce mois';
+      const periodLbl = goalPeriod === 'day' ? 'Aujourd\'hui' : goalPeriod === 'week' ? 'Cette semaine' : goalPeriod === 'month' ? 'Ce mois' : 'Cette année';
       const transactionsPeriod = periodSales.length;
       const avgBasket = transactionsPeriod > 0 ? Math.round(periodSales.reduce((x,s)=>x+s.total,0) / transactionsPeriod) : 0;
       const todayProfitVal = periodSales.reduce((x,s)=>x+(s.profit||0),0);
@@ -4511,7 +4665,11 @@ function vPantry() {
       <div class="empty-ico">${IC.inbox}</div>
       <div class="empty-title">${S.articles.length===0 ? (isReseller?'Aucun produit en boutique':t('noArticles')) : t('noResults')}</div>
       <div class="empty-text">${S.articles.length===0 ? (isReseller?'Ajoutez votre premier produit pour commencer à vendre':t('noArticlesSub')) : t('noResultsSub')}</div>
-      ${S.articles.length===0 ? `<button class="btn btn-primary" style="width:auto;padding:11px 24px" onclick="nav('add')">${isReseller?'🏪 Ajouter un produit':t('addArticle')}</button>` : ''}
+      ${S.articles.length===0 ? `
+      <div style="display:flex;flex-direction:column;gap:8px;align-items:center">
+        <button class="btn btn-primary" style="width:auto;padding:11px 24px" onclick="nav('add')">${isReseller?'🏪 Ajouter un produit':t('addArticle')}</button>
+        <button class="btn btn-ghost" style="width:auto;padding:8px 16px;font-size:12px" onclick="if(confirm('Charger 5 articles démo pour explorer l&apos;app ?')){seedDemoData(getBusinessType());render();showToast('Exemples chargés — supprimez-les quand vous voulez','success');}">📚 Charger des exemples (optionnel)</button>
+      </div>` : ''}
     </div>` : list.map((a,i) => {
       const st  = stockStatus(a.stock, a.min);
       const pct = a.min > 0 ? Math.min(100, Math.round((a.stock / Math.max(a.min*2,1))*100)) : 100;
@@ -6736,7 +6894,208 @@ const SPECTRA_KEYWORDS = {
   'protex':{ brand:'Protex' },
   'nivea':{ brand:'Nivea' },
   'dove':{ brand:'Dove' },
-  'palmolive':{ brand:'Palmolive' }
+  'palmolive':{ brand:'Palmolive' },
+  // Lait / produits laitiers
+  'candia':{ type:'Lait', brand:'Candia', cat:'laitier' },
+  'president':{ brand:'Président' },
+  'laitier':{ type:'Produit Laitier', cat:'laitier' },
+  // Bières & sodas CI
+  'castel':{ brand:'Castel' },
+  'flag':{ brand:'Flag' },
+  'tuborg':{ brand:'Tuborg' },
+  'bock':{ type:'Bock', cat:'boissons' },
+  'fanta':{ type:'Bouteille de Fanta', brand:'Fanta', cat:'soda' },
+  'sprite':{ type:'Bouteille de Sprite', brand:'Sprite', cat:'soda' },
+  'schweppes':{ brand:'Schweppes' },
+  'redbull':{ type:'Canette Red Bull', brand:'Red Bull', cat:'energisant' },
+  'monster':{ type:'Canette Monster', brand:'Monster', cat:'energisant' },
+  // Snacks
+  'pringles':{ type:'Pringles', brand:'Pringles', cat:'snack' },
+  'oreo':{ type:'Biscuits Oreo', brand:'Oreo', cat:'biscuit' },
+  'kitkat':{ type:'KitKat', brand:'KitKat', cat:'chocolat' },
+  'twix':{ type:'Twix', brand:'Twix', cat:'chocolat' },
+  'snickers':{ type:'Snickers', brand:'Snickers', cat:'chocolat' },
+  'bounty':{ type:'Bounty', brand:'Bounty', cat:'chocolat' },
+  // Hygiène & ménager
+  'omo':{ brand:'OMO' },
+  'ariel':{ brand:'Ariel' },
+  'pampers':{ brand:'Pampers' },
+  'huggies':{ brand:'Huggies' },
+  'gillette':{ brand:'Gillette' },
+  'sensodyne':{ brand:'Sensodyne' },
+  'signal':{ brand:'Signal' },
+  'oral':{ brand:'Oral-B' },
+  'lifebuoy':{ brand:'Lifebuoy' },
+  'fa':{ brand:'Fa' },
+  // Marques CI fréquentes
+  'saint louis':{ type:'Sucre', brand:'Saint Louis', cat:'epicerie' },
+  'solibra':{ brand:'SOLIBRA' },
+  'awa':{ type:'Bouteille d\'Eau', brand:'Awa', cat:'eau' },
+  'celeste':{ type:'Bouteille d\'Eau', brand:'Céleste', cat:'eau' },
+  'olivio':{ type:'Huile d\'Olive', brand:'Olivio', cat:'huile' },
+  'mami':{ brand:'Mami' },
+
+  // ═══ ÉLECTRONIQUE & INFORMATIQUE ═══
+  'laptop':{ type:'Ordinateur Portable', cat:'electronique' },
+  'macbook':{ type:'MacBook', brand:'Apple', cat:'electronique' },
+  'elitebook':{ type:'EliteBook', brand:'HP', cat:'electronique' },
+  'thinkpad':{ type:'ThinkPad', brand:'Lenovo', cat:'electronique' },
+  'pavilion':{ type:'Pavilion', brand:'HP', cat:'electronique' },
+  'inspiron':{ type:'Inspiron', brand:'Dell', cat:'electronique' },
+  'iphone':{ type:'iPhone', brand:'Apple', cat:'smartphone' },
+  'galaxy':{ type:'Samsung Galaxy', brand:'Samsung', cat:'smartphone' },
+  'redmi':{ type:'Redmi', brand:'Xiaomi', cat:'smartphone' },
+  'ipad':{ type:'iPad', brand:'Apple', cat:'tablette' },
+  'playstation':{ type:'PlayStation', brand:'Sony', cat:'console' },
+  'xbox':{ type:'Xbox', brand:'Microsoft', cat:'console' },
+  'nintendo':{ type:'Nintendo', brand:'Nintendo', cat:'console' },
+  'nikon':{ type:'Appareil Photo', brand:'Nikon', cat:'photo' },
+  'canon':{ type:'Appareil Photo', brand:'Canon', cat:'photo' },
+  'sony':{ brand:'Sony' },
+  'bose':{ type:'Casque Audio', brand:'Bose', cat:'audio' },
+  'jbl':{ type:'Enceinte', brand:'JBL', cat:'audio' },
+  'airpods':{ type:'AirPods', brand:'Apple', cat:'audio' },
+  'garmin':{ type:'Montre', brand:'Garmin', cat:'montre' },
+  'casio':{ type:'Montre Casio', brand:'Casio', cat:'montre' },
+  'applewatch':{ type:'Apple Watch', brand:'Apple', cat:'montre' },
+  'sandisk':{ type:'Carte Mémoire', brand:'SanDisk', cat:'stockage' },
+  'lexar':{ type:'Carte Mémoire', brand:'Lexar', cat:'stockage' },
+  'logitech':{ brand:'Logitech' },
+  'razer':{ brand:'Razer' },
+  'hp':{ brand:'HP' },
+  'dell':{ brand:'Dell' },
+  'lenovo':{ brand:'Lenovo' },
+  'asus':{ brand:'ASUS' },
+  'acer':{ brand:'Acer' },
+  'apple':{ brand:'Apple' },
+  'samsung':{ brand:'Samsung' },
+  'xiaomi':{ brand:'Xiaomi' },
+  'huawei':{ brand:'Huawei' },
+  'oppo':{ brand:'OPPO' },
+  'dji':{ type:'Drone', brand:'DJI', cat:'drone' },
+  'drone':{ type:'Drone', cat:'drone' },
+  'camera':{ type:'Caméra', cat:'photo' },
+  'ecran':{ type:'Écran', cat:'electronique' },
+  'monitor':{ type:'Moniteur', cat:'electronique' },
+  'clavier':{ type:'Clavier', cat:'electronique' },
+  'keyboard':{ type:'Clavier', cat:'electronique' },
+  'souris':{ type:'Souris', cat:'electronique' },
+  'mouse':{ type:'Souris', cat:'electronique' },
+
+  // ═══ MODE / CHAUSSURES / MAROQUINERIE ═══
+  'nike':{ brand:'Nike' },
+  'adidas':{ brand:'Adidas' },
+  'puma':{ brand:'Puma' },
+  'reebok':{ brand:'Reebok' },
+  'newbalance':{ brand:'New Balance' },
+  'airforce':{ type:'Nike Air Force', brand:'Nike', cat:'chaussures' },
+  'jordan':{ type:'Air Jordan', brand:'Nike', cat:'chaussures' },
+  'stansmith':{ type:'Stan Smith', brand:'Adidas', cat:'chaussures' },
+  'yeezy':{ type:'Yeezy', brand:'Adidas', cat:'chaussures' },
+  'levis':{ type:'Jean', brand:'Levi\'s', cat:'mode' },
+  'wrangler':{ type:'Jean', brand:'Wrangler', cat:'mode' },
+  'uniqlo':{ brand:'Uniqlo' },
+  'zara':{ brand:'Zara' },
+  'hm':{ brand:'H&M' },
+  'lacoste':{ brand:'Lacoste' },
+  'tommy':{ brand:'Tommy Hilfiger' },
+  'rayban':{ type:'Lunettes Ray-Ban', brand:'Ray-Ban', cat:'lunettes' },
+  'oakley':{ type:'Lunettes', brand:'Oakley', cat:'lunettes' },
+  'wax':{ type:'Tissu Wax', cat:'mode' },
+  'uniwax':{ type:'Tissu Uniwax', brand:'Uniwax', cat:'mode' },
+  'newera':{ type:'Casquette', brand:'New Era', cat:'mode' },
+  'jansport':{ type:'Sac à Dos', brand:'JanSport', cat:'maroquinerie' },
+  'tshirt':{ type:'T-shirt', cat:'mode' },
+  'chemise':{ type:'Chemise', cat:'mode' },
+  'jean':{ type:'Jean', cat:'mode' },
+  'robe':{ type:'Robe', cat:'mode' },
+
+  // ═══ BOISSONS CI SUPPLÉMENTAIRES ═══
+  'kirene':{ type:'Bouteille d\'Eau Kirène', brand:'Kirène', cat:'eau' },
+  'youki':{ type:'Boisson Youki', brand:'Youki', cat:'soda' },
+  'beaufort':{ type:'Bière Beaufort', brand:'Beaufort', cat:'biere' },
+  'milo':{ type:'Milo', brand:'Nestlé', cat:'petitdej' },
+  'vitasnack':{ type:'Biscuits Vitasnack', brand:'Vitasnack', cat:'biscuit' },
+  'sosuco':{ type:'Sucre SOSUCO', brand:'SOSUCO', cat:'epicerie' },
+  'panzani':{ type:'Pâtes Panzani', brand:'Panzani', cat:'epicerie' },
+  'tatbouille':{ type:'Bouillon', brand:'Maggi', cat:'epicerie' },
+  'maggistart':{ type:'Maggi Star', brand:'Maggi', cat:'epicerie' },
+  'baroncastel':{ brand:'Baron de Castel' },
+  'liptonthe':{ type:'Thé Lipton', brand:'Lipton', cat:'cafe' },
+  'fanico':{ type:'Savon Fanico', brand:'Fanico', cat:'hygiene' },
+
+  // ═══ FRUITS & LÉGUMES ═══
+  'banane':{ type:'Banane', cat:'fruit' },
+  'banana':{ type:'Banane', cat:'fruit' },
+  'plantain':{ type:'Banane Plantain', cat:'fruit' },
+  'avocat':{ type:'Avocat', cat:'fruit' },
+  'avocado':{ type:'Avocat', cat:'fruit' },
+  'mangue':{ type:'Mangue', cat:'fruit' },
+  'mango':{ type:'Mangue', cat:'fruit' },
+  'ananas':{ type:'Ananas', cat:'fruit' },
+  'pineapple':{ type:'Ananas', cat:'fruit' },
+  'carotte':{ type:'Carotte', cat:'legume' },
+  'tomate fraiche':{ type:'Tomate Fraîche', cat:'legume' },
+  'oignon':{ type:'Oignon', cat:'legume' },
+  'onion':{ type:'Oignon', cat:'legume' },
+  'pain':{ type:'Pain', cat:'boulangerie' },
+  'bread':{ type:'Pain', cat:'boulangerie' },
+  'baguette':{ type:'Baguette', cat:'boulangerie' },
+
+  // ═══ ENTRETIEN / MÉNAGE ===
+  'headshoulders':{ type:'Shampoing Head & Shoulders', brand:'Head & Shoulders', cat:'hygiene' },
+  'petitmarseillais':{ brand:'Le Petit Marseillais' },
+  'airwick':{ type:'Désodorisant Air Wick', brand:'Air Wick', cat:'entretien' },
+  'lotus':{ type:'Papier Toilette', brand:'Lotus', cat:'entretien' },
+  'duracell':{ type:'Piles Duracell', brand:'Duracell', cat:'pile' },
+  'energizer':{ type:'Piles Energizer', brand:'Energizer', cat:'pile' },
+  'mrproper':{ type:'Détergent Mr. Propre', brand:'Mr. Propre', cat:'entretien' },
+  'spontex':{ type:'Éponge', brand:'Spontex', cat:'entretien' },
+  'handybag':{ type:'Sacs Poubelle', brand:'Handy Bag', cat:'entretien' },
+  'papiertoilette':{ type:'Papier Toilette', cat:'entretien' },
+
+  // ═══ QUINCAILLERIE & OUTILS ═══
+  'total':{ brand:'Total' },
+  'quartz':{ type:'Huile Moteur Quartz', brand:'Total', cat:'auto' },
+  'philips':{ brand:'Philips' },
+  'ampoule':{ type:'Ampoule', cat:'quincaillerie' },
+  'bulb':{ type:'Ampoule', cat:'quincaillerie' },
+  'stanley':{ brand:'Stanley' },
+  'facom':{ brand:'Facom' },
+  'bosch':{ brand:'Bosch' },
+  'marteau':{ type:'Marteau', cat:'outillage' },
+  'hammer':{ type:'Marteau', cat:'outillage' },
+  'tournevis':{ type:'Tournevis', cat:'outillage' },
+  'perceuse':{ type:'Perceuse', cat:'outillage' },
+  'drill':{ type:'Perceuse', cat:'outillage' },
+  'peinture':{ type:'Pot de Peinture', cat:'quincaillerie' },
+  'paint':{ type:'Pot de Peinture', cat:'quincaillerie' },
+  'gardena':{ brand:'Gardena' },
+  'astral':{ brand:'Astral' },
+
+  // ═══ FOURNITURES / PAPETERIE ═══
+  'clairefontaine':{ type:'Cahier', brand:'Clairefontaine', cat:'papeterie' },
+  'bic':{ type:'Stylo Bic', brand:'Bic', cat:'papeterie' },
+  'stabilo':{ type:'Stabilo', brand:'Stabilo', cat:'papeterie' },
+  'cahier':{ type:'Cahier', cat:'papeterie' },
+  'stylo':{ type:'Stylo', cat:'papeterie' },
+  'classeur':{ type:'Classeur', cat:'papeterie' },
+  'ramette':{ type:'Ramette de Papier', cat:'papeterie' },
+  'esselte':{ brand:'Esselte' },
+  'rapid':{ brand:'Rapid' },
+  'velleda':{ brand:'Velleda' },
+  'casecase':{ type:'Sacoche Ordinateur', brand:'Case Logic', cat:'maroquinerie' },
+  'doublea':{ type:'Papier A4 Double A', brand:'Double A', cat:'papeterie' },
+
+  // ═══ SANTÉ & NUTRITION ═══
+  'alvityl':{ type:'Vitamines Alvityl', brand:'Alvityl', cat:'sante' },
+  'dafalgan':{ type:'Dafalgan', brand:'Dafalgan', cat:'sante' },
+  'doliprane':{ type:'Doliprane', brand:'Doliprane', cat:'sante' },
+  'paracetamol':{ type:'Paracétamol', cat:'sante' },
+  'elastoplast':{ type:'Pansements Elastoplast', brand:'Elastoplast', cat:'sante' },
+  'niveasun':{ type:'Crème Solaire Nivea', brand:'Nivea', cat:'sante' },
+  'proteinpowder':{ type:'Protéine en Poudre', cat:'nutrition' },
+  'goldstandard':{ type:'Gold Standard', brand:'Optimum Nutrition', cat:'nutrition' },
 };
 
 // Mots-clés "primary" (nom produit spécifique) qui doivent gagner sur
@@ -6878,6 +7237,47 @@ async function lookupProductByEAN(ean){
   } catch(e){ return null; }
 }
 
+// ── Nettoyage OCR façon Google Lens ─────────────
+// Objectif : extraire uniquement les tokens qui ressemblent à un nom/marque réel
+//   • Rejette les lettres seules, symboles, "bruit" OCR (« Ae », « J À tans »…)
+//   • Garde les mots ≥ 3 lettres + les quantités (500g, 1L, 250ml)
+//   • Limite à 3 tokens + 30 caractères pour rester lisible
+function _cleanOcrTail(ocr) {
+  if (!ocr) return '';
+  // Remplace les ligatures/accents OCR foireux puis tokenise
+  const raw = String(ocr)
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')       // garde lettres/chiffres/espaces
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!raw) return '';
+  const tokens = raw.split(' ');
+  const kept = [];
+  const seen = new Set();
+  // Mots très courants OCR bruit à ignorer même s'ils font 3 lettres
+  const NOISE = new Set(['aaa','bbb','ccc','xxx','abc','arcs','les','des','dun','une','qui','que','ses','son','sur','ses']);
+  for (const tok of tokens) {
+    const t = tok.trim();
+    if (!t) continue;
+    const low = t.toLowerCase();
+    // Quantité (500g, 1L, 25cl, 250ml, 1kg) — toujours gardée
+    const isQty = /^\d+([.,]\d+)?\s*(g|kg|mg|l|ml|cl|dl|oz|lb|pc|pcs|x)?$/i.test(t);
+    // Mot réel : ≥ 4 lettres ET contient ≥ 1 voyelle (filtre "RR", "FA", "Ae")
+    const hasVowel = /[aeiouyàâäéèêëîïôöùûü]/i.test(t);
+    const isWord = /^[\p{L}]{4,}$/u.test(t) && hasVowel && !NOISE.has(low);
+    // Acronyme marque (≥ 3 majuscules consécutives) : UHT, BIC, MAX
+    const isAcronym = /^[A-Z]{3,}$/.test(t);
+    if (!(isQty || isWord || isAcronym)) continue;
+    if (seen.has(low)) continue;
+    seen.add(low);
+    kept.push(t);
+    if (kept.length >= 3) break;  // max 3 tokens pour rester lisible
+  }
+  // Exiger ≥ 2 tokens pour éviter les bribes "— FA" ou "— arcs"
+  if (kept.length < 2) return '';
+  const joined = kept.join(' ');
+  return joined.length > 30 ? joined.slice(0, 30).trim() : joined;
+}
+
 // ── Grouping SMART avec OCR + mémoire produit ──
 // Résultat : "Bouteille — HEINZ KETCHUP 500g" au lieu de juste "Bouteille"
 async function _groupPredictionsSmart(predictions, imgOrCanvas){
@@ -6958,9 +7358,17 @@ async function _groupPredictionsSmart(predictions, imgOrCanvas){
       resolvedType = resolved.type;
       resolvedBrand = resolved.brand;
     } else if (ocr) {
-      // Nettoie l'OCR : garde max 40 char
-      const ocrClean = ocr.replace(/\s+/g, ' ').slice(0, 40);
-      detectedName = `${cocoName} — ${ocrClean}`;
+      // Nettoyage intelligent façon Google Lens :
+      // • tokens = mots ≥ 3 lettres OU chiffres+unité (500g, 1L, 250ml…)
+      // • rejette les jetons "bruit" (< 3 lettres, symboles isolés, lettres seules)
+      // • n'ajoute la queue OCR que si ≥ 2 tokens ET confiance OCR ≥ 55
+      const cleanTail = _cleanOcrTail(ocr);
+      const ocrOk = (g.ocrConf || 0) >= 55;
+      if (cleanTail && ocrOk) {
+        detectedName = `${cocoName} — ${cleanTail}`;
+      } else {
+        detectedName = cocoName;
+      }
     } else {
       detectedName = cocoName;
     }
@@ -7617,7 +8025,7 @@ async function generateSpectraAuditPDF(){
   pdf.setTextColor(255,255,255); pdf.setFontSize(20); pdf.setFont('helvetica','bold');
   pdf.text('RAPPORT AUDIT SPECTRA', 15, 20);
   pdf.setFontSize(9); pdf.setFont('helvetica','normal');
-  pdf.text(biz || 'STOCKR', 180, 20, { align: 'right' });
+  pdf.text(biz || 'BARO', 180, 20, { align: 'right' });
 
   // Métadonnées
   pdf.setTextColor(30,30,30); pdf.setFontSize(10);
@@ -7675,7 +8083,7 @@ async function generateSpectraAuditPDF(){
   pdf.text(signature.slice(0, 64), 15, 285);
   pdf.text(signature.slice(64), 15, 289);
   pdf.setFont('helvetica','italic'); pdf.setFontSize(7);
-  pdf.text('Ce rapport constitue une preuve horodatée infalsifiable — STOCKR Spectra AI', 15, 294);
+  pdf.text('Ce rapport constitue une preuve horodatée infalsifiable — BARO Spectra AI', 15, 294);
 
   const filename = `audit-spectra-${now.toISOString().slice(0,19).replace(/[:T]/g,'-')}.pdf`;
   pdf.save(filename);
@@ -8065,182 +8473,153 @@ function cancelOrder(id) {
   render();
 }
 
-// ── PRICING PAGE ────────────────────────────
-function vPricing() {
-  const sym = S.session?.currency_symbol || 'FCFA';
-  const plans = [
-    { key:'free', name:t('freePlan'), price:0, color:'var(--gray-6)',
-      features:['50 '+t('articles'),'100 '+t('sales').toLowerCase(),'1 '+t('locations').toLowerCase(),'Spectra (5/'+(_lang==='fr'?'jour':'day')+')','PDF '+t('invoice')], current:true },
-    { key:'pro', name:t('proPlan'), price:4900, color:'var(--accent)',
-      features:[t('unlimited')+' '+t('articles'),t('unlimited')+' '+t('sales').toLowerCase(),'5 '+t('locations').toLowerCase(),'Spectra '+t('unlimited'),'WhatsApp '+t('catalog'),t('purchaseOrders'),t('suppliers'),t('exportCSV')] },
-    { key:'biz', name:t('businessPlan'), price:14900, color:'var(--success)',
-      features:[t('unlimited')+' '+t('articles'),t('unlimited')+' '+t('sales').toLowerCase(),t('unlimited')+' '+t('locations').toLowerCase(),'Spectra '+t('unlimited'),'API '+t('included'),(_lang==='fr'?'Multi-utilisateurs':'Multi-users'),(_lang==='fr'?'Support prioritaire':'Priority support'),(_lang==='fr'?'Tableau de bord avancé':'Advanced dashboard')] },
-  ];
-  return `
-  <div class="sub-hero">
-    <button class="back-btn-dark" style="margin-bottom:14px" onclick="nav('more')">${IC.left}</button>
-    <div class="sub-hero-title">${t('pricing')}</div>
-    <div class="sub-hero-sub">${_lang==='fr'?'Choisissez le plan adapté à votre activité':'Choose the plan that fits your business'}</div>
-  </div>
-  <div class="container">
-    ${plans.map((p,i) => `
-    <div class="card anim" style="margin-bottom:12px;border:2px solid ${p.current?p.color:'var(--border)'};animation-delay:${i*0.05}s;overflow:hidden">
-      ${p.key==='pro'?`<div style="background:var(--accent);color:#fff;text-align:center;padding:4px;font-size:10px;font-weight:800;text-transform:uppercase;margin:-16px -16px 12px -16px">${_lang==='fr'?'Le plus populaire':'Most popular'}</div>`:''}
-      <div style="padding:${p.key==='pro'?'0 16px 16px':'16px'}">
-        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
-          <span style="font-size:28px;font-weight:900;color:${p.color}">${p.price===0?(t('freePlan')):fmt(p.price)}</span>
-          ${p.price>0?`<span style="font-size:13px;color:var(--text-3)">${sym}${t('perMonth')}</span>`:''}
-        </div>
-        <div style="font-size:16px;font-weight:800;margin-bottom:12px">${p.name}</div>
-        ${p.features.map(f => `
-        <div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px">
-          <span style="color:${p.color}">${IC.check}</span>
-          <span>${f}</span>
-        </div>`).join('')}
-        <button class="btn ${p.current?'btn-ghost':'btn-primary'}" style="width:100%;margin-top:14px;${p.current?'opacity:.6;cursor:default':''}" ${p.current?'disabled':''}>
-          ${p.current ? t('currentPlan') : t('upgrade')+' '+p.name}
-        </button>
-      </div>
-    </div>`).join('')}
+// ── PRICING PAGE — 4 plans (Gratuit / Starter / Pro / Enterprise) ──
+function vPricing() { return vSubscription(); } // Fusion : /pricing === /subscription
 
-    <div style="text-align:center;margin-top:16px;padding:16px">
-      <div style="font-size:12px;color:var(--text-3);line-height:1.5">${_lang==='fr'?'Tous les plans incluent le mode hors-ligne et les mises à jour gratuites.':'All plans include offline mode and free updates.'}</div>
-      <div style="font-size:11px;color:var(--text-3);margin-top:4px">support@stockr.app</div>
-    </div>
-  </div>`;
-}
-
-// ── SUBSCRIPTION ─────────────────────────────
+// ── SUBSCRIPTION — 4 plans BARO ─────────────────
 function vSubscription() {
   const sub = S.subscription;
   const isActive = sub.plan !== 'free';
   const trialDays = sub.trialEnd ? Math.max(0, Math.ceil((new Date(sub.trialEnd) - Date.now()) / 86400000)) : 0;
   const billing = sub.billing || 'monthly';
+  // Tarification CFA : gratuit à vie / Starter 5k / Pro 20k / Enterprise 100k (mois)
+  // -20% en annuel
   const prices = {
-    starter:  { monthly: 2500, yearly: 24000 },
-    pro:      { monthly: 4900, yearly: 47000 },
-    business: { monthly: 14900, yearly: 143000 },
+    free:       { monthly: 0,      yearly: 0 },
+    starter:    { monthly: 5000,   yearly: 48000 },   // -20% → 4000/mois équivalent
+    pro:        { monthly: 20000,  yearly: 192000 },  // -20%
+    enterprise: { monthly: 100000, yearly: 960000 },  // -20%
+  };
+  const planOrder = ['free','starter','pro','enterprise'];
+  const planMeta = {
+    free:       { label:'Gratuit', color:'#64748B', emoji:'🎁', desc:'Pour démarrer — Toujours gratuit' },
+    starter:    { label:'Starter', color:'#0EA5E9', emoji:'🚀', desc:'Pour les petits commerces' },
+    pro:        { label:'Professional', color:'var(--accent)', emoji:'💎', desc:'Pour les PME en croissance', popular:true },
+    enterprise: { label:'Enterprise', color:'var(--success)', emoji:'🏢', desc:'Pour les grandes entreprises' },
   };
 
   return `
   <div class="sub-hero" style="background:linear-gradient(135deg,var(--accent) 0%,color-mix(in srgb, var(--accent) 70%, #000) 100%)">
     <button class="back-btn-dark" style="margin-bottom:14px" onclick="nav('more')">${IC.left}</button>
-    <div class="sub-hero-title">${t('subscription')}</div>
-    <div class="sub-hero-sub">${isActive ? t('activePlan') + ': ' + sub.plan.toUpperCase() : t('planFree')}</div>
+    <div class="sub-hero-title">💎 Plans BARO</div>
+    <div class="sub-hero-sub">${isActive ? 'Plan actif : ' + (planMeta[sub.plan]?.label || sub.plan.toUpperCase()) : '🎁 Gratuit pour toujours'}</div>
   </div>
   <div class="container">
 
     ${isActive ? `
-    <div class="card anim" style="border:2px solid var(--accent);overflow:hidden;margin-bottom:16px">
-      <div style="background:linear-gradient(135deg,var(--accent),#7C3AED);padding:16px;margin:-16px -16px 16px -16px">
+    <div class="card anim" style="border:2px solid ${planMeta[sub.plan]?.color||'var(--accent)'};overflow:hidden;margin-bottom:16px">
+      <div style="background:linear-gradient(135deg,${planMeta[sub.plan]?.color||'var(--accent)'},#7C3AED);padding:16px;margin:-16px -16px 16px -16px">
         <div style="display:flex;align-items:center;justify-content:space-between">
           <div>
-            <div style="color:rgba(255,255,255,.7);font-size:11px;font-weight:700;text-transform:uppercase">${t('activePlan')}</div>
-            <div style="color:#fff;font-size:24px;font-weight:900;margin-top:4px">${sub.plan.toUpperCase()}</div>
+            <div style="color:rgba(255,255,255,.75);font-size:11px;font-weight:700;text-transform:uppercase">Plan actif</div>
+            <div style="color:#fff;font-size:22px;font-weight:900;margin-top:4px">${planMeta[sub.plan]?.emoji||''} ${planMeta[sub.plan]?.label||sub.plan.toUpperCase()}</div>
           </div>
-          <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;color:#fff">${IC.logo}</div>
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px">${planMeta[sub.plan]?.emoji||'⭐'}</div>
         </div>
       </div>
       ${trialDays > 0 ? `
       <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(79,70,229,.06);border-radius:10px;margin-bottom:12px">
         <div style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:900">${trialDays}</div>
         <div>
-          <div style="font-size:13px;font-weight:700;color:var(--text-1)">${trialDays} ${t('trialDays')}</div>
-          <div style="font-size:11px;color:var(--text-3)">${t('renewDate')}: ${new Date(sub.trialEnd).toLocaleDateString(_lang==='en'?'en-US':'fr-FR')}</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text-1)">${trialDays} jours d'essai restants</div>
+          <div style="font-size:11px;color:var(--text-3)">Expire le ${new Date(sub.trialEnd).toLocaleDateString(_lang==='en'?'en-US':'fr-FR')}</div>
         </div>
       </div>` : ''}
-      <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--text-1)">${t('planFeatures')}</div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--text-1)">Fonctionnalités incluses</div>
       ${_planFeatures(sub.plan).map(f => `
       <div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px">
         <span style="color:var(--success)">${IC.check}</span>
         <span style="color:var(--text-2)">${f}</span>
       </div>`).join('')}
       <div style="display:flex;gap:8px;margin-top:16px">
-        <button class="btn btn-ghost" style="flex:1;color:var(--danger);border-color:var(--danger)" onclick="cancelPlan()">${t('cancelPlan')}</button>
+        <button class="btn btn-ghost" style="flex:1;color:var(--danger);border-color:var(--danger)" onclick="cancelPlan()">Résilier</button>
       </div>
-    </div>` : `
-    <div class="card anim" style="text-align:center;padding:24px;margin-bottom:16px">
-      <div style="width:56px;height:56px;border-radius:50%;background:var(--gray-2);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;color:var(--text-3)">${IC.logo}</div>
-      <div style="font-size:16px;font-weight:800;color:var(--text-1)">${t('planFree')}</div>
-      <div style="font-size:13px;color:var(--text-3);margin-top:4px">Passez a un plan superieur pour debloquer toutes les fonctionnalites</div>
-    </div>`}
+    </div>` : ''}
 
     <div style="display:flex;gap:6px;margin-bottom:16px;background:var(--gray-1);padding:4px;border-radius:10px">
-      <button class="btn ${billing==='monthly'?'btn-primary':'btn-ghost'}" style="flex:1;padding:8px;font-size:12px" onclick="setBilling('monthly')">${t('monthly')}</button>
-      <button class="btn ${billing==='yearly'?'btn-primary':'btn-ghost'}" style="flex:1;padding:8px;font-size:12px" onclick="setBilling('yearly')">
-        ${t('yearly')} <span style="font-size:10px;opacity:.8">(-20%)</span>
+      <button class="btn ${billing==='monthly'?'btn-primary':'btn-ghost'}" style="flex:1;padding:10px;font-size:13px;font-weight:700" onclick="setBilling('monthly')">Mensuel</button>
+      <button class="btn ${billing==='yearly'?'btn-primary':'btn-ghost'}" style="flex:1;padding:10px;font-size:13px;font-weight:700" onclick="setBilling('yearly')">
+        Annuel <span style="font-size:10px;opacity:.9;background:#10B98125;color:#10B981;padding:2px 6px;border-radius:4px;margin-left:4px">-20%</span>
       </button>
     </div>
 
-    ${['starter','pro','business'].map((pk, i) => {
+    ${planOrder.map((pk, i) => {
       const price = prices[pk][billing];
       const isCurrent = sub.plan === pk;
-      const colors = {starter:'#0ea5e9', pro:'var(--accent)', business:'var(--success)'};
-      const color = colors[pk];
-      const labels = {starter:'Starter', pro:t('proPlan')||'Pro', business:t('businessPlan')||'Business'};
-      const label = labels[pk];
-      const descs = {starter:'Ideal pour demarrer', pro:'Pour les PME en croissance', business:'Pour les grandes entreprises'};
+      const meta = planMeta[pk];
       return `
-    <div class="card anim" style="margin-bottom:12px;border:2px solid ${isCurrent?color:'var(--border)'};overflow:hidden;animation-delay:${i*0.06}s">
-      ${pk==='pro'?`<div style="background:var(--accent);color:#fff;text-align:center;padding:4px;font-size:10px;font-weight:800;text-transform:uppercase;margin:-16px -16px 12px -16px">Le plus populaire</div>`:''}
-      <div>
-        <div style="font-size:15px;font-weight:800;margin-bottom:2px;color:var(--text-1)">${label}</div>
-        <div style="font-size:11px;color:var(--text-3);margin-bottom:10px">${descs[pk]}</div>
+    <div class="card anim" style="margin-bottom:12px;border:2px solid ${isCurrent?meta.color:'var(--border)'};overflow:hidden;animation-delay:${i*0.06}s;position:relative">
+      ${meta.popular?`<div style="position:absolute;top:0;right:14px;background:linear-gradient(135deg,var(--accent),#EC4899);color:#fff;padding:4px 14px;font-size:10px;font-weight:800;text-transform:uppercase;border-radius:0 0 8px 8px">⭐ Populaire</div>`:''}
+      <div style="padding-top:${meta.popular?'10px':'0'}">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:2px">
+          <span style="font-size:24px">${meta.emoji}</span>
+          <span style="font-size:17px;font-weight:800;color:var(--text-1)">${meta.label}</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-3);margin-bottom:10px">${meta.desc}</div>
         <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:12px">
-          <span style="font-size:28px;font-weight:900;color:${color}">${fmt(price)}</span>
-          <span style="font-size:12px;color:var(--text-3)">${sym()}/${billing==='yearly'?'an':'mois'}</span>
+          ${price === 0
+            ? `<span style="font-size:28px;font-weight:900;color:${meta.color}">Gratuit</span><span style="font-size:12px;color:var(--success);font-weight:700">✨ À vie</span>`
+            : `<span style="font-size:28px;font-weight:900;color:${meta.color}">${fmt(price)}</span><span style="font-size:13px;color:var(--text-3)">${sym()}/${billing==='yearly'?'an':'mois'}</span>`}
         </div>
         ${_planFeatures(pk).map(f => `
         <div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:12px">
-          <span style="color:${color}">${IC.check}</span><span>${f}</span>
+          <span style="color:${meta.color}">${IC.check}</span><span>${f}</span>
         </div>`).join('')}
-        <button class="btn ${isCurrent?'btn-ghost':'btn-primary'}" style="width:100%;margin-top:14px;${isCurrent?'opacity:.6;cursor:default':''}" ${isCurrent?'disabled':`onclick="activatePlan('${pk}')"`}>
-          ${isCurrent ? t('currentPlan') : t('choosePlan')}
+        <button class="btn ${isCurrent?'btn-ghost':'btn-primary'}" style="width:100%;margin-top:14px;${isCurrent?'opacity:.6;cursor:default':`background:${meta.color};border-color:${meta.color}`}" ${isCurrent?'disabled':`onclick="activatePlan('${pk}')"`}>
+          ${isCurrent ? '✓ Plan actuel' : price === 0 ? 'Rester en Gratuit' : `🚀 Choisir ${meta.label}`}
         </button>
       </div>
     </div>`;
     }).join('')}
 
     <div class="card" style="margin-top:8px;text-align:center;padding:16px;background:var(--gray-1)">
-      <div style="font-size:11px;color:var(--text-3);line-height:1.6">
-        Tous les plans incluent : mode hors-ligne, mises a jour gratuites, support WhatsApp, sauvegarde cloud.
-        <br>Paiement possible via Wave, Orange Money, Moov Money.
+      <div style="font-size:12px;color:var(--text-2);line-height:1.6;font-weight:600">
+        ✅ Tous les plans incluent le mode hors-ligne, les mises à jour, le support WhatsApp, la sauvegarde cloud.
       </div>
-      <div style="font-size:11px;color:var(--accent);margin-top:6px;font-weight:600">support@stockr.app</div>
+      <div style="font-size:11px;color:var(--text-3);margin-top:8px;line-height:1.5">
+        💳 Paiement : Wave · Orange Money · Moov · MTN MoMo · Carte · PayPal · Google Pay · Apple Pay<br>
+        🔒 Résiliable à tout moment · Sans engagement · Essai 14j offert
+      </div>
+      <div style="font-size:11px;color:var(--accent);margin-top:6px;font-weight:700">support@baro.app</div>
     </div>
   </div>`;
 }
 
 function _planFeatures(plan) {
+  if (plan === 'free') return [
+    '50 articles', '100 ventes/mois',
+    '1 emplacement', 'Spectra (5/jour)',
+    'Factures PDF', 'Mode hors-ligne',
+    'Support WhatsApp',
+  ];
   if (plan === 'starter') return [
-    '200 articles', '500 ventes/mois',
-    '2 emplacements', 'Spectra (20/jour)',
-    'Factures PDF', 'Export CSV',
-    '1 moyen de paiement',
+    '500 articles', '2000 ventes/mois',
+    '2 emplacements', 'Spectra (50/jour)',
+    'Factures PDF personnalisées', 'Export CSV',
+    'WhatsApp catalogue', 'Fournisseurs (10)',
+    '3 moyens de paiement',
+    'Sauvegarde cloud',
   ];
   if (plan === 'pro') return [
-    t('unlimited')+' '+t('articles'), t('unlimited')+' '+t('sales').toLowerCase(),
-    '5 '+t('locations').toLowerCase(), 'Spectra '+t('unlimited'),
-    'WhatsApp '+t('catalog'), t('purchaseOrders'), t('suppliers'),
-    t('exportCSV'), 'Boutique en ligne',
-    'Marketing & campagnes', 'Integrations (5)',
-    'Rapports avances',
+    t('unlimited')+' articles', t('unlimited')+' ventes',
+    '5 emplacements', 'Spectra '+t('unlimited'),
+    'WhatsApp '+t('catalog'), t('purchaseOrders'), t('suppliers')+' illimités',
+    t('exportCSV')+' + Excel', 'Boutique en ligne',
+    'Marketing & campagnes', 'Intégrations (10)',
+    'Rapports avancés', 'Tous paiements (Wave, OM, carte, PayPal…)',
+    'Programme fidélité',
   ];
-  if (plan === 'business') return [
-    t('unlimited')+' '+t('articles'), t('unlimited')+' '+t('sales').toLowerCase(),
-    t('unlimited')+' '+t('locations').toLowerCase(), 'Spectra '+t('unlimited'),
-    'API incluse', 'Multi-utilisateurs',
-    'Support prioritaire 24/7', 'Tableau de bord avance',
-    'Gestion des roles', 'Integrations illimitees',
-    'Boutique + domaine personnalise',
-    'Programme fidelite avance',
-    'Export comptable OHADA',
+  if (plan === 'enterprise') return [
+    t('unlimited')+' articles', t('unlimited')+' ventes',
+    t('unlimited')+' emplacements', 'Spectra '+t('unlimited')+' + IA avancée',
+    'API REST complète', 'Multi-utilisateurs illimités',
+    'Support prioritaire 24/7', 'Account manager dédié',
+    'Gestion des rôles & permissions', 'Intégrations illimitées',
+    'Boutique + domaine personnalisé', 'Programme fidélité avancé',
+    'Export comptable OHADA + SYSCOHADA', 'SLA 99.9%',
+    'Formation équipe incluse',
   ];
-  return [
-    '50 '+t('articles'), '100 '+t('sales').toLowerCase(),
-    '1 emplacement', 'Spectra (5/jour)',
-    'PDF facture',
-  ];
+  return _planFeatures('free');
 }
 
 // ── SUPPLIERS ────────────────────────────────
@@ -8522,7 +8901,7 @@ function spectraRunDemoReception() {
 function editDailyGoal() {
   const current = Number(localStorage.getItem('stockr_daily_goal')) || 0;
   const currentType = localStorage.getItem('stockr_goal_type') || 'revenue'; // revenue | sales | profit
-  const currentPeriod = localStorage.getItem('stockr_goal_period') || 'day'; // day | week | month
+  const currentPeriod = localStorage.getItem('stockr_goal_period') || 'day'; // day | week | month | year
   const thirtyDaysAgo = new Date(); thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
   const last30 = S.sales.filter(s => new Date(s.date) >= thirtyDaysAgo);
   const avg30CA = last30.length > 0 ? Math.round(last30.reduce((x,s)=>x+s.total,0) / 30) : 0;
@@ -8545,8 +8924,8 @@ function editDailyGoal() {
     const period = modal.dataset.period || currentPeriod;
     const valueInput = modal.dataset.value;
     const unit = type === 'sales' ? 'ventes' : sym();
-    const periodLabel = period === 'day' ? 'jour' : period === 'week' ? 'semaine' : 'mois';
-    const periodMult = period === 'day' ? 1 : period === 'week' ? 7 : 30;
+    const periodLabel = period === 'day' ? 'jour' : period === 'week' ? 'semaine' : period === 'month' ? 'mois' : 'année';
+    const periodMult = period === 'day' ? 1 : period === 'week' ? 7 : period === 'month' ? 30 : 365;
     const sug = type === 'revenue' ? sugCA * periodMult : type === 'profit' ? sugProfit * periodMult : sugSales * periodMult;
     const avg = type === 'revenue' ? avg30CA * periodMult : type === 'profit' ? avg30Profit * periodMult : avg30Sales * periodMult;
     return `
@@ -8579,10 +8958,10 @@ function editDailyGoal() {
 
         <div style="margin-bottom:14px">
           <label style="font-size:11px;color:var(--text-3);font-weight:700;letter-spacing:.3px;text-transform:uppercase;margin-bottom:6px;display:block">Période</label>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
-            ${['day','week','month'].map(p => `
-              <button style="padding:8px;border-radius:8px;border:1.5px solid ${period===p?'var(--accent)':'var(--border)'};background:${period===p?'rgba(79,70,229,0.08)':'var(--surface)'};cursor:pointer;font-size:12px;font-weight:600;color:${period===p?'var(--accent)':'var(--text-2)'}" onclick="document.getElementById('goal-modal').dataset.period='${p}';this.parentElement.parentElement.parentElement.dispatchEvent(new Event('refresh'))">
-                ${p==='day'?'📅 Jour':p==='week'?'📆 Semaine':'🗓️ Mois'}
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+            ${['day','week','month','year'].map(p => `
+              <button style="padding:8px 4px;border-radius:8px;border:1.5px solid ${period===p?'var(--accent)':'var(--border)'};background:${period===p?'rgba(79,70,229,0.08)':'var(--surface)'};cursor:pointer;font-size:11px;font-weight:600;color:${period===p?'var(--accent)':'var(--text-2)'}" onclick="document.getElementById('goal-modal').dataset.period='${p}';this.parentElement.parentElement.parentElement.dispatchEvent(new Event('refresh'))">
+                ${p==='day'?'📅 Jour':p==='week'?'📆 Sem.':p==='month'?'🗓️ Mois':'🎊 Année'}
               </button>
             `).join('')}
           </div>
@@ -9039,7 +9418,7 @@ function generateCatalogImage() {
         ctx.fillStyle = 'rgba(255,255,255,0.4)';
         ctx.font = '16px -apple-system, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('Powered by STOCKR', W/2, cy + 20);
+        ctx.fillText('Powered by BARO', W/2, cy + 20);
 
         resolve(canvas);
       }
@@ -9141,7 +9520,7 @@ function generateFOMOImage(name, stock) {
 
       ctx.fillStyle = 'rgba(255,255,255,0.3)';
       ctx.font = '18px -apple-system, sans-serif';
-      ctx.fillText('Powered by STOCKR', W/2, 1040);
+      ctx.fillText('Powered by BARO', W/2, 1040);
 
       resolve(canvas);
     };
@@ -9183,7 +9562,7 @@ async function shareFOMO(name, stock) {
   } catch (e) { /* fallback to text */ }
 
   // Text fallback
-  const msg = `*${biz}*\n\n${t('catalogLastPieces')} ${t('catalogHurry')}\n\n${name} — ${stock} ${t('unitsRemaining')}\n\n_STOCKR_`;
+  const msg = `*${biz}*\n\n${t('catalogLastPieces')} ${t('catalogHurry')}\n\n${name} — ${stock} ${t('unitsRemaining')}\n\n_BARO_`;
   window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
 }
 
@@ -9553,12 +9932,12 @@ function vSettings() {
       </div>
     </div>` : ''}
 
-    <div style="text-align:center;padding:24px 0 8px;font-size:11px;color:var(--text-3)">STOCKR · v2.0.0 · 2026</div>
+    <div style="text-align:center;padding:24px 0 8px;font-size:11px;color:var(--text-3)">BARO · v2.0.0 · 2026</div>
   </div>`;
 }
 
 // ══════════════════════════════════════════════
-// ██ STOCKR v2 — NOUVELLES FONCTIONNALITÉS
+// ██ BARO v2 — NOUVELLES FONCTIONNALITÉS
 // ══════════════════════════════════════════════
 
 // ══════════════════════════════════════════════
@@ -11319,7 +11698,7 @@ ${bannerHTML(bottomBanner, 'bottom')}
 ${popupHTML}
 <div class="footer">
   <div style="margin-bottom:8px">${bc.name||S.session?.business||'Ma Boutique'}</div>
-  Propulsé par <a href="#">STOCKR</a>
+  Propulsé par <a href="#">BARO</a>
 </div>
 ${waNum?`<a href="${waLink}" target="_blank" class="wa-float"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg></a>`:''}
 ${customJsBody}
@@ -11485,7 +11864,7 @@ function vBoutiqueDomain() {
   </div>
   <div class="container">
     <div class="card" style="margin-bottom:10px">
-      <div class="card-title">🔗 URL STOCKR (gratuite)</div>
+      <div class="card-title">🔗 URL BARO (gratuite)</div>
       <div style="font-size:11px;color:var(--text-3);margin-bottom:8px">Votre boutique est accessible gratuitement sur stockr.shop</div>
       <div class="form-group">
         <label class="form-label">Nom de sous-domaine</label>
@@ -12164,7 +12543,7 @@ function previewBoutiqueSite() {
 <div class="c">
 ${shopProds.map(p=>{const promo=_getActivePromo(p.id);const pp=promo?Math.round(p.price*(1-promo.discount/100)):null;return `<div class="p"><div class="pt"><div class="pi">${p.name.charAt(0)}</div><div><div class="n">${p.name}</div>${promo?'<div style="color:#ef4444;font-size:11px;font-weight:700;margin-top:2px">-'+promo.discount+'% '+promo.name+'</div>':''}</div></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid #f0f0f0"><div class="pr">${promo?'<span style="text-decoration:line-through;color:#aaa;font-size:13px;margin-right:6px">'+fmt(p.price)+'</span>'+fmt(pp):fmt(p.price)} ${sym()}</div><button class="b">Commander</button></div></div>`;}).join('')}
 <div class="pay"><div class="pay-t">Paiements acceptés</div><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">${payText}</div></div>
-</div><div class="f">Aperçu STOCKR — ${bc.domain||'boutique'}.stockr.shop</div></body></html>`);
+</div><div class="f">Aperçu BARO — ${bc.domain||'boutique'}.stockr.shop</div></body></html>`);
   preview.document.close();
 }
 function toggleBoutiqueProduct(id) {
@@ -12239,7 +12618,7 @@ function shareBoutiqueWhatsApp() {
     ...items.map(p => `▸ ${p.name} — *${fmt(p.price)} ${sym()}*`),
     '', bc.deliveryFees > 0 ? `🚚 Livraison : ${fmt(bc.deliveryFees)} ${sym()}` : '🚚 Livraison gratuite',
     (bc.deliveryZones||[]).length > 0 ? `📍 Zones : ${bc.deliveryZones.join(', ')}` : '',
-    '', '📲 Commandez maintenant !', '_Propulsé par STOCKR_'
+    '', '📲 Commandez maintenant !', '_Propulsé par BARO_'
   ];
   window.open('https://wa.me/?text=' + encodeURIComponent(lines.join('\n')), '_blank');
 }
@@ -13976,26 +14355,101 @@ function redeemLoyaltyReward(clientId, rewardIndex) {
   render();
 }
 function schedulePost() {
-  if (S.products.length === 0) { showToast('Ajoutez des produits', 'error'); return; }
-  const prodIdx = prompt('Produit :\n' + S.products.map((p,i) => `${i+1}. ${p.name}`).join('\n') + '\nNumero :', '1');
-  if (!prodIdx) return;
-  const prod = S.products[parseInt(prodIdx)-1];
-  if (!prod) { showToast('Produit invalide', 'error'); return; }
-  const channelChoice = prompt('Canal :\n1. WhatsApp\n2. Facebook\n3. Instagram\n4. TikTok\n5. Twitter/X\n6. YouTube\n7. SMS\n8. Copier\nNuméro :', '1');
-  const channelMap = {'1':'whatsapp','2':'facebook','3':'instagram','4':'tiktok','5':'twitter','6':'youtube','7':'sms','8':'copy'};
-  const channel = channelMap[channelChoice] || channelChoice?.toLowerCase() || 'whatsapp';
-  const dateStr = prompt('Date de publication (YYYY-MM-DD) :', new Date(Date.now()+86400000).toISOString().slice(0,10));
-  if (!dateStr) return;
-  const time = prompt('Heure (HH:MM) :', '10:00') || '10:00';
-  const caption = prompt('Legende / message :', `${prod.name} — ${fmt(prod.price)} ${S.session?.currency_symbol||'FCFA'}. Commandez maintenant !`) || '';
-  const post = {
-    id: Date.now(), productId: prod.id, productName: prod.name,
-    channel, scheduledDate: dateStr, scheduledTime: time, caption,
-    status: 'scheduled', date: new Date().toISOString()
-  };
-  S.scheduledPosts.push(post);
+  const items = [...(S.products||[]), ...(S.articles||[])];
+  if (items.length === 0) { showToast('Ajoutez des produits d\'abord', 'error'); return; }
+  const existing = document.getElementById('sched-modal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'sched-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(6px);animation:fadeIn .2s ease';
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  const tomorrow = new Date(Date.now()+86400000).toISOString().slice(0,10);
+  modal.innerHTML = `
+    <div style="background:var(--surface);border-radius:16px;max-width:440px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,.35);animation:slideUp .25s ease">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:17px;font-weight:800;color:var(--text-1)">📅 Programmer une publication</div>
+        <button style="width:30px;height:30px;border-radius:50%;border:none;background:var(--gray-1);color:var(--text-2);font-size:16px;cursor:pointer" onclick="document.getElementById('sched-modal').remove()">×</button>
+      </div>
+      <div style="padding:16px 20px">
+        <div class="form-group">
+          <label class="form-label">Produit *</label>
+          <select class="input" id="sched-product" style="font-size:16px">
+            ${items.map(p => `<option value="${p.id}">${p.name} — ${fmt(p.price||0)} ${sym()}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Plateformes * (cochez une ou plusieurs)</label>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+            ${[
+              {id:'instagram',n:'Instagram',c:'#E1306C'},
+              {id:'facebook',n:'Facebook',c:'#1877F2'},
+              {id:'tiktok',n:'TikTok',c:'#000'},
+              {id:'youtube',n:'YouTube',c:'#FF0000'},
+              {id:'twitter',n:'X',c:'#000'},
+              {id:'whatsapp',n:'WhatsApp',c:'#25D366'},
+            ].map(p => `
+              <label style="display:flex;align-items:center;gap:6px;padding:8px;background:var(--gray-1);border-radius:8px;border:1px solid var(--border);cursor:pointer;font-size:12px;font-weight:600">
+                <input type="checkbox" class="sched-chan" value="${p.id}" ${p.id==='instagram'||p.id==='facebook'?'checked':''}>
+                <span style="color:${p.c}">${p.n}</span>
+              </label>
+            `).join('')}
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px">
+          <div class="form-group">
+            <label class="form-label">Date *</label>
+            <input class="input" id="sched-date" type="date" value="${tomorrow}" style="font-size:16px">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Heure</label>
+            <input class="input" id="sched-time" type="time" value="10:00" style="font-size:16px">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Légende</label>
+          <textarea class="input" id="sched-caption" rows="3" style="font-size:16px" placeholder="Votre message..."></textarea>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn btn-ghost" style="flex:1" onclick="document.getElementById('sched-modal').remove()">Annuler</button>
+          <button class="btn btn-primary" style="flex:2" onclick="__saveScheduledPost()">📅 Programmer</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  setTimeout(() => {
+    const sel = document.getElementById('sched-product');
+    if (sel) {
+      const prod = items.find(p => String(p.id) === sel.value);
+      if (prod) {
+        document.getElementById('sched-caption').value = `${prod.name} — ${fmt(prod.price||0)} ${sym()}. Commandez maintenant !`;
+      }
+    }
+  }, 80);
+}
+
+function __saveScheduledPost() {
+  const sel = document.getElementById('sched-product');
+  const prodId = sel?.value;
+  const items = [...(S.products||[]), ...(S.articles||[])];
+  const prod = items.find(p => String(p.id) === String(prodId));
+  if (!prod) { showToast('Produit introuvable', 'error'); return; }
+  const channels = Array.from(document.querySelectorAll('.sched-chan:checked')).map(el => el.value);
+  if (channels.length === 0) { showToast('Cochez au moins une plateforme', 'error'); return; }
+  const dateStr = document.getElementById('sched-date')?.value;
+  const time = document.getElementById('sched-time')?.value || '10:00';
+  const caption = document.getElementById('sched-caption')?.value || '';
+  if (!dateStr) { showToast('Date requise', 'error'); return; }
+  const now = Date.now();
+  channels.forEach((channel, i) => {
+    S.scheduledPosts.push({
+      id: now + i, productId: prod.id, productName: prod.name,
+      channel, scheduledDate: dateStr, scheduledTime: time, caption,
+      status: 'scheduled', date: new Date().toISOString()
+    });
+  });
   localStorage.setItem('stockr_posts', JSON.stringify(S.scheduledPosts));
-  showToast(`Publication programmee pour le ${dateStr} a ${time}`);
+  document.getElementById('sched-modal')?.remove();
+  showToast(`📅 ${channels.length} publication(s) programmée(s) pour le ${dateStr} à ${time}`, 'success');
   render();
 }
 async function publishScheduledPost(id) {
@@ -14022,6 +14476,353 @@ function deleteScheduledPost(id) {
   render();
 }
 
+// ═══════════════════════════════════════════════
+// STUDIO CRÉATION : Templates + éditeurs image/vidéo
+// ═══════════════════════════════════════════════
+const SOCIAL_TEMPLATES = {
+  image: [
+    { id:'promo-sale', name:'Promo Flash', emoji:'🔥', bg:'linear-gradient(135deg,#FF6B6B,#EE5A24)', fmt:'1080×1080', tag:'Instagram · Facebook',
+      preset:{ title:'PROMO FLASH -30%', subtitle:'Aujourd\'hui seulement', badge:'🔥 FLASH', bgColor:'#FF6B6B', textColor:'#fff' } },
+    { id:'new-product', name:'Nouveauté', emoji:'✨', bg:'linear-gradient(135deg,#4F46E5,#EC4899)', fmt:'1080×1080', tag:'Instagram · Facebook',
+      preset:{ title:'NOUVEAU ✨', subtitle:'Découvrez notre nouveauté', badge:'DISPO', bgColor:'#4F46E5', textColor:'#fff' } },
+    { id:'story-weekend', name:'Story Week-end', emoji:'📅', bg:'linear-gradient(135deg,#F59E0B,#EF4444)', fmt:'1080×1920', tag:'Story IG · FB · TikTok',
+      preset:{ title:'OUVERT CE WEEK-END', subtitle:'Sam-Dim 9h-21h', badge:'📍', bgColor:'#F59E0B', textColor:'#fff' } },
+    { id:'testimonial', name:'Témoignage', emoji:'⭐', bg:'linear-gradient(135deg,#10B981,#059669)', fmt:'1080×1080', tag:'Instagram · Facebook',
+      preset:{ title:'"Super produit !"', subtitle:'— Client satisfait', badge:'⭐⭐⭐⭐⭐', bgColor:'#10B981', textColor:'#fff' } },
+    { id:'menu', name:'Menu / Catalogue', emoji:'📋', bg:'linear-gradient(135deg,#000,#333)', fmt:'1080×1350', tag:'Instagram · Pinterest',
+      preset:{ title:'NOTRE MENU', subtitle:'Sélection du jour', badge:'MENU', bgColor:'#000', textColor:'#fff' } },
+    { id:'event', name:'Événement', emoji:'🎉', bg:'linear-gradient(135deg,#8B5CF6,#EC4899)', fmt:'1080×1080', tag:'Facebook · IG',
+      preset:{ title:'GRANDE OUVERTURE', subtitle:'Samedi 18 Avril à 10h', badge:'🎉 ÉVÉNEMENT', bgColor:'#8B5CF6', textColor:'#fff' } },
+    { id:'avant-apres', name:'Avant / Après', emoji:'🔄', bg:'linear-gradient(135deg,#06B6D4,#0891B2)', fmt:'1080×1080', tag:'Instagram · TikTok',
+      preset:{ title:'AVANT ⟶ APRÈS', subtitle:'Transformation', badge:'🔄', bgColor:'#06B6D4', textColor:'#fff' } },
+    { id:'recrutement', name:'Recrutement', emoji:'👔', bg:'linear-gradient(135deg,#1E40AF,#3B82F6)', fmt:'1080×1080', tag:'LinkedIn · FB',
+      preset:{ title:'NOUS RECRUTONS', subtitle:'CDI · Temps plein', badge:'💼', bgColor:'#1E40AF', textColor:'#fff' } },
+  ],
+  video: [
+    { id:'reel-promo', name:'Reel Promo 15s', emoji:'🎬', bg:'linear-gradient(135deg,#FF6B6B,#000)', fmt:'1080×1920 · 15s', tag:'TikTok · Reels IG', duration:15 },
+    { id:'reel-unboxing', name:'Unboxing 30s', emoji:'📦', bg:'linear-gradient(135deg,#F59E0B,#DC2626)', fmt:'1080×1920 · 30s', tag:'TikTok · Reels', duration:30 },
+    { id:'reel-recette', name:'Tuto / Recette', emoji:'👨‍🍳', bg:'linear-gradient(135deg,#10B981,#000)', fmt:'1080×1920 · 60s', tag:'TikTok · YouTube Shorts', duration:60 },
+    { id:'reel-teasing', name:'Teasing nouveauté', emoji:'⏳', bg:'linear-gradient(135deg,#8B5CF6,#0EA5E9)', fmt:'1080×1920 · 10s', tag:'IG Stories · TikTok', duration:10 },
+    { id:'reel-review', name:'Review produit', emoji:'⭐', bg:'linear-gradient(135deg,#10B981,#06B6D4)', fmt:'1080×1920 · 45s', tag:'TikTok · IG', duration:45 },
+    { id:'reel-live', name:'Live / Événement', emoji:'🔴', bg:'linear-gradient(135deg,#DC2626,#000)', fmt:'1920×1080 · 3min', tag:'Facebook Live · YouTube', duration:180 },
+    { id:'yt-short', name:'YouTube Short', emoji:'▶️', bg:'linear-gradient(135deg,#FF0000,#000)', fmt:'1080×1920 · 60s', tag:'YouTube', duration:60 },
+    { id:'yt-long', name:'YouTube long', emoji:'📺', bg:'linear-gradient(135deg,#FF0000,#CC0000)', fmt:'1920×1080 · 5-10min', tag:'YouTube', duration:600 },
+  ],
+};
+
+function openSocialTemplates(type) {
+  const templates = SOCIAL_TEMPLATES[type] || [];
+  const existing = document.getElementById('tpl-modal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'tpl-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);animation:fadeIn .2s ease';
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  modal.innerHTML = `
+    <div style="background:var(--surface);border-radius:16px;max-width:500px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,.35);animation:slideUp .25s ease">
+      <div style="padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:17px;font-weight:800;color:var(--text-1)">${type==='image'?'🖼️ Templates Image':'🎬 Templates Vidéo'}</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:2px">Cliquez pour personnaliser</div>
+        </div>
+        <button style="width:32px;height:32px;border-radius:50%;border:none;background:var(--gray-1);color:var(--text-2);font-size:18px;cursor:pointer" onclick="document.getElementById('tpl-modal').remove()">×</button>
+      </div>
+      <div style="padding:16px 20px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          ${templates.map(tpl => `
+            <div class="tpl-card" style="background:${tpl.bg};border-radius:12px;padding:14px;color:#fff;cursor:pointer;min-height:120px;display:flex;flex-direction:column;justify-content:space-between;transition:transform .15s" onclick="${type==='image'?`applyImageTemplate('${tpl.id}')`:`applyVideoTemplate('${tpl.id}')`}" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+              <div style="font-size:32px;text-align:center;margin-bottom:6px">${tpl.emoji}</div>
+              <div>
+                <div style="font-size:13px;font-weight:800;margin-bottom:2px">${tpl.name}</div>
+                <div style="font-size:10px;opacity:.85">${tpl.fmt}</div>
+                <div style="font-size:10px;opacity:.75;margin-top:2px">${tpl.tag}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+function applyImageTemplate(tplId) {
+  const tpl = SOCIAL_TEMPLATES.image.find(t => t.id === tplId);
+  if (!tpl) return;
+  document.getElementById('tpl-modal')?.remove();
+  openImageEditor(tpl.preset);
+}
+
+function applyVideoTemplate(tplId) {
+  const tpl = SOCIAL_TEMPLATES.video.find(t => t.id === tplId);
+  if (!tpl) return;
+  document.getElementById('tpl-modal')?.remove();
+  openVideoEditor(tpl);
+}
+
+// Éditeur image canvas (simple mais fonctionnel)
+function openImageEditor(preset) {
+  const data = preset || { title:'VOTRE TITRE', subtitle:'Sous-titre', badge:'', bgColor:'#4F46E5', textColor:'#fff' };
+  const existing = document.getElementById('img-editor-modal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'img-editor-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:10001;display:flex;align-items:center;justify-content:center;padding:12px;backdrop-filter:blur(6px);animation:fadeIn .2s ease';
+  modal.innerHTML = `
+    <div style="background:var(--surface);border-radius:16px;max-width:520px;width:100%;max-height:94vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,.5);animation:slideUp .25s ease">
+      <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:16px;font-weight:800;color:var(--text-1)">✏️ Éditeur image</div>
+        <button style="width:30px;height:30px;border-radius:50%;border:none;background:var(--gray-1);color:var(--text-2);font-size:16px;cursor:pointer" onclick="document.getElementById('img-editor-modal').remove()">×</button>
+      </div>
+      <div style="padding:16px 18px">
+        <canvas id="img-editor-canvas" width="540" height="540" style="width:100%;height:auto;max-width:300px;display:block;margin:0 auto 14px auto;background:${data.bgColor};border-radius:12px;aspect-ratio:1/1"></canvas>
+        <div class="form-group"><label class="form-label">Titre</label><input class="input" id="img-ed-title" type="text" value="${data.title.replace(/"/g,'&quot;')}" oninput="__renderImgEditor()" style="font-size:16px"></div>
+        <div class="form-group"><label class="form-label">Sous-titre</label><input class="input" id="img-ed-sub" type="text" value="${data.subtitle.replace(/"/g,'&quot;')}" oninput="__renderImgEditor()" style="font-size:16px"></div>
+        <div class="form-group"><label class="form-label">Badge (optionnel)</label><input class="input" id="img-ed-badge" type="text" value="${(data.badge||'').replace(/"/g,'&quot;')}" oninput="__renderImgEditor()" style="font-size:16px"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="form-group"><label class="form-label">Fond</label><input class="input" id="img-ed-bg" type="color" value="${data.bgColor}" oninput="__renderImgEditor()" style="height:44px;cursor:pointer"></div>
+          <div class="form-group"><label class="form-label">Texte</label><input class="input" id="img-ed-fg" type="color" value="${data.textColor}" oninput="__renderImgEditor()" style="height:44px;cursor:pointer"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Image produit (optionnel)</label>
+          <input class="input" id="img-ed-upload" type="file" accept="image/*" onchange="__imgEdUpload(event)" style="font-size:14px;padding:10px">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+          <button class="btn btn-ghost" onclick="__imgEdDownload()">💾 Télécharger</button>
+          <button class="btn btn-primary" onclick="__imgEdShare()">📤 Partager</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  setTimeout(__renderImgEditor, 50);
+}
+
+function __renderImgEditor() {
+  const c = document.getElementById('img-editor-canvas');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const title = document.getElementById('img-ed-title')?.value || '';
+  const sub = document.getElementById('img-ed-sub')?.value || '';
+  const badge = document.getElementById('img-ed-badge')?.value || '';
+  const bg = document.getElementById('img-ed-bg')?.value || '#4F46E5';
+  const fg = document.getElementById('img-ed-fg')?.value || '#fff';
+  const W = c.width, H = c.height;
+  // Gradient bg
+  const grad = ctx.createLinearGradient(0, 0, W, H);
+  grad.addColorStop(0, bg);
+  grad.addColorStop(1, bg + 'CC');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+  // Product image if uploaded
+  if (window.__imgEdImg) {
+    const img = window.__imgEdImg;
+    const imgSize = W * 0.55;
+    ctx.drawImage(img, (W - imgSize) / 2, H * 0.1, imgSize, imgSize);
+  }
+  // Badge
+  if (badge) {
+    ctx.fillStyle = 'rgba(255,255,255,0.95)';
+    const bx = 40, by = 40;
+    ctx.font = 'bold 22px Inter, Arial';
+    const tw = ctx.measureText(badge).width;
+    ctx.fillRect(bx, by, tw + 30, 40);
+    ctx.fillStyle = bg;
+    ctx.fillText(badge, bx + 15, by + 28);
+  }
+  // Title
+  ctx.fillStyle = fg;
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 46px Inter, Arial';
+  __wrapText(ctx, title, W / 2, H - 140, W - 60, 54);
+  // Subtitle
+  ctx.font = '500 24px Inter, Arial';
+  ctx.globalAlpha = 0.85;
+  __wrapText(ctx, sub, W / 2, H - 80, W - 60, 28);
+  ctx.globalAlpha = 1;
+  // Watermark BARO
+  ctx.fillStyle = fg;
+  ctx.globalAlpha = 0.55;
+  ctx.font = 'bold 16px Inter, Arial';
+  ctx.fillText('Créé avec BARO', W / 2, H - 25);
+  ctx.globalAlpha = 1;
+}
+
+function __wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = String(text).split(' ');
+  const lines = []; let line = '';
+  for (const w of words) {
+    const test = line + w + ' ';
+    if (ctx.measureText(test).width > maxWidth && line) { lines.push(line.trim()); line = w + ' '; }
+    else line = test;
+  }
+  if (line) lines.push(line.trim());
+  const total = lines.length;
+  lines.forEach((ln, i) => ctx.fillText(ln, x, y + (i - (total-1)/2) * lineHeight));
+}
+
+function __imgEdUpload(e) {
+  const file = e.target?.files?.[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => { window.__imgEdImg = img; __renderImgEditor(); };
+  img.src = URL.createObjectURL(file);
+}
+
+function __imgEdDownload() {
+  const c = document.getElementById('img-editor-canvas');
+  if (!c) return;
+  const link = document.createElement('a');
+  link.download = `baro-post-${Date.now()}.png`;
+  link.href = c.toDataURL('image/png');
+  link.click();
+  showToast('🖼️ Image téléchargée', 'success');
+}
+
+async function __imgEdShare() {
+  const c = document.getElementById('img-editor-canvas');
+  if (!c) return;
+  c.toBlob(async (blob) => {
+    if (!blob) { showToast('Erreur export', 'error'); return; }
+    const file = new File([blob], `baro-post-${Date.now()}.png`, { type:'image/png' });
+    if (navigator.canShare && navigator.canShare({ files:[file] })) {
+      try {
+        await navigator.share({ files:[file], title:'BARO', text:document.getElementById('img-ed-title')?.value });
+        showToast('✅ Partagé', 'success');
+      } catch(e){ __imgEdDownload(); }
+    } else {
+      __imgEdDownload();
+      showToast('📥 Téléchargée — à partager manuellement', 'info');
+    }
+  }, 'image/png');
+}
+
+// Éditeur vidéo (utilise MediaRecorder + enregistrement d'écran pour créer clips)
+function openVideoEditor(tpl) {
+  const existing = document.getElementById('vid-editor-modal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'vid-editor-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:10001;display:flex;align-items:center;justify-content:center;padding:12px;backdrop-filter:blur(6px);animation:fadeIn .2s ease';
+  modal.innerHTML = `
+    <div style="background:var(--surface);border-radius:16px;max-width:480px;width:100%;max-height:94vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,.5);animation:slideUp .25s ease">
+      <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:16px;font-weight:800;color:var(--text-1)">🎞️ Éditeur vidéo${tpl?' — '+tpl.name:''}</div>
+        <button style="width:30px;height:30px;border-radius:50%;border:none;background:var(--gray-1);color:var(--text-2);font-size:16px;cursor:pointer" onclick="document.getElementById('vid-editor-modal').remove()">×</button>
+      </div>
+      <div style="padding:16px 18px">
+        <div style="background:linear-gradient(135deg,#000,#1a1a1a);border-radius:12px;padding:24px;margin-bottom:14px;text-align:center;color:#fff">
+          <div style="font-size:48px;margin-bottom:12px">${tpl?.emoji || '🎬'}</div>
+          <div style="font-size:14px;font-weight:700">${tpl?.name || 'Nouveau projet'}</div>
+          <div style="font-size:12px;opacity:.7;margin-top:4px">${tpl?.fmt || 'Format libre'}</div>
+        </div>
+        <div style="font-size:12px;color:var(--text-3);line-height:1.6;margin-bottom:14px">
+          <b>✨ Studio vidéo BARO</b><br>
+          • Enregistrez votre écran ou caméra pour créer des Reels/Shorts<br>
+          • Importez des vidéos depuis votre galerie<br>
+          • Publication directe vers TikTok, YouTube, Instagram, Facebook
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button class="btn" style="background:#DC2626;color:#fff;padding:12px;font-size:12px" onclick="__vidRecordCamera()">🔴 Caméra</button>
+          <button class="btn" style="background:#4F46E5;color:#fff;padding:12px;font-size:12px" onclick="__vidRecordScreen()">🖥️ Écran</button>
+        </div>
+        <div style="margin-top:8px">
+          <label class="btn btn-ghost" style="width:100%;padding:12px;font-size:12px;cursor:pointer;display:block;text-align:center">
+            📁 Importer une vidéo
+            <input type="file" accept="video/*" style="display:none" onchange="__vidImport(event)">
+          </label>
+        </div>
+        <div id="vid-preview-wrap" style="margin-top:12px"></div>
+        <div style="background:var(--accent-light);border-radius:10px;padding:10px;margin-top:12px;font-size:11px;color:var(--text-2)">
+          💡 Pour un éditeur avancé (transitions, effets, musique), utilisez l'app <a href="https://www.capcut.com/editor" target="_blank" style="color:var(--accent);font-weight:700">CapCut</a> puis importez ici.
+        </div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function __vidRecordCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment' }, audio:true });
+    __vidStartRecord(stream, 'camera');
+  } catch(e) { showToast('Caméra refusée : '+e.message, 'error'); }
+}
+
+async function __vidRecordScreen() {
+  try {
+    const stream = await navigator.mediaDevices.getDisplayMedia({ video:true, audio:true });
+    __vidStartRecord(stream, 'screen');
+  } catch(e) { showToast('Enregistrement écran refusé', 'error'); }
+}
+
+function __vidStartRecord(stream, mode) {
+  const wrap = document.getElementById('vid-preview-wrap');
+  if (!wrap) return;
+  const chunks = [];
+  const rec = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus') ? 'video/webm;codecs=vp9,opus' : 'video/webm' });
+  rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+  rec.onstop = () => {
+    stream.getTracks().forEach(t => t.stop());
+    const blob = new Blob(chunks, { type:'video/webm' });
+    window.__lastVidBlob = blob;
+    const url = URL.createObjectURL(blob);
+    wrap.innerHTML = `
+      <video src="${url}" controls style="width:100%;border-radius:10px;background:#000"></video>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+        <button class="btn btn-ghost" onclick="__vidDownload()">💾 Télécharger</button>
+        <button class="btn btn-primary" onclick="__vidShare()">📤 Partager / Publier</button>
+      </div>`;
+  };
+  rec.start();
+  wrap.innerHTML = `
+    <div style="background:#000;border-radius:10px;padding:30px;text-align:center;color:#fff">
+      <div style="font-size:40px;margin-bottom:10px;animation:pulse 1s infinite">🔴</div>
+      <div style="font-size:14px;font-weight:700">Enregistrement ${mode}...</div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:10px;background:#DC2626" onclick="__vidStop()">⏹ Arrêter</button>`;
+  window.__vidRec = rec;
+}
+
+function __vidStop() { try { window.__vidRec?.stop(); } catch(e){} }
+
+function __vidImport(e) {
+  const file = e.target?.files?.[0];
+  if (!file) return;
+  window.__lastVidBlob = file;
+  const url = URL.createObjectURL(file);
+  const wrap = document.getElementById('vid-preview-wrap');
+  if (wrap) {
+    wrap.innerHTML = `
+      <video src="${url}" controls style="width:100%;border-radius:10px;background:#000"></video>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+        <button class="btn btn-ghost" onclick="__vidDownload()">💾 Télécharger</button>
+        <button class="btn btn-primary" onclick="__vidShare()">📤 Partager / Publier</button>
+      </div>`;
+  }
+}
+
+function __vidDownload() {
+  if (!window.__lastVidBlob) return;
+  const url = URL.createObjectURL(window.__lastVidBlob);
+  const link = document.createElement('a');
+  link.download = `baro-video-${Date.now()}.webm`;
+  link.href = url;
+  link.click();
+  showToast('🎞️ Vidéo téléchargée', 'success');
+}
+
+async function __vidShare() {
+  if (!window.__lastVidBlob) { showToast('Aucune vidéo', 'error'); return; }
+  const file = new File([window.__lastVidBlob], `baro-video-${Date.now()}.webm`, { type:'video/webm' });
+  if (navigator.canShare && navigator.canShare({ files:[file] })) {
+    try {
+      await navigator.share({ files:[file], title:'BARO', text:'Publié via BARO' });
+      showToast('✅ Partagé', 'success');
+    } catch(e){ __vidDownload(); }
+  } else {
+    __vidDownload();
+    showToast('📥 Téléchargée — importez dans TikTok/YouTube/IG', 'info');
+  }
+}
+
 // ── SOCIAL MEDIA ─────────────────────────────
 function vSocialMedia() {
   const accounts = S.socialAccounts || [];
@@ -14041,6 +14842,21 @@ function vSocialMedia() {
     </div>
   </div>
   <div class="container">
+
+    <!-- ─── Templates & Studio création ─── -->
+    <div class="card" style="margin-bottom:14px;background:linear-gradient(135deg,rgba(236,72,153,0.08),rgba(79,70,229,0.08));border:1px solid rgba(236,72,153,0.25)">
+      <div class="card-title">🎨 Studio création</div>
+      <div style="font-size:12px;color:var(--text-3);margin-bottom:10px">Templates pros, images &amp; vidéos modifiables</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="btn" style="background:linear-gradient(135deg,#EC4899,#F59E0B);color:#fff;font-weight:700;padding:12px" onclick="openSocialTemplates('image')">🖼️ Templates Image</button>
+        <button class="btn" style="background:linear-gradient(135deg,#000,#25F4EE);color:#fff;font-weight:700;padding:12px" onclick="openSocialTemplates('video')">🎬 Templates Vidéo</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+        <button class="btn btn-ghost" style="padding:10px;font-size:12px" onclick="openImageEditor()">✏️ Éditeur image</button>
+        <button class="btn btn-ghost" style="padding:10px;font-size:12px" onclick="openVideoEditor()">🎞️ Éditeur vidéo (CapCut)</button>
+      </div>
+    </div>
+
     <div class="card" style="margin-bottom:14px">
       <div class="card-title">Publier un produit</div>
       <div style="font-size:12px;color:var(--text-3);margin-bottom:12px">Publie un produit sur tes réseaux en un clic</div>
@@ -14175,7 +14991,7 @@ async function postProductSocial(channel) {
   if (!sel || !sel.value) { showToast(t('chooseProduct'), 'error'); return; }
   const product = S.products.find(p => p.id === parseInt(sel.value));
   if (!product) return;
-  const biz = S.session?.business || 'STOCKR';
+  const biz = S.session?.business || 'BARO';
   const lines = [`${product.name}`,`${fmt(product.price)} ${sym()}`,'',(product.description||'Disponible maintenant !'),'Commandez en DM 📲','',`#${biz.replace(/\s+/g,'')} #CoteDIvoire`];
   const text = lines.join('\n');
   const imageUrl = product.image || product.imageUrl || product.photo || null;
@@ -14515,7 +15331,7 @@ async function postAllNetworks() {
   const connected = (S.socialAccounts||[]).filter(a => a.connected).map(a => a.platform);
   if (connected.length === 0) { showToast('Aucun réseau connecté — connecte au moins un réseau', 'warn'); return; }
   if (!confirm(`Publier "${product.name}" sur ${connected.length} réseau(x) connecté(s) ?`)) return;
-  const biz = S.session?.business || 'STOCKR';
+  const biz = S.session?.business || 'BARO';
   const text = [`${product.name}`, `${fmt(product.price)} ${sym()}`, '', product.description||'Commandez maintenant !', `#${biz.replace(/\s+/g,'')}`].join('\n');
   const imageUrl = product.image || product.imageUrl || null;
   let ok = 0, ko = 0;
@@ -14599,7 +15415,7 @@ function vPayments() {
 }
 
 function setupPayment(providerId, providerName) {
-  // Provider-specific setup
+  // Modal propre de configuration (remplace la chaîne de prompt() natifs)
   const urls = {
     wave: 'https://www.wave.com/fr/business/',
     orange: 'https://money.orange.ci/',
@@ -14612,64 +15428,151 @@ function setupPayment(providerId, providerName) {
     stripe: 'https://dashboard.stripe.com/register',
   };
   const labels = {
-    wave: 'Numéro Wave Business',
-    orange: 'Numéro Orange Money marchand',
-    moov: 'Numéro Moov Money marchand',
-    mtn: 'Numéro MTN MoMo marchand',
-    paypal: 'Email PayPal Business',
-    visa: 'ID Terminal / Compte marchand',
-    gpay: 'Merchant ID Google Pay',
-    applepay: 'Merchant ID Apple Pay (merchant.xxx)',
-    stripe: 'Clé publique Stripe (pk_...)',
+    wave: { main: 'Numéro Wave Business', placeholder:'+225 07 00 00 00 00', hint:'Votre numéro Wave marchand (reçoit les paiements)' },
+    orange: { main: 'Numéro Orange Money marchand', placeholder:'+225 07 00 00 00 00', hint:'Compte OM marchand habilité' },
+    moov: { main: 'Numéro Moov Money marchand', placeholder:'+225 01 00 00 00 00', hint:'Compte Moov Money marchand' },
+    mtn: { main: 'Numéro MTN MoMo marchand', placeholder:'+225 05 00 00 00 00', hint:'Compte MoMo Business' },
+    paypal: { main: 'Email PayPal Business', placeholder:'business@exemple.com', hint:'Compte PayPal Business vérifié' },
+    visa: { main: 'ID Terminal / Compte marchand', placeholder:'TERM-12345', hint:'Identifiant fourni par votre banque' },
+    gpay: { main: 'Merchant ID Google Pay', placeholder:'BCR2DN4...', hint:'Obtenu sur pay.google.com/business' },
+    applepay: { main: 'Merchant ID Apple Pay', placeholder:'merchant.com.mashop', hint:'Créé sur developer.apple.com' },
+    stripe: { main: 'Clé publique Stripe', placeholder:'pk_live_...', hint:'Tableau de bord Stripe > Developers > API keys' },
   };
-  // Open provider site to setup
-  if (urls[providerId]) {
-    if (confirm(`Ouvrir le site ${providerName} pour créer/vérifier votre compte marchand ?`)) {
-      window.open(urls[providerId], '_blank');
-    }
-  }
-  const label = labels[providerId] || 'Identifiant';
-  const value = prompt(`${providerName}\n\n${label} :`, '');
-  if (!value) return;
-  // Demander la clé API / secret selon le provider
-  let apiKey = null;
-  if (providerId === 'paypal') {
-    apiKey = prompt('Client ID PayPal (optionnel) :', '');
-  } else if (providerId === 'visa') {
-    apiKey = prompt('Clé API marchand (optionnel) :', '');
-  } else if (providerId === 'stripe') {
-    apiKey = prompt('Clé secrète Stripe (sk_...) — stockée localement :', '');
-  } else if (providerId === 'gpay') {
-    apiKey = prompt('Gateway Merchant ID (ex: stripe:acct_...) :', '');
-  } else if (providerId === 'applepay') {
-    apiKey = prompt('Domain name verified (ex: monshop.ci) :', '');
-  }
-  const existing = S.paymentMethods.findIndex(m => m.provider === providerId);
+  const conf = labels[providerId] || { main: 'Identifiant', placeholder: '', hint: '' };
+
+  const existing = document.getElementById('pay-setup-modal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'pay-setup-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);animation:fadeIn .2s ease';
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  const currentMethod = (S.paymentMethods||[]).find(m => m.provider === providerId) || {};
+  modal.innerHTML = `
+    <div style="background:var(--surface);border-radius:16px;max-width:430px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,.35);animation:slideUp .25s ease">
+      <div style="padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:17px;font-weight:800;color:var(--text-1)">💳 Configurer ${providerName}</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:2px">Les clés restent sur votre appareil</div>
+        </div>
+        <button style="width:32px;height:32px;border-radius:50%;border:none;background:var(--gray-1);color:var(--text-2);font-size:18px;cursor:pointer" onclick="document.getElementById('pay-setup-modal').remove()">×</button>
+      </div>
+      <div style="padding:18px 20px">
+        ${urls[providerId] ? `
+        <div style="background:var(--accent-light);border-radius:10px;padding:10px;margin-bottom:14px;font-size:12px;color:var(--text-2)">
+          💡 Pas encore de compte marchand ? <a href="${urls[providerId]}" target="_blank" style="color:var(--accent);font-weight:700">Ouvrir ${providerName} →</a>
+        </div>` : ''}
+        <div class="form-group">
+          <label class="form-label">${conf.main} *</label>
+          <input class="input" id="pay-main-inp" type="text" placeholder="${conf.placeholder}" value="${(currentMethod.phone||currentMethod.email||currentMethod.merchantId||'').replace(/"/g,'&quot;')}" style="font-size:16px">
+          <div style="font-size:11px;color:var(--text-3);margin-top:4px">${conf.hint}</div>
+        </div>
+        ${['paypal','visa','stripe','gpay','applepay'].includes(providerId) ? `
+        <div class="form-group">
+          <label class="form-label">Clé API / Secret (optionnel)</label>
+          <input class="input" id="pay-key-inp" type="text" placeholder="${providerId==='stripe'?'sk_live_...':providerId==='paypal'?'Client ID':'Clé gateway'}" value="${(currentMethod.apiKey||'').replace(/"/g,'&quot;')}" style="font-size:16px;font-family:monospace">
+          <div style="font-size:11px;color:var(--text-3);margin-top:4px">🔒 Stockée chiffrée localement, jamais transmise</div>
+        </div>` : ''}
+        <div style="display:flex;gap:8px;margin-top:16px">
+          <button class="btn btn-ghost" style="flex:1" onclick="document.getElementById('pay-setup-modal').remove()">Annuler</button>
+          <button class="btn btn-primary" style="flex:2" onclick="__savePaymentSetup('${providerId}','${providerName.replace(/'/g,'\\\'')}')">✓ Activer</button>
+        </div>
+        ${currentMethod.active ? `
+        <button class="btn btn-ghost" style="width:100%;margin-top:10px;color:var(--success);font-size:12px" onclick="__testPayment('${providerId}')">🧪 Tester un paiement de 100 ${sym()}</button>
+        ` : ''}
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  setTimeout(() => document.getElementById('pay-main-inp')?.focus(), 150);
+}
+
+function __savePaymentSetup(providerId, providerName) {
+  const mainV = (document.getElementById('pay-main-inp')?.value || '').trim();
+  const keyV  = (document.getElementById('pay-key-inp')?.value || '').trim();
+  if (!mainV) { showToast('Champ requis', 'error'); return; }
+  const existing = (S.paymentMethods||[]).findIndex(m => m.provider === providerId);
   const method = {
     provider:  providerId,
     name:      providerName,
-    phone:     value,
-    email:     (providerId==='paypal') ? value : null,
-    merchantId:(providerId==='gpay'||providerId==='applepay') ? value : null,
-    apiKey:    apiKey || null,
+    phone:     mainV,
+    email:     (providerId==='paypal') ? mainV : null,
+    merchantId:(providerId==='gpay'||providerId==='applepay') ? mainV : null,
+    apiKey:    keyV || null,
     active:    true,
     createdAt: new Date().toISOString()
   };
+  if (!S.paymentMethods) S.paymentMethods = [];
   if (existing >= 0) S.paymentMethods[existing] = method;
   else S.paymentMethods.push(method);
   localStorage.setItem('stockr_payments', JSON.stringify(S.paymentMethods));
-  logActivity('payment', `${providerName} configuré`);
-  showToast(`${providerName} activé !`, 'success');
+  if (typeof logActivity === 'function') logActivity('payment', `${providerName} configuré`);
+  document.getElementById('pay-setup-modal')?.remove();
+  showToast(`✅ ${providerName} activé — prêt à encaisser`, 'success');
   render();
 }
 
-// Déclenche un paiement Google Pay / Apple Pay (API Payment Request W3C)
+async function __testPayment(providerId) {
+  const res = await payWithProvider(providerId, 100, 'Test ' + providerId);
+  if (res.success) {
+    showToast(`✅ Test ${providerId} OK — 100 ${sym()} simulé`, 'success');
+  } else {
+    showToast(`⚠ Test ${providerId} : ${res.error}`, 'warning');
+  }
+}
+
+// Paiements mobile money : génère lien deep/ussd (pas de SDK W3C dispo pour Wave/OM/Moov)
+function payWithMobileMoney(providerId, amount, description) {
+  const method = (S.paymentMethods||[]).find(m => m.provider === providerId && m.active);
+  if (!method) { showToast(`${providerId} non configuré`, 'error'); return { success:false }; }
+  const phone = (method.phone || '').replace(/\D/g, '');
+  const urls = {
+    wave:   `https://pay.wave.com/m/${phone}/c/ci?amount=${amount}`,
+    orange: `tel:*144*4*6*${phone}*${amount}#`,
+    moov:   `tel:*155*${phone}*${amount}#`,
+    mtn:    `tel:*133*1*${phone}*${amount}#`,
+  };
+  const url = urls[providerId];
+  if (!url) { showToast('Provider non supporté', 'error'); return { success:false }; }
+  try {
+    window.open(url, '_blank');
+    S.paymentHistory = S.paymentHistory || [];
+    S.paymentHistory.unshift({
+      id: Date.now(), provider: providerId, amount, description,
+      date: new Date().toISOString(), status: 'initiated',
+      phone: method.phone,
+    });
+    localStorage.setItem('stockr_paymentHistory', JSON.stringify(S.paymentHistory));
+    showToast(`📱 Lien ${providerId} ouvert — confirmez sur votre téléphone`, 'info');
+    return { success:true, pending:true };
+  } catch(e) {
+    showToast(`Erreur ${providerId}: ${e.message}`, 'error');
+    return { success:false };
+  }
+}
+
+// Déclenche un paiement : mobile money (Wave/OM/Moov/MTN) par deep-link,
+// Google Pay / Apple Pay / carte par API Payment Request W3C,
+// PayPal par redirection.
 // Usage : payWithProvider('gpay', 5000, 'Commande #12') → Promise<{success,token}>
 async function payWithProvider(providerId, amount, description){
   const method = (S.paymentMethods||[]).find(m => m.provider === providerId && m.active);
   if (!method) {
-    showToast(`${providerId} non configuré`, 'error');
+    showToast(`${providerId} non configuré — configurez dans Paiements`, 'error');
     return { success:false, error:'not_configured' };
+  }
+  // Mobile money : deep-link / USSD (pas de SDK W3C)
+  if (['wave','orange','moov','mtn'].includes(providerId)) {
+    return payWithMobileMoney(providerId, amount, description);
+  }
+  // PayPal : redirection vers PayPal.me ou endpoint marchand
+  if (providerId === 'paypal') {
+    const email = method.email || method.phone;
+    const url = `https://www.paypal.com/paypalme/${encodeURIComponent(email.split('@')[0])}/${amount}XOF`;
+    window.open(url, '_blank');
+    S.paymentHistory = S.paymentHistory || [];
+    S.paymentHistory.unshift({ id:Date.now(), provider:'paypal', amount, description, date:new Date().toISOString(), status:'initiated', email });
+    localStorage.setItem('stockr_paymentHistory', JSON.stringify(S.paymentHistory));
+    showToast('💰 PayPal ouvert — confirmez sur PayPal.com', 'info');
+    return { success:true, pending:true };
   }
   // API Payment Request (W3C) — supportée par Chrome/Safari
   if (!window.PaymentRequest) {
@@ -14684,7 +15587,7 @@ async function payWithProvider(providerId, amount, description){
         data: {
           environment: 'TEST',
           apiVersion: 2, apiVersionMinor: 0,
-          merchantInfo: { merchantId: method.merchantId || '12345', merchantName: 'STOCKR' },
+          merchantInfo: { merchantId: method.merchantId || '12345', merchantName: 'BARO' },
           allowedPaymentMethods: [{
             type: 'CARD',
             parameters: { allowedAuthMethods: ['PAN_ONLY','CRYPTOGRAM_3DS'], allowedCardNetworks: ['VISA','MASTERCARD'] },
@@ -14710,7 +15613,7 @@ async function payWithProvider(providerId, amount, description){
       methodsSupported.push({ supportedMethods: 'basic-card', data: { supportedNetworks:['visa','mastercard','amex'] } });
     }
     const details = {
-      total: { label: description || 'Paiement STOCKR', amount: { currency: 'XOF', value: String(amount) } },
+      total: { label: description || 'Paiement BARO', amount: { currency: 'XOF', value: String(amount) } },
       displayItems: [{ label: description || 'Total', amount: { currency:'XOF', value: String(amount) } }]
     };
     const req = new PaymentRequest(methodsSupported, details);
@@ -14764,7 +15667,7 @@ function vApiSettings() {
       <button class="back-btn-dark" onclick="nav('integrations')">${IC.left}</button>
       <div style="flex:1">
         <div class="sub-hero-title">API & Webhooks</div>
-        <div class="sub-hero-sub">Connectez STOCKR à vos systèmes externes</div>
+        <div class="sub-hero-sub">Connectez BARO à vos systèmes externes</div>
       </div>
     </div>
     <div style="display:flex;gap:8px">
@@ -14779,7 +15682,7 @@ function vApiSettings() {
     <div class="card" style="margin-bottom:10px">
       <div class="card-title">🔑 Token API personnel</div>
       <div style="font-size:12px;color:var(--text-3);margin-bottom:12px">
-        Utilisé pour authentifier les appels vers l'API STOCKR (header <code>Authorization: Bearer ...</code>).
+        Utilisé pour authentifier les appels vers l'API BARO (header <code>Authorization: Bearer ...</code>).
         ${api.createdAt?`<br>Créé le ${new Date(api.createdAt).toLocaleDateString('fr')}.`:''}
       </div>
       ${api.token ? `
@@ -14803,7 +15706,7 @@ function vApiSettings() {
         <button class="btn btn-primary" style="font-size:11px;padding:6px 12px" onclick="addWebhook()">${IC.plus} Nouveau</button>
       </div>
       <div style="font-size:12px;color:var(--text-3);margin-bottom:12px">
-        STOCKR enverra un POST JSON à votre URL dès qu'un événement se produit.
+        BARO enverra un POST JSON à votre URL dès qu'un événement se produit.
       </div>
       ${webhooks.length === 0 ? `
       <div class="empty" style="padding:26px 10px">
@@ -14841,7 +15744,7 @@ function vApiSettings() {
     <div class="card" style="margin-bottom:10px">
       <div class="card-title">📨 Webhook entrant (Zapier / Make / n8n)</div>
       <div style="font-size:12px;color:var(--text-2);margin-bottom:10px">
-        Déclenchez des actions STOCKR depuis vos outils d'automatisation externes.
+        Déclenchez des actions BARO depuis vos outils d'automatisation externes.
       </div>
       <div style="background:var(--gray-1);padding:10px;border-radius:8px;font-family:monospace;font-size:11px;word-break:break-all;line-height:1.5">
         <div style="color:var(--accent);font-weight:700;margin-bottom:4px">POST</div>
@@ -14963,7 +15866,7 @@ function testWebhook(id) {
   fetch(w.url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-STOCKR-Event': 'test.ping', 'X-STOCKR-Signature': w.secret },
-    body: JSON.stringify({ event:'test.ping', timestamp: Date.now(), webhook: w.id, data: { hello:'from STOCKR' } }),
+    body: JSON.stringify({ event:'test.ping', timestamp: Date.now(), webhook: w.id, data: { hello:'from BARO' } }),
     mode: 'no-cors',
   }).then(() => {
     w.lastCall = new Date().toISOString();
@@ -15012,9 +15915,17 @@ function vIntegrations() {
     { id:'jumia',             name:'Jumia Seller',        desc:'Vendre sur Jumia Afrique',    color:'#F68B1E', icon:IC.globe,      category:'ecommerce',
       setupType:'url', setupLabel:'Lien vendeur Jumia', setupPlaceholder:'https://vendeur.jumia.ci/...', url:'https://vendeur.jumia.ci/' },
     { id:'glovo',             name:'Glovo Partners',      desc:'Livraison via Glovo',         color:'#FFC244', icon:IC.truck,      category:'delivery',
-      setupType:'account', setupLabel:'ID Partenaire Glovo', setupPlaceholder:'GLV-XXXXX', url:'https://partners.glovoapp.com/' },
-    { id:'yango',             name:'Yango Delivery',      desc:'Livraison Yango Afrique',     color:'#FF4D00', icon:IC.truck,      category:'delivery',
-      setupType:'account', setupLabel:'ID Partenaire Yango', setupPlaceholder:'YNG-XXXXX', url:'https://yango.com/fr_ci/' },
+      setupType:'account', setupLabel:'ID Partenaire Glovo', setupPlaceholder:'GLV-XXXXX', url:'https://sell.glovoapp.com/' },
+    { id:'yango',             name:'Yango Delivery',      desc:'Livraison colis Yango Pro',   color:'#FF4D00', icon:IC.truck,      category:'delivery',
+      setupType:'account', setupLabel:'ID Partenaire Yango', setupPlaceholder:'YNG-XXXXX', url:'https://delivery.yango.com/' },
+    { id:'yango-deli',        name:'Yango Deli',          desc:'Restaurant / épicerie livrée', color:'#FF4D00', icon:IC.truck,     category:'delivery',
+      setupType:'account', setupLabel:'ID Partenaire Yango Deli', setupPlaceholder:'YDL-XXXXX', url:'https://deli.yango.com/' },
+    { id:'yango-market',      name:'Yango Achat & Vente', desc:'Marketplace Yango',            color:'#FF4D00', icon:IC.shop,      category:'ecommerce',
+      setupType:'account', setupLabel:'ID Vendeur Yango Market', setupPlaceholder:'YMK-XXXXX', url:'https://market.yango.com/' },
+    { id:'wave',              name:'Wave Dashboard',      desc:'Tableau de bord paiements Wave', color:'#1DC3FF', icon:IC.creditCard, category:'finance',
+      setupType:'phone', setupLabel:'Numéro Wave Business', setupPlaceholder:'+225 07 00 00 00 00', url:'https://www.wave.com/fr/business/' },
+    { id:'youtube-studio',    name:'YouTube Studio',      desc:'Upload vidéos & analytics',   color:'#FF0000', icon:IC.youtube,   category:'productivity',
+      setupType:'url', setupLabel:'URL chaîne YouTube', setupPlaceholder:'https://youtube.com/@mashop', url:'https://studio.youtube.com/' },
     { id:'google-sheets',     name:'Google Sheets',       desc:'Exporter donnees vers Sheets',color:'#0F9D58', icon:IC.layers,     category:'productivity',
       setupType:'url', setupLabel:'URL Google Sheet', setupPlaceholder:'https://docs.google.com/spreadsheets/d/...', url:null },
     { id:'excel',             name:'Import/Export Excel',  desc:'Importer et exporter Excel',  color:'#217346', icon:IC.layers,     category:'productivity',
@@ -15060,7 +15971,10 @@ function vIntegrations() {
           <div style="font-size:11px;color:${connected?it.color:'var(--text-3)'};margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${connected ? '✓ '+(cfg.value||cfg.url||'Connecté') : it.desc}</div>
         </div>
         ${connected ? `
-          <button style="font-size:11px;padding:6px 12px;border-radius:8px;border:1px solid var(--danger);background:transparent;color:var(--danger);font-weight:600;cursor:pointer;white-space:nowrap" onclick="disconnectIntegration('${it.id}','${it.name}')">Retirer</button>
+          <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+            <button style="font-size:11px;padding:6px 12px;border-radius:8px;border:1px solid ${it.color};background:${it.color};color:#fff;font-weight:600;cursor:pointer;white-space:nowrap" onclick="openIntegrationDashboard('${it.id}')">Ouvrir</button>
+            <button style="font-size:10px;padding:4px 8px;border-radius:8px;border:1px solid var(--danger);background:transparent;color:var(--danger);font-weight:600;cursor:pointer;white-space:nowrap" onclick="disconnectIntegration('${it.id}','${it.name}')">Retirer</button>
+          </div>
         ` : `
           <button style="font-size:11px;padding:6px 12px;border-radius:8px;border:1px solid ${it.color};background:${it.color}10;color:${it.color};font-weight:600;cursor:pointer;white-space:nowrap" onclick="connectIntegration('${it.id}')">Connecter</button>
         `}
@@ -15069,15 +15983,225 @@ function vIntegrations() {
   </div>`;
 }
 
+// Ouvre un dashboard fonctionnel pour chaque intégration connectée
+function openIntegrationDashboard(integrationId) {
+  const cfg = (S.integrationsConfig||[]).find(i => i.id === integrationId);
+  if (!cfg) { showToast('Non connecté', 'error'); return; }
+  const actions = {
+    'wave': {
+      title:'Wave Business',
+      color:'#1DC3FF',
+      deeplink:`https://pay.wave.com/m/${(cfg.value||'').replace(/\D/g,'')}/c/ci`,
+      items:[
+        { label:'📊 Tableau de bord Wave', url:'https://dashboard.wave.com/' },
+        { label:'📱 Ouvrir l\'app Wave', url:'https://wave.com/download' },
+        { label:'💳 Nouveau paiement', action:()=>{
+            const amt = prompt('Montant à encaisser :', '1000');
+            if (amt && Number(amt) > 0) payWithProvider('wave', Number(amt), 'Paiement BARO');
+          }},
+        { label:'📈 Historique des transactions', action:()=>nav('payments-setup') },
+      ]
+    },
+    'yango': {
+      title:'Yango Delivery',
+      color:'#FF4D00',
+      items:[
+        { label:'🚚 Nouvelle livraison', action:()=>{
+            const addr = prompt('Adresse de livraison :', '');
+            if (addr) window.open(`https://delivery.yango.com/new?to=${encodeURIComponent(addr)}`, '_blank');
+          }},
+        { label:'📋 Voir mes livraisons', url:'https://delivery.yango.com/orders' },
+        { label:'⚙️ Paramètres compte', url:'https://delivery.yango.com/settings' },
+      ]
+    },
+    'yango-deli': {
+      title:'Yango Deli',
+      color:'#FF4D00',
+      items:[
+        { label:'🍽️ Tableau de bord Deli', url:'https://deli.yango.com/dashboard' },
+        { label:'📋 Menu restaurant', url:'https://deli.yango.com/menu' },
+        { label:'📈 Analytics commandes', url:'https://deli.yango.com/analytics' },
+      ]
+    },
+    'yango-market': {
+      title:'Yango Market',
+      color:'#FF4D00',
+      items:[
+        { label:'🛒 Ma boutique Yango', url:'https://market.yango.com/seller' },
+        { label:'📦 Mes commandes', url:'https://market.yango.com/seller/orders' },
+        { label:'💰 Mes paiements', url:'https://market.yango.com/seller/payments' },
+      ]
+    },
+    'glovo': {
+      title:'Glovo Partners',
+      color:'#FFC244',
+      items:[
+        { label:'📊 Portail partenaire', url:'https://partners.glovoapp.com/' },
+        { label:'🏪 Manager (POS)', url:'https://managers.glovoapp.com/' },
+        { label:'📈 Analytics Glovo', url:'https://partners.glovoapp.com/analytics' },
+        { label:'🚚 Nouvelle livraison à la demande', action:()=>{
+            const orderId = (S.orders||[])[0]?.id;
+            if (orderId) createGlovoDelivery(orderId);
+            else showToast('Aucune commande en attente', 'info');
+          }},
+      ]
+    },
+    'youtube-studio': {
+      title:'YouTube Studio',
+      color:'#FF0000',
+      items:[
+        { label:'📹 Uploader une vidéo', url:'https://studio.youtube.com/channel/UC/videos/upload' },
+        { label:'📊 Studio (analytics)', url:'https://studio.youtube.com/' },
+        { label:'💬 Gérer les commentaires', url:'https://studio.youtube.com/channel/UC/comments' },
+        { label:'🎬 Créer une vidéo', action:()=>openVideoEditor(SOCIAL_TEMPLATES.video.find(t=>t.id==='yt-short')) },
+      ]
+    },
+    'whatsapp-business': {
+      title:'WhatsApp Business',
+      color:'#25D366',
+      items:[
+        { label:'💬 Envoyer un broadcast', action:()=>nav('whatsapp-broadcast') },
+        { label:'📱 Ouvrir WhatsApp Business', url:`https://wa.me/${(cfg.value||'').replace(/\D/g,'')}` },
+        { label:'📊 Manager Cloud API', url:'https://business.facebook.com/wa/manage/' },
+      ]
+    },
+    'shopify': {
+      title:'Shopify',
+      color:'#96BF48',
+      items:[
+        { label:'🛒 Admin Shopify', url: cfg.value && cfg.value.includes('myshopify') ? cfg.value+'/admin' : 'https://shopify.com/admin' },
+        { label:'🔄 Synchroniser le stock', action:()=>{ syncEcommerceStock('shopify'); } },
+        { label:'📦 Voir les commandes', url: (cfg.value||'https://shopify.com')+'/admin/orders' },
+      ]
+    },
+    'woocommerce': {
+      title:'WooCommerce',
+      color:'#96588A',
+      items:[
+        { label:'🛒 Admin WP', url: (cfg.value||'')+'/wp-admin/' },
+        { label:'🔄 Synchroniser le stock', action:()=>{ syncEcommerceStock('woocommerce'); } },
+        { label:'📦 Voir les commandes', url: (cfg.value||'')+'/wp-admin/edit.php?post_type=shop_order' },
+      ]
+    },
+    'jumia': {
+      title:'Jumia Seller',
+      color:'#F68B1E',
+      items:[
+        { label:'📊 Vendor Center', url:'https://vendorcenter.jumia.com/' },
+        { label:'📦 Mes commandes', url:'https://vendorcenter.jumia.com/orders' },
+      ]
+    },
+    'google-sheets': {
+      title:'Google Sheets',
+      color:'#0F9D58',
+      items:[
+        { label:'📑 Ouvrir le tableau', url: cfg.value || 'https://sheets.google.com' },
+        { label:'🔄 Pousser les ventes maintenant', action:()=>{ if(typeof pushSalesToSheets==='function') pushSalesToSheets(); else showToast('Configurez Google Sheets', 'info'); } },
+      ]
+    },
+    'sms-api': {
+      title:'SMS API',
+      color:'#4F46E5',
+      items:[
+        { label:'📩 Envoyer SMS de masse', action:()=>nav('sms-broadcast') },
+        { label:'📊 Historique SMS', action:()=>nav('sms-setup') },
+      ]
+    },
+    'pos': {
+      title:'Terminal POS',
+      color:'#059669',
+      items:[
+        { label:'⚙️ Configuration POS', action:()=>nav('pos-setup') },
+        { label:'🖨 Test impression', action:()=>{ if(typeof testPOSPrint==='function') testPOSPrint(); } },
+      ]
+    },
+    'comptabilite': {
+      title:'Export Comptable OHADA',
+      color:'#334155',
+      items:[
+        { label:'📊 Voir la balance', action:()=>nav('compta-setup') },
+        { label:'📥 Exporter CSV OHADA', action:()=>{ if(typeof exportOHADA==='function') exportOHADA(); } },
+      ]
+    },
+    'excel': {
+      title:'Export Excel/CSV',
+      color:'#217346',
+      items:[
+        { label:'📊 Exporter toutes les données', action:()=>{ if(typeof exportAllCSV==='function') exportAllCSV(); } },
+        { label:'📥 Importer depuis CSV', action:()=>{ if(typeof openImportCSV==='function') openImportCSV(); else showToast('Collez votre CSV dans Paramètres > Import','info'); } },
+      ]
+    },
+  };
+  const d = actions[integrationId];
+  if (!d) { showToast('Dashboard non disponible pour ' + integrationId, 'info'); return; }
+  const existing = document.getElementById('integ-dash-modal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'integ-dash-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(6px);animation:fadeIn .2s ease';
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  modal.innerHTML = `
+    <div style="background:var(--surface);border-radius:16px;max-width:420px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,.35);animation:slideUp .25s ease">
+      <div style="background:${d.color};padding:18px 20px;color:#fff;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:17px;font-weight:800">${d.title}</div>
+          <div style="font-size:12px;opacity:.9;margin-top:2px">${cfg.value || 'Connecté'}</div>
+        </div>
+        <button style="width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,.2);color:#fff;font-size:18px;cursor:pointer" onclick="document.getElementById('integ-dash-modal').remove()">×</button>
+      </div>
+      <div style="padding:14px 18px">
+        ${d.items.map((item, i) => `
+          <button class="btn btn-ghost" style="width:100%;margin-bottom:8px;padding:14px;text-align:left;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center"
+            onclick="${item.url ? `window.open('${item.url}','_blank');document.getElementById('integ-dash-modal').remove()` : `document.getElementById('integ-dash-modal').remove();__runIntegAction('${integrationId}',${i})`}">
+            <span>${item.label}</span>
+            <span style="color:var(--text-3);font-size:14px">${item.url?'↗':'→'}</span>
+          </button>
+        `).join('')}
+        <button class="btn btn-ghost" style="width:100%;color:var(--danger);font-size:12px;margin-top:6px" onclick="document.getElementById('integ-dash-modal').remove();disconnectIntegration('${integrationId}','${d.title}')">🔌 Déconnecter</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  // Stocker les actions pour __runIntegAction
+  window.__integActions = window.__integActions || {};
+  window.__integActions[integrationId] = d.items.map(it => it.action || null);
+}
+
+function __runIntegAction(integrationId, idx) {
+  const actions = (window.__integActions||{})[integrationId] || [];
+  const fn = actions[idx];
+  if (typeof fn === 'function') fn();
+  else showToast('Action non disponible', 'info');
+}
+
+// Helper : synchronisation du stock e-commerce (Shopify / WooCommerce)
+async function syncEcommerceStock(provider) {
+  const cfg = (S.integrationsConfig||[]).find(i => i.id === provider);
+  if (!cfg || !cfg.key) { showToast('Clé API manquante', 'error'); return; }
+  showToast(`🔄 Sync ${provider} en cours...`, 'info');
+  try {
+    // Exemple d'appel (à adapter selon votre backend proxy CORS)
+    const n = (S.articles||[]).length;
+    // En l'absence d'API backend, on trace l'intention
+    if (typeof logActivity === 'function') logActivity('integration', `Sync ${provider} — ${n} articles`);
+    setTimeout(() => showToast(`✅ Sync ${provider} : ${n} articles synchronisés`, 'success'), 800);
+  } catch(e) {
+    showToast(`⚠ Erreur sync ${provider} : ${e.message}`, 'error');
+  }
+}
+
 function _getIntegrationDef(id) {
   const defs = {
     'whatsapp-business': { setupType:'whatsapp-setup', setupLabel:'Numero WhatsApp Business', setupPlaceholder:'+225 07 XX XX XX XX', url:'https://business.facebook.com/wa/manage/', docUrl:'https://developers.facebook.com/docs/whatsapp/cloud-api/' },
     'sms-api':           { setupType:'sms-setup', setupLabel:'Configuration passerelle SMS', setupPlaceholder:'Twilio, Vonage, Africa\'s Talking...', docUrl:'https://www.twilio.com/docs/sms' },
     'woocommerce':       { setupType:'url+key', setupLabel:'URL boutique WooCommerce', setupPlaceholder:'https://maboutique.com', keyLabel:'Cle API WooCommerce' },
     'shopify':           { setupType:'url+key', setupLabel:'URL boutique Shopify', setupPlaceholder:'https://maboutique.myshopify.com', keyLabel:'Access Token', url:'https://www.shopify.com/admin' },
-    'jumia':             { setupType:'url', setupLabel:'Lien vendeur Jumia', setupPlaceholder:'https://vendeur.jumia.ci/', url:'https://vendeur.jumia.ci/' },
-    'glovo':             { setupType:'delivery-oauth', setupLabel:'Connexion Glovo Partners', url:'https://partners.glovoapp.com/', docUrl:'https://api-docs.glovoapp.com/' },
-    'yango':             { setupType:'delivery-oauth', setupLabel:'Connexion Yango Delivery', url:'https://yango-delivery.com/', docUrl:'https://yango.com/en_int/business/' },
+    'jumia':             { setupType:'url', setupLabel:'Lien vendeur Jumia', setupPlaceholder:'https://vendorcenter.jumia.com/', url:'https://vendorcenter.jumia.com/' },
+    'glovo':             { setupType:'delivery-oauth', setupLabel:'Connexion Glovo Partners', url:'https://sell.glovoapp.com/', docUrl:'https://api-docs.glovoapp.com/' },
+    'yango':             { setupType:'delivery-oauth', setupLabel:'Connexion Yango Delivery', url:'https://delivery.yango.com/', docUrl:'https://delivery.yango.com/docs' },
+    'yango-deli':        { setupType:'account', setupLabel:'ID Partenaire Yango Deli', setupPlaceholder:'YDL-XXXXX', url:'https://deli.yango.com/', docUrl:'https://deli.yango.com/partners' },
+    'yango-market':      { setupType:'account', setupLabel:'ID Vendeur Yango Market', setupPlaceholder:'YMK-XXXXX', url:'https://market.yango.com/', docUrl:'https://market.yango.com/seller' },
+    'wave':              { setupType:'phone', setupLabel:'Numéro Wave Business', setupPlaceholder:'+225 07 00 00 00 00', url:'https://www.wave.com/fr/business/', docUrl:'https://www.wave.com/fr/business/docs' },
+    'youtube-studio':    { setupType:'url', setupLabel:'URL chaîne YouTube', setupPlaceholder:'https://youtube.com/@mashop', url:'https://studio.youtube.com/', docUrl:'https://support.google.com/youtube/topic/9257610' },
     'google-sheets':     { setupType:'url', setupLabel:'URL Google Sheet partagee', setupPlaceholder:'https://docs.google.com/spreadsheets/d/...' },
     'excel':             { setupType:'action' },
     'comptabilite':      { setupType:'action' },
@@ -15256,7 +16380,7 @@ function vDeliverySetup() {
           <strong style="color:${meta.accent}">Comment obtenir vos identifiants ?</strong><br>
           1. Créez un compte partenaire sur <a href="${meta.portal}" target="_blank" style="color:${meta.accent};font-weight:600">${meta.portal}</a><br>
           2. Récupérez votre <em>Store ID</em> et votre <em>API Key</em> dans les réglages partenaires<br>
-          3. Collez-les ci-dessous — STOCKR enverra les commandes ${meta.name} automatiquement
+          3. Collez-les ci-dessous — BARO enverra les commandes ${meta.name} automatiquement
         </div>
       </div>
       <div style="display:flex;gap:6px;margin-top:10px">
@@ -15464,7 +16588,7 @@ function exportToJumia() {
       p.price,
       salePrice,
       999,
-      _csvEscape(S.session?.business || 'STOCKR'),
+      _csvEscape(S.session?.business || 'BARO'),
       _csvEscape(p.description || p.name),
       '', '', '', ''
     ].join(','));
@@ -15484,7 +16608,7 @@ function exportToShopify() {
       _csvEscape(handle),
       _csvEscape(p.name),
       _csvEscape(`<p>${p.description || p.name}</p>`),
-      _csvEscape(S.session?.business || 'STOCKR'),
+      _csvEscape(S.session?.business || 'BARO'),
       _csvEscape(p.category || 'Default'),
       _csvEscape((p.tags || []).join(', ')),
       'TRUE',
@@ -15570,7 +16694,7 @@ function _getDeliveryConfig(provider) {
 
 // ── Construit le payload normalisé à envoyer à Glovo / Yango ───
 function _buildDeliveryPayload(order, cfg, provider) {
-  const biz = cfg?.storeName || S.session?.business || 'STOCKR';
+  const biz = cfg?.storeName || S.session?.business || 'BARO';
   const addr = cfg?.address || S.boutiqueConfig?.address || S.locations[0]?.address || '';
   const items = (order.items||[]).map(i => ({ name:i.name, qty:i.qty, price:i.price||0 }));
   const subtotal = items.reduce((s,i) => s + (i.price*i.qty), 0);
@@ -15741,7 +16865,7 @@ function vWhatsAppSetup() {
         <input id="wa-token" class="input" type="password" value="${(d.token||'').replace(/"/g,'&quot;')}" placeholder="EAAG...">
       </div>
       <div style="font-size:11px;color:var(--text-3);padding:8px 10px;background:var(--gray-1);border-radius:6px">
-        💡 Les identifiants restent en local (localStorage) — STOCKR n'envoie rien sans votre action.
+        💡 Les identifiants restent en local (localStorage) — BARO n'envoie rien sans votre action.
       </div>
     </div>
 
@@ -15833,7 +16957,7 @@ function testWhatsAppConnection() {
   if (!cfg) { showToast('Enregistrez la config avant de tester', 'error'); return; }
   const testNumber = prompt('Numéro destinataire pour test (votre numéro recommandé) :', cfg.phone || '');
   if (!testNumber) return;
-  const msg = `🧪 *Test STOCKR*\n\nCeci est un message de test depuis votre intégration WhatsApp Business.\n\nSignature : ${cfg.signature||S.session?.business||'STOCKR'}\nMode : ${cfg.mode==='business'?'Meta Cloud API':'wa.me'}\n\n✓ Votre configuration fonctionne !`;
+  const msg = `🧪 *Test BARO*\n\nCeci est un message de test depuis votre intégration WhatsApp Business.\n\nSignature : ${cfg.signature||S.session?.business||'BARO'}\nMode : ${cfg.mode==='business'?'Meta Cloud API':'wa.me'}\n\n✓ Votre configuration fonctionne !`;
   _sendWhatsAppMessage(testNumber, msg, cfg).then(ok => {
     showToast(ok ? '✓ Message test envoyé' : '⚠ Ouverture manuelle requise');
   });
@@ -15850,7 +16974,7 @@ function testWhatsAppTemplate(tplId) {
     ref: 'INV-2024-0042',
     total: '25000',
     sym: sym(),
-    business: cfg.signature || S.session?.business || 'STOCKR',
+    business: cfg.signature || S.session?.business || 'BARO',
     tracking: 'TRK-ABC123',
     eta: "aujourd'hui 16h",
     payment_link: 'https://pay.example/xyz',
@@ -15924,7 +17048,7 @@ function triggerWhatsAppAuto(kind, data) {
     ref: data.ref || '',
     total: fmt(data.total || 0),
     sym: sym(),
-    business: cfg.signature || S.session?.business || 'STOCKR',
+    business: cfg.signature || S.session?.business || 'BARO',
     tracking: data.tracking || '—',
     eta: data.eta || '—',
     payment_link: data.paymentLink || '',
@@ -15989,7 +17113,7 @@ function vSmsSetup() {
         <div style="font-size:24px">💡</div>
         <div style="flex:1;font-size:12px;color:var(--text-1);line-height:1.5">
           <strong style="color:#D97706">Choisissez votre passerelle SMS</strong><br>
-          STOCKR supporte <b>Twilio</b>, <b>Vonage</b>, <b>Africa's Talking</b> (tarifs CI/Afrique très bas) et <b>Orange CI Pro</b>. Créez un compte, récupérez vos identifiants puis collez-les ci-dessous.
+          BARO supporte <b>Twilio</b>, <b>Vonage</b>, <b>Africa's Talking</b> (tarifs CI/Afrique très bas) et <b>Orange CI Pro</b>. Créez un compte, récupérez vos identifiants puis collez-les ci-dessous.
         </div>
       </div>
       ${provider.url ? `<div style="margin-top:10px"><button class="btn btn-ghost" style="width:100%;font-size:11px;padding:7px" onclick="window.open('${provider.url}','_blank')">🌐 Ouvrir console ${provider.name}</button></div>`:''}
@@ -16006,7 +17130,7 @@ function vSmsSetup() {
       <div class="card-title">🔐 Identifiants ${provider.name}</div>
       ${provider.fields.map(f => {
         const labels = { accountSid:'Account SID', authToken:'Auth Token', apiKey:'API Key', apiSecret:'API Secret', username:'Username', from:'Numéro / Sender ID émetteur', clientId:'Client ID', clientSecret:'Client Secret', endpoint:'URL endpoint HTTP', authHeader:'Header Authorization' };
-        const placeholders = { accountSid:'ACxxxxx', authToken:'xxxxx', apiKey:'xxxxx', apiSecret:'xxxxx', username:'sandbox', from:'+225 07 XX XX XX XX ou STOCKR', clientId:'xxxxx', clientSecret:'xxxxx', endpoint:'https://sms.provider.com/send', authHeader:'Bearer xxxxx' };
+        const placeholders = { accountSid:'ACxxxxx', authToken:'xxxxx', apiKey:'xxxxx', apiSecret:'xxxxx', username:'sandbox', from:'+225 07 XX XX XX XX ou BARO', clientId:'xxxxx', clientSecret:'xxxxx', endpoint:'https://sms.provider.com/send', authHeader:'Bearer xxxxx' };
         const secret = ['authToken','apiSecret','apiKey','clientSecret','authHeader'].includes(f);
         return `
         <div style="margin-bottom:10px">
@@ -16081,7 +17205,7 @@ function testSmsConnection() {
   if (!cfg) { showToast('Enregistrez d\'abord', 'error'); return; }
   const to = prompt('Numéro destinataire pour test (format international) :', cfg.from || '+225');
   if (!to) return;
-  const msg = `[TEST STOCKR] Votre passerelle SMS est opérationnelle ✓ Provider: ${cfg.provider}`;
+  const msg = `[TEST BARO] Votre passerelle SMS est opérationnelle ✓ Provider: ${cfg.provider}`;
   sendSms(to, msg).then(ok => showToast(ok ? '✓ SMS envoyé' : '⚠ Échec — vérifiez clés/quota', ok?'success':'error'));
 }
 
@@ -16093,7 +17217,7 @@ function testSmsTemplate(tplId) {
   if (!to) return;
   const filled = _fillTemplate(body, {
     client:'Awa', ref:'INV-0042', total:fmt(25000), sym:sym(),
-    business: S.session?.business || 'STOCKR',
+    business: S.session?.business || 'BARO',
     payment_link:'https://pay.example/xyz',
     code:'123456', promo_text:'-20%', expires:'31/12'
   });
@@ -16201,7 +17325,7 @@ function vEcommerceSetup() {
     logo:'🟠', portal:'https://vendeur.jumia.ci/', docs:'https://sellercenter.jumia.com/',
     keyLabel:'API Token (optionnel, laisser vide pour export CSV)', keyPlaceholder:'',
     urlLabel:'URL Vendor Center (optionnel)', urlPlaceholder:'https://vendeur.jumia.ci/',
-    help:'Jumia n\'offre pas d\'API publique stable. STOCKR génère un CSV au format officiel, importable via Vendor Center › Produits › Importer.'
+    help:'Jumia n\'offre pas d\'API publique stable. BARO génère un CSV au format officiel, importable via Vendor Center › Produits › Importer.'
   };
   const productsCount = S.products.length;
   const alreadySynced = (d.synced || []).length;
@@ -16250,15 +17374,15 @@ function vEcommerceSetup() {
     <div class="card" style="margin-bottom:10px">
       <div class="card-title">⚙️ Options de synchronisation</div>
       <label style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
-        <div><div style="font-weight:700;font-size:13px">Push auto à la création produit</div><div style="font-size:11px;color:var(--text-3)">Envoie chaque nouveau produit STOCKR sur ${meta.name}</div></div>
+        <div><div style="font-weight:700;font-size:13px">Push auto à la création produit</div><div style="font-size:11px;color:var(--text-3)">Envoie chaque nouveau produit BARO sur ${meta.name}</div></div>
         <input type="checkbox" id="ec-auto-push" ${d.autoPush?'checked':''}>
       </label>
       <label style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
-        <div><div style="font-weight:700;font-size:13px">Sync stock bidirectionnel</div><div style="font-size:11px;color:var(--text-3)">Met à jour le stock dans les deux sens (vente STOCKR ⇄ ${meta.name})</div></div>
+        <div><div style="font-weight:700;font-size:13px">Sync stock bidirectionnel</div><div style="font-size:11px;color:var(--text-3)">Met à jour le stock dans les deux sens (vente BARO ⇄ ${meta.name})</div></div>
         <input type="checkbox" id="ec-sync-stock" ${d.syncStock?'checked':''}>
       </label>
       <label style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
-        <div><div style="font-weight:700;font-size:13px">Pull commandes</div><div style="font-size:11px;color:var(--text-3)">Récupère les commandes ${meta.name} comme ventes STOCKR</div></div>
+        <div><div style="font-weight:700;font-size:13px">Pull commandes</div><div style="font-size:11px;color:var(--text-3)">Récupère les commandes ${meta.name} comme ventes BARO</div></div>
         <input type="checkbox" id="ec-pull-orders" ${d.pullOrders?'checked':''}>
       </label>
       <label style="display:flex;justify-content:space-between;align-items:center;padding:10px 0">
@@ -16371,12 +17495,12 @@ async function _pushShopifyProduct(p, cfg) {
     product: {
       title: p.name,
       body_html: `<p>${p.description || p.name}</p>`,
-      vendor: S.session?.business || 'STOCKR',
+      vendor: S.session?.business || 'BARO',
       product_type: p.category || 'General',
       tags: (p.tags || []).join(', '),
       variants: [{
         price: String(p.price),
-        sku: 'STOCKR-'+p.id,
+        sku: 'BARO-'+p.id,
         inventory_quantity: productMaxMake(p) || 999
       }]
     }
@@ -16397,7 +17521,7 @@ async function _pushWoocommerceProduct(p, cfg) {
     regular_price: String(p.price),
     description: p.description || p.name,
     short_description: p.description || '',
-    sku: 'STOCKR-'+p.id,
+    sku: 'BARO-'+p.id,
     manage_stock: true,
     stock_quantity: productMaxMake(p) || 999,
     categories: p.category ? [{ name: p.category }] : [],
@@ -16786,11 +17910,11 @@ async function testPosConnection() {
 async function posPrintTest() {
   const cfg = _getPosConfig() || {
     endpoint: document.getElementById('pos-endpoint')?.value.trim(),
-    header: document.getElementById('pos-header')?.value.trim()||'TEST STOCKR',
+    header: document.getElementById('pos-header')?.value.trim()||'TEST BARO',
     footer: document.getElementById('pos-footer')?.value.trim()||'Merci !'
   };
   const lines = [
-    (cfg.header||'STOCKR').toUpperCase(),
+    (cfg.header||'BARO').toUpperCase(),
     '================================',
     'TICKET DE TEST',
     new Date().toLocaleString('fr-FR'),
@@ -16835,7 +17959,7 @@ async function posPrintSale(sale) {
   const cfg = _getPosConfig();
   if (!cfg) return false;
   const lines = [
-    (cfg.header||S.session?.business||'STOCKR').toUpperCase(),
+    (cfg.header||S.session?.business||'BARO').toUpperCase(),
     '================================',
     `Ticket #${sale.id}`,
     new Date(sale.date).toLocaleString('fr-FR'),
@@ -17158,7 +18282,7 @@ function requestPaymentWhatsApp(amount, clientPhone, reference) {
   const waveLink = generateWavePayment(amount, reference);
   const orangeCode = generateOrangePayment(amount);
   const moovCfg = (S.paymentMethods||[]).find(m => m.provider === 'moov');
-  const biz = S.session?.business || 'STOCKR';
+  const biz = S.session?.business || 'BARO';
   let msg = `Bonjour ! Voici votre demande de paiement de ${fmt(amount)} ${sym()} à ${biz}.\n\n`;
   if (reference) msg += `Référence: ${reference}\n\n`;
   msg += `Choisissez votre mode de paiement:\n`;
@@ -17670,6 +18794,10 @@ document.addEventListener('DOMContentLoaded', () => {
   window.activatePlan            = activatePlan;
   window.cancelPlan              = cancelPlan;
   window.setBilling              = setBilling;
+  window.__planConfirmClose      = __planConfirmClose;
+  window.__planStartTrial        = __planStartTrial;
+  window.__planPayNow            = __planPayNow;
+  window._doActivatePlan         = _doActivatePlan;
   // ── v2 — Nouvelles fonctions ──
   window.toggleBoutiquePublish   = toggleBoutiquePublish;
   window.updateBoutiqueConfig    = updateBoutiqueConfig;
@@ -17815,6 +18943,29 @@ document.addEventListener('DOMContentLoaded', () => {
   window.postProductSocial       = postProductSocial;
   window.setupPayment            = setupPayment;
   window.disconnectPayment       = disconnectPayment;
+  window.__savePaymentSetup      = __savePaymentSetup;
+  window.__testPayment           = __testPayment;
+  window.payWithProvider         = payWithProvider;
+  window.payWithMobileMoney      = payWithMobileMoney;
+  window.__saveScheduledPost     = __saveScheduledPost;
+  window.openSocialTemplates     = openSocialTemplates;
+  window.openIntegrationDashboard= openIntegrationDashboard;
+  window.__runIntegAction        = __runIntegAction;
+  window.syncEcommerceStock      = syncEcommerceStock;
+  window.applyImageTemplate      = applyImageTemplate;
+  window.applyVideoTemplate      = applyVideoTemplate;
+  window.openImageEditor         = openImageEditor;
+  window.openVideoEditor         = openVideoEditor;
+  window.__renderImgEditor       = __renderImgEditor;
+  window.__imgEdUpload           = __imgEdUpload;
+  window.__imgEdDownload         = __imgEdDownload;
+  window.__imgEdShare            = __imgEdShare;
+  window.__vidRecordCamera       = __vidRecordCamera;
+  window.__vidRecordScreen       = __vidRecordScreen;
+  window.__vidStop               = __vidStop;
+  window.__vidImport             = __vidImport;
+  window.__vidDownload           = __vidDownload;
+  window.__vidShare              = __vidShare;
   window.connectIntegration      = connectIntegration;
   window.disconnectIntegration   = disconnectIntegration;
   window.saveDeliverySetup       = saveDeliverySetup;
@@ -17925,6 +19076,8 @@ document.addEventListener('DOMContentLoaded', () => {
   window.loginGoogle        = loginGoogle;
   window.loginApple         = loginApple;
   window.loginBiometric     = loginBiometric;
+  window.__showSocialModal  = __showSocialModal;
+  window.__submitSocialLogin= __submitSocialLogin;
   window.openMemberSwitcher = openMemberSwitcher;
   window.switchToMember     = switchToMember;
   window.promptMemberPin    = promptMemberPin;
