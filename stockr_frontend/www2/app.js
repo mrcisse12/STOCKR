@@ -2056,6 +2056,7 @@ async function confirmCart() {
   const pmSel = $('sale-payment');
   const payMethod = pmSel ? pmSel.value : 'cash';
   try {
+    const cartId = 'cart_' + Date.now();
     let total = 0, count = 0, newSales = [];
     for (const item of S.cart) {
       // ── Mode revendeur : déstockage article direct ──
@@ -2065,7 +2066,7 @@ async function confirmCart() {
         const lineTotal  = item.unitPrice * item.qty;
         const lineProfit = (item.unitPrice - (item.unitCost || 0)) * item.qty;
         total += lineTotal; count += item.qty;
-        const newSale = { id: Date.now() + Math.random(), productId: item._artId, productName: item.productName, qty: item.qty, total: lineTotal, profit: lineProfit, date: new Date().toISOString(), clientId, clientName: resolvedClientName || client?.name || null, paymentMethod: payMethod };
+        const newSale = { id: Date.now() + Math.random(), cartId, productId: item._artId, productName: item.productName, qty: item.qty, total: lineTotal, profit: lineProfit, date: new Date().toISOString(), clientId, clientName: resolvedClientName || client?.name || null, paymentMethod: payMethod };
         S.sales.unshift(newSale); newSales.push(newSale);
         continue;
       }
@@ -2085,7 +2086,7 @@ async function confirmCart() {
       }
       total += lineTotal;
       count += item.qty;
-      const newSale = { id: data.sale.id, productId: data.sale.product_id, productName: data.sale.product_name, qty: data.sale.quantity, total: lineTotal, profit: lineProfit, date: data.sale.timestamp, clientId, clientName: resolvedClientName || client?.name || null, paymentMethod: payMethod, promoName, promoDiscount };
+      const newSale = { id: data.sale.id, cartId, productId: data.sale.product_id, productName: data.sale.product_name, qty: data.sale.quantity, total: lineTotal, profit: lineProfit, date: data.sale.timestamp, clientId, clientName: resolvedClientName || client?.name || null, paymentMethod: payMethod, promoName, promoDiscount };
       S.sales.unshift(newSale);
       newSales.push(newSale);
     }
@@ -3042,25 +3043,67 @@ function vSales() {
       <div class="empty-title">${t('noSales')}</div>
       <div class="empty-text">${t('noSalesSub')}</div>
     </div>`;
-      return filtered.map(s=>{
-      const sid = 'sale_' + s.id;
-      window[sid] = s;
-      return `
+      // ── Grouper les paniers (même cartId) ──
+      const groups = [];
+      const seen = new Set();
+      for (const s of filtered) {
+        if (s.cartId) {
+          if (seen.has(s.cartId)) continue;
+          seen.add(s.cartId);
+          const items = filtered.filter(x => x.cartId === s.cartId);
+          groups.push({ isCart: true, items, cartId: s.cartId, date: s.date, clientId: s.clientId, clientName: s.clientName, paymentMethod: s.paymentMethod, total: items.reduce((a,x)=>a+x.total,0), profit: items.reduce((a,x)=>a+(x.profit||0),0) });
+        } else {
+          groups.push({ isCart: false, ...s });
+        }
+      }
+      const pmColor = m => m==='wave'?'#1DC3FF':m==='orange'?'#FF6600':m==='moov'?'#00A651':m==='mtn'?'#FFCC00':'var(--accent)';
+      const pmLabel = m => m==='wave'?'Wave':m==='orange'?'OM':m==='moov'?'Moov':m==='mtn'?'MTN':m;
+      const pmBadge = m => m&&m!=='cash' ? ` <span style="font-size:10px;padding:1px 6px;border-radius:4px;background:${pmColor(m)}20;color:${pmColor(m)};font-weight:600">${pmLabel(m)}</span>` : '';
+      return groups.map(g => {
+        if (g.isCart) {
+          const gid = 'cart_grp_' + g.cartId;
+          window[gid] = g.items;
+          return `
+    <div class="sale-item" style="flex-direction:column;align-items:stretch;gap:6px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="sale-dot" style="${g.paymentMethod&&g.paymentMethod!=='cash'?'background:'+pmColor(g.paymentMethod):''}"></div>
+        <div class="sale-info" style="flex:1">
+          <div class="sale-prod">Panier · ${g.items.length} articles${pmBadge(g.paymentMethod)}</div>
+          <div class="sale-date">${fmtDate(g.date)}${g.clientName ? ` · <span style="color:var(--accent)">${g.clientName}</span>` : ''}</div>
+        </div>
+        <div class="sale-right">
+          <div class="sale-total">${fmt(g.total)} ${S.session?.currency_symbol||'FCFA'}</div>
+          ${g.profit ? `<div class="sale-qty"><span style="color:var(--success)">+${fmt(g.profit)}</span></div>` : ''}
+        </div>
+        <div class="sale-actions">
+          <button class="sale-act-btn" title="Facture PDF" onclick="generateInvoicePDF(window['${gid}'][0],window['${gid}'])">${IC.pdf}</button>
+          <button class="sale-act-btn sale-act-wa" title="WhatsApp" onclick="shareViaWhatsApp(window['${gid}'][0],window['${gid}'])">${IC.whatsapp}</button>
+        </div>
+      </div>
+      <div style="padding-left:22px;display:flex;flex-direction:column;gap:2px">
+        ${g.items.map(x=>`<div style="font-size:12px;color:var(--text-2);display:flex;justify-content:space-between"><span>${x.productName} ×${x.qty}</span><span>${fmt(x.total)} ${S.session?.currency_symbol||'FCFA'}</span></div>`).join('')}
+      </div>
+    </div>`;
+        }
+        const sid = 'sale_' + g.id;
+        window[sid] = g;
+        return `
     <div class="sale-item">
-      <div class="sale-dot" style="${s.paymentMethod&&s.paymentMethod!=='cash'?'background:'+(s.paymentMethod==='wave'?'#1DC3FF':s.paymentMethod==='orange'?'#FF6600':s.paymentMethod==='moov'?'#00A651':s.paymentMethod==='mtn'?'#FFCC00':'var(--accent)'):''}"></div>
+      <div class="sale-dot" style="${g.paymentMethod&&g.paymentMethod!=='cash'?'background:'+pmColor(g.paymentMethod):''}"></div>
       <div class="sale-info">
-        <div class="sale-prod">${s.productName}${s.paymentMethod&&s.paymentMethod!=='cash'?` <span style="font-size:10px;padding:1px 6px;border-radius:4px;background:${s.paymentMethod==='wave'?'#1DC3FF':s.paymentMethod==='orange'?'#FF6600':s.paymentMethod==='moov'?'#00A651':s.paymentMethod==='mtn'?'#FFCC00':'#ccc'}20;color:${s.paymentMethod==='wave'?'#1DC3FF':s.paymentMethod==='orange'?'#FF6600':s.paymentMethod==='moov'?'#00A651':s.paymentMethod==='mtn'?'#b39700':'var(--text-2)'};font-weight:600">${s.paymentMethod==='wave'?'Wave':s.paymentMethod==='orange'?'OM':s.paymentMethod==='moov'?'Moov':s.paymentMethod==='mtn'?'MTN':s.paymentMethod}</span>`:''}</div>
-        <div class="sale-date">${fmtDate(s.date)}${s.clientName ? ` · <span style="color:var(--accent)">${s.clientName}</span>` : ''}</div>
+        <div class="sale-prod">${g.productName}${pmBadge(g.paymentMethod)}</div>
+        <div class="sale-date">${fmtDate(g.date)}${g.clientName ? ` · <span style="color:var(--accent)">${g.clientName}</span>` : ''}</div>
       </div>
       <div class="sale-right">
-        <div class="sale-total">${fmt(s.total)} ${S.session?.currency_symbol||'FCFA'}</div>
-        <div class="sale-qty">x${s.qty}${s.profit ? ` · <span style="color:var(--success)">+${fmt(s.profit)}</span>` : ''}</div>
+        <div class="sale-total">${fmt(g.total)} ${S.session?.currency_symbol||'FCFA'}</div>
+        <div class="sale-qty">x${g.qty}${g.profit ? ` · <span style="color:var(--success)">+${fmt(g.profit)}</span>` : ''}</div>
       </div>
       <div class="sale-actions">
         <button class="sale-act-btn" title="Facture PDF" onclick="generateInvoicePDF(window['${sid}'])">${IC.pdf}</button>
         <button class="sale-act-btn sale-act-wa" title="WhatsApp" onclick="shareViaWhatsApp(window['${sid}'])">${IC.whatsapp}</button>
       </div>
-    </div>`;}).join('');
+    </div>`;
+      }).join('');
     })()}
   </div>`;
 }
