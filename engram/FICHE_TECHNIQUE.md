@@ -1,11 +1,12 @@
 # Engram — fiche technique, idées et plan de construction (v3)
 
 > **Engram** : l'app de flashcards qui fait le travail à votre place, dans votre langue.
-> Vous photographiez votre cours (ou déposez un PDF, un paquet Anki), l'IA rédige les cartes, **Mentor** construit votre programme jusqu'au jour de l'examen et agit dans l'app à votre demande, FSRS décide quand revoir chaque carte, et l'IA corrige vos réponses même quand elles ne sont pas mot pour mot.
+> Vous photographiez votre cours (ou déposez un PDF, un paquet Anki), l'IA rédige les cartes, **Mentor** construit votre programme jusqu'au jour de l'examen et agit dans l'app à votre demande, FSRS décide quand revoir chaque carte, et l'IA corrige vos réponses même quand elles ne sont pas mot pour mot, **tapées, dictées ou écrites à la main au stylet**.
 
 Ce document accompagne le prototype livré dans ce dossier (`engram/index.html` et le serveur `engram/server/`).
 
 1. [Ce qui change en v3](#1-ce-qui-change-en-v3)
+   - [Stylet, iPad et mise en ligne](#1-bis-stylet-ipad-et-mise-en-ligne)
 2. [Anki : ce qu'il fait bien, ce qu'il fait mal](#2-anki--ce-quil-fait-bien-ce-quil-fait-mal)
 3. [Ce que le prototype fait](#3-ce-que-le-prototype-fait)
 4. [Cinq langues, entièrement traduites](#4-cinq-langues-entièrement-traduites)
@@ -34,7 +35,27 @@ Ce document accompagne le prototype livré dans ce dossier (`engram/index.html` 
 | Programme | un examen, nouvelles fiches par jour | **programme calculé chaque jour** : plusieurs examens, temps disponible pour chaque jour de la semaine, charge future simulée sur 28 jours, préparation prévue le jour J, conseils, lettre hebdomadaire de Mentor, export vers l'agenda |
 | Intégrations | CSV, TSV, JSON | **Anki `.apkg` en import et en export** (avec images et progression), Quizlet / Excel / Google Sheets / Notion par copier-coller, **PDF de cours**, **fiches à imprimer** en PDF recto-verso, **agenda** (.ics, Google Agenda, Outlook), glisser-déposer |
 | Apparence | clair / sombre | **7 thèmes**, 6 accents, 3 typographies, taille du texte, densité, 4 papiers de fiche, mouvement réglable |
-| IA hors de l'app Claude | à brancher soi-même | **serveur Engram** prêt à déployer (Node, SDK officiel Anthropic, Docker) |
+| IA hors de l'app Claude | à brancher soi-même | **serveur Engram** prêt à déployer (Node, SDK officiel Anthropic, Docker) **et fonction Netlify** (même code) |
+| Stylet | — | **réponses écrites à la main et corrigées par l'IA**, brouillon, schémas dessinés sur les fiches, notes manuscrites → fiches |
+| Appareils | ordinateur et mobile | **app installable** (iPad, iPhone, Android, ordinateur), hors-ligne, mise en page iPad en paysage |
+
+## 1 bis. Stylet, iPad et mise en ligne
+
+**Répondre à la main.** En séance, le bouton plume (à côté de « Retourner » et « Écrire ») ouvre une feuille lignée sous la fiche ; sur iPad en paysage, la fiche est à gauche et la feuille à droite. On écrit au stylet (Apple Pencil, S Pen, stylet Surface), au doigt ou à la souris, puis **Faire corriger** : l'IA lit l'écriture (formules, flèches, abréviations, mots barrés ignorés), affiche ce qu'elle a lu, compare à la réponse attendue selon la sévérité choisie (souple, standard, strict) et suggère la note. Écriture illisible : l'IA le dit, sans pénaliser à tort. Sans IA, l'écriture s'affiche au verso à côté de la bonne réponse et l'on se note soi-même.
+
+**Un vrai trait de plume.** Épaisseur réglée par la pression du stylet (par la vitesse au doigt et à la souris), courbes lissées, points intermédiaires du stylet (jusqu'à 240 par seconde) tous pris en compte ; **la paume peut se poser** (dès qu'un stylet a touché l'écran, le doigt ne trace plus) ; **gomme** au bout du stylet ou par l'outil ; annuler, rétablir, tout effacer ; **pointe visible au survol** sur les iPad Pro récents. Les traits sont gardés en coordonnées relatives : ils suivent la rotation de l'iPad.
+
+**Brouillon.** Une feuille transparente posée sur la table et la fiche : on calcule, on souligne au surligneur, on schématise ; elle s'efface à la fiche suivante.
+
+**Schémas sur les fiches.** Dans l'éditeur, « Ajouter un schéma dessiné » au recto ou au verso ; le dessin est enregistré avec la fiche, synchronisé, exporté en `.apkg` (image PNG) et dans les sauvegardes.
+
+**Notes manuscrites → fiches.** Dans le scanner, « Écrire mes notes à la main » ouvre une grande feuille lignée ; la page part au scanner comme une photo, et l'IA en tire les fiches.
+
+**Tablette et téléphone.** Cibles plus larges sur tablette, aucun survol « collé » après un toucher, pas de zoom au double toucher sur les boutons, fiche plus grande sur iPad. **App installable** : Safari → Partager → « Sur l'écran d'accueil » (iPad, iPhone), ou « Installer » (Chrome, Edge) ; plein écran, icône Engram, raccourcis « Réviser » et « Scanner un cours » ; **hors-ligne** une fois ouverte (seule l'IA a besoin du réseau).
+
+**Mise en ligne.** Voir [le serveur Engram](#9-le-serveur-engram-lia-hors-de-lapp-claude) : un site Netlify dédié à Engram, avec l'IA, en quatre réglages.
+
+**Idées pour la suite** : lecture de l'écriture sans réseau, sur l'appareil (modèle embarqué) ; dessiner les masques d'une image au stylet directement dans la séance ; dictée et écriture mêlées pour les langues ; examen blanc entièrement manuscrit, corrigé copie par copie.
 
 ---
 
@@ -215,6 +236,19 @@ else write({ type: "done", content: sanitize(msg.content, msg.stop_reason), stop
 
 Pour réduire les coûts de correction, `ENGRAM_MODEL_QUICK=claude-haiku-4-5` divise environ par cinq le prix des tâches courtes.
 
+Le relais lui-même est dans `server/core.mjs`, écrit avec les objets standard du Web (`Request`, `Response`, flux) : le même code tourne dans le serveur Node, dans l'image Docker et dans une fonction Netlify. Pendant que le modèle réfléchit, le relais envoie une ligne `{"type":"ping"}` toutes les 10 secondes pour que les hébergeurs ne coupent pas une connexion muette.
+
+### Mettre Engram en ligne sur Netlify
+
+Le site de STOCKR, à la racine du dépôt, n'est pas touché : Engram a son propre site Netlify.
+
+1. Netlify → **Add new site → Import an existing project** → ce dépôt GitHub.
+2. **Base directory** : `engram`. Le reste est lu dans `engram/netlify.toml` (commande de build, dossier publié `_site`, fonction `netlify/functions/ai.mjs`, Node 22, en-têtes).
+3. **Site configuration → Environment variables** : `ANTHROPIC_API_KEY` (obligatoire) et `ENGRAM_ACCESS_CODE` (conseillé : un site public sans code dépense vos crédits). Les autres variables du tableau ci-dessus fonctionnent aussi.
+4. **Deploy**. L'app trouve seule l'IA à `/api/ai` ; chaque pull request a son aperçu.
+
+À savoir : Netlify limite la durée d'exécution d'une fonction selon l'offre. Les tâches courantes (correction, fiches, Mentor Rapide et Standard) passent ; pour les longues lectures (gros PDF scanné, Mentor Expert), si une requête est coupée, hébergez l'image Docker (Render, Railway, Fly.io, Scaleway) et indiquez son adresse dans **Réglages → IA et Mentor**.
+
 ---
 
 ## 10. Architecture de la vraie app
@@ -262,6 +296,8 @@ Lectures en cache : environ 10 % du prix d'entrée (0,25 $ par million sur Fable
 | Scan d'une page → 15 fiches (Opus 5) | ≈ 2 300 / 2 500 | **≈ 0,07 $** |
 | PDF de 20 pages de texte → 40 fiches (Opus 5) | ≈ 12 000 / 6 000 | ≈ 0,21 $ |
 | Correction d'une réponse (Opus 5, effort bas) | ≈ 400 / 150 | ≈ 0,006 $ — avec Haiku 4.5 : ≈ 0,001 $ |
+| Correction d'une réponse **manuscrite** (image recadrée sur l'écriture, Opus 5) | ≈ 1 200 / 200 | ≈ 0,011 $ — avec Haiku 4.5 : ≈ 0,002 $ |
+| Page de notes manuscrites → fiches (Opus 5) | ≈ 2 300 / 2 500 | ≈ 0,07 $ (comme une photo) |
 | Message à Mentor, 2 à 3 actions (Opus 5, cache) | ≈ 12 000 (dont 70 % en cache) / 1 200 | ≈ 0,05 $ |
 | Message à Mentor en **Expert** (Fable 5.1, cache) | ≈ 12 000 / 2 000 | ≈ 0,15 $ |
 | Lettre hebdomadaire de Mentor | ≈ 3 000 / 800 | ≈ 0,035 $ |
@@ -316,7 +352,7 @@ C'est plus cher qu'en v2 parce que Mentor lit l'état de l'app à chaque message
 3. **Des traductions et des exemples natifs**, relus par des enseignants de chaque pays, plus des examens blancs au format local (bac, Abitur, ENEM, selectividad, A-levels).
 4. **L'acquisition locale** (créateurs étudiants par pays) seulement une fois la rétention J30 au-dessus de 25 %.
 
-**Frais fixes, quel que soit le scénario** : Apple Developer 99 $/an ; Google Play 25 $ une fois ; domaine ~15 €/an ; Supabase Pro 25 $/mois ; Expo EAS 0 – 99 $/mois ; RevenueCat gratuit jusqu'à 2 500 $ de revenus mensuels ; hébergement du serveur Engram (Render, Fly, Railway, Scaleway) 5 – 25 €/mois ; marque INPI ~190 € (EUIPO ~850 € pour l'UE). Commission des stores sur les abonnements : 15 % sous 1 million de dollars de chiffre d'affaires annuel.
+**Frais fixes, quel que soit le scénario** : Apple Developer 99 $/an ; Google Play 25 $ une fois ; domaine ~15 €/an ; Supabase Pro 25 $/mois ; Expo EAS 0 – 99 $/mois ; RevenueCat gratuit jusqu'à 2 500 $ de revenus mensuels ; hébergement du serveur Engram (Render, Fly, Railway, Scaleway) 5 – 25 €/mois, ou Netlify (offre gratuite pour la bêta, puis environ 10 – 20 $/mois selon le trafic : à vérifier sur netlify.com/pricing) ; marque INPI ~190 € (EUIPO ~850 € pour l'UE). Commission des stores sur les abonnements : 15 % sous 1 million de dollars de chiffre d'affaires annuel.
 
 ---
 
@@ -381,6 +417,8 @@ Scripts automatisés (Chromium sans interface), tous au vert sur la version livr
 - **Langues** : parcours complet de l'app (accueil, 7 vues, 18 fenêtres, séance, jeux, scanner, Mentor, réglages) dans les 5 langues : 0 phrase manquante, 0 texte français restant ; pas de débordement horizontal en allemand sur ordinateur et sur mobile.
 - **Intégrations** (42 vérifications) : import des deux formats Anki et d'un vrai paquet ; export `.apkg` rouvert par la bibliothèque officielle d'Anki (6 notes, 7 cartes, trous rendus, image, étiquettes, échéance à ±1 jour, contrôle d'intégrité sans problème) ; CSV aller-retour ; texte Anki ; sauvegarde JSON aller-retour ; collage Quizlet ; PDF de cours (texte extrait, génération locale) et PDF scanné ; PDF à imprimer ; `.ics` (pliage des lignes à 75 octets, échappements, identifiants) ; liens Google / Outlook ; app Claude simulée (Mentor crée un paquet, programme un examen, change le thème ; annulation ; extensions de téléchargement remplacées).
 - **Serveur** (29 vérifications, sur une fausse API Claude) : flux de texte, niveaux et modèles, effort, repli automatique et en-tête bêta, cache, mode JSON, refus, repli en cours de réponse (blocs retirés avant la frontière), dernier tour sans outil, validation, code d'accès, limite de débit ; puis l'app réelle branchée dessus : détection automatique, Mentor qui crée un paquet par un outil, blocs de réflexion renvoyés intacts, annulation, refus affiché proprement, correction IA d'une réponse.
+- **Stylet** (navigateur sans interface, tracés simulés avec pression) : feuille d'écriture en séance sur iPad (portrait et paysage), téléphone et ordinateur ; trois traits enregistrés, image envoyée à l'IA (PNG, une seule image), écriture lue affichée au verso, note suggérée ; écriture illisible signalée ; paume ignorée après le stylet ; annuler et rétablir ; brouillon ; schéma dessiné enregistré avec la fiche et affiché au verso ; page de notes manuscrites ajoutée au scanner ; les 5 langues sans phrase manquante ni débordement.
+- **Mise en ligne** (24 vérifications sur une fausse API Claude) : serveur Node (flux, modèles, effort, repli, en-tête bêta, cache, mode JSON, battement pendant la réflexion, refus, validation, code d'accès, limite de débit, coupure par la page, fichiers de l'app installable, aucun fichier du serveur exposé) et fonction Netlify appelée directement (santé et flux) ; fonction empaquetée avec esbuild ; dossier publié `_site` construit.
 - **Apparence** : 7 thèmes × vues principales, accents, polices, tailles 85 % et 130 %, densité, 4 papiers, mouvement coupé ; contraste du texte ≥ 4,5:1 partout.
 
-Non testé ici : les appels à la vraie API Claude (pas de clé dans l'environnement de test) et la synchronisation réelle dans l'app Claude.
+Non testé ici : les appels à la vraie API Claude (pas de clé dans l'environnement de test), la synchronisation réelle dans l'app Claude, un vrai déploiement Netlify et un vrai Apple Pencil (tracés simulés dans le navigateur).

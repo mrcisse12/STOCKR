@@ -6,6 +6,13 @@
 <title>Engram</title>
 <meta name="description" content="Engram — photographiez votre cours, retenez-le pour toujours. Flashcards IA, répétition espacée FSRS, correction sémantique.">
 <meta name="theme-color" content="#0D1411">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Engram">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Gloock&family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..600&display=swap">
@@ -1042,6 +1049,113 @@ body.studying .mentor-fab,body.mentor-on .mentor-fab,#onb:not([hidden])~.mentor-
 .pdf-peek .page{max-height:220px;overflow:auto;margin-top:8px;padding:12px 14px;border-radius:6px;background:var(--paper);color:var(--p-ink);font:12.5px/1.55 var(--f-type);white-space:pre-wrap}
 body.dropping::after{content:attr(data-drop);position:fixed;inset:14px;z-index:500;display:grid;place-items:center;border:2px dashed var(--brass);border-radius:18px;background:color-mix(in srgb,var(--desk) 80%,transparent);backdrop-filter:blur(4px);font:400 34px/1.2 var(--f-display);color:var(--brass-text);pointer-events:none;text-align:center;padding:20px}
 
+/* ── Encre : stylet, brouillon, schémas dessinés ─────────────────── */
+.ink-paper{position:relative;border-radius:10px;overflow:hidden;color:var(--ink-c,#1D1C18);background-color:var(--paper);box-shadow:var(--sh-card);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.ink-paper.ruled{background-image:linear-gradient(90deg,transparent 46px,var(--p-margin) 46px,var(--p-margin) 47.5px,transparent 47.5px),repeating-linear-gradient(180deg,transparent 0 35px,var(--p-rule) 35px 36px);background-position:0 0,0 22px}
+.ink-paper.plain{background-image:radial-gradient(circle,var(--p-rule) 1.1px,transparent 1.4px);background-size:22px 22px;background-position:11px 11px}
+.ink-paper.clear{background:transparent;box-shadow:none;border-radius:0}
+.ink-paper::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 0 0 1px rgba(0,0,0,.06);border-radius:inherit}
+.ink-paper.clear::after{display:none}
+.ink-paper canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:crosshair}
+.ink-ph{position:absolute;inset:0;display:grid;place-items:center;padding:20px 24px;text-align:center;font:500 clamp(20px,2.4vw,26px)/1.2 var(--f-pen);color:var(--p-muted);opacity:.75;pointer-events:none;transition:opacity .3s}
+.ink-hover{position:absolute;left:0;top:0;width:var(--d,5px);height:var(--d,5px);margin:calc(var(--d,5px) / -2) 0 0 calc(var(--d,5px) / -2);border-radius:50%;border:1.5px solid color-mix(in srgb,currentColor 55%,transparent);pointer-events:none;z-index:2}
+.ink-bar{display:flex;align-items:center;gap:3px;flex-wrap:wrap;padding:5px;border-radius:14px;background:var(--folder-2);border:1px solid var(--hair-2)}
+.ink-tool{width:42px;height:42px;display:grid;place-items:center;border-radius:10px;color:var(--text-2);transition:background .2s,color .2s,transform .3s var(--spring)}
+.ink-tool:hover{background:var(--folder-3);color:var(--text)}
+.ink-tool.on{background:var(--brass-soft);color:var(--brass-text);box-shadow:inset 0 0 0 1px var(--hair-3)}
+.ink-tool:active{transform:scale(.88)}
+.ink-tool:disabled{opacity:.3;pointer-events:none}
+.ink-sw{width:24px;height:24px;margin:0 4px;border-radius:50%;background:var(--sw);box-shadow:0 0 0 2px var(--folder-2),0 0 0 3px var(--hair-3);transition:transform .3s var(--spring),box-shadow .2s}
+.ink-sw:hover{transform:scale(1.1)}
+.ink-sw.on{transform:scale(1.14);box-shadow:0 0 0 2px var(--folder-2),0 0 0 4px var(--brass)}
+.ink-sep{width:1px;height:24px;background:var(--hair-2);margin:0 5px}
+.ink-bar .btn{height:42px}
+.ink-row{display:flex;gap:10px;flex-wrap:wrap}
+.ink-row .ink-bar{flex:1 1 auto}
+.ink-row > .btn{flex:1 0 auto;height:auto;min-height:48px}
+@media (max-width:620px){.ink-tool{width:38px;height:38px}}
+@media (max-width:430px){.st-tools [data-act="st-amb"]{display:none}}
+/* Répondre à la main pendant la séance */
+.inkpad{--ink-c:#1D1C18;display:flex;flex-direction:column;gap:10px;width:min(640px,100%);animation:rise .5s var(--ease) both}
+.inkpad .ink-paper{height:clamp(150px,27vh,320px)}
+.inkpad.busy .ink-paper{pointer-events:none}
+.inkpad.busy .ink-paper::before{content:"";position:absolute;inset:0;z-index:3;background:linear-gradient(100deg,transparent 30%,rgba(255,236,190,.55) 50%,transparent 70%) 0 0/250% 100%;animation:inkRead 1.3s linear infinite;pointer-events:none}
+@keyframes inkRead{from{background-position:130% 0}to{background-position:-130% 0}}
+.st-main.ink-on{gap:14px}
+.st-main.ink-on .card3d{min-height:clamp(200px,30vh,360px)}
+:root[data-card="slate"] .inkpad{--ink-c:#EEF2EC}
+:root[data-card="slate"] .inkpad .ink-paper{--paper:#1F2A25;--p-rule:rgba(255,255,255,.07);--p-margin:rgba(255,255,255,.14);--p-muted:#9FB0A6}
+@media (min-width:1000px) and (orientation:landscape){
+  .st-main.ink-on{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);align-content:center;align-items:stretch;gap:18px 26px}
+  .st-main.ink-on > .stage{grid-row:1;grid-column:1}
+  .st-main.ink-on > .inkpad{grid-row:1;grid-column:2;width:100%}
+  .st-main.ink-on .inkpad .ink-paper{flex:1;height:auto;min-height:280px}
+  .st-main.ink-on .card3d{min-height:clamp(320px,50vh,470px)}
+  .st-main.ink-on #verdictBox > *,.st-main.ink-on #tutorBox > *{grid-column:1 / -1;justify-self:center}
+}
+.your-ink{display:flex;flex-direction:column;gap:4px}
+.your-ink img{display:block;max-width:100%;max-height:96px;width:auto;align-self:flex-start;mix-blend-mode:multiply}
+.your-ink img.wrong{opacity:.75;background:linear-gradient(180deg,transparent 48%,rgba(195,52,42,.55) 48%,rgba(195,52,42,.55) 53%,transparent 53%)}
+.your-ink small{font:400 12.5px/1.4 var(--f-type);color:var(--p-muted)}
+:root[data-card="slate"] .your-ink img{filter:invert(1) hue-rotate(180deg);mix-blend-mode:screen}
+/* Brouillon posé sur la table */
+#study > .scratch{position:absolute;inset:0;z-index:30;--ink-c:var(--text);animation:fadeIn .25s both}
+#study > .scratch.out{opacity:0;transition:opacity .2s}
+.scratch::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(80% 70% at 50% 45%,transparent 60%,color-mix(in srgb,var(--brass) 10%,transparent));box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--brass) 45%,transparent)}
+.scratch .ink-paper{position:absolute;inset:0}
+.scratch-bar{position:absolute;left:50%;top:calc(76px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:2;max-width:calc(100vw - 24px);animation:rise .4s var(--ease) both}
+.scratch-bar .ink-bar{box-shadow:var(--sh-pop);justify-content:center}
+.icon-btn.on{color:var(--brass-text);border-color:var(--hair-3);background:var(--brass-soft)}
+/* Schémas dessinés sur les fiches */
+.modal.sketch-modal{width:min(1000px,calc(100vw - 32px))}
+@media (max-width:620px){.modal.sketch-modal{width:100vw}.sketch-wrap .ink-paper,.sketch-wrap.ruled .ink-paper{height:50vh}}
+.sketch-wrap{--ink-c:#1D1C18;display:flex;flex-direction:column;gap:12px}
+.sketch-wrap .ink-paper{height:min(58vh,560px)}
+.sketch-wrap.ruled .ink-paper{height:min(64vh,760px)}
+.sk-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px}
+.sk-row .btn{height:36px;padding:0 12px;font-size:13px}
+.sk-thumb{height:56px;max-width:150px;object-fit:contain;border-radius:6px;background:var(--paper);border:1px solid var(--hair-2);padding:4px}
+.c-img.sketch{box-shadow:none;background:transparent;max-height:220px}
+:root[data-card="slate"] .c-img.sketch{filter:invert(1) hue-rotate(180deg)}
+.scan-ink{justify-content:flex-start;gap:14px;height:auto;padding:14px 16px;text-align:left;border-style:dashed;white-space:normal;min-width:0}
+.scan-ink .i{width:26px;height:26px;color:var(--brass-text);flex:none}
+.scan-ink b{display:block;font-size:14.5px}
+.scan-ink small{display:block;margin-top:2px;color:var(--muted);font-weight:400;font-size:12.5px;line-height:1.35}
+
+/* ── Tactile : iPad, téléphone, app installée ─────────────────────── */
+html{-webkit-tap-highlight-color:transparent}
+button,a,label,select,.chip,.opt,.ochip{touch-action:manipulation}
+.btn:active,.icon-btn:active,.chip:active,.grade:active,.dock button:active,.ftab:active{transform:scale(.96);transition-duration:.08s}
+/* Sur écran tactile, un survol « collé » après un toucher ne doit pas rester affiché. */
+@media (hover:none){
+  .grade:not(.sugg):hover{transform:none;border-color:var(--hair-2);background:var(--folder-2)}
+  .opt:not(.right):not(.wrong):hover{transform:none;border-color:rgba(0,0,0,.16)}
+  button.ochip:hover{transform:none}
+  .btn-brass:hover{transform:none}
+  .ftab:not(.on):hover{background:transparent;color:var(--muted)}
+  .icon-btn:not(.on):hover{background:transparent;border-color:var(--hair);color:var(--text-2)}
+}
+/* Tablette : cibles plus larges, fiche plus grande. */
+@media (pointer:coarse) and (min-width:700px){
+  .icon-btn{width:44px;height:44px}
+  .grade{padding:15px 6px 14px}
+  .card3d{width:min(720px,100%)}
+  .answer-box,.verdict,.tutor,.inkpad{width:min(720px,100%)}
+}
+@media (pointer:coarse) and (min-width:1000px) and (orientation:landscape){
+  .st-main.ink-on .inkpad{width:100%}
+}
+/* Lampe de la salle d'étude : elle suit doucement la main (souris ou stylet en survol). */
+@property --lx{syntax:'<percentage>';inherits:true;initial-value:50%}
+@property --ly{syntax:'<percentage>';inherits:true;initial-value:42%}
+#study{background:radial-gradient(70% 55% at var(--lx) var(--ly),var(--lamp),transparent 70%),var(--desk);transition:--lx 1.2s var(--ease),--ly 1.2s var(--ease)}
+/* Sceau de l'en-tête : il se trace à l'ouverture. */
+.seal .ring:first-of-type{stroke-dasharray:117;stroke-dashoffset:117;animation:sealDraw 1.6s .15s var(--ease) forwards}
+.seal text{animation:sealInk .9s .7s var(--ease) both}
+@keyframes sealDraw{to{stroke-dashoffset:0}}
+@keyframes sealInk{from{opacity:0;transform:translateY(3px)}}
+:root[data-motion="none"] .seal .ring:first-of-type{stroke-dashoffset:0;animation:none}
+
 /* ── Divers ───────────────────────────────────────────────────────── */
 .c-img{display:block;max-width:100%;max-height:180px;margin:0 auto;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.25)}
 .onb-langs{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
@@ -1324,7 +1438,12 @@ const I = {
   send: '<path d="M4 12 20 4l-5 16-3-7z"/><path d="m12 13 8-9"/>',
   stop: '<rect x="6" y="6" width="12" height="12" rx="2"/>',
   bookmark: '<path d="M6 3h12v18l-6-4-6 4z"/>',
-  layers: '<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>'
+  layers: '<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>',
+  nib: '<path d="M12 3 6.5 12 12 21l5.5-9z"/><path d="M12 3v7.5"/><circle cx="12" cy="12" r="1.5"/>',
+  marker: '<path d="m9 15-3 3v2h4l3-3"/><path d="m9 15 7.5-7.5a2.1 2.1 0 0 1 3 3L12 18z"/>',
+  eraser: '<path d="M20 20H9"/><path d="m4.5 15.5 9-9a2 2 0 0 1 2.8 0l2.2 2.2a2 2 0 0 1 0 2.8L11 19H8z"/><path d="m9 11 5 5"/>',
+  redo: '<path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/>',
+  scribble: '<path d="M3 17c3-6 5-9 6.5-9S10 13 12 13s3-6 4.5-6S18 12 21 11"/>'
 };
 const icon = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${I[n] || ''}</svg>`;
 
@@ -1803,6 +1922,26 @@ Reply with only a JSON object of this shape:
   return { score, verdict, missing: (Array.isArray(r?.missing) ? r.missing : []).map(String).slice(0, 3), comment: String(r?.comment || ''), grade: clamp(Number(r?.grade) || (verdict === 'correct' ? 3 : verdict === 'partiel' ? 2 : 1), 1, 4), ai: true };
 }
 
+/** Réponse écrite à la main : l'IA lit l'écriture (formules et schémas compris), puis la corrige. */
+async function aiGradeInk(question, expected, image, strict) {
+  const prompt = `You grade HANDWRITTEN answers in a flashcard app. The image shows what the student wrote by hand with a stylus or a finger: it may contain formulas, arrows, abbreviations, a small sketch, or crossed-out words (ignore crossed-out parts).
+First read the handwriting carefully. Then decide whether it matches the expected answer, even when it is not word for word.
+
+Strictness chosen by the student — ${STRICT[strict].ai}
+
+Question: ${question}
+Expected answer: ${expected}
+
+Reply with only a JSON object of this shape:
+{"transcription": "exactly what the student wrote, as plain text (formulas in plain notation, e.g. x^2, H2O, ->)", "legible": true | false, "score": 0-100, "verdict": "correct" | "partial" | "incorrect", "missing": ["important element that is missing or wrong", "..."], "comment": "one short, kind sentence in ${aiLang()} that says what is right and what is missing", "grade": 1 | 2 | 3 | 4}
+If you cannot read the handwriting, set "legible": false, score 0, verdict "incorrect", and say so kindly in "comment". "missing" holds at most 3 very short items, written in ${aiLang()}. "grade": 1 = wrong, 2 = partial, 3 = right, 4 = perfect and complete.`;
+  const r = await AI.json(prompt, { modelTier: 'quick', images: [image] });
+  const score = clamp(Math.round(Number(r?.score) || 0), 0, 100);
+  const v0 = String(r?.verdict || '').toLowerCase();
+  const verdict = v0 === 'correct' ? 'correct' : v0 === 'partial' || v0 === 'partiel' ? 'partiel' : v0 === 'incorrect' ? 'incorrect' : score >= 70 ? 'correct' : score >= 40 ? 'partiel' : 'incorrect';
+  return { score, verdict, missing: (Array.isArray(r?.missing) ? r.missing : []).map(String).slice(0, 3), comment: String(r?.comment || ''), grade: clamp(Number(r?.grade) || (verdict === 'correct' ? 3 : verdict === 'partiel' ? 2 : 1), 1, 4), ai: true, read: String(r?.transcription || '').trim(), illegible: r?.legible === false };
+}
+
 /* ── 7. Correction sémantique locale (sans IA) ────────────────────── */
 const STOP = new Set(('le la les l un une des de du d et ou au aux en dans par pour sur avec sans ce cet cette ces se sa son ses leur leurs qui que qu quoi dont est sont etre c s a y il elle ils elles on ne pas plus tres ' +
   'the an of to and or in on is are be it its for with as by at from that this which was were a ' +
@@ -1930,6 +2069,210 @@ const Dictation = {
 /** Code de synthèse / reconnaissance vocale pour une langue de fiches. */
 const SPEECH = { fr: 'fr-FR', en: 'en-US', es: 'es-ES', de: 'de-DE', pt: 'pt-BR', it: 'it-IT', nl: 'nl-NL', ar: 'ar-SA', zh: 'zh-CN', ja: 'ja-JP', ko: 'ko-KR', ru: 'ru-RU', tr: 'tr-TR', pl: 'pl-PL', sw: 'sw-KE' };
 const speechLang = code => SPEECH[code] || UI_LANG_META[LANG].speech;
+
+/* ── 9 bis. Encre : écrire au stylet (Apple Pencil, S Pen, stylet Surface), au doigt ou à la souris ──
+   La pression du stylet règle l'épaisseur du trait ; au doigt ou à la souris, la vitesse la
+   remplace (plus la main va vite, plus le trait s'affine, comme une plume).
+   Dès qu'un stylet a touché l'écran, le doigt ne trace plus : la paume peut se poser.
+   L'extrémité gomme du stylet (ou son bouton) efface. Les traits sont gardés en coordonnées
+   relatives : ils suivent la rotation de l'iPad et le redimensionnement de la fenêtre. */
+const INK_COLORS = [['currentColor', N_('Encre')], ['#2F55B0', N_('Bleu')], ['#C3342A', N_('Rouge')], ['#1F7A52', N_('Vert')]];
+const MARKER_COLOR = '#F2C230';
+const Ink = {
+  penSeen: false,
+  pad(cv, o = {}) {
+    const ctx = cv.getContext('2d');
+    const pad = { strokes: [], history: [], undone: [], tool: 'pen', color: o.color || 'currentColor', size: o.size || 2.6, cur: null, onChange: o.onChange || (() => { }) };
+    let W = 0, H = 0, dpr = 1, raf = 0;
+    const resolve = c => c === 'currentColor' ? getComputedStyle(cv).color : c;
+    const style = (g, st, col) => {
+      g.lineCap = g.lineJoin = 'round';
+      g.strokeStyle = g.fillStyle = col || resolve(st.color);
+      g.globalAlpha = st.tool === 'marker' ? .36 : 1;
+    };
+    // Un trait : courbes de Bézier entre les milieux des points, épaisseur de chaque tronçon.
+    const paint = (g, st, k, col) => {
+      const p = st.pts; if (!p.length) return;
+      style(g, st, col);
+      if (p.length === 1) { g.beginPath(); g.arc(p[0][0] * k, p[0][1] * k, Math.max(.6, p[0][2] * k) / 2, 0, 7); g.fill(); return; }
+      if (st.tool === 'marker') {
+        g.lineWidth = st.w * k; g.beginPath(); g.moveTo(p[0][0] * k, p[0][1] * k);
+        for (let i = 1; i < p.length - 1; i++) g.quadraticCurveTo(p[i][0] * k, p[i][1] * k, (p[i][0] + p[i + 1][0]) / 2 * k, (p[i][1] + p[i + 1][1]) / 2 * k);
+        g.lineTo(p[p.length - 1][0] * k, p[p.length - 1][1] * k); g.stroke(); return;
+      }
+      for (let i = 1; i < p.length; i++) seg(g, p, i, k);
+      tail(g, p, k);
+    };
+    const seg = (g, p, i, k) => {
+      const a = p[i - 2] || p[i - 1], b = p[i - 1], c = p[i];
+      g.lineWidth = Math.max(.6, b[2] * k);
+      g.beginPath(); g.moveTo((a[0] + b[0]) / 2 * k, (a[1] + b[1]) / 2 * k);
+      g.quadraticCurveTo(b[0] * k, b[1] * k, (b[0] + c[0]) / 2 * k, (b[1] + c[1]) / 2 * k); g.stroke();
+    };
+    const tail = (g, p, k) => {
+      const b = p[p.length - 2], c = p[p.length - 1]; if (!b) return;
+      g.lineWidth = Math.max(.6, c[2] * k);
+      g.beginPath(); g.moveTo((b[0] + c[0]) / 2 * k, (b[1] + c[1]) / 2 * k); g.lineTo(c[0] * k, c[1] * k); g.stroke();
+    };
+    const redraw = () => {
+      raf = 0; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+      for (const st of pad.strokes) paint(ctx, st, W);
+      if (pad.cur && pad.cur.tool === 'marker') paint(ctx, pad.cur, W);
+    };
+    const soon = () => { if (!raf) raf = requestAnimationFrame(redraw); };
+    const resize = () => {
+      // Taille de mise en page (sans les transformations : la fenêtre peut être en pleine animation).
+      if (!cv.clientWidth || !cv.clientHeight) return;
+      W = cv.clientWidth; H = cv.clientHeight; dpr = Math.min(3, devicePixelRatio || 1);
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); redraw();
+    };
+    const ro = new ResizeObserver(resize); ro.observe(cv); resize();
+    const pos = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.width]; };
+    const eraseAt = (x, y) => {
+      const rr = 14 / W, hit = [];
+      pad.strokes.forEach((st, i) => { if (st.pts.some(q => Math.hypot(q[0] - x, q[1] - y) < rr + q[2] / 2)) hit.push([i, st]); });
+      if (!hit.length) return;
+      for (const [i] of hit.slice().reverse()) pad.strokes.splice(i, 1);
+      pad.history.push({ del: hit }); pad.undone = []; soon(); pad.onChange();
+    };
+    const add = e => {
+      const st = pad.cur, [x, y] = pos(e);
+      if (st.tool === 'eraser') return eraseAt(x, y);
+      const last = st.pts[st.pts.length - 1];
+      if (last && Math.hypot(x - last[0], y - last[1]) * W < .7) return;
+      const base = pad.size / W * (st.tool === 'marker' ? 7 : 1);
+      let target = base;
+      if (e.pointerType === 'pen' && e.pressure > 0) target = base * (.28 + 1.3 * Math.pow(e.pressure, .85));
+      else if (last) { const v = Math.hypot(x - last[0], y - last[1]) * W / Math.max(1, e.timeStamp - st.t); target = base * clamp(1.32 - v * .42, .5, 1.32); }
+      const w = last ? last[2] * .55 + target * .45 : target;
+      st.pts.push([+x.toFixed(5), +y.toFixed(5), +w.toFixed(5)]); st.t = e.timeStamp;
+      if (st.tool === 'marker') { st.w = base; soon(); return; }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (st.pts.length === 1) paint(ctx, st, W); else { style(ctx, st); seg(ctx, st.pts, st.pts.length - 1, W); }
+    };
+    const hover = o.hover;
+    cv.addEventListener('pointerdown', e => {
+      if (e.pointerType === 'pen') Ink.penSeen = true;
+      else if (e.pointerType === 'touch' && Ink.penSeen) return; // paume posée sur l'écran
+      if (pad.cur || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      e.preventDefault(); try { cv.setPointerCapture(e.pointerId); } catch { }
+      const erase = pad.tool === 'eraser' || e.button === 5 || (e.buttons & 32);
+      pad.cur = { id: e.pointerId, tool: erase ? 'eraser' : pad.tool, color: pad.tool === 'marker' ? MARKER_COLOR : pad.color, pts: [], t: e.timeStamp };
+      if (hover) hover.hidden = true;
+      add(e);
+    });
+    cv.addEventListener('pointermove', e => {
+      if (!pad.cur) {
+        // Survol du stylet (Apple Pencil sur iPad Pro récent, stylets Windows) : on montre la pointe.
+        if (hover && e.pointerType === 'pen') { const r = cv.getBoundingClientRect(), k = W / r.width; hover.hidden = false; hover.style.transform = `translate(${(e.clientX - r.left) * k}px, ${(e.clientY - r.top) * k}px)`; hover.style.setProperty('--d', (pad.tool === 'marker' ? pad.size * 7 : pad.tool === 'eraser' ? 28 : pad.size * 1.6) + 'px'); }
+        return;
+      }
+      if (e.pointerId !== pad.cur.id) return;
+      const evs = e.getCoalescedEvents?.() || [];
+      for (const ev of evs.length ? evs : [e]) add(ev);
+    });
+    const end = e => {
+      const st = pad.cur; if (!st || e.pointerId !== st.id) return;
+      pad.cur = null;
+      if (st.tool === 'eraser' || !st.pts.length) return;
+      if (st.tool !== 'marker' && st.pts.length > 1) { ctx.setTransform(dpr, 0, 0, dpr, 0, 0); style(ctx, st); tail(ctx, st.pts, W); }
+      delete st.t; delete st.id;
+      pad.strokes.push(st); pad.history.push({ add: st }); pad.undone = []; soon(); pad.onChange();
+    };
+    cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+    cv.addEventListener('pointerleave', e => { if (hover && e.pointerType === 'pen') hover.hidden = true; });
+    cv.addEventListener('contextmenu', e => e.preventDefault());
+    Object.assign(pad, {
+      empty: () => !pad.strokes.length,
+      undo() {
+        const h = pad.history.pop(); if (!h) return;
+        if (h.add) pad.strokes.splice(pad.strokes.lastIndexOf(h.add), 1);
+        else for (const [i, st] of h.del) pad.strokes.splice(i, 0, st);
+        pad.undone.push(h); redraw(); pad.onChange();
+      },
+      redo() {
+        const h = pad.undone.pop(); if (!h) return;
+        if (h.add) pad.strokes.push(h.add);
+        else for (const [i] of h.del.slice().reverse()) pad.strokes.splice(i, 1);
+        pad.history.push(h); redraw(); pad.onChange();
+      },
+      clear() { if (!pad.strokes.length) return; pad.history.push({ del: pad.strokes.map((st, i) => [i, st]) }); pad.strokes = []; pad.undone = []; redraw(); pad.onChange(); },
+      set(tool, color) { if (tool) pad.tool = tool; if (color) pad.color = color; },
+      /** Image recadrée sur l'écriture : encre foncée (lisible par l'IA), fond blanc ou transparent. */
+      image({ bg = '#fff', ink = '#16150F', margin = 18, maxW = 1600, type = 'image/png' } = {}) {
+        if (!pad.strokes.length) return null;
+        let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+        for (const st of pad.strokes) for (const [x, y, w] of st.pts) { const r = (st.tool === 'marker' ? st.w : w) / 2; x0 = Math.min(x0, x - r); y0 = Math.min(y0, y - r); x1 = Math.max(x1, x + r); y1 = Math.max(y1, y + r); }
+        const k = W, sc = Math.min(2.5, maxW / ((x1 - x0) * k + margin * 2));
+        const out = document.createElement('canvas');
+        out.width = Math.max(8, Math.round(((x1 - x0) * k + margin * 2) * sc)); out.height = Math.max(8, Math.round(((y1 - y0) * k + margin * 2) * sc));
+        const g = out.getContext('2d');
+        if (bg) { g.fillStyle = bg; g.fillRect(0, 0, out.width, out.height); }
+        g.setTransform(sc, 0, 0, sc, (margin - x0 * k) * sc, (margin - y0 * k) * sc);
+        for (const st of pad.strokes) paint(g, st, k, st.color === 'currentColor' ? ink : st.tool === 'marker' ? MARKER_COLOR : st.color);
+        return { canvas: out, url: out.toDataURL(type, .9), blob: () => new Promise(r => out.toBlob(r, type, .9)) };
+      },
+      destroy() { ro.disconnect(); cancelAnimationFrame(raf); }
+    });
+    return pad;
+  },
+  /** Barre d'outils : plume, couleurs, surligneur, gomme, annuler, rétablir, effacer. */
+  bar(o = {}) {
+    const colors = o.colors === false ? '' : `<span class="ink-sep"></span>${INK_COLORS.map(([c, l], i) => `<button type="button" class="ink-sw ${i ? '' : 'on'}" data-ink-color="${c}" style="--sw:${c === 'currentColor' ? 'var(--ink-c)' : c}" aria-label="${esc(t(l))}" data-tip="${esc(t(l))}"></button>`).join('')}`;
+    return `<div class="ink-bar" role="toolbar" aria-label="${esc(t('Outils d\'écriture'))}">
+      <button type="button" class="ink-tool on" data-ink-tool="pen" aria-label="${esc(t('Plume'))}" data-tip="${esc(t('Plume'))}">${icon('nib')}</button>
+      ${o.marker === false ? '' : `<button type="button" class="ink-tool" data-ink-tool="marker" aria-label="${esc(t('Surligneur'))}" data-tip="${esc(t('Surligneur'))}">${icon('marker')}</button>`}
+      <button type="button" class="ink-tool" data-ink-tool="eraser" aria-label="${esc(t('Gomme'))}" data-tip="${esc(t('Gomme'))}">${icon('eraser')}</button>
+      ${colors}<span class="ink-sep"></span>
+      <button type="button" class="ink-tool" data-ink="undo" aria-label="${esc(t('Annuler'))}" data-tip="${esc(t('Annuler'))}">${icon('undo')}</button>
+      <button type="button" class="ink-tool" data-ink="redo" aria-label="${esc(t('Rétablir'))}" data-tip="${esc(t('Rétablir'))}">${icon('redo')}</button>
+      <button type="button" class="ink-tool" data-ink="clear" aria-label="${esc(t('Tout effacer'))}" data-tip="${esc(t('Tout effacer'))}">${icon('trash')}</button>
+      ${o.extra || ''}</div>`;
+  },
+  bindBar(root, pad) {
+    const bar = root.querySelector('.ink-bar'); if (!bar) return;
+    const sync = () => {
+      bar.querySelectorAll('[data-ink-tool]').forEach(b => b.classList.toggle('on', b.dataset.inkTool === pad.tool));
+      bar.querySelectorAll('[data-ink-color]').forEach(b => b.classList.toggle('on', b.dataset.inkColor === pad.color && pad.tool === 'pen'));
+      const u = bar.querySelector('[data-ink="undo"]'), r = bar.querySelector('[data-ink="redo"]'), c = bar.querySelector('[data-ink="clear"]');
+      if (u) u.disabled = !pad.history.length; if (r) r.disabled = !pad.undone.length; if (c) c.disabled = pad.empty();
+    };
+    bar.addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      if (b.dataset.inkTool) pad.set(b.dataset.inkTool);
+      else if (b.dataset.inkColor) pad.set('pen', b.dataset.inkColor);
+      else if (b.dataset.ink) pad[b.dataset.ink]();
+      haptic(6); sync();
+    });
+    const prev = pad.onChange; pad.onChange = () => { prev(); sync(); };
+    sync();
+  }
+};
+/** Fenêtre de dessin : schéma pour une fiche, ou page de notes manuscrites à transformer en fiches. */
+function openSketch({ title, sub = t('Au stylet, au doigt ou à la souris'), paper = 'plain', ph = t('Dessinez ici'), ok = t('Utiliser ce dessin'), bg = null, done }) {
+  const m = Modal.open(mh(title, sub) + `<div class="sketch-wrap ${paper}">${inkSurface('skInk', ph, paper)}${Ink.bar()}</div>
+    <div class="modal-f"><button class="btn btn-ghost" data-act="close">${t('Annuler')}</button><button class="btn btn-brass" id="skOk" disabled>${icon('check')}${ok}</button></div>`, 'wide sketch-modal');
+  const pad = mountInk(m, '#skInk', { onChange: p => { m.querySelector('#skOk').disabled = p.empty(); } });
+  Modal.onClose(m, () => pad.destroy());
+  m.querySelector('#skOk').onclick = () => { const im = pad.image({ bg, ink: '#1D1C18', maxW: bg ? 1600 : 1000 }); Modal.close(); done(im); };
+}
+addEventListener('pointerdown', e => {
+  if (e.pointerType !== 'pen' || document.documentElement.classList.contains('has-pen')) return;
+  document.documentElement.classList.add('has-pen'); Ink.penSeen = true;
+  if (S && !S.profile.flags.penTip && S.profile.settings.answerMode !== 'ink') {
+    S.profile.flags.penTip = 1; Store.touch('profile');
+    toast(t('Stylet détecté : en séance, touchez la plume pour répondre à la main.'), 'nib');
+  }
+}, { capture: true, passive: true });
+/** Une surface d'écriture prête à l'emploi : papier, toile, pointe de survol. */
+const inkSurface = (id, ph = '', cls = '') => `<div class="ink-paper ${cls}" id="${id}"><canvas aria-label="${esc(t('Zone d\'écriture'))}"></canvas>${ph ? `<div class="ink-ph">${ph}</div>` : ''}<i class="ink-hover" hidden></i></div>`;
+function mountInk(root, sel, o = {}) {
+  const box = root.querySelector(sel); if (!box) return null;
+  const ph = box.querySelector('.ink-ph');
+  const pad = Ink.pad(box.querySelector('canvas'), { ...o, hover: box.querySelector('.ink-hover'), onChange: () => { if (ph) ph.hidden = !pad.empty(); o.onChange?.(pad); } });
+  Ink.bindBar(root, pad);
+  return pad;
+}
 
 /* ── 10. Ex-libris : les récompenses ──────────────────────────────── */
 const BADGES = [
@@ -2354,7 +2697,8 @@ function cardFaces(c, o = {}) {
       back: `<div class="occ">${im}${masks(true)}</div>${label ? `<div class="a-text" style="font-size:24px">${esc(label)}</div>` : ''}`
     };
   }
-  const fi = c.fimg && S.images[c.fimg] ? `<img class="c-img" src="${S.images[c.fimg]}" alt="">` : '', bi = c.bimg && S.images[c.bimg] ? `<img class="c-img" src="${S.images[c.bimg]}" alt="">` : '';
+  const cimg = id => id && S.images[id] ? `<img class="c-img ${/^ink/.test(id) ? 'sketch' : ''}" src="${S.images[id]}" alt="">` : '';
+  const fi = cimg(c.fimg), bi = cimg(c.bimg);
   return { question: c.front, expected: c.back, front: `${fi}<div class="q-text">${md(c.front)}</div>`, back: `<div class="q-small">${md(c.front)}</div>${bi}<div class="a-text">${md(c.back)}</div>${extra}` };
 }
 
@@ -2809,7 +3153,9 @@ function openEditor(cardId, deckId, preset) {
   let [card, deck] = cardId ? findCard(cardId) : [null, deckById(deckId) || S.decks[0]];
   if (card && card.type === 'occlusion') return openOcclusion(deck.id, card);
   if (!deck) { openNewDeck(d => openEditor(null, d.id)); return; }
-  const st = { type: card ? card.type : (preset || 'basic'), front: card?.front || '', back: card?.back || '', extra: card?.extra || '', text: card?.text || '', options: card?.options ? [...card.options] : ['', '', '', ''], answer: card?.answer ?? 0, items: (card?.items || []).join('\n'), tags: (card?.tags || []).join(', ') };
+  const st = { type: card ? card.type : (preset || 'basic'), front: card?.front || '', back: card?.back || '', extra: card?.extra || '', text: card?.text || '', options: card?.options ? [...card.options] : ['', '', '', ''], answer: card?.answer ?? 0, items: (card?.items || []).join('\n'), tags: (card?.tags || []).join(', '), fimg: card?.fimg || '', bimg: card?.bimg || '' };
+  const sk = side => { const id = st[side], src = id && S.images[id];
+    return `<div class="sk-row">${src ? `<img class="sk-thumb ${/^ink/.test(id) ? 'sketch' : ''}" src="${src}" alt=""><button class="btn btn-ghost btn-sm" data-sk-draw="${side}">${icon('nib', 'i-sm')}${t('Redessiner')}</button><button class="btn btn-ghost btn-sm" data-sk-rm="${side}">${icon('x', 'i-sm')}${t('Retirer')}</button>` : `<button class="btn btn-ghost btn-sm" data-sk-draw="${side}">${icon('nib', 'i-sm')}${t('Ajouter un schéma dessiné')}</button>`}</div>`; };
   if (st.type === 'tf' && typeof st.answer !== 'boolean') st.answer = true;
   const m = Modal.open('<div id="edRoot"></div>', 'wide');
   const fields = () => {
@@ -2826,13 +3172,13 @@ function openEditor(cardId, deckId, preset) {
     if (ty === 'order') return `<div class="field"><label for="eFront">${t('Consigne')}</label><input class="input" id="eFront" value="${esc(st.front)}" placeholder="${esc(t("Remettez dans l'ordre…"))}"></div>
       <div class="field"><label for="eItems">${t('Éléments, dans le bon ordre (un par ligne)')}</label><textarea class="textarea" id="eItems">${esc(st.items)}</textarea></div>
       <div class="field"><label for="eBack">${t('Explication (facultatif)')}</label><input class="input" id="eBack" value="${esc(st.back)}"></div>`;
-    return `<div class="field"><label for="eFront">${ty === 'reverse' ? t('Recto') : t('Question')}</label><textarea class="textarea" id="eFront" style="min-height:80px" autofocus>${esc(st.front)}</textarea></div>
-      <div class="field"><label for="eBack">${ty === 'reverse' ? t('Verso') : t('Réponse')}</label><textarea class="textarea" id="eBack" style="min-height:80px">${esc(st.back)}</textarea></div>
+    return `<div class="field"><label for="eFront">${ty === 'reverse' ? t('Recto') : t('Question')}</label><textarea class="textarea" id="eFront" style="min-height:80px" autofocus>${esc(st.front)}</textarea>${sk('fimg')}</div>
+      <div class="field"><label for="eBack">${ty === 'reverse' ? t('Verso') : t('Réponse')}</label><textarea class="textarea" id="eBack" style="min-height:80px">${esc(st.back)}</textarea>${sk('bimg')}</div>
       <div class="field"><label for="eExtra">${t('Complément (facultatif)')}</label><input class="input" id="eExtra" value="${esc(st.extra)}" placeholder="${esc(t('Contexte, exemple, moyen mnémotechnique…'))}"></div>`;
   };
   const sample = () => {
     const items = st.items.split('\n').map(x => x.trim()).filter(Boolean);
-    const c = { type: st.type === 'reverse' ? 'basic' : st.type, front: st.front || t('Votre question…'), back: st.back || (st.type === 'basic' || st.type === 'reverse' ? t('Votre réponse…') : ''), extra: st.extra, text: st.text || t('Votre {{c1::texte à trous}}…'), n: 1, options: st.options.map((o, i) => o || t('Choix {x}', { x: 'ABCD'[i] })), answer: st.answer, items: items.length ? items : [t('Premier'), t('Deuxième'), t('Troisième')] };
+    const c = { type: st.type === 'reverse' ? 'basic' : st.type, fimg: st.fimg, bimg: st.bimg, front: st.front || t('Votre question…'), back: st.back || (st.type === 'basic' || st.type === 'reverse' ? t('Votre réponse…') : ''), extra: st.extra, text: st.text || t('Votre {{c1::texte à trous}}…'), n: 1, options: st.options.map((o, i) => o || t('Choix {x}', { x: 'ABCD'[i] })), answer: st.answer, items: items.length ? items : [t('Premier'), t('Deuxième'), t('Troisième')] };
     const f = cardFaces(c);
     return `<div class="mini-card">${f.front}</div><div class="mini-card" style="min-height:130px">${f.back}</div>`;
   };
@@ -2855,6 +3201,11 @@ function openEditor(cardId, deckId, preset) {
     root.querySelector('#eType')?.addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; read(); st.type = b.dataset.t; if (st.type === 'tf') st.answer = true; if (st.type === 'mcq') st.answer = 0; draw(); });
     root.querySelector('#eForm').addEventListener('input', () => { read(); root.querySelector('#ePrev').innerHTML = sample(); });
     root.querySelectorAll('[data-ans]').forEach(b => b.onclick = () => { read(); st.answer = +b.dataset.ans; draw(); });
+    root.querySelectorAll('[data-sk-draw]').forEach(b => b.onclick = () => {
+      read(); const side = b.dataset.skDraw;
+      openSketch({ title: side === 'fimg' ? t('Schéma du recto') : t('Schéma du verso'), done: im => { const id = uid('ink'); S.images[id] = im.url; Store.dirty.add('img:' + id); st[side] = id; draw(); } });
+    });
+    root.querySelectorAll('[data-sk-rm]').forEach(b => b.onclick = () => { read(); st[b.dataset.skRm] = ''; draw(); });
     root.querySelector('#eTF')?.addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; read(); st.answer = b.dataset.v === '1'; draw(); });
     root.querySelector('#eWrap')?.addEventListener('click', () => {
       const ta = root.querySelector('#eText'); const a = ta.selectionStart, b = ta.selectionEnd; if (a === b) { ta.focus(); return; }
@@ -2911,8 +3262,10 @@ function openEditor(cardId, deckId, preset) {
     const target = deckById(m.querySelector('#eDeck')?.value) || deck;
     const ty = st.type; const items = st.items.split('\n').map(x => x.trim()).filter(Boolean);
     if (ty === 'cloze' && !/\{\{c\d+::.+?\}\}/.test(st.text)) { toast(t('Ajoutez au moins un trou : sélectionnez un mot puis « Masquer la sélection ».'), 'eye'); return; }
-    if (ty !== 'cloze' && !st.front.trim()) { m.querySelector('#eFront')?.focus(); return; }
-    if ((ty === 'basic' || ty === 'reverse') && !st.back.trim()) { m.querySelector('#eBack')?.focus(); return; }
+    const hasImg = ty === 'basic' || ty === 'reverse';
+    if (ty !== 'cloze' && !st.front.trim() && !(hasImg && st.fimg)) { m.querySelector('#eFront')?.focus(); return; }
+    if (hasImg && !st.back.trim() && !st.bimg) { m.querySelector('#eBack')?.focus(); return; }
+    const imgs = hasImg ? { fimg: st.fimg || undefined, bimg: st.bimg || undefined } : {};
     if (ty === 'mcq' && st.options.filter(o => o.trim()).length < 2) { toast(t('Donnez au moins deux choix.'), 'eye'); return; }
     if (ty === 'order' && items.length < 2) { toast(t('Donnez au moins deux éléments à ordonner.'), 'list'); return; }
     const base = { tags, extra: st.extra.trim() || undefined };
@@ -2923,7 +3276,9 @@ function openEditor(cardId, deckId, preset) {
         deck.cards = deck.cards.filter(x => !(x.note && x.note === card.note) && x !== card);
         target.cards.push(...kept);
       } else {
-        Object.assign(card, { front: st.front.trim(), back: st.back.trim(), ...base });
+        const olds = [card.fimg, card.bimg];
+        Object.assign(card, { front: st.front.trim(), back: st.back.trim(), ...base, ...imgs });
+        if (hasImg) { if (!card.fimg) delete card.fimg; if (!card.bimg) delete card.bimg; olds.forEach(dropSketch); }
         if (ty === 'mcq') { card.options = st.options.map(o => o.trim()).filter(Boolean); card.answer = clamp(st.answer, 0, card.options.length - 1); }
         if (ty === 'tf') card.answer = !!st.answer;
         if (ty === 'order') card.items = items;
@@ -2936,20 +3291,29 @@ function openEditor(cardId, deckId, preset) {
     }
     let made;
     if (ty === 'cloze') made = clozeCards(st.text, base);
-    else if (ty === 'reverse') { const note = uid('n'); made = [mkCard('basic', { front: st.front.trim(), back: st.back.trim(), note, ...base }), mkCard('basic', { front: st.back.trim(), back: st.front.trim(), note, ...base })]; }
+    else if (ty === 'reverse') { const note = uid('n'); made = [mkCard('basic', { front: st.front.trim(), back: st.back.trim(), note, ...base, ...imgs }), mkCard('basic', { front: st.back.trim(), back: st.front.trim(), note, ...base, fimg: imgs.bimg, bimg: imgs.fimg })]; }
     else if (ty === 'mcq') { const opts = st.options.map(o => o.trim()).filter(Boolean); made = [mkCard('mcq', { front: st.front.trim(), options: opts, answer: clamp(st.answer, 0, opts.length - 1), back: st.back.trim(), ...base })]; }
     else if (ty === 'tf') made = [mkCard('tf', { front: st.front.trim(), answer: !!st.answer, back: st.back.trim(), ...base })];
     else if (ty === 'order') made = [mkCard('order', { front: st.front.trim(), items, back: st.back.trim(), ...base })];
-    else made = [mkCard('basic', { front: st.front.trim(), back: st.back.trim(), ...base })];
+    else made = [mkCard('basic', { front: st.front.trim(), back: st.back.trim(), ...base, ...imgs })];
+    made.forEach(c => { if (!c.fimg) delete c.fimg; if (!c.bimg) delete c.bimg; });
     made.forEach(c => c.src = 'manuel');
     if (S.demo && target.example) Store.leaveDemo(false);
     target.cards.push(...made); Store.touchDeck(target);
     toast(made.length > 1 ? plural(made.length, 'fiche ajoutée|fiches ajoutées') : t('Fiche ajoutée'));
-    Object.assign(st, { front: '', back: '', extra: '', text: '', options: ['', '', '', ''], items: '', answer: ty === 'tf' ? true : 0 });
+    Object.assign(st, { front: '', back: '', extra: '', text: '', options: ['', '', '', ''], items: '', answer: ty === 'tf' ? true : 0, fimg: '', bimg: '' });
     draw(); m.querySelector('#eFront, #eText')?.focus();
   };
   Modal.onClose(m, () => { if (!Study.active && ['deck', 'today', 'library'].includes(App.route.v)) App.render(); });
   draw();
+}
+
+const imgExt = id => /^data:image\/png/.test(S.images[id] || '') ? 'png' : 'jpg';
+/** Supprime un schéma dessiné que plus aucune fiche n'utilise. */
+function dropSketch(id) {
+  if (!id || !/^ink/.test(id) || !S.images[id]) return;
+  if (S.decks.some(d => d.cards.some(c => c.fimg === id || c.bimg === id))) return;
+  delete S.images[id]; Store.dirty.add('img:' + id);
 }
 
 /* ── Masquage d'image ──────────────────────────────────────────────── */
@@ -3362,7 +3726,7 @@ Views.settings = arg => {
       ${setRow(t('Objectif de rétention'), t("La probabilité visée de vous souvenir d'une fiche le jour où elle revient. Plus c'est haut, plus il y a de révisions."), `<div class="ctl"><input type="range" min="0.8" max="0.97" step="0.01" value="${s.retention}" id="setRet"><b class="tnum" id="retOut" style="width:56px">${pct(s.retention)}</b></div>`)}
       ${setRow(t('Nouvelles fiches par jour'), s.followPlan ? t("Avec le programme : plafond quotidien pour les paquets sans examen. Aujourd'hui, le programme prévoit {n} nouvelles fiches au total.", { n: Plan.todayNewTotal() }) : t('Au-delà, elles attendent le lendemain.'), `<div class="ctl"><input type="range" min="0" max="100" step="5" value="${s.newPerDay}" id="setNew"><b class="tnum" id="newOut" style="width:56px">${s.newPerDay}</b></div>`)}
       ${setRow(t('Objectif quotidien'), t('Nombre de révisions pour remplir la jauge du jour.'), `<div class="ctl"><input type="range" min="10" max="300" step="10" value="${s.goal}" id="setGoal"><b class="tnum" id="goalOut" style="width:56px">${s.goal}</b></div>`)}
-      ${setRow(t('Façon de répondre'), t('Retourner la fiche, ou écrire (ou dicter) votre réponse pour qu\'elle soit corrigée.'), segCtl('answerMode', [['flip', t('Retourner')], ['type', t('Écrire')]], s.answerMode))}
+      ${setRow(t('Façon de répondre'), t('Retourner la fiche, écrire (ou dicter) votre réponse, ou la tracer à la main au stylet : elle est corrigée même si elle n\'est pas mot pour mot.'), segCtl('answerMode', [['flip', t('Retourner')], ['type', t('Écrire')], ['ink', t('Stylet')]], s.answerMode))}
       ${setRow(t('Exigence de la correction'), t(STRICT[s.strict].desc) + '. ' + t('La correction accepte synonymes et reformulations selon le niveau choisi.'), segCtl('strict', Object.entries(STRICT).map(([k, v]) => [k, t(v.label)]), s.strict))}
       ${setRow(t('Ambiance de travail'), t('Un fond sonore discret pendant la séance.'), segCtl('ambient', [['off', t('Silence')], ['library', t('Bibliothèque')], ['rain', t('Pluie')]], s.ambient))}
       ${setRow(t('Lecture à voix haute'), t('Lit chaque question automatiquement pendant la séance.'), sw('tts', s.tts, t('Lecture à voix haute')))}
@@ -3543,6 +3907,13 @@ const Study = {
     this.stats = { n: 0, ok: 0, xp: 0, t0: Date.now(), g: [0, 0, 0, 0, 0], wrong: [] }; this.lvl0 = level().i;
     document.body.classList.add('studying');
     $('#study').hidden = false;
+    if (!this.lampBound && matchMedia('(hover:hover)').matches) {
+      this.lampBound = true; let raf = 0;
+      $('#study').addEventListener('pointermove', e => {
+        if (raf || REDUCED || e.pointerType === 'touch') return;
+        raf = requestAnimationFrame(() => { raf = 0; const el = $('#study'); el.style.setProperty('--lx', (30 + 40 * e.clientX / innerWidth).toFixed(1) + '%'); el.style.setProperty('--ly', (26 + 32 * e.clientY / innerHeight).toFixed(1) + '%'); });
+      });
+    }
     if (S.profile.settings.ambient !== 'off') Ambient.set(S.profile.settings.ambient);
     try { navigator.wakeLock?.request('screen').then(w => this.wake = w).catch(() => { }); } catch { }
     this.next();
@@ -3550,6 +3921,7 @@ const Study = {
   close(silent) {
     this.active = false; this.summaryOn = false; this.cur = null; this.busy = false; this.tok++;
     this.ctl?.abort(); this.tutorCtl?.abort(); Dictation.stop(); Ambient.stop();
+    this.pad?.destroy(); this.scratchPad?.destroy(); this.pad = this.scratchPad = null;
     try { speechSynthesis.cancel(); } catch { }
     try { this.wake?.release(); } catch { } this.wake = null;
     const el = $('#study'); el.hidden = true; el.innerHTML = '';
@@ -3571,7 +3943,7 @@ const Study = {
     else if (this.queue.length) item = this.queue.shift();
     else if (this.learn.length) item = this.learn.shift().item; // on avance les fiches en apprentissage
     if (!item) return this.summary();
-    this.cur = item; this.flipped = false; this.choice = null; this.verdict = null; this.typed = ''; this.t0 = Date.now();
+    this.cur = item; this.flipped = false; this.choice = null; this.verdict = null; this.typed = ''; this.inkURL = ''; this.t0 = Date.now();
     this.order = []; this.pool = item[0].type === 'order' ? shuffle((item[0].items || []).map((_, i) => i)) : [];
     this.render(true);
     if (S.profile.settings.tts) this.speakCur();
@@ -3588,14 +3960,17 @@ const Study = {
     const done = this.stats.n; const prog = done / Math.max(1, done + this.queue.length + this.learn.length + 1);
     const typeable = this.typeable(c, f);
     const showInput = this.mode === 'type' && typeable && !this.flipped;
+    const showInk = this.mode === 'ink' && typeable && !this.flipped;
     const amb = S.profile.settings.ambient;
+    this.pad?.destroy(); this.pad = null; this.scratchPad?.destroy(); this.scratchPad = null;
     $('#study').innerHTML = `
       <div class="st-top">
         <button class="icon-btn" data-act="st-close" aria-label="${esc(t('Quitter la séance'))}">${icon('x')}</button>
         <div class="st-title"><b>${esc(this.deckName)}</b>
           <div class="st-counts tnum"><span style="color:var(--st-n)" class="${kind === 'n' ? 'cur' : ''}">${t('Nouv.')} ${cnt.n + (kind === 'n' ? 1 : 0)}</span><span style="color:var(--st-l)" class="${kind === 'l' ? 'cur' : ''}">${t('En cours')} ${cnt.l + (kind === 'l' ? 1 : 0)}</span><span style="color:var(--st-m)" class="${kind === 'r' ? 'cur' : ''}">${t('À revoir')} ${cnt.r + (kind === 'r' ? 1 : 0)}</span></div></div>
         <div class="st-tools">
-          ${typeable ? `<div class="seg" role="group" aria-label="${esc(t('Façon de répondre'))}"><button class="${this.mode === 'flip' ? 'on' : ''}" data-act="st-mode" data-m="flip" data-tip="${esc(t('Retourner'))}">${icon('flip', 'i-sm')}</button><button class="${this.mode === 'type' ? 'on' : ''}" data-act="st-mode" data-m="type" data-tip="${esc(t('Écrire la réponse'))}">${icon('type', 'i-sm')}</button></div>` : ''}
+          ${typeable ? `<div class="seg" role="group" aria-label="${esc(t('Façon de répondre'))}"><button class="${this.mode === 'flip' ? 'on' : ''}" data-act="st-mode" data-m="flip" data-tip="${esc(t('Retourner'))}">${icon('flip', 'i-sm')}</button><button class="${this.mode === 'type' ? 'on' : ''}" data-act="st-mode" data-m="type" data-tip="${esc(t('Écrire la réponse'))}">${icon('type', 'i-sm')}</button><button class="${this.mode === 'ink' ? 'on' : ''}" data-act="st-mode" data-m="ink" data-tip="${esc(t('Répondre à la main (stylet)'))}">${icon('nib', 'i-sm')}</button></div>` : ''}
+          <button class="icon-btn" data-act="st-scratch" data-tip="${esc(t('Brouillon : annoter au stylet'))}">${icon('scribble')}</button>
           <button class="icon-btn ${amb !== 'off' ? 'on' : ''}" data-act="st-amb" data-tip="${esc(t('Ambiance : {x}', { x: t(AMBIENT_LABEL[amb]) }))}">${icon('music')}</button>
           <button class="icon-btn" data-act="st-speak" data-tip="${esc(t('Lire à voix haute (T)'))}">${icon('volume')}</button>
           <button class="icon-btn" data-act="st-undo" data-tip="${esc(t('Annuler la dernière note (Z)'))}" ${this.history.length ? '' : 'disabled'}>${icon('undo')}</button>
@@ -3603,7 +3978,7 @@ const Study = {
         </div>
       </div>
       <div class="st-prog"><i style="width:${prog * 100}%"></i></div>
-      <div class="st-main">
+      <div class="st-main ${showInk ? 'ink-on' : ''}">
         <div class="stage ${enter ? 'enter' : ''}" id="stage">
           <div class="card3d ${this.flipped ? 'flipped' : ''}" id="card3d">
             <div class="face front"><div class="face-head"><span>${esc(d.name)} · ${typeLabel(c.type)}${isLeech(c) ? ` · <span style="color:var(--pen)">${t('sangsue')}</span>` : ''}</span><span class="no">${t('N°')} ${cardNo(c)}</span></div>
@@ -3613,13 +3988,16 @@ const Study = {
             <div class="swipe-tint" id="tint"></div>
           </div>
         </div>
+        ${showInk ? `<div class="inkpad" id="inkPad">${inkSurface('inkAns', t('Écrivez votre réponse ici, au stylet ou au doigt'), 'ruled')}
+          <div class="ink-row">${Ink.bar({ marker: false, colors: false })}<button type="button" class="btn btn-brass" data-act="st-inkcheck" id="inkGo" disabled>${icon('check')}${AI.images ? t('Faire corriger') : t('Comparer')}</button></div></div>` : ''}
         ${showInput ? `<form class="answer-box" id="ansForm" autocomplete="off"><input class="input" id="ans" placeholder="${esc(t('Votre réponse… (Entrée pour vérifier)'))}" aria-label="${esc(t('Votre réponse'))}">${Dictation.supported ? `<button type="button" class="icon-btn" id="micBtn" style="height:50px;width:50px" data-tip="${esc(t('Dicter la réponse'))}">${icon('mic')}</button>` : ''}<button class="btn btn-brass" style="height:50px">${icon('check')}${t('Vérifier')}</button></form>` : ''}
         <div id="verdictBox" style="display:contents">${this.verdictHTML() + this.tutorOfferHTML()}</div>
         <div id="tutorBox" style="display:contents"></div>
       </div>
-      <div class="st-bottom">${this.bottomHTML(showInput)}</div>
+      <div class="st-bottom">${this.bottomHTML(showInput || showInk)}</div>
       ${this.miniBox()}`;
     this.bindCard();
+    if (showInk) this.pad = mountInk($('#inkPad'), '#inkAns', { onChange: p => { const b = $('#inkGo'); if (b) b.disabled = p.empty(); } });
     if (showInput) setTimeout(() => $('#ans')?.focus(), 80);
     $('#ansForm')?.addEventListener('submit', e => { e.preventDefault(); this.check(); });
     $('#micBtn')?.addEventListener('click', () => this.dictate());
@@ -3627,6 +4005,7 @@ const Study = {
   },
   backHTML(f) {
     const v = this.verdict;
+    if (this.inkURL) return `<div class="your your-ink"><span>${t('Votre réponse :')}</span><img src="${this.inkURL}" alt="${esc(this.typed || t('Réponse manuscrite'))}" class="${v && v.verdict === 'incorrect' ? 'wrong' : ''}">${this.typed ? `<small>${t("Lu par l'IA :")} ${esc(this.typed)}</small>` : ''}</div>${f.back}${v?.comment ? `<div class="pen pen-in">${esc(v.comment)}</div>` : ''}`;
     return `${this.typed ? `<div class="your">${t('Votre réponse :')} ${v && v.verdict === 'incorrect' ? `<s>${esc(this.typed)}</s>` : esc(this.typed)}</div>` : ''}${f.back}${v?.comment ? `<div class="pen pen-in">${esc(v.comment)}</div>` : ''}`;
   },
   bottomHTML(showInput) {
@@ -3648,7 +4027,7 @@ const Study = {
   },
   verdictHTML() {
     const v = this.verdict; if (!v) return '';
-    if (v.pending) return `<div class="verdict"><span class="thinking"><i></i><i></i><i></i></span><div><b>${t("L'IA relit votre réponse…")}</b><small>${t('Correction {lvl} · synonymes acceptés', { lvl: t(STRICT[S.profile.settings.strict].label).toLowerCase() })}</small></div></div>`;
+    if (v.pending) return `<div class="verdict"><span class="thinking"><i></i><i></i><i></i></span><div><b>${v.ink ? t("L'IA déchiffre votre écriture…") : t("L'IA relit votre réponse…")}</b><small>${t('Correction {lvl} · synonymes acceptés', { lvl: t(STRICT[S.profile.settings.strict].label).toLowerCase() })}</small></div></div>`;
     const col = v.verdict === 'correct' ? 'var(--good)' : v.verdict === 'partiel' ? 'var(--hard)' : 'var(--again)';
     const label = v.verdict === 'correct' ? (v.score >= 97 ? t('Parfait') : t('Correct')) : v.verdict === 'partiel' ? t('Presque') : t('Pas tout à fait');
     return `<div class="verdict" style="border-color:color-mix(in srgb,${col} 50%,transparent)">
@@ -3663,6 +4042,7 @@ const Study = {
     if (!this.cur) return;
     const f = cardFaces(this.cur[0], { choice: this.choice, order: this.order, pool: this.pool });
     const back = $('#card3d .back .face-body'); if (back) back.innerHTML = this.backHTML(f);
+    $('#inkPad')?.remove(); this.pad?.destroy(); this.pad = null; $('#study .st-main')?.classList.remove('ink-on');
     const vb = $('#verdictBox'); if (vb) vb.innerHTML = this.verdictHTML() + this.tutorOfferHTML();
     const bt = $('#study .st-bottom'); if (bt) bt.innerHTML = this.bottomHTML(false);
     $('#ansForm')?.remove(); $('#card3d .card-hint')?.remove();
@@ -3696,7 +4076,7 @@ const Study = {
         if (Math.abs(dx) > 110) this.grade(dx > 0 ? 3 : 1);
         return;
       }
-      if (!this.flipped && !e.target.closest('button,input') && !['mcq', 'tf', 'order'].includes(this.cur[0].type) && !(this.mode === 'type' && $('#ans'))) this.flip();
+      if (!this.flipped && !e.target.closest('button,input') && !['mcq', 'tf', 'order'].includes(this.cur[0].type) && !(this.mode === 'type' && $('#ans')) && !(this.mode === 'ink' && this.pad && !this.pad.empty())) this.flip();
     };
     card.addEventListener('pointerup', end); card.addEventListener('pointercancel', () => { sx = null; card.classList.remove('dragging'); });
   },
@@ -3758,8 +4138,30 @@ const Study = {
     }
     this.afterCheck();
   },
+  async checkInk() {
+    const pad = this.pad; if (!pad || this.flipped) return;
+    if (pad.empty()) { this.flip(); return; }
+    const [c] = this.cur; const f = cardFaces(c); const card = this.cur;
+    const img = pad.image({ maxW: 1400 }); this.inkURL = pad.image({ bg: null, ink: '#1D1C18', maxW: 900 }).url;
+    if (!AI.images) { this.verdict = null; Sound.play('flip'); return this.flip(); }
+    this.verdict = { pending: true, ink: true };
+    $('#verdictBox').innerHTML = this.verdictHTML(); $('#inkPad')?.classList.add('busy'); const go = $('#inkGo'); if (go) go.disabled = true;
+    this.ctl?.abort(); this.ctl = new AbortController();
+    try {
+      const r = await aiGradeInk(plain(f.question), plain(f.expected), await img.blob(), S.profile.settings.strict);
+      if (this.cur !== card) return;
+      this.typed = r.read; this.verdict = r;
+      if (r.illegible) this.verdict.note = t('écriture illisible');
+    } catch (e) {
+      if (this.cur !== card || e?.code === 'cancelled') return;
+      // Sans l'IA, la personne compare elle-même son écriture à la réponse.
+      this.verdict = null; toast(AI.fail(e) || t('IA indisponible'), 'sparkles');
+    }
+    this.afterCheck();
+  },
   afterCheck() {
     const v = this.verdict;
+    if (!v) return this.flip();
     Sound.play(v.verdict === 'correct' ? 'good' : v.verdict === 'partiel' ? 'hard' : 'again');
     this.flip();
   },
@@ -3834,11 +4236,23 @@ Explain the idea differently, in 4 sentences at most, with a concrete everyday a
     const [c, d] = this.cur; const f = cardFaces(c); const [lq, la] = cardLangs(c, d);
     speak(this.flipped ? f.expected : f.question, this.flipped ? la : lq);
   },
+  /** Brouillon : une feuille transparente posée sur la table, pour annoter, calculer, schématiser. */
+  scratch() {
+    const on = $('#scratch');
+    if (on) { this.scratchPad?.destroy(); this.scratchPad = null; on.classList.add('out'); setTimeout(() => on.remove(), 220); $('[data-act="st-scratch"]')?.classList.remove('on'); return; }
+    $('#study').insertAdjacentHTML('beforeend', `<div class="scratch" id="scratch">${inkSurface('scratchInk', '', 'clear')}
+      <div class="scratch-bar">${Ink.bar({ extra: `<span class="ink-sep"></span><button type="button" class="ink-tool" data-act="st-scratch" aria-label="${esc(t('Fermer le brouillon'))}" data-tip="${esc(t('Fermer le brouillon'))}">${icon('x')}</button>` })}</div></div>`);
+    $('[data-act="st-scratch"]')?.classList.add('on');
+    this.scratchPad = mountInk($('#scratch'), '#scratchInk', { color: '#C3342A' }); // le rouge se lit sur la fiche comme sur la table
+    toast(t('Brouillon ouvert : écrivez par-dessus la fiche. Il s\'efface à la fiche suivante.'), 'scribble');
+  },
   refreshCard() { if (this.cur) { const [nc, nd] = findCard(this.cur[0].id); if (nc) this.cur = [nc, nd]; this.render(); } },
   act(name, el) {
     if (!this.active) return;
     if (name === 'st-close') this.stats.n ? this.summary() : this.close();
-    else if (name === 'st-flip') { if (this.mode === 'type' && $('#ans')?.value.trim()) this.check(); else this.flip(); }
+    else if (name === 'st-flip') { if (this.mode === 'type' && $('#ans')?.value.trim()) this.check(); else if (this.mode === 'ink' && this.pad && !this.pad.empty()) this.checkInk(); else this.flip(); }
+    else if (name === 'st-inkcheck') this.checkInk();
+    else if (name === 'st-scratch') this.scratch();
     else if (name === 'st-grade') this.grade(+el.dataset.g);
     else if (name === 'st-mode') { this.mode = el.dataset.m; S.profile.settings.answerMode = this.mode; Store.touch('profile'); if (!this.flipped) this.render(); }
     else if (name === 'st-amb') { const s = S.profile.settings; s.ambient = { off: 'library', library: 'rain', rain: 'off' }[s.ambient]; Ambient.set(s.ambient); Store.touch('profile'); el.classList.toggle('on', s.ambient !== 'off'); el.dataset.tip = t('Ambiance : {x}', { x: t(AMBIENT_LABEL[s.ambient]) }); toast(t('Ambiance : {x}', { x: t(AMBIENT_LABEL[s.ambient]) }), 'music'); }
@@ -4001,6 +4415,7 @@ Views.scan = () => {
         ${Scan.tab === 'photo' ? `
           <label class="drop" id="scDrop" for="scFile"><div class="ico">${icon('camera')}</div><b>${t('Déposez vos pages de cours')}</b>
             <span class="muted" style="font-size:13.5px">${t('ou cliquez pour choisir · jusqu\'à {n} pages · JPEG, PNG, WebP', { n: maxImg })}</span></label>
+          <button class="btn scan-ink" id="scInk">${icon('nib')}<span><b>${t('Écrire mes notes à la main')}</b><small>${t('Sur iPad avec le stylet, ou au doigt : la page manuscrite devient des fiches.')}</small></span></button>
           <input type="file" id="scFile" accept="${(AI.limits?.images?.mediaTypes || ['image/jpeg', 'image/png', 'image/webp']).join(',')}" multiple hidden>
           ${Scan.files.length ? `<div class="thumbs">${Scan.urls.map((u, i) => `<div class="thumb"><img src="${u}" alt="${esc(t('Page {n}', { n: i + 1 }))}"><button data-rmimg="${i}" aria-label="${esc(t('Retirer'))}">${icon('x')}</button></div>`).join('')}</div>` : ''}`
       : Scan.tab === 'pdf' ? `
@@ -4069,6 +4484,10 @@ Hooks.scan = () => {
     redraw();
   };
   $('#scFile')?.addEventListener('change', e => addFiles(e.target.files));
+  $('#scInk')?.addEventListener('click', () => openSketch({
+    title: t('Notes manuscrites'), sub: t('Écrivez comme sur une feuille : titres, définitions, flèches, schémas.'), paper: 'ruled', ph: t('Écrivez votre cours ici…'), ok: t('Ajouter la page'), bg: '#fff',
+    done: async im => { const b = await im.blob(); addFiles([new File([b], `notes-${Scan.files.length + 1}.png`, { type: 'image/png' })]); }
+  }));
   $('#scPdf')?.addEventListener('change', e => { const f = e.target.files[0]; if (f) loadPdfForScan(f); });
   const drop = $('#scDrop');
   if (drop) {
@@ -4991,7 +5410,7 @@ ${JSON.stringify(this.snapshot())}`;
           Store.touch('profile'); mark(); say(t('Profil mis à jour : {x}', { x: done.join(', ') || '—' })); return 'ok';
         } },
       { name: 'change_settings', description: 'Change app settings and appearance. language: fr|en|es|de|pt. theme: ' + Object.keys(SKINS).join('|') + '. accent: ' + Object.keys(ACCENTS).join('|') + '. font: ' + Object.keys(FONTS).join('|') + '. text_size: 0.92–1.22. density: comfy|compact. card_paper: ruled|plain|grid|slate. animations: full|fast|none. strictness: souple|standard|strict. answer_mode: flip|type. ambient: off|library|rain. tone: ' + Object.keys(TONES).join('|') + '.',
-        inputSchema: { type: 'object', properties: { language: { type: 'string', enum: UI_LANGS }, theme: { type: 'string', enum: Object.keys(SKINS) }, accent: { type: 'string', enum: Object.keys(ACCENTS) }, font: { type: 'string', enum: Object.keys(FONTS) }, text_size: { type: 'number' }, density: { type: 'string', enum: ['comfy', 'compact'] }, card_paper: { type: 'string', enum: ['ruled', 'plain', 'grid', 'slate'] }, animations: { type: 'string', enum: ['full', 'fast', 'none'] }, sounds: { type: 'boolean' }, read_aloud: { type: 'boolean' }, ambient: { type: 'string', enum: ['off', 'library', 'rain'] }, strictness: { type: 'string', enum: Object.keys(STRICT) }, answer_mode: { type: 'string', enum: ['flip', 'type'] }, tone: { type: 'string', enum: Object.keys(TONES) } } },
+        inputSchema: { type: 'object', properties: { language: { type: 'string', enum: UI_LANGS }, theme: { type: 'string', enum: Object.keys(SKINS) }, accent: { type: 'string', enum: Object.keys(ACCENTS) }, font: { type: 'string', enum: Object.keys(FONTS) }, text_size: { type: 'number' }, density: { type: 'string', enum: ['comfy', 'compact'] }, card_paper: { type: 'string', enum: ['ruled', 'plain', 'grid', 'slate'] }, animations: { type: 'string', enum: ['full', 'fast', 'none'] }, sounds: { type: 'boolean' }, read_aloud: { type: 'boolean' }, ambient: { type: 'string', enum: ['off', 'library', 'rain'] }, strictness: { type: 'string', enum: Object.keys(STRICT) }, answer_mode: { type: 'string', enum: ['flip', 'type', 'ink'] }, tone: { type: 'string', enum: Object.keys(TONES) } } },
         execute: i => {
           const s = S.profile.settings, done = [];
           const set = (k, v, ok, label) => { if (v != null && ok) { s[k] = v; done.push(label); } };
@@ -5006,7 +5425,7 @@ ${JSON.stringify(this.snapshot())}`;
           if (typeof i.read_aloud === 'boolean') set('tts', i.read_aloud, true, t('lecture à voix haute'));
           set('ambient', str(i.ambient), ['off', 'library', 'rain'].includes(str(i.ambient)), t('ambiance'));
           set('strict', str(i.strictness), STRICT[str(i.strictness)], t('exigence de correction'));
-          set('answerMode', str(i.answer_mode), ['flip', 'type'].includes(str(i.answer_mode)), t('façon de répondre'));
+          set('answerMode', str(i.answer_mode), ['flip', 'type', 'ink'].includes(str(i.answer_mode)), t('façon de répondre'));
           set('tone', str(i.tone), TONES[str(i.tone)], t('ton'));
           Custom.apply(); Store.touch('profile');
           if (UI_LANGS.includes(str(i.language)) && str(i.language) !== LANG) { ctx.after.push(() => changeLang(str(i.language))); done.push(UI_LANG_META[str(i.language)].name); }
@@ -5443,7 +5862,7 @@ async function exportAnki(deckList) {
         else if (c.type === 'mcq') fields = [h(c.front) + '<br><br>' + c.options.map((o, i) => `<b>${'ABCDEF'[i]}.</b> ${h(o)}`).join('<br>'), `<b>${'ABCDEF'[c.answer]}.</b> ${h(c.options[c.answer] || '')}`, h(c.back || '')];
         else if (c.type === 'tf') fields = [h(c.front) + `<br><br><i>${esc(trueLbl())} / ${esc(falseLbl())}${LANG === 'fr' ? ' ?' : '?'}</i>`, esc(c.answer ? trueLbl() : falseLbl()), h(c.back || '')];
         else if (c.type === 'order') fields = [h(c.front) + '<br><br>' + shuffle(c.items).map(x => '• ' + h(x)).join('<br>'), c.items.map((x, i) => `${i + 1}. ${h(x)}`).join('<br>'), h(c.back || '')];
-        else fields = [(c.fimg ? addMedia(c.fimg, 'jpg') + '<br>' : '') + h(c.front), (c.bimg ? addMedia(c.bimg, 'jpg') + '<br>' : '') + h(c.back), h(c.extra || '')];
+        else fields = [(c.fimg ? addMedia(c.fimg, imgExt(c.fimg)) + '<br>' : '') + h(c.front), (c.bimg ? addMedia(c.bimg, imgExt(c.bimg)) + '<br>' : '') + h(c.back), h(c.extra || '')];
         const flds = fields.join('\x1f'), sfld = htmlToText(fields[0]).slice(0, 200);
         const id = ++nid; nNotes++;
         insN.run([id, ankiGuid(c.id), mid, nowS, -1, (c.tags || []).length ? ' ' + c.tags.map(x => x.replace(/\s+/g, '_')).join(' ') + ' ' : '', flds, sfld, await ankiCsum(sfld), 0, '']);
@@ -6194,7 +6613,6 @@ TR = {
   "Objectif quotidien": ["Daily goal","Objetivo diario","Tagesziel","Meta diária"],
   "Nombre de révisions pour remplir la jauge du jour.": ["Number of reviews to fill today's gauge.","Número de repasos para llenar el indicador del día.","Anzahl Wiederholungen, um die Tagesanzeige zu füllen.","Número de revisões para encher o medidor do dia."],
   "Façon de répondre": ["How to answer","Forma de responder","Antwortweise","Forma de responder"],
-  "Retourner la fiche, ou écrire (ou dicter) votre réponse pour qu'elle soit corrigée.": ["Flip the card, or type (or dictate) your answer to have it graded.","Voltear la tarjeta, o escribir (o dictar) tu respuesta para que la corrijan.","Karte umdrehen oder deine Antwort tippen (oder diktieren), um sie korrigieren zu lassen.","Virar o cartão, ou escrever (ou ditar) sua resposta para que seja corrigida."],
   "Retourner": ["Flip","Voltear","Umdrehen","Virar"],
   "Écrire": ["Type","Escribir","Tippen","Escrever"],
   "Exigence de la correction": ["Grading strictness","Exigencia de la corrección","Strenge der Korrektur","Rigor da correção"],
@@ -6714,7 +7132,44 @@ TR = {
   "Jours de révision d'affilée · carnet": ["Days of review in a row · notebook","Días seguidos de repaso · cuaderno","Lerntage am Stück · Notizbuch","Dias seguidos de revisão · caderno"],
   "Rechercher (Ctrl K)": ["Search (Ctrl K)","Buscar (Ctrl K)","Suchen (Strg K)","Buscar (Ctrl K)"],
   "Navigation": ["Navigation","Navegación","Navigation","Navegação"],
-  "Enregistré en .txt (seul format permis ici) : renommez-le en .ics, puis ouvrez-le avec votre agenda.": ["Saved as .txt (the only format allowed here): rename it to .ics, then open it with your calendar.","Guardado como .txt (único formato permitido aquí): cámbiale la extensión a .ics y ábrelo con tu calendario.","Als .txt gespeichert (hier das einzige erlaubte Format): in .ics umbenennen und dann mit Ihrem Kalender öffnen.","Salvo como .txt (único formato permitido aqui): renomeie para .ics e abra com sua agenda."]
+  "Enregistré en .txt (seul format permis ici) : renommez-le en .ics, puis ouvrez-le avec votre agenda.": ["Saved as .txt (the only format allowed here): rename it to .ics, then open it with your calendar.","Guardado como .txt (único formato permitido aquí): cámbiale la extensión a .ics y ábrelo con tu calendario.","Als .txt gespeichert (hier das einzige erlaubte Format): in .ics umbenennen und dann mit Ihrem Kalender öffnen.","Salvo como .txt (único formato permitido aqui): renomeie para .ics e abra com sua agenda."],
+  "Ajouter la page": ["Add the page","Añadir la página","Seite hinzufügen","Adicionar a página"],
+  "Ajouter un schéma dessiné": ["Add a drawn diagram","Añadir un esquema dibujado","Gezeichnete Skizze hinzufügen","Adicionar um esquema desenhado"],
+  "Au stylet, au doigt ou à la souris": ["With a stylus, a finger or a mouse","Con lápiz, con el dedo o con el ratón","Mit Stift, Finger oder Maus","Com a caneta, o dedo ou o mouse"],
+  "Bleu": ["Blue","Azul","Blau","Azul"],
+  "Brouillon : annoter au stylet": ["Scratch sheet: annotate with a stylus","Borrador: anotar con el lápiz","Schmierblatt: mit dem Stift notieren","Rascunho: anotar com a caneta"],
+  "Brouillon ouvert : écrivez par-dessus la fiche. Il s'efface à la fiche suivante.": ["Scratch sheet open: write over the card. It clears at the next card.","Borrador abierto: escribe encima de la tarjeta. Se borra en la siguiente.","Schmierblatt offen: Schreiben Sie über die Karte. Es wird bei der nächsten Karte gelöscht.","Rascunho aberto: escreva por cima do cartão. Ele se apaga no próximo cartão."],
+  "Comparer": ["Compare","Comparar","Vergleichen","Comparar"],
+  "Dessinez ici": ["Draw here","Dibuja aquí","Hier zeichnen","Desenhe aqui"],
+  "Encre": ["Ink","Tinta","Tinte","Tinta"],
+  "Faire corriger": ["Get it graded","Corregir","Korrigieren lassen","Corrigir"],
+  "Fermer le brouillon": ["Close the scratch sheet","Cerrar el borrador","Schmierblatt schließen","Fechar o rascunho"],
+  "Gomme": ["Eraser","Goma","Radierer","Borracha"],
+  "L'IA déchiffre votre écriture…": ["The AI is reading your handwriting…","La IA está leyendo tu letra…","Die KI entziffert Ihre Handschrift…","A IA está lendo sua letra…"],
+  "Lu par l'IA :": ["Read by the AI:","Leído por la IA:","Von der KI gelesen:","Lido pela IA:"],
+  "Notes manuscrites": ["Handwritten notes","Apuntes a mano","Handschriftliche Notizen","Anotações à mão"],
+  "Outils d'écriture": ["Writing tools","Herramientas de escritura","Schreibwerkzeuge","Ferramentas de escrita"],
+  "Plume": ["Pen","Pluma","Feder","Caneta"],
+  "Redessiner": ["Redraw","Volver a dibujar","Neu zeichnen","Redesenhar"],
+  "Retourner la fiche, écrire (ou dicter) votre réponse, ou la tracer à la main au stylet : elle est corrigée même si elle n'est pas mot pour mot.": ["Flip the card, type (or dictate) your answer, or write it by hand with a stylus: it is graded even when it isn't word for word.","Voltear la tarjeta, escribir (o dictar) tu respuesta, o trazarla a mano con el lápiz: se corrige aunque no sea palabra por palabra.","Karte umdrehen, Antwort tippen (oder diktieren) oder mit dem Stift von Hand schreiben: Sie wird auch bewertet, wenn sie nicht wortwörtlich ist.","Virar o cartão, digitar (ou ditar) sua resposta, ou escrevê-la à mão com a caneta: ela é corrigida mesmo sem ser palavra por palavra."],
+  "Rouge": ["Red","Rojo","Rot","Vermelho"],
+  "Répondre à la main (stylet)": ["Answer by hand (stylus)","Responder a mano (lápiz)","Von Hand antworten (Stift)","Responder à mão (caneta)"],
+  "Réponse manuscrite": ["Handwritten answer","Respuesta manuscrita","Handschriftliche Antwort","Resposta manuscrita"],
+  "Rétablir": ["Redo","Rehacer","Wiederholen","Refazer"],
+  "Schéma du recto": ["Front diagram","Esquema del anverso","Skizze der Vorderseite","Esquema da frente"],
+  "Schéma du verso": ["Back diagram","Esquema del reverso","Skizze der Rückseite","Esquema do verso"],
+  "Stylet": ["Stylus","Lápiz","Stift","Caneta"],
+  "Stylet détecté : en séance, touchez la plume pour répondre à la main.": ["Stylus detected: during a session, tap the pen to answer by hand.","Lápiz detectado: en la sesión, toca la pluma para responder a mano.","Stift erkannt: Tippen Sie in der Lernrunde auf die Feder, um von Hand zu antworten.","Caneta detectada: na sessão, toque na pena para responder à mão."],
+  "Sur iPad avec le stylet, ou au doigt : la page manuscrite devient des fiches.": ["On iPad with the stylus, or with a finger: the handwritten page becomes cards.","En el iPad con el lápiz, o con el dedo: la página manuscrita se convierte en tarjetas.","Auf dem iPad mit dem Stift oder mit dem Finger: Aus der handgeschriebenen Seite werden Karten.","No iPad com a caneta, ou com o dedo: a página manuscrita vira cartões."],
+  "Surligneur": ["Highlighter","Rotulador","Textmarker","Marca-texto"],
+  "Utiliser ce dessin": ["Use this drawing","Usar este dibujo","Diese Zeichnung verwenden","Usar este desenho"],
+  "Vert": ["Green","Verde","Grün","Verde"],
+  "Zone d'écriture": ["Writing area","Zona de escritura","Schreibfläche","Área de escrita"],
+  "Écrire mes notes à la main": ["Write my notes by hand","Escribir mis apuntes a mano","Meine Notizen von Hand schreiben","Escrever minhas anotações à mão"],
+  "Écrivez comme sur une feuille : titres, définitions, flèches, schémas.": ["Write as you would on paper: headings, definitions, arrows, diagrams.","Escribe como en una hoja: títulos, definiciones, flechas, esquemas.","Schreiben Sie wie auf Papier: Überschriften, Definitionen, Pfeile, Skizzen.","Escreva como numa folha: títulos, definições, setas, esquemas."],
+  "Écrivez votre cours ici…": ["Write your course here…","Escribe tu curso aquí…","Schreiben Sie Ihren Stoff hier…","Escreva sua matéria aqui…"],
+  "Écrivez votre réponse ici, au stylet ou au doigt": ["Write your answer here, with a stylus or a finger","Escribe tu respuesta aquí, con el lápiz o con el dedo","Schreiben Sie Ihre Antwort hier, mit Stift oder Finger","Escreva sua resposta aqui, com a caneta ou o dedo"],
+  "écriture illisible": ["illegible handwriting","letra ilegible","unleserliche Schrift","letra ilegível"]
 };
 
 /* ── Démarrage ─────────────────────────────────────────────────────── */
@@ -6727,6 +7182,14 @@ function boot() {
   if (!S.profile.onboarded) Onb.open();
   AI.init();
   Store.connect();
+  // Raccourcis de l'app installée (appui long sur l'icône) : #scan, #study.
+  const h = location.hash.slice(1);
+  if (h === 'scan') App.go('scan'); else if (h === 'study' && S.profile.onboarded) setTimeout(() => Study.start(), 300);
+  if (h) history.replaceState(null, '', location.pathname + location.search);
+  // App installable et hors-ligne, quand la page est servie par un vrai site (pas dans l'app Claude).
+  if ('serviceWorker' in navigator && !window.claude && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => { }));
+  }
 }
 boot();
 </script>
