@@ -1,0 +1,17 @@
+{
+  "name": "engram-server",
+  "version": "3.0.0",
+  "private": true,
+  "description": "Serveur d'Engram : sert l'application et relaie l'API Claude (clé d'API côté serveur).",
+  "type": "module",
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0"
+  }
+}
