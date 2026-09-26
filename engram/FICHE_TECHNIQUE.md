@@ -49,28 +49,32 @@ Le fichier `engram/index.html` est une application complète, sans dépendance, 
 
 | Fonctionnalité | Statut | Où dans le code |
 |---|---|---|
-| **Photo → flashcards** (1 à plusieurs pages, manuscrit ou imprimé) | ✅ avec IA | `runScan`, `buildScanPrompt` |
-| Texte collé → flashcards | ✅ IA ou local | `runScan`, `localGenerate` |
-| Cartes qui apparaissent **en direct** pendant la génération (JSON Lines en streaming) | ✅ | `runScan` → `eat()` |
-| Validation des cartes générées (cocher, modifier) avant ajout | ✅ | `genHTML`, `editGen` |
-| Types : question/réponse, **recto-verso 2 sens**, **texte à trous**, **QCM**, **vrai/faux**, **masquage d'image** | ✅ | `cardFaces`, `openEditor`, `openOcclusion` |
-| **FSRS-5** (paramètres par défaut, objectif de rétention réglable 80–97 %) | ✅ | `FSRS` |
-| File d'attente à la Anki : apprentissage → révisions → nouvelles intercalées, une carte « sœur » par jour | ✅ | `Study.build` |
-| Retournement 3D, inclinaison au pointeur, **glisser à droite / à gauche** pour noter | ✅ | `Study.bindCard` |
-| **Réponse écrite corrigée par l'IA** : score %, verdict, mots-clés manquants, annotation « stylo rouge » sur la fiche | ✅ | `aiGrade`, `Study.check` |
-| **Exigence choisie par l'utilisateur** : Souple (l'idée suffit) / Standard (idée + mots-clés) / Strict (mot pour mot) | ✅ | `STRICT` |
-| Correction locale de secours (synonymes approchés, fautes de frappe, chiffres obligatoires) | ✅ | `localGrade` |
-| **Prof virtuel** : explication avec analogie + astuce mnémotechnique quand une carte résiste | ✅ | `Study.tutor` |
-| Détection des **sangsues** (cartes oubliées 4 fois ou plus) + reformulation IA | ✅ | `grade`, `openEditor` → « Améliorer avec l'IA » |
-| Annuler la dernière note, modifier la carte en pleine révision | ✅ | `Study.undo` |
-| **Examen blanc** chronométré, QCM tiré de vos cartes, **noté sur 20 avec mention** | ✅ | `Exam`, `buildExam` |
-| **Mode écoute** (podcast de révision en synthèse vocale) + lecture à voix haute | ✅ | `openListen`, `speak` |
-| Série, objectif du jour, niveaux (Neurone → Palais de mémoire), XP | ✅ | `streak`, `level` |
-| Statistiques : rétention réelle, **courbe de l'oubli interactive**, charge à venir, régularité, maturité | ✅ | `Views.stats` |
+| **Photo → fiches** (1 à 5 pages, manuscrit ou imprimé), **texte collé** ou **simple sujet** | ✅ avec IA (texte : aussi en local) | `runScan`, `buildScanPrompt`, `localGenerate` |
+| Fiches qui tombent **en direct** sur le plateau pendant la génération (JSON Lines en streaming) | ✅ | `runScan` → `eat()` |
+| Tri des fiches générées (cocher, modifier) avant rangement dans un tiroir | ✅ | `genHTML`, `editGen` |
+| Types : question/réponse, **recto-verso 2 sens**, **texte à trous**, **QCM**, **vrai/faux**, **remise en ordre**, **masquage d'image** (légendes détectées par l'IA) | ✅ | `cardFaces`, `openEditor`, `openOcclusion` |
+| **FSRS-5** (objectif de rétention réglable 80–97 %) et **boîte de Leitner** visuelle à quatre compartiments | ✅ | `FSRS`, `leitner` |
+| File d'attente à la Anki : apprentissage → révisions → nouvelles intercalées, une fiche « sœur » par jour | ✅ | `Study.build` |
+| Retournement 3D, **tampon encreur** à chaque note, **envol de la fiche vers son compartiment**, glisser à droite / à gauche | ✅ | `Study.grade`, `Study.bindCard` |
+| **Réponse écrite ou dictée, corrigée par l'IA** : score, verdict, mots-clés manquants, annotation « stylo rouge » | ✅ | `aiGrade`, `Study.check`, `Dictation` |
+| **Exigence choisie par l'utilisateur** : Souple / Standard / Strict (mot pour mot) | ✅ | `STRICT` |
+| Correction locale de secours (fautes de frappe, mots-clés, chiffres obligatoires) | ✅ | `localGrade` |
+| **Prof virtuel** après un échec, et **discussion par paquet** (« Demander au prof ») qui peut créer des fiches | ✅ | `Study.tutor`, `openChat` |
+| **Fiche de synthèse** du chapitre, exportable en Markdown | ✅ | `openSheet` |
+| Détection des **sangsues** + reformulation IA (« Améliorer avec l'IA ») | ✅ | `Study.grade`, `openEditor` |
+| **Examen en vue** : compte à rebours, nouvelles fiches par jour, mémoire prévue le jour J | ✅ | `examInfo`, `openExamPlan` |
+| **Jeux** : jeu des paires chronométré, **examen blanc noté sur 20 avec mention**, révision éclair | ✅ | `Game`, `buildExam` |
+| **Mode écoute**, lecture à voix haute, **ambiance sonore** (bibliothèque, pluie) | ✅ | `openListen`, `Ambient` |
+| Série sur « fiche de prêt », jauge du jour, niveaux, **ex-libris** (14 cachets de cire), **bordereau** de fin de séance | ✅ | `streak`, `BADGES`, `Study.summary` |
+| **Partager sa progression** : image 1080 × 1350 générée | ✅ | `shareProgress` |
+| Carnet : rétention réelle, courbe de l'oubli interactive sur papier millimétré, charge à venir, régularité | ✅ | `Views.stats` |
+| Premier lancement guidé (profil, rythme, examen) | ✅ | `Onb` |
 | Import CSV / TSV / export texte Anki / sauvegarde JSON ; export CSV | ✅ | `parseImport`, `exportDeckCSV` |
-| Palette de commandes (Ctrl/⌘ K), raccourcis clavier complets | ✅ | `openPalette` |
+| Palette de commandes (Ctrl/⌘ K), raccourcis clavier complets, animations complètes ou rapides | ✅ | `openPalette` |
 | Synchronisation multi-appareils (dans l'app Claude), stockage local sinon | ✅ | `Store` |
 | Thème clair / sombre, mobile, accessibilité (mouvement réduit, focus visible) | ✅ | CSS |
+
+Une page de présentation du projet, reprenant ce dossier en version illustrée et animée, est fournie dans `engram/dossier.html`.
 
 ---
 
@@ -336,11 +340,11 @@ Avec un taux de conversion typique de 3 à 5 %, il faut 1 000 à 1 500 utilisate
 
 ## 12. Design : le système visuel
 
-L'identité du prototype part d'une idée : **la fiche bristol dans une bibliothèque la nuit**.
+L'identité part d'un lieu : **la salle de lecture**. Tout ce qu'on voit vient du monde réel de l'étude, pour éviter l'apparence générique des interfaces « faites par IA » (dégradés violets, verre dépoli, particules).
 
-- **Fond** : encre bleu nuit (`#0B0E16`), traversé par un **champ neuronal** animé ; chaque bonne réponse déclenche un influx lumineux qui se propage de synapse en synapse.
-- **Accent** : ambre « lumière de lampe » (`#FFB23F`), réservé aux actions principales et aux moments de réussite.
-- **Les cartes sont de vraies fiches** : papier crème, lignes bleues, marge rouge, numéro de fiche, retournement 3D avec rebond, reflet qui suit le doigt ; les corrections de l'IA s'écrivent au **stylo rouge** (police manuscrite).
-- **Typographie** : Bodoni Moda (titres, grands chiffres — le côté éditorial et luxueux), Onest (interface, lisibilité), Martian Mono (étiquettes et données), Caveat (annotations du correcteur).
-- **Mouvement** : une chorégraphie par moment clé (apparition des cartes pendant le scan, envol de la carte notée, explosion de particules en fin de session), et rien d'autre. Tout se désactive si le système demande de réduire les animations.
+- **Couleurs** : vert bibliothèque (`#0D1411`, la lampe de banquier), laiton (`#C9A45C`) pour les actions principales, papier bristol pour les fiches, encre rouge pour les tampons et le stylo du correcteur. En clair : le bureau en journée, vert sauge et encre verte.
+- **Objets** : les paquets sont des **tiroirs de fichier** avec porte-étiquette en laiton ; la progression est une **boîte de Leitner** dont on voit les fiches debout ; la série est une **fiche de prêt** tamponnée jour après jour ; la fin de séance imprime un **bordereau** ; les récompenses sont des **cachets de cire** (ex-libris) ; les statistiques sont tracées sur **papier millimétré**.
+- **Les fiches sont de vraies fiches** : lignes bleues, marge rouge, numéro, retournement 3D, reflet qui suit le doigt ; les corrections de l'IA s'écrivent au stylo rouge.
+- **Typographie** : Gloock (titres, grands chiffres, sérif à fort contraste), Schibsted Grotesk (interface), Courier Prime (étiquettes tapées à la machine, tampons, bordereau), Caveat (annotations manuscrites).
+- **Mouvement** : un geste par moment clé — la pile de fiches qui se déploie, le tampon qui s'abat sur la fiche, la fiche qui s'envole vers son compartiment, le bordereau qui s'imprime. Réglable (« animations rapides ») et désactivé si le système demande de réduire les animations.
 - **Couleurs des graphiques** validées pour le daltonisme, en clair comme en sombre.
