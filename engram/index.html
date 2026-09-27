@@ -236,20 +236,20 @@ input[type=range]{width:100%;accent-color:var(--brass)}
 .demo-note > span{flex:1 1 280px}
 .demo-note .btn{margin-left:auto}
 .pile{position:relative;height:clamp(260px,26vw,330px);perspective:1400px;cursor:pointer;border:0;background:none;width:100%;display:block}
-.pile-card{position:absolute;inset:6% 4% 8% 4%;border-radius:5px;background-color:var(--paper);box-shadow:var(--sh-card);transform-origin:50% 100%;
-  transition:transform .7s var(--spring);animation:dealIn 1s var(--ease) both;color:var(--p-ink);overflow:hidden;text-align:left;
-  background-image:linear-gradient(90deg,transparent 38px,var(--p-margin) 38px,var(--p-margin) 39.5px,transparent 39.5px),repeating-linear-gradient(180deg,transparent 0 27px,var(--p-rule) 27px 28px);background-position:0 0,0 44px}
+.pile-card{--rule:28px;--head:44px;--ml:38px;position:absolute;inset:6% 4% 8% 4%;border-radius:5px;box-shadow:var(--sh-card);transform-origin:50% 100%;
+  transition:transform .7s var(--spring);animation:dealIn 1s var(--ease) both;color:var(--p-ink);overflow:hidden;text-align:left}
 .pile-card:nth-child(1){transform:rotate(-7deg) translate(-16px,8px);animation-delay:.05s;filter:brightness(.9)}
 .pile-card:nth-child(2){transform:rotate(-2.5deg) translate(-4px,2px);animation-delay:.15s;filter:brightness(.95)}
-.pile-card:nth-child(3){transform:rotate(3deg);animation-delay:.25s;padding:18px 20px 18px 54px;display:flex;flex-direction:column;gap:10px}
+.pile-card:nth-child(3){transform:rotate(3deg);animation-delay:.25s;padding:0 20px 0 54px;display:flex;flex-direction:column}
 .pile:hover .pile-card:nth-child(1){transform:rotate(-13deg) translate(-40px,6px)}
 .pile:hover .pile-card:nth-child(2){transform:rotate(-5deg) translate(-16px,0)}
 .pile:hover .pile-card:nth-child(3){transform:rotate(5deg) translate(12px,-10px)}
 @keyframes dealIn{from{opacity:0;transform:translateY(60px) rotate(12deg)}}
-.pc-head{display:flex;justify-content:space-between;gap:8px;font:700 10px/1 var(--f-type);letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted)}
-.pc-head span:last-child{color:var(--pen)}
-.pc-q{font:500 clamp(18px,1.7vw,22px)/1.35 var(--f-ui);letter-spacing:-.01em;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;margin-top:auto}
-.pc-foot{margin-top:auto;font:italic 400 13px/1.2 var(--f-type);color:var(--p-muted)}
+.pc-head{display:flex;align-items:center;justify-content:space-between;gap:10px;height:var(--head);padding-bottom:5px;flex:none;white-space:nowrap;font:700 10px/1.7 var(--f-type);letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted)}
+.pc-head span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.pc-head span:last-child{color:var(--pen);flex:none}
+.pc-q{font:500 clamp(18px,1.7vw,21px)/var(--rule) var(--f-ui);letter-spacing:-.01em;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;flex:none}
+.pc-foot{margin-top:auto;padding-bottom:14px;font:italic 400 13px/1.2 var(--f-type);color:var(--p-muted)}
 .exam-banner{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:18px;align-items:center;padding:16px 20px;border-radius:12px;border:1px solid var(--hair-2);
   background:repeating-linear-gradient(-45deg,transparent 0 12px,var(--brass-soft) 12px 13px),var(--folder-2)}
 .exam-banner .j{font:400 44px/1 var(--f-display);color:var(--brass-text);min-width:3ch;text-align:center}
@@ -370,38 +370,63 @@ input[type=range]{width:100%;accent-color:var(--brass)}
 .card3d{position:relative;width:min(640px,100%);min-height:clamp(300px,46vh,420px);transform-style:preserve-3d;
   transform:rotateX(var(--rx,0deg)) rotateY(calc(var(--ry,0deg) + var(--flip,0deg))) translateX(var(--dx,0px)) rotate(var(--rz,0deg));transition:transform .85s var(--snap)}
 .card3d.dragging{transition:none}
+@media (max-width:380px){.st-tools{gap:4px}.st-tools .icon-btn{width:32px!important;height:32px!important}.st-tools .seg button{padding:6px 8px}}
+@media (min-width:700px) and (min-height:1000px){.card3d{width:min(740px,100%);min-height:clamp(300px,38vh,540px)}}
 .card3d.flipped{--flip:180deg}
 .stage.enter{animation:cardIn .6s var(--ease) both}
 @keyframes cardIn{from{opacity:0;transform:translateY(46px) scale(.95)}}
-.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:5px;overflow:hidden;color:var(--p-ink);background-color:var(--paper);
+/* Papier lignée commun à toutes les fiches : marge rouge, double filet sous l'en-tête, lignes bleues
+   espacées de --rule. Le texte est ensuite posé sur les lignes (Ruling, dans le script). */
+:is(.face,.pile-card,.mini-card,.lp-card){--p-head:var(--p-margin);background-color:var(--paper);
   background-image:
     radial-gradient(300px circle at var(--hx,30%) var(--hy,20%),rgba(255,255,255,.5),transparent 60%),
-    linear-gradient(90deg,transparent 58px,var(--p-margin) 58px,var(--p-margin) 59.5px,transparent 59.5px),
-    repeating-linear-gradient(180deg,transparent 0 31px,var(--p-rule) 31px 32px);
-  background-position:0 0,0 0,0 62px;box-shadow:var(--sh-card);display:flex;flex-direction:column;padding:20px 30px 26px 80px}
+    linear-gradient(90deg,transparent var(--ml),var(--p-margin) var(--ml),var(--p-margin) calc(var(--ml) + 1.5px),transparent calc(var(--ml) + 1.5px)),
+    linear-gradient(180deg,transparent calc(var(--head) - 5px),var(--p-head) calc(var(--head) - 5px),var(--p-head) calc(var(--head) - 4px),transparent calc(var(--head) - 4px),transparent calc(var(--head) - 2px),var(--p-head) calc(var(--head) - 2px),var(--p-head) calc(var(--head) - 1px),transparent calc(var(--head) - 1px)),
+    linear-gradient(var(--paper),var(--paper)),
+    linear-gradient(180deg,transparent calc(var(--rule) - 1px),var(--p-rule) calc(var(--rule) - 1px));
+  background-size:100% 100%,100% 100%,100% 100%,100% var(--head),100% var(--rule);
+  background-repeat:no-repeat,no-repeat,no-repeat,no-repeat,repeat-y;
+  background-position:0 0,0 0,0 0,0 0,0 var(--head)}
+:is(.face,.mini-card,.lp-card) :is(.q-text,.a-text,.q-small,.extra,.your,.pen){line-height:var(--rule)}
+.ruled{justify-content:flex-start!important}
+.face{--rule:34px;--head:50px;--ml:58px;position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:5px;overflow:hidden;color:var(--p-ink);box-shadow:var(--sh-card);display:flex;flex-direction:column;padding:0 30px 24px 80px}
 .face::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;mix-blend-mode:multiply;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='2'/><feColorMatrix values='0 0 0 0 .55  0 0 0 0 .5  0 0 0 0 .4  0 0 0 .2 0'/></filter><rect width='100%' height='100%' filter='url(%23p)'/></svg>")}
 .face.back{transform:rotateY(180deg)}
-.face-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:22px;font:700 10px/1 var(--f-type);letter-spacing:.14em;text-transform:uppercase;color:var(--p-muted);position:relative;z-index:1}
+.face::before{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(60,45,20,.05),inset 0 0 44px rgba(120,95,50,.08)}
+/* Verso : le texte apparaît comme s'il s'encrait, le surligneur passe sur la réponse. */
+.card3d.flipped .face.back .face-body>:not(.pen-in){animation:inkUp .55s .28s var(--ease) both}
+.card3d.flipped .face.back .face-body>:nth-child(2):not(.pen-in){animation-delay:.36s}
+.card3d.flipped .face.back .face-body>:nth-child(3):not(.pen-in){animation-delay:.44s}
+.card3d.flipped .face.back .face-body>:nth-child(n+4):not(.pen-in){animation-delay:.52s}
+@keyframes inkUp{from{opacity:0;transform:translateY(7px)}}
+.card3d.flipped .cloze-ans{animation:hl .7s .55s var(--ease) both}
+@keyframes hl{from{background-size:0 100%}}
+.face-head{display:flex;align-items:center;justify-content:space-between;gap:12px;height:var(--head);padding-bottom:5px;flex:none;white-space:nowrap;font:700 10px/1.7 var(--f-type);letter-spacing:.14em;text-transform:uppercase;color:var(--p-muted);position:relative;z-index:1}
+.face-head>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.face-head .no{flex:none}
 .face-head .no{color:var(--pen)}
-.face-body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;padding:16px 0 6px;min-height:0;overflow:auto;position:relative;z-index:1}
-.q-text{font:500 clamp(21px,2.5vw,28px)/1.32 var(--f-ui);letter-spacing:-.015em;text-wrap:balance}
+.face-body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px;padding:12px 0 6px;min-height:0;overflow:auto;position:relative;z-index:1;scrollbar-width:thin}
+.face-body.ruled{padding-top:0;gap:10px}
+.face.back .q-small{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;flex:none}
+.face.back .opt{padding:7px 12px}
+.q-text{font:500 clamp(21px,2.4vw,27px)/1.32 var(--f-ui);letter-spacing:-.015em;text-wrap:balance}
 .q-small{font:400 14px/1.45 var(--f-type);color:var(--p-muted)}
-.a-text{font:400 clamp(24px,2.8vw,32px)/1.22 var(--f-display);letter-spacing:-.01em;text-wrap:balance}
-.extra{font-size:14px;line-height:1.5;color:#4a473f;border-left:2px solid var(--p-rule);padding-left:12px}
-.cloze{display:inline-block;min-width:3em;padding:0 .35em;border-bottom:2px solid var(--pen);color:var(--pen);font-family:var(--f-type);font-weight:700;text-align:center}
-.cloze-ans{background:linear-gradient(180deg,transparent 58%,rgba(245,200,90,.7) 58%);padding:0 .12em;color:inherit;font-weight:600}
+.a-text{font:400 clamp(23px,2.6vw,29px)/1.22 var(--f-display);letter-spacing:-.01em;text-wrap:balance}
+.extra{font-size:15px;line-height:1.5;color:color-mix(in srgb,var(--p-ink) 78%,var(--paper));border-left:2px solid color-mix(in srgb,var(--p-margin) 70%,transparent);padding-left:12px}
+.cloze{display:inline-block;min-width:3em;padding:0 .35em;line-height:1.1;border-bottom:2px solid var(--pen);color:var(--pen);font-family:var(--f-type);font-weight:700;text-align:center}
+.cloze-ans{background:linear-gradient(180deg,transparent 58%,rgba(245,200,90,.7) 58%) 0 0/100% 100% no-repeat;padding:0 .12em;color:inherit;font-weight:600}
 .pen{font:700 25px/1.12 var(--f-pen);color:var(--pen);transform:rotate(-1.4deg);transform-origin:left}
 .pen-in{animation:penIn 1s var(--ease) both}
 @keyframes penIn{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
 .your{font:400 14px/1.4 var(--f-type);color:var(--p-muted)}
 .your s{text-decoration-color:var(--pen);text-decoration-thickness:2px}
 .opts{display:grid;gap:8px}
-.opt{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:4px;border:1px solid rgba(0,0,0,.16);background:rgba(255,255,255,.5);text-align:left;color:var(--p-ink);font-weight:500;font-size:15.5px;transition:all .25s var(--ease)}
+.opt{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:4px;border:1px solid rgba(0,0,0,.16);background:color-mix(in srgb,#fff 60%,var(--paper));box-shadow:0 1px 0 rgba(0,0,0,.04);text-align:left;color:var(--p-ink);font-weight:500;font-size:15.5px;transition:all .25s var(--ease)}
 .opt:hover{border-color:var(--pen);transform:translateX(3px)}
 .opt b{display:grid;place-items:center;width:24px;height:24px;border-radius:3px;border:1px solid rgba(0,0,0,.25);font:700 11px/1 var(--f-type);flex:none}
-.opt.right{border-color:#1F7A52;background:rgba(31,122,82,.1)}.opt.right b{background:#1F7A52;border-color:#1F7A52;color:#fff}
-.opt.wrong{border-color:var(--pen);background:rgba(195,52,42,.07)}.opt.wrong b{background:var(--pen);border-color:var(--pen);color:#fff}
+.opt.right{border-color:#1F7A52;background:color-mix(in srgb,#1F7A52 11%,var(--paper))}.opt.right b{background:#1F7A52;border-color:#1F7A52;color:#fff}
+.opt.wrong{border-color:var(--pen);background:color-mix(in srgb,var(--pen) 8%,var(--paper))}.opt.wrong b{background:var(--pen);border-color:var(--pen);color:#fff}
 .tf{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .occ{position:relative;width:fit-content;max-width:100%;margin:0 auto;border-radius:3px;overflow:hidden;background:#fff;border:1px solid rgba(0,0,0,.1);flex:none}
 .occ img{display:block;max-width:100%;width:auto;height:auto;max-height:min(34vh,300px)}
@@ -410,11 +435,11 @@ input[type=range]{width:100%;accent-color:var(--brass)}
 .occ .m.rev{background:transparent;border:2px solid #1F7A52;box-shadow:0 0 0 3px rgba(31,122,82,.2)}
 .order-pool,.order-list{display:flex;flex-wrap:wrap;gap:8px;min-height:38px}
 .order-list{flex-direction:column;flex-wrap:nowrap;gap:6px;min-height:0}
-.ochip{display:inline-flex;align-items:center;gap:9px;padding:8px 12px;border-radius:4px;border:1px solid rgba(0,0,0,.18);background:rgba(255,255,255,.6);font-weight:500;font-size:15px;color:var(--p-ink);transition:transform .3s var(--spring),opacity .2s;text-align:left}
+.ochip{display:inline-flex;align-items:center;gap:9px;padding:8px 12px;border-radius:4px;border:1px solid rgba(0,0,0,.18);background:color-mix(in srgb,#fff 64%,var(--paper));box-shadow:0 1px 0 rgba(0,0,0,.04);font-weight:500;font-size:15px;color:var(--p-ink);transition:transform .3s var(--spring),opacity .2s;text-align:left}
 button.ochip:hover{transform:translateY(-2px);border-color:var(--pen)}
 .ochip b{font:700 11px/1 var(--f-type);color:var(--pen);min-width:14px}
-.ochip.right{border-color:#1F7A52;background:rgba(31,122,82,.1)}.ochip.right b{color:#1F7A52}
-.ochip.wrong{border-color:var(--pen);background:rgba(195,52,42,.08)}
+.ochip.right{border-color:#1F7A52;background:color-mix(in srgb,#1F7A52 11%,var(--paper))}.ochip.right b{color:#1F7A52}
+.ochip.wrong{border-color:var(--pen);background:color-mix(in srgb,var(--pen) 8%,var(--paper))}
 .ochip.placed{animation:popIn .35s var(--spring)}
 @keyframes popIn{from{transform:scale(.85);opacity:.3}}
 .card-hint{position:absolute;bottom:13px;right:18px;font:700 9.5px/1 var(--f-type);letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted);opacity:.7;z-index:1}
@@ -424,7 +449,7 @@ button.ochip:hover{transform:translateY(-2px);border-color:var(--pen)}
 .stampmark svg{display:block;width:clamp(150px,22vw,210px);height:auto;filter:url(#ink)}
 @keyframes slam{0%{transform:translateY(-50%) rotate(-24deg) scale(2.1);opacity:0}60%{opacity:1;transform:translateY(-50%) rotate(-7deg) scale(.93)}100%{transform:translateY(-50%) rotate(-9deg) scale(1)}}
 @media (max-width:620px){
-  .face{padding:18px 18px 22px 44px;background-image:radial-gradient(260px circle at var(--hx,30%) var(--hy,20%),rgba(255,255,255,.5),transparent 60%),linear-gradient(90deg,transparent 28px,var(--p-margin) 28px,var(--p-margin) 29.5px,transparent 29.5px),repeating-linear-gradient(180deg,transparent 0 31px,var(--p-rule) 31px 32px)}
+  .face{--rule:30px;--head:46px;--ml:28px;padding:0 18px 20px 44px}
   .card3d{min-height:clamp(300px,58vh,540px)}
   .q-text{font-size:clamp(19px,5.4vw,24px)}
   .stampmark{right:10px}
@@ -458,6 +483,8 @@ body.studying .shell,body.studying .dock{visibility:hidden}
 .verdict b{display:block;font:600 16px/1.2 var(--f-ui)}
 .verdict small{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font:400 11.5px/1.3 var(--f-type);color:var(--muted);margin-top:4px}
 .verdict .chips{margin-top:8px}
+.vmark{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;border:2px solid var(--vc);color:var(--vc);flex:none;animation:popIn .4s var(--spring)}
+.vmark .i{width:22px;height:22px;stroke-width:2.2}
 .ring circle{fill:none}
 .ring .rt{stroke:var(--hair-2)}
 .ring .rv{stroke:var(--brass);stroke-linecap:round;transition:stroke-dashoffset 1.3s var(--ease)}
@@ -663,8 +690,8 @@ body.studying .shell,body.studying .dock{visibility:hidden}
 /* Éditeur, masquage, aperçus */
 .editor-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr);gap:22px}
 @media (max-width:820px){.editor-grid{grid-template-columns:1fr}}
-.mini-card{position:relative;border-radius:4px;min-height:170px;padding:16px 16px 16px 46px;color:var(--p-ink);background-color:var(--paper);display:flex;flex-direction:column;justify-content:center;gap:10px;
-  background-image:linear-gradient(90deg,transparent 30px,var(--p-margin) 30px,var(--p-margin) 31px,transparent 31px),repeating-linear-gradient(180deg,transparent 0 25px,var(--p-rule) 25px 26px);box-shadow:0 1px 2px rgba(0,0,0,.2),0 12px 20px -14px rgba(0,0,0,.5)}
+.mini-card{--rule:26px;--head:0px;--ml:30px;position:relative;border-radius:4px;min-height:170px;padding:12px 16px 14px 46px;color:var(--p-ink);display:flex;flex-direction:column;justify-content:center;gap:8px;
+  box-shadow:0 1px 2px rgba(0,0,0,.2),0 12px 20px -14px rgba(0,0,0,.5)}
 .mini-card .q-text{font-size:17px}.mini-card .a-text{font-size:20px}
 .occ-edit{position:relative;user-select:none;touch-action:none;border-radius:4px;overflow:hidden;border:1px solid var(--hair-2);cursor:crosshair;background:#fff}
 .occ-edit img{display:block;width:100%;pointer-events:none}
@@ -845,14 +872,14 @@ body.studying .shell,body.studying .dock{visibility:hidden}
 :root[data-desk="off"] .desk{background:var(--desk)}
 /* Papier des fiches */
 :root[data-card="plain"] :is(.face,.pile-card,.mini-card,.lp-card){background-image:radial-gradient(300px circle at var(--hx,30%) var(--hy,20%),rgba(255,255,255,.4),transparent 60%)!important}
-:root[data-card="grid"] :is(.face,.pile-card,.mini-card,.lp-card){background-image:radial-gradient(300px circle at var(--hx,30%) var(--hy,20%),rgba(255,255,255,.45),transparent 60%),linear-gradient(90deg,var(--p-rule) 1px,transparent 1px),linear-gradient(180deg,var(--p-rule) 1px,transparent 1px)!important;background-size:auto,18px 18px,18px 18px!important;background-position:0 0,0 0,0 0!important}
+:root[data-card="grid"] :is(.face,.pile-card,.mini-card,.lp-card){background-image:radial-gradient(300px circle at var(--hx,30%) var(--hy,20%),rgba(255,255,255,.45),transparent 60%),linear-gradient(90deg,var(--p-rule) 1px,transparent 1px),linear-gradient(180deg,var(--p-rule) 1px,transparent 1px)!important;background-size:auto,18px 18px,18px 18px!important;background-position:0 0,0 0,0 0!important;background-repeat:no-repeat,repeat,repeat!important}
 :root[data-card="slate"] :is(.face,.pile-card,.mini-card,.lp-card,.slip,.receipt){--paper:#1F2A25;--paper-2:#26332D;--p-ink:#EEF2EC;--p-muted:#9FB0A6;--p-rule:rgba(255,255,255,.06);--p-margin:rgba(255,255,255,.14);--pen:#F4A99A}
 :root[data-card="slate"] :is(.face,.pile-card,.mini-card,.lp-card) .q-text{font-family:var(--f-pen);font-size:1.3em;font-weight:500}
 :root[data-card="slate"] .face::after{opacity:.25;mix-blend-mode:screen}
-:root[data-card="slate"] .face :is(.opt,.ochip,.exam-opt){background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.16);color:var(--p-ink)}
+:root[data-card="slate"] .face :is(.opt,.ochip,.exam-opt){background:color-mix(in srgb,#fff 6%,var(--paper));border-color:rgba(255,255,255,.16);color:var(--p-ink)}
 :root[data-card="slate"] .face :is(.opt,.exam-opt) b{border-color:rgba(255,255,255,.3)}
-:root[data-card="slate"] .face .opt.right{background:rgba(98,189,143,.16);border-color:#62BD8F}:root[data-card="slate"] .face .opt.right b{background:#2E8F62;border-color:#2E8F62}
-:root[data-card="slate"] .face .opt.wrong{background:rgba(244,169,154,.12)}
+:root[data-card="slate"] .face .opt.right{background:color-mix(in srgb,#62BD8F 16%,var(--paper));border-color:#62BD8F}:root[data-card="slate"] .face .opt.right b{background:#2E8F62;border-color:#2E8F62}
+:root[data-card="slate"] .face .opt.wrong{background:color-mix(in srgb,#F4A99A 12%,var(--paper))}
 /* Aucune animation */
 :root[data-motion="none"] *,:root[data-motion="none"] *::before,:root[data-motion="none"] *::after{animation-duration:.001ms!important;animation-delay:0ms!important;transition-duration:.001ms!important}
 
@@ -995,10 +1022,9 @@ body.studying .mentor-fab,body.mentor-on .mentor-fab,#onb:not([hidden])~.mentor-
 .look-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:28px}
 @media (max-width:1000px){.look-grid{grid-template-columns:1fr}.look-prev{position:static!important}}
 .look-prev{position:sticky;top:80px;align-self:start;display:flex;flex-direction:column;gap:14px}
-.lp-card{position:relative;min-height:200px;border-radius:5px;padding:16px 18px 18px 58px;color:var(--p-ink);background-color:var(--paper);box-shadow:var(--sh-card);display:flex;flex-direction:column;gap:14px;overflow:hidden;
-  background-image:linear-gradient(90deg,transparent 40px,var(--p-margin) 40px,var(--p-margin) 41.5px,transparent 41.5px),repeating-linear-gradient(180deg,transparent 0 27px,var(--p-rule) 27px 28px);background-position:0 0,0 44px;transform:rotate(-1.2deg)}
+.lp-card{--rule:28px;--head:44px;--ml:40px;position:relative;min-height:200px;border-radius:5px;padding:0 18px 18px 58px;color:var(--p-ink);box-shadow:var(--sh-card);display:flex;flex-direction:column;gap:10px;overflow:hidden;transform:rotate(-1.2deg)}
 .lp-card .face-head{margin-left:-40px}
-.lp-card .q-text{font-size:21px;line-height:1.3}
+.lp-card .q-text{font-size:21px}
 .lp-stamp{position:absolute;right:10px;bottom:8px;width:140px;transform:rotate(-8deg);opacity:.9;filter:url(#ink)}
 .lp-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .skins{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;width:100%}
@@ -1961,7 +1987,21 @@ function lev(a, b) {
   return prev[b.length];
 }
 const near = (x, y) => x === y || (y.length > 3 && x.length > 3 && 1 - lev(x, y) / Math.max(x.length, y.length) >= 0.78);
+/* « En 1989, le 9 novembre. » : l'essentiel est « En 1989 ». Pas pour une liste (« rouge, vert, bleu »). */
+function answerCore(expected) {
+  const s = String(expected || '').trim(), parts = s.split(/\s*(?:[,;:(]|\s[–—-]\s)\s*/).filter(Boolean);
+  if (parts.length < 2 || s.split(',').length >= 3) return '';
+  const core = parts[0].replace(/[.!?]+$/, '').trim();
+  return core && core.length <= s.length * 0.75 ? core : '';
+}
 function localGrade(answer, expected, strict = 'standard') {
+  const full = scoreAnswer(answer, expected, strict), core = strict === 'strict' ? '' : answerCore(expected);
+  if (!core) return full;
+  const c = scoreAnswer(answer, core, strict);
+  if (c.verdict !== 'correct' || c.score <= full.score) return full;
+  return { ...c, score: Math.min(c.score, 94), grade: 3, note: t("l'essentiel y est") };
+}
+function scoreAnswer(answer, expected, strict) {
   const a = normTxt(answer), b = normTxt(expected);
   if (!a) return { score: 0, verdict: 'incorrect', missing: [], comment: '', grade: 1, ai: false };
   const words = String(expected).split(/[\s,;:()«»"'’.!?/]+/).filter(w => w && !STOP.has(normTxt(w)) && normTxt(w).length > 1);
@@ -2683,7 +2723,7 @@ function cardFaces(c, o = {}) {
     const front = `<div class="q-text">${md(c.front)}</div>
       <div class="order-list">${picked.map((i, k) => `<span class="ochip placed"><b>${k + 1}</b>${esc(items[i])}</span>`).join('')}</div>
       <div class="order-pool">${pool.map(i => `<button class="ochip" data-act="orderPick" data-i="${i}">${esc(items[i])}</button>`).join('')}</div>`;
-    const back = `<div class="q-small">${md(c.front)}</div><div class="order-list">${items.map((x, k) => `<span class="ochip ${picked.length ? (picked[k] === k ? 'right' : 'wrong') : ''}"><b>${k + 1}</b>${esc(x)}</span>`).join('')}</div>${c.back ? `<div class="extra">${md(c.back)}</div>` : ''}`;
+    const back = `<div class="q-small">${md(c.front)}</div><div class="order-list">${items.map((x, k) => `<span class="ochip ${k < picked.length ? (picked[k] === k ? 'right' : 'wrong') : ''}"><b>${k + 1}</b>${esc(x)}</span>`).join('')}</div>${c.back ? `<div class="extra">${md(c.back)}</div>` : ''}`;
     return { question: c.front, expected: items.join(' → '), front, back };
   }
   if (c.type === 'occlusion') {
@@ -2701,6 +2741,51 @@ function cardFaces(c, o = {}) {
   const fi = cimg(c.fimg), bi = cimg(c.bimg);
   return { question: c.front, expected: c.back, front: `${fi}<div class="q-text">${md(c.front)}</div>`, back: `<div class="q-small">${md(c.front)}</div>${bi}<div class="a-text">${md(c.back)}</div>${extra}` };
 }
+
+/* Fiches lignées : la ligne de base de chaque texte tombe sur une ligne du papier, comme à la main.
+   On mesure avec offsetTop (insensible aux rotations 3D de la fiche), puis on décale chaque bloc
+   de texte jusqu'à la ligne suivante ; le centrage vertical se fait par multiples de l'interligne. */
+const Ruling = {
+  TEXT: ':scope > :is(.q-text,.a-text,.q-small,.extra,.your:not(.your-ink),.pen,.pc-q)',
+  on() { const v = document.documentElement.dataset.card; return !v || v === 'ruled' || v === 'slate'; },
+  top(el, root) {
+    let y = 0;
+    for (let n = el; n && n !== root;) { y += n.offsetTop; const p = n.offsetParent; if (!p) return NaN; if (p !== root) y -= p.scrollTop; n = p; }
+    return y;
+  },
+  baseline(el, root) {
+    const probe = document.createElement('span'); probe.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline';
+    el.prepend(probe); const y = this.top(probe, root); probe.remove(); return y;
+  },
+  snap(root, body = root, center = true) {
+    if (!root || !body) return 0;
+    const blocks = [...body.querySelectorAll(this.TEXT)];
+    body.style.paddingTop = ''; blocks.forEach(b => b.style.marginTop = ''); body.classList.remove('ruled');
+    if (!this.on() || !root.offsetHeight) return 0;
+    const cs = getComputedStyle(root), R = parseFloat(cs.getPropertyValue('--rule')), H = parseFloat(cs.getPropertyValue('--head')) || 0;
+    if (!R || !blocks.length) return 0;
+    body.classList.add('ruled');
+    for (const b of blocks) {
+      const y = this.baseline(b, root); if (!isFinite(y)) continue;
+      const target = H + Math.max(1, Math.ceil((y + 2 - H) / R)) * R - 2;
+      if (target - y > .5) b.style.marginTop = (parseFloat(getComputedStyle(b).marginTop) || 0) + target - y + 'px';
+    }
+    if (!center) return R;
+    const bs = getComputedStyle(body), pt = parseFloat(bs.paddingTop) || 0, pb = parseFloat(bs.paddingBottom) || 0;
+    const kids = [...body.children].filter(k => k.offsetParent && getComputedStyle(k).position !== 'absolute');
+    if (!kids.length) return R;
+    const first = kids[0], last = kids[kids.length - 1];
+    const h = last.offsetTop + last.offsetHeight + (parseFloat(getComputedStyle(last).marginBottom) || 0) - (first.offsetTop - (parseFloat(getComputedStyle(first).marginTop) || 0));
+    const pad = Math.floor(Math.max(0, body.clientHeight - pt - pb - h) / 2 / R) * R;
+    if (pad) body.style.paddingTop = pt + pad + 'px';
+    return R;
+  },
+  // Toutes les fiches visibles hors séance : pile de l'accueil, aperçus de l'éditeur et des réglages.
+  scan(scope = document) {
+    $$('.pc-q', scope).forEach(q => this.snap(q.parentElement, q.parentElement, false));
+    $$('.mini-card, .lp-card', scope).forEach(c => this.snap(c));
+  }
+};
 
 /* ── Toasts, modales ───────────────────────────────────────────────── */
 function toast(msg, ic = 'check', lead = '') {
@@ -2782,6 +2867,7 @@ const App = {
     requestAnimationFrame(() => {
       $$('.rv', v).forEach(c => c.style.strokeDashoffset = c.dataset.off);
       $$('.count', v).forEach(el => countUp(el, +el.dataset.to));
+      Ruling.scan(v);
     });
     Hooks[this.route.v]?.(this.route.arg);
   }
@@ -3199,7 +3285,9 @@ function openEditor(cardId, deckId, preset) {
       </div>`;
     const root = m.querySelector('#edRoot');
     root.querySelector('#eType')?.addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; read(); st.type = b.dataset.t; if (st.type === 'tf') st.answer = true; if (st.type === 'mcq') st.answer = 0; draw(); });
-    root.querySelector('#eForm').addEventListener('input', () => { read(); root.querySelector('#ePrev').innerHTML = sample(); });
+    const prev = () => { root.querySelector('#ePrev').innerHTML = sample(); Ruling.scan(root.querySelector('#ePrev')); };
+    requestAnimationFrame(() => Ruling.scan(root.querySelector('#ePrev')));
+    root.querySelector('#eForm').addEventListener('input', () => { read(); prev(); });
     root.querySelectorAll('[data-ans]').forEach(b => b.onclick = () => { read(); st.answer = +b.dataset.ans; draw(); });
     root.querySelectorAll('[data-sk-draw]').forEach(b => b.onclick = () => {
       read(); const side = b.dataset.skDraw;
@@ -3210,7 +3298,7 @@ function openEditor(cardId, deckId, preset) {
     root.querySelector('#eWrap')?.addEventListener('click', () => {
       const ta = root.querySelector('#eText'); const a = ta.selectionStart, b = ta.selectionEnd; if (a === b) { ta.focus(); return; }
       const n = Math.max(0, ...[...ta.value.matchAll(/\{\{c(\d+)::/g)].map(x => +x[1])) + 1;
-      ta.value = ta.value.slice(0, a) + `{{c${n}::${ta.value.slice(a, b)}}}` + ta.value.slice(b); read(); root.querySelector('#ePrev').innerHTML = sample();
+      ta.value = ta.value.slice(0, a) + `{{c${n}::${ta.value.slice(a, b)}}}` + ta.value.slice(b); read(); prev();
     });
     const srcTxt = () => st.type === 'cloze' ? `Cloze text (syntax {{c1::…}}): ${st.text}` : st.type === 'mcq' ? `Multiple choice. Question: ${st.front}. Options: ${st.options.join(' | ')}. Right answer: ${st.options[st.answer]}` : st.type === 'order' ? `Instruction: ${st.front}\nItems in order: ${st.items.split('\n').join(' | ')}` : `Question: ${st.front}\nAnswer: ${st.back}`;
     root.querySelector('#eAI')?.addEventListener('click', async ev => {
@@ -3998,10 +4086,27 @@ const Study = {
       ${this.miniBox()}`;
     this.bindCard();
     if (showInk) this.pad = mountInk($('#inkPad'), '#inkAns', { onChange: p => { const b = $('#inkGo'); if (b) b.disabled = p.empty(); } });
+    this.layout();
     if (showInput) setTimeout(() => $('#ans')?.focus(), 80);
     $('#ansForm')?.addEventListener('submit', e => { e.preventDefault(); this.check(); });
     $('#micBtn')?.addEventListener('click', () => this.dictate());
     requestAnimationFrame(() => $$('#study .rv').forEach(x => x.style.strokeDashoffset = x.dataset.off));
+  },
+  /* La fiche grandit si son contenu déborde (dans la place disponible), puis le texte est posé sur les lignes. */
+  layout() {
+    const card = $('#card3d'), main = $('#study .st-main'); if (!card || !main) return;
+    const faces = [...card.querySelectorAll('.face')];
+    card.style.height = ''; card.style.minHeight = '';
+    faces.forEach(f => Ruling.snap(f, f.querySelector('.face-body'), false));
+    const need = Math.max(...faces.map(f => { const b = f.querySelector('.face-body'); return b ? f.clientHeight - b.clientHeight + b.scrollHeight + 2 : 0; }));
+    const items = [...main.children].flatMap(k => getComputedStyle(k).display === 'contents' ? [...k.children] : [k]).filter(k => k.offsetHeight);
+    const ms = getComputedStyle(main), gap = parseFloat(ms.rowGap) || 0;
+    const used = items.reduce((a, k) => a + k.offsetHeight, 0) + gap * Math.max(0, items.length - 1) + (parseFloat(ms.paddingTop) || 0) + (parseFloat(ms.paddingBottom) || 0);
+    const base = card.offsetHeight, room = base + main.clientHeight - used;
+    const h = Math.max(Math.min(Math.max(base, need), room), 220);
+    if (Math.abs(h - base) > 1) { card.style.minHeight = '0px'; card.style.height = h + 'px'; }
+    faces.forEach(f => Ruling.snap(f, f.querySelector('.face-body')));
+    card.querySelectorAll('img').forEach(im => { if (!im.complete) im.addEventListener('load', () => this.layout(), { once: true }); });
   },
   backHTML(f) {
     const v = this.verdict;
@@ -4029,6 +4134,9 @@ const Study = {
     const v = this.verdict; if (!v) return '';
     if (v.pending) return `<div class="verdict"><span class="thinking"><i></i><i></i><i></i></span><div><b>${v.ink ? t("L'IA déchiffre votre écriture…") : t("L'IA relit votre réponse…")}</b><small>${t('Correction {lvl} · synonymes acceptés', { lvl: t(STRICT[S.profile.settings.strict].label).toLowerCase() })}</small></div></div>`;
     const col = v.verdict === 'correct' ? 'var(--good)' : v.verdict === 'partiel' ? 'var(--hard)' : 'var(--again)';
+    if (v.kind === 'choice') return `<div class="verdict" style="border-color:color-mix(in srgb,${col} 50%,transparent)"><span class="vmark" style="--vc:${col}">${icon(v.verdict === 'correct' ? 'check' : 'x')}</span>
+      <div style="flex:1;min-width:0"><b style="color:${col}">${v.verdict === 'correct' ? t('Bonne réponse') : t('Pas la bonne réponse')}</b>${v.note ? `<small>${esc(v.note)}</small>` : ''}</div>
+      ${v.verdict !== 'correct' && AI.on ? `<button class="btn btn-sm" data-act="st-tutor">${icon('bulb', 'i-sm')}${t('Expliquer')}</button>` : ''}</div>`;
     const label = v.verdict === 'correct' ? (v.score >= 97 ? t('Parfait') : t('Correct')) : v.verdict === 'partiel' ? t('Presque') : t('Pas tout à fait');
     return `<div class="verdict" style="border-color:color-mix(in srgb,${col} 50%,transparent)">
       ${ring(v.score / 100, 56, 5, v.score + '%').replace('class="rv"', `class="rv" style="stroke:${col}"`)}
@@ -4046,6 +4154,7 @@ const Study = {
     const vb = $('#verdictBox'); if (vb) vb.innerHTML = this.verdictHTML() + this.tutorOfferHTML();
     const bt = $('#study .st-bottom'); if (bt) bt.innerHTML = this.bottomHTML(false);
     $('#ansForm')?.remove(); $('#card3d .card-hint')?.remove();
+    this.layout();
     requestAnimationFrame(() => $$('#verdictBox .rv').forEach(x => x.style.strokeDashoffset = x.dataset.off));
   },
   bindCard() {
@@ -4092,7 +4201,8 @@ const Study = {
     const isRight = bi => c.type === 'tf' ? (bi === 1) === !!c.answer : bi === c.answer;
     $$('#card3d .front .opt').forEach(b => { const bi = +b.dataset.i; if (isRight(bi)) b.classList.add('right'); else if (bi === i) b.classList.add('wrong'); });
     const right = isRight(i);
-    this.verdict = { score: right ? 100 : 0, verdict: right ? 'correct' : 'incorrect', grade: right ? 3 : 1, ai: false, missing: [], comment: '', note: right ? t('bonne réponse') : t('mauvaise réponse') };
+    const good = c.type === 'tf' ? (c.answer ? trueLbl() : falseLbl()) : `${'ABCDEF'[c.answer]} · ${plain(c.options?.[c.answer] || '')}`;
+    this.verdict = { kind: 'choice', score: right ? 100 : 0, verdict: right ? 'correct' : 'incorrect', grade: right ? 3 : 1, ai: false, missing: [], comment: '', note: right ? '' : t('La bonne réponse : {x}', { x: good }) };
     Sound.play(right ? 'good' : 'again'); haptic(right ? 10 : 30);
     setTimeout(() => this.flip(), 650);
   },
@@ -4100,6 +4210,7 @@ const Study = {
     const [c] = this.cur; if (this.flipped || this.order.includes(i)) return;
     this.order.push(i); Sound.play('flip');
     const body = $('#frontBody'); if (body) body.innerHTML = cardFaces(c, { order: this.order, pool: this.pool }).front;
+    this.layout();
     if (this.order.length === (c.items || []).length) {
       const n = this.order.length, ok = this.order.filter((v, k) => v === k).length, score = Math.round(ok / n * 100);
       this.verdict = { score, verdict: ok === n ? 'correct' : score >= 50 ? 'partiel' : 'incorrect', grade: ok === n ? 3 : score >= 50 ? 2 : 1, ai: false, missing: [], comment: '', note: t('{a} / {b} à la bonne place', { a: ok, b: n }) };
@@ -4124,7 +4235,7 @@ const Study = {
     const [c] = this.cur; const f = cardFaces(c); this.typed = ans;
     const strict = S.profile.settings.strict;
     const local = localGrade(ans, f.expected, strict);
-    if (!AI.on || local.score >= 97) { this.verdict = { ...local, note: AI.on ? t('correspondance exacte') : '' }; return this.afterCheck(); }
+    if (!AI.on || local.score >= 97) { this.verdict = { ...local, note: local.note || (AI.on ? t('correspondance exacte') : '') }; return this.afterCheck(); }
     this.verdict = { pending: true };
     $('#verdictBox').innerHTML = this.verdictHTML(); inp.disabled = true;
     const card = this.cur; this.ctl?.abort(); this.ctl = new AbortController();
@@ -4134,7 +4245,7 @@ const Study = {
       this.verdict = r;
     } catch (e) {
       if (this.cur !== card || e?.code === 'cancelled') return;
-      this.verdict = { ...local, note: AI.fail(e) ? t('IA indisponible') : '' };
+      this.verdict = { ...local, note: AI.fail(e) ? t('IA indisponible') : local.note || '' };
     }
     this.afterCheck();
   },
@@ -6745,6 +6856,10 @@ TR = {
   "manque :": ["missing:","falta:","fehlt:","falta:"],
   "bonne réponse": ["right answer","respuesta correcta","richtige Antwort","resposta certa"],
   "mauvaise réponse": ["wrong answer","respuesta incorrecta","falsche Antwort","resposta errada"],
+  "Bonne réponse": ["Right answer","Respuesta correcta","Richtige Antwort","Resposta certa"],
+  "Pas la bonne réponse": ["Not the right answer","No es la respuesta correcta","Nicht die richtige Antwort","Não é a resposta certa"],
+  "La bonne réponse : {x}": ["The right answer: {x}","La respuesta correcta: {x}","Richtige Antwort: {x}","A resposta certa: {x}"],
+  "l'essentiel y est": ["the key point is there","lo esencial está","das Wesentliche stimmt","o essencial está aí"],
   "{a} / {b} à la bonne place": ["{a} / {b} in the right place","{a} / {b} en su sitio","{a} / {b} an der richtigen Stelle","{a} / {b} no lugar certo"],
   "Le micro n'est pas accessible ici : écrivez votre réponse.": ["The microphone isn't available here: type your answer.","El micrófono no está disponible aquí: escribe tu respuesta.","Das Mikrofon ist hier nicht verfügbar: Tippe deine Antwort.","O microfone não está disponível aqui: escreva sua resposta."],
   "correspondance exacte": ["exact match","coincidencia exacta","exakte Übereinstimmung","correspondência exata"],
@@ -7183,6 +7298,12 @@ function boot() {
   if (!S.profile.onboarded) Onb.open();
   AI.init();
   Store.connect();
+  // Les lignes des fiches dépendent des polices et de la taille de l'écran : on les recale quand l'une change.
+  let relay = 0;
+  const reRule = () => { clearTimeout(relay); relay = setTimeout(() => { if (Study.active) Study.layout(); Ruling.scan(); }, 120); };
+  addEventListener('resize', reRule);
+  document.fonts?.addEventListener?.('loadingdone', reRule);
+  document.fonts?.ready?.then(reRule);
   // Raccourcis de l'app installée (appui long sur l'icône) : #scan, #study.
   const h = location.hash.slice(1);
   if (h === 'scan') App.go('scan'); else if (h === 'study' && S.profile.onboarded) setTimeout(() => Study.start(), 300);
