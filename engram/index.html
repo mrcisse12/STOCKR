@@ -474,7 +474,7 @@ body.studying .shell,body.studying .dock{visibility:hidden}
 .grade kbd{position:absolute;top:7px;left:8px;font-size:9px;padding:2px 4px;opacity:.45}
 .grade[data-g="1"]{--gc:var(--again)}.grade[data-g="2"]{--gc:var(--hard)}.grade[data-g="3"]{--gc:var(--good)}.grade[data-g="4"]{--gc:var(--easy)}
 .grade.sugg{border-color:var(--gc);background:color-mix(in srgb,var(--gc) 12%,var(--folder-2))}
-.grade.sugg::after{content:"Suggéré";position:absolute;top:-8px;left:50%;transform:translateX(-50%);font:700 9px/1 var(--f-type);letter-spacing:.08em;text-transform:uppercase;padding:3px 6px;border-radius:3px;background:var(--gc);color:var(--desk)}
+.grade.sugg::after{content:attr(data-sugg);position:absolute;top:-8px;left:50%;transform:translateX(-50%);font:700 9px/1 var(--f-type);letter-spacing:.08em;text-transform:uppercase;padding:3px 6px;border-radius:3px;background:var(--gc);color:var(--desk)}
 .reveal{width:100%}
 .tutor{width:min(640px,100%);padding:16px 18px;border-radius:12px;background:var(--folder-2);border:1px solid var(--hair-2);animation:rise .5s var(--ease) both;max-height:30vh;overflow:auto}
 .tutor-h{display:flex;align-items:center;gap:8px;font:700 10.5px/1 var(--f-type);letter-spacing:.12em;text-transform:uppercase;color:var(--brass-text);margin-bottom:10px}
@@ -4012,7 +4012,7 @@ const Study = {
     const [c] = this.cur;
     if (this.flipped) {
       const prev = FSRS.preview(c.srs, Date.now(), S.profile.settings.retention);
-      return `<div class="grades">${[1, 2, 3, 4].map(g => `<button class="grade ${this.verdict && this.verdict.grade === g ? 'sugg' : ''}" data-act="st-grade" data-g="${g}"><kbd>${g}</kbd><b>${t(GRADE_LABEL[g])}</b><span>${fmtIvl(prev[g - 1])}</span></button>`).join('')}</div>`;
+      return `<div class="grades">${[1, 2, 3, 4].map(g => `<button class="grade ${this.verdict && this.verdict.grade === g ? 'sugg' : ''}" data-act="st-grade" data-g="${g}" data-sugg="${esc(t('Suggéré'))}"><kbd>${g}</kbd><b>${t(GRADE_LABEL[g])}</b><span>${fmtIvl(prev[g - 1])}</span></button>`).join('')}</div>`;
     }
     if (c.type === 'order') return `<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><span class="muted" style="font-size:13.5px;align-self:center">${t('Touchez les éléments dans le bon ordre.')}</span><button class="btn btn-ghost btn-sm" data-act="st-flip">${t('Afficher la réponse')}</button></div>`;
     if (['mcq', 'tf'].includes(c.type)) return `<div class="muted" style="text-align:center;font-size:13.5px">${c.type === 'mcq' ? t('Choisissez une réponse sur la fiche (touches A à D).') : t('Choisissez une réponse sur la fiche ({a} ou {b}).', { a: trueLbl()[0], b: falseLbl()[0] })}</div>`;
@@ -6199,6 +6199,7 @@ TR = {
   "Difficile": ["Hard","Difícil","Schwer","Difícil"],
   "Acquis": ["Good","Bien","Gut","Bom"],
   "Facile": ["Easy","Fácil","Leicht","Fácil"],
+  "Suggéré": ["Suggested","Sugerido","Empfohlen","Sugerido"],
   "Vrai": ["True","Verdadero","Wahr","Verdadeiro"],
   "Faux": ["False","Falso","Falsch","Falso"],
   "Boîte de Leitner": ["Leitner box","Caja de Leitner","Leitner-Kartei","Caixa de Leitner"],
