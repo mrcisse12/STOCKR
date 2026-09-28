@@ -1,12 +1,13 @@
 # Engram — fiche technique, idées et plan de construction (v3)
 
 > **Engram** : l'app de flashcards qui fait le travail à votre place, dans votre langue.
-> Vous photographiez votre cours (ou déposez un PDF, un paquet Anki), l'IA rédige les cartes, **Mentor** construit votre programme jusqu'au jour de l'examen et agit dans l'app à votre demande, FSRS décide quand revoir chaque carte, et l'IA corrige vos réponses même quand elles ne sont pas mot pour mot, **tapées, dictées ou écrites à la main au stylet**.
+> Vous photographiez votre cours (ou déposez un PDF, un paquet Anki), l'IA rédige les cartes, **Mentor** construit votre programme jusqu'au jour de l'examen et agit dans l'app à votre demande, **six assistants** relisent et complètent vos paquets et préparent vos séances, FSRS décide quand revoir chaque carte, et l'IA corrige vos réponses même quand elles ne sont pas mot pour mot, **tapées, dictées ou écrites à la main au stylet**.
 
 Ce document accompagne le prototype livré dans ce dossier (`engram/index.html` et le serveur `engram/server/`).
 
 1. [Ce qui change en v3](#1-ce-qui-change-en-v3)
    - [Stylet, iPad et mise en ligne](#1-bis-stylet-ipad-et-mise-en-ligne)
+   - [Engram Pro et les six assistants](#1-ter-engram-pro-et-les-six-assistants)
 2. [Anki : ce qu'il fait bien, ce qu'il fait mal](#2-anki--ce-quil-fait-bien-ce-quil-fait-mal)
 3. [Ce que le prototype fait](#3-ce-que-le-prototype-fait)
 4. [Cinq langues, entièrement traduites](#4-cinq-langues-entièrement-traduites)
@@ -38,6 +39,7 @@ Ce document accompagne le prototype livré dans ce dossier (`engram/index.html` 
 | IA hors de l'app Claude | à brancher soi-même | **serveur Engram** prêt à déployer (Node, SDK officiel Anthropic, Docker) **et fonction Netlify** (même code) |
 | Stylet | — | **réponses écrites à la main et corrigées par l'IA**, brouillon, schémas dessinés sur les fiches, notes manuscrites → fiches |
 | Appareils | ordinateur et mobile | **app installable** (iPad, iPhone, Android, ordinateur), hors-ligne, mise en page iPad en paysage |
+| Abonnement et agents | — | **Engram Pro** (3 formules, essai de 14 jours, quotas) et **six assistants IA** qui relisent, complètent, préparent les séances et les examens blancs, font le bilan de la semaine ; **autopilote** chaque matin ; tout est proposé, rien n'est modifié sans accord |
 
 ## 1 bis. Stylet, iPad et mise en ligne
 
@@ -56,6 +58,52 @@ Ce document accompagne le prototype livré dans ce dossier (`engram/index.html` 
 **Mise en ligne.** Voir [le serveur Engram](#9-le-serveur-engram-lia-hors-de-lapp-claude) : un site Netlify dédié à Engram, avec l'IA, en quatre réglages.
 
 **Idées pour la suite** : lecture de l'écriture sans réseau, sur l'appareil (modèle embarqué) ; dessiner les masques d'une image au stylet directement dans la séance ; dictée et écriture mêlées pour les langues ; examen blanc entièrement manuscrit, corrigé copie par copie.
+
+## 1 ter. Engram Pro et les six assistants
+
+**L'idée.** Mentor répond quand on lui parle. Les **assistants** travaillent sans qu'on le demande, chacun avec un seul métier. Ils ont tous la même règle : ils lisent vos fiches et votre historique, **proposent**, et c'est vous qui décidez. Chaque proposition s'applique ou s'ignore une par une, et un bouton annule tout ce qui a été appliqué.
+
+| Assistant | Métier | Ce qu'il fait | Sans IA |
+|---|---|---|---|
+| **Le Planificateur** | Le mot du matin | Lit la journée (fiches dues, examens, temps libre, fiches qui s'effacent), prépare la séance idéale et l'explique en trois lignes. Bouton « Lancer la séance préparée ». | oui |
+| **Le Correcteur** | Docteur des fiches | Relit un paquet comme un professeur : doublons, réponses trop longues, questions mal formées ; avec l'IA, aussi le fond (ambiguïtés, erreurs, fiches à scinder). Propose des réécritures avant / après et des suppressions. | oui |
+| **Le Répétiteur** | Anti-oubli | Prend les fiches souvent oubliées, invente un moyen mnémotechnique, une image ou un exemple pour chacune, puis prépare une séance ciblée. | IA |
+| **Le Documentaliste** | Paquets complets | Repère ce qui manque à un paquet pour couvrir le sujet et rédige les fiches absentes (question/réponse, texte à trous, QCM, vrai/faux). | IA |
+| **L'Examinateur** | Examens blancs sur mesure | Compose un examen blanc chronométré sur les points faibles et sur le programme du prochain examen ; avec l'IA, ajoute les questions qui manquent. | oui |
+| **Le Chroniqueur** | Bilan de la semaine | Chaque lundi : révisions, réussite et temps comparés à la semaine d'avant, paquets qui progressent ou glissent, état de préparation à l'examen, trois priorités. | oui |
+
+**La fenêtre de mission.** À gauche, le **journal de bord** : chaque lecture et chaque outil appelé par l'IA s'y inscrit en direct (« Lecture des fiches · Biologie, 60 fiches lues », « Rédaction d'une proposition »). À droite, la **note** de l'assistant, écrite à la plume, puis les **propositions** (avant / après, fiches à retirer, fiches nouvelles). En bas : Tout appliquer, Annuler les changements, et l'action préparée (séance, examen blanc). Chaque proposition appliquée reçoit un tampon « Appliqué ».
+
+**L'autopilote (Pro).** Chaque matin, à l'ouverture de l'app, le Planificateur prépare la séance du jour et sa note apparaît sur l'accueil ; chaque lundi, le Chroniqueur écrit le bilan. L'autopilote ne modifie jamais rien : il prépare. Dans la vraie app, il tournera côté serveur à l'heure choisie, avec une notification (§10).
+
+**Comment c'est construit.** Chaque assistant a deux moteurs :
+- un **moteur local**, sans IA et gratuit (`AgentLocal`), pour le Planificateur, le Correcteur, l'Examinateur et le Chroniqueur : c'est lui qui tourne sans connexion, quand le quota IA est épuisé, ou quand l'IA ne répond pas ;
+- un **moteur IA** (`AgentAI`) : Claude reçoit une mission écrite et un petit jeu d'**outils** limité à ce métier (`get_deck_cards`, `get_week`, `get_stats`, `get_plan`, `propose_edit`, `propose_delete`, `propose_new_cards`, `prepare_session`, `prepare_exam`). Les outils de proposition n'écrivent rien : ils affichent une proposition. Seul le clic de la personne modifie les fiches, et l'état complet est photographié avant la mission pour tout annuler.
+- Si le compte ne permet pas les outils, un repli demande une seule réponse JSON (note + propositions).
+- Mentor peut confier une mission à un assistant (« relis mon paquet de SVT » → le Correcteur s'ouvre sur ce paquet).
+- Historique : les 30 dernières missions (`S.profile.agents.runs`), la note du matin et le bilan de la semaine sont gardés et synchronisés.
+
+**Engram Pro : trois formules**
+
+| | Découverte | **Pro** | Pro Expert |
+|---|---|---|---|
+| Prix | 0 € | **7,99 € / mois** ou 79,90 € / an | 14,99 € / mois ou 149,90 € / an |
+| Scans de cours par l'IA | 3 par mois | sans limite* | sans limite* |
+| Correction IA des réponses | 30 par jour | sans limite* | sans limite* |
+| Mentor | 20 messages par mois | sans limite* | sans limite*, mode **Expert** |
+| Les six assistants | 3 missions IA par mois, analyses locales illimitées | sans limite* | sans limite*, 150 fiches lues par mission |
+| Autopilote (note du matin, bilan du lundi) | — | oui | oui |
+| Modèle d'IA | standard | standard | **le plus puissant** (Claude Fable 5.1) |
+
+\* « Usage raisonnable » : voir §13.
+
+**Essai de 14 jours** de Pro Expert, proposé une fois par compte. Le passage à Découverte ne supprime rien (paquets, historique, notes). Quand un quota est atteint, l'app le dit avec une fenêtre claire et la version locale prend le relais quand elle existe.
+
+**La page Pro** : carte de lecteur en cuir et dorure qui s'incline sous le doigt, reflet qui la traverse, cachet qui s'y imprime ; bascule mensuel / annuel avec le prix qui se retourne ; les trois formules, un tableau de comparaison, des jauges de consommation du mois, les questions fréquentes. À l'activation : un accueil avec des paillettes d'or, puis la salle des assistants. Toutes les animations respectent le réglage « mouvement réduit ».
+
+> **Prototype** : les paiements ne sont pas branchés. Choisir une formule l'active tout de suite sur l'appareil. À la mise en ligne : **Stripe** sur le Web, **achats intégrés App Store et Google Play** dans les applications, réunis par **RevenueCat** (§10). Dans l'app Claude, l'IA est payée par le compte Claude de la personne : les quotas y servent de démonstration.
+
+**Idées pour la suite** : un assistant **Tuteur de langue** (conversation orale sur le vocabulaire du paquet) ; un **Veilleur** qui surveille les dates d'examen de la classe ; des **missions de groupe** (le Correcteur relit le paquet partagé d'une classe, le professeur valide) ; un assistant qui lit **Google Classroom ou Moodle** et prépare les fiches du prochain cours ; des missions planifiées par la personne (« chaque dimanche soir, relis les fiches de la semaine »).
 
 ---
 
@@ -99,7 +147,7 @@ Ce document accompagne le prototype livré dans ce dossier (`engram/index.html` 
 
 **Français, English, Español, Deutsch, Português.** La langue est détectée depuis le navigateur au premier lancement, choisie à l'accueil, changeable à tout moment (bouton de langue en haut, Réglages, ou en demandant à Mentor).
 
-**Ce qui est traduit** : les 1 045 phrases de l'interface ; les paquets d'exemple (cinq jeux de contenus distincts, pas une traduction mot à mot : l'élève francophone apprend l'anglais, l'élève anglophone apprend l'espagnol) ; le cours d'exemple du scanner ; les consignes données à l'IA (écrites en anglais pour la fiabilité, avec l'ordre explicite de répondre dans la langue de la personne) ; les verbes de définition reconnus par la génération locale ; les mots vides et la racinisation de la correction locale ; les voix de lecture ; les notes d'examen blanc.
+**Ce qui est traduit** : les quelque 1 350 phrases de l'interface ; les paquets d'exemple (cinq jeux de contenus distincts, pas une traduction mot à mot : l'élève francophone apprend l'anglais, l'élève anglophone apprend l'espagnol) ; le cours d'exemple du scanner ; les consignes données à l'IA (écrites en anglais pour la fiabilité, avec l'ordre explicite de répondre dans la langue de la personne) ; les verbes de définition reconnus par la génération locale ; les mots vides et la racinisation de la correction locale ; les voix de lecture ; les notes d'examen blanc.
 
 **Comment c'est construit**
 
@@ -260,7 +308,10 @@ flowchart LR
   A -- photo / PDF / texte / Mentor --> D[API Engram<br/>même protocole que engram/server]
   D -- streaming, outils, repli --> E[Claude API]
   D --> C
-  F[Paiements<br/>RevenueCat] --> C
+  F[Paiements<br/>Stripe Web · App Store · Play<br/>via RevenueCat] --> C
+  H[Assistants<br/>file de missions + tâches planifiées] -- outils --> D
+  H -- note du matin, bilan --> I[Notifications push]
+  H --> C
   A -- .apkg, .ics, PDF --> G[Intégrations côté appareil]
 ```
 
@@ -272,10 +323,12 @@ flowchart LR
 | **Backend** | Supabase (Postgres, Auth, Storage, Edge Functions), région UE | Comptes, base, fichiers, fonctions serveur sans administrer de machines. |
 | **IA** | Claude API, **uniquement côté serveur** | Le serveur Engram est la base de l'API : quotas par offre, journal des coûts. |
 | **Algorithme** | `ts-fsrs` + optimiseur `fsrs-rs` | Paramètres FSRS personnels après ~1 000 révisions : 10 à 30 % de révisions en moins. |
-| **Paiements** | RevenueCat | Abonnements App Store, Play, web ; prix par pays. |
+| **Paiements** | **Stripe** (Web) + **achats intégrés** App Store et Google Play, réunis par **RevenueCat** | Un seul état d'abonnement (`entitlements`) quel que soit l'endroit où l'on a payé ; essai de 14 jours, prix par pays, remboursements, relances de paiement échoué. |
+| **Assistants** | File de missions (Postgres + worker), tâches planifiées par fuseau horaire, notifications push (Expo) | Le prototype lance l'autopilote à l'ouverture de l'app ; la vraie app prépare la note du matin **avant** le réveil, la pousse en notification, et passe les missions lourdes par la Batch API la nuit (−50 %). |
+| **Quotas** | Compteurs par utilisateur et par mois côté serveur (`usage_counters`) | Les quotas du prototype sont gardés sur l'appareil : en production, seul le serveur fait foi. |
 | **Analytique / erreurs** | PostHog + Sentry | |
 
-**Tables principales** : `users` (langue, niveau, objectif, fuseau), `study_profiles` (minutes par jour, moment préféré, ton), `decks`, `notes`, `cards` (FSRS), `review_logs`, `exams`, `mentor_memory`, `mentor_actions` (journal des actions et annulations), `media`, `ai_jobs` (modèle, tokens, coût).
+**Tables principales** : `users` (langue, niveau, objectif, fuseau), `study_profiles` (minutes par jour, moment préféré, ton), `decks`, `notes`, `cards` (FSRS), `review_logs`, `exams`, `mentor_memory`, `mentor_actions` (journal des actions et annulations), `agent_runs` (assistant, paquet, note, propositions, appliquées), `agent_proposals`, `subscriptions` (formule, essai, source : Stripe, App Store, Play), `usage_counters`, `media`, `ai_jobs` (modèle, tokens, coût).
 
 ---
 
@@ -301,18 +354,27 @@ Lectures en cache : environ 10 % du prix d'entrée (0,25 $ par million sur Fable
 | Message à Mentor, 2 à 3 actions (Opus 5, cache) | ≈ 12 000 (dont 70 % en cache) / 1 200 | ≈ 0,05 $ |
 | Message à Mentor en **Expert** (Fable 5.1, cache) | ≈ 12 000 / 2 000 | ≈ 0,15 $ |
 | Lettre hebdomadaire de Mentor | ≈ 3 000 / 800 | ≈ 0,035 $ |
+| Mission du **Correcteur**, 60 fiches, 3 tours d'outils (Opus 5, cache) | ≈ 25 000 (la moitié en cache) / 2 500 | ≈ 0,13 $ |
+| Mission du **Documentaliste**, 10 fiches rédigées (Opus 5) | ≈ 20 000 / 3 500 | ≈ 0,15 $ |
+| Mission du **Planificateur** ou de l'**Examinateur** (Opus 5) | ≈ 15 000 / 1 200 | ≈ 0,08 $ |
+| Mission en **Expert**, 150 fiches lues (Fable 5.1, cache) | ≈ 46 000 (la moitié en cache) / 3 000 | ≈ 0,40 $ |
+| Note du matin de l'autopilote (niveau rapide, sans outils) | ≈ 1 500 / 200 | ≈ 0,012 $ ; avec Haiku 4.5 : ≈ 0,003 $ |
+| Bilan du lundi, analyses locales des assistants | calcul sur l'appareil | 0 $ |
 
 La cascade de correction (locale d'abord, IA seulement si ambigu) évite environ la moitié des appels.
 
-**Coût IA par utilisateur et par mois**
+**Coût IA par utilisateur et par mois** (en dollars ; 1 $ ≈ 0,92 €)
 
-| Profil | Usage | Opus 5 partout | Haiku pour les corrections |
-|---|---|---|---|
-| Gratuit | 3 scans, 20 messages Mentor | ≈ 1,20 $ | ≈ 1,20 $ |
-| Pro, usage normal | 30 scans, 600 corrections, 60 messages Mentor, 4 lettres | ≈ 7 $ | ≈ 5,50 $ |
-| Pro, usage intensif | 120 scans, 2 000 corrections, 200 messages dont 30 Expert | ≈ 28 $ | ≈ 23 $ → limite « usage raisonnable » |
+| Profil | Usage | Opus 5 partout | Haiku 4.5 pour les tâches rapides | **Configuration recommandée** |
+|---|---|---|---|---|
+| Découverte | 3 scans, 60 corrections, 20 messages Mentor, 3 missions | ≈ 1,75 $ | ≈ 1,60 $ | **≈ 0,42 $** (tout sur Haiku 4.5) |
+| Pro, usage normal | 30 scans, 600 corrections, 60 messages Mentor, 4 lettres, 12 missions, 30 notes du matin | ≈ 8,80 $ | ≈ 7,00 $ | **≈ 5,50 $** |
+| Pro, usage intensif | 120 scans, 2 000 corrections, 200 messages, 40 missions | ≈ 29,70 $ | ≈ 24,40 $ | ≈ 19,40 $ → « usage raisonnable » |
+| Pro Expert, usage normal | comme Pro normal, dont 30 messages et 8 missions en Expert | ≈ 14,10 $ | ≈ 12,30 $ | **≈ 11,50 $** |
 
-C'est plus cher qu'en v2 parce que Mentor lit l'état de l'app à chaque message : c'est ce qui le rend utile. Leviers : cache (déjà actif), Haiku pour les corrections, Mentor Expert réservé à l'offre supérieure, résumé de conversation après 16 échanges, Batch API (−50 %) pour les imports lourds de nuit.
+**Configuration recommandée** : niveau rapide sur Haiku 4.5 (`ENGRAM_MODEL_QUICK`, déjà prévu par le serveur : corrections, note du matin, améliorations de fiches) ; Mentor répond avec Haiku 4.5 aux questions simples (environ 2 messages sur 3) et passe à Opus 5 dès qu'il doit agir avec des outils ; Découverte entièrement sur Haiku 4.5. La correction en cascade (locale d'abord, IA seulement si ambigu) évite déjà la moitié des appels, et les analyses locales des assistants ne coûtent rien.
+
+C'est plus cher qu'en v2 parce que Mentor et les assistants lisent l'état de l'app : c'est ce qui les rend utiles. Autres leviers : cache (déjà actif), résumé de conversation après 16 échanges, Batch API (−50 %) pour l'autopilote et les imports lourds de nuit.
 
 ---
 
@@ -358,16 +420,32 @@ C'est plus cher qu'en v2 parce que Mentor lit l'état de l'app à chaque message
 
 ## 13. Modèle économique
 
-| Offre | Prix (zone euro) | Contenu |
+| Offre | Prix (zone euro, TTC) | Contenu |
 |---|---|---|
-| Découverte | 0 € | 3 scans par mois, 20 messages Mentor, cartes illimitées, FSRS, programme, import/export Anki, correction locale |
-| **Pro** | 7,99 € / mois | Scans et PDF (usage raisonnable), correction IA, Mentor Standard illimité (usage raisonnable), lettre de la semaine, synchro |
-| **Pro Expert** | 14,99 € / mois | Tout Pro + Mentor **Expert** (Fable 5.1), examens blancs IA au format officiel, priorité |
-| Étudiant annuel | 59 € / an | Pro, 2 mois offerts |
+| Découverte | 0 € | 3 scans par mois, 30 corrections IA par jour, 20 messages Mentor, 3 missions d'assistants avec l'IA (analyses locales illimitées), cartes illimitées, FSRS, programme, import/export Anki |
+| **Pro** | **7,99 € / mois** ou **79,90 € / an** (2 mois offerts) | Scans, corrections, Mentor et six assistants sans limite (usage raisonnable), autopilote, lettre de la semaine, synchro |
+| **Pro Expert** | 14,99 € / mois ou 149,90 € / an | Tout Pro + le modèle le plus puissant (Claude Fable 5.1) pour Mentor et les assistants, 150 fiches lues par mission |
+| Essai | 14 jours de Pro Expert, une fois par compte | Sur les stores, l'essai gratuit s'attache à l'abonnement (moyen de paiement demandé, annulable) |
 
-Prix adaptés par pays (parité de pouvoir d'achat) : environ 4,99 $ au Brésil, 6,99 £ au Royaume-Uni, 7,99 $ aux États-Unis.
+Prix adaptés par pays (parité de pouvoir d'achat) : environ 4,99 $ au Brésil, 6,99 £ au Royaume-Uni, 7,99 $ aux États-Unis ; tarif étudiant possible à −30 % avec vérification (UNiDAYS, SheerID).
 
-Marge sur un abonné Pro normal : 7,99 € − 15 % de commission − ≈ 5,50 € d'IA ≈ **1,30 €** par mois ; sur Pro Expert : 14,99 € − 15 % − ≈ 8 € ≈ **4,70 €**. La marge Pro repose donc sur l'annuel, sur Haiku pour les corrections et sur la part d'utilisateurs peu intensifs : à suivre de près dès la bêta (coût IA par abonné, `ai_jobs`).
+**Marge par abonné et par mois** (coût IA en configuration recommandée, TVA à 20 %)
+
+| | Pro mensuel | Pro annuel | Expert mensuel | Expert annuel |
+|---|---|---|---|---|
+| Prix payé | 7,99 € | 6,66 € / mois | 14,99 € | 12,49 € / mois |
+| Hors TVA | 6,66 € | 5,55 € | 12,49 € | 10,41 € |
+| Reste, sur les stores (15 %) | 5,66 € | 4,72 € | 10,62 € | 8,85 € |
+| Reste, sur le Web (Stripe ≈ 1,5 % + 0,25 €) | 6,29 € | 5,43 € | 12,02 € | 10,20 € |
+| Coût IA, usage normal | 5,05 € | 5,05 € | 10,60 € | 10,60 € |
+| **Marge, usage normal (stores / Web)** | 0,61 € / 1,24 € | −0,33 € / 0,38 € | 0,02 € / 1,42 € | −1,75 € / −0,40 € |
+| **Marge, usage médian (moitié du normal)** | 3,13 € / 3,76 € | 2,19 € / 2,90 € | 5,32 € / 6,72 € | 3,55 € / 4,90 € |
+
+**Ce que ces chiffres disent**
+1. L'abonné médian est rentable partout. L'abonné très actif ne l'est qu'avec la configuration recommandée, et l'annuel peut perdre de l'argent : d'où un **usage raisonnable** chiffré dans les CGU (Pro : 60 scans, 150 messages Mentor, 30 missions par mois à pleine vitesse, puis Haiku 4.5 ; Expert : 60 messages et 20 missions sur Fable 5.1, puis Opus 5).
+2. **Le Web rapporte plus que les stores** : encourager l'abonnement sur le site (dans les limites des règles d'Apple et Google, pays par pays).
+3. **Les utilisateurs gratuits sont un coût d'acquisition** : environ 0,40 € par mois pour un utilisateur Découverte actif (profil du §11), plutôt 0,12 € en moyenne. Avec 5 % de conversion, chaque abonné « porte » 19 gratuits, soit ≈ 2,30 € par mois : c'est moins cher qu'une campagne publicitaire (20 à 40 € par abonné), à condition de garder Découverte sur Haiku 4.5.
+4. **À mesurer dès la bêta** (coût IA par abonné, table `ai_jobs`) : si l'usage réel dépasse ces hypothèses, passer à 9,99 € / 17,99 €, ou ramener l'annuel à 1 mois offert.
 
 ---
 
@@ -375,10 +453,10 @@ Marge sur un abonné Pro normal : 7,99 € − 15 % de commission − ≈ 5,50 �
 
 | Étape | Durée | Contenu |
 |---|---|---|
-| 0. Prototype v3 | fait | Ce dossier : app, 5 langues, Mentor, programme, intégrations, serveur |
+| 0. Prototype v3 | fait | Ce dossier : app, 5 langues, Mentor, programme, intégrations, serveur, stylet, Engram Pro et six assistants |
 | 1. Validation | 3 semaines | 30 étudiants par langue testent le prototype (publié avec le serveur) ; 100 photos de cours par langue |
 | 2. Réglage IA | 2 semaines | Jeu d'évaluation, comparaison des modèles, consignes figées, coût réel |
-| 3. MVP mobile | 8 – 12 semaines | Expo : comptes, synchro, scan, PDF, Anki, révision, Mentor, programme, paiements |
+| 3. MVP mobile | 8 – 12 semaines | Expo : comptes, synchro, scan, PDF, Anki, révision, Mentor, programme, paiements (Stripe + stores via RevenueCat), assistants et autopilote côté serveur avec notifications |
 | 4. Bêta | 3 semaines | 500 testeurs dans 5 pays ; rétention J1 / J7 / J30 |
 | 5. Lancement | — | Stores de 5 pays + web |
 | 6. Itérations | continu | Audio de cours, groupes de classe, bibliothèque de paquets vérifiés, optimiseur FSRS, widgets |
@@ -387,12 +465,14 @@ Marge sur un abonné Pro normal : 7,99 € − 15 % de commission − ≈ 5,50 �
 
 ## 15. Indicateurs, risques et parades
 
-**Indicateurs** : activation (premier scan ou import en moins de 10 minutes) ; part des cartes générées gardées (> 85 %) ; part des verdicts de correction modifiés (< 5 %) ; **part des actions de Mentor annulées** (< 3 %) ; respect du programme (jours où le quota est fait) ; préparation prévue contre note réelle ; rétention J7 / J30 par langue ; coût IA par abonné.
+**Indicateurs** : activation (premier scan ou import en moins de 10 minutes) ; part des cartes générées gardées (> 85 %) ; part des verdicts de correction modifiés (< 5 %) ; **part des actions de Mentor annulées** (< 3 %) ; **part des propositions des assistants appliquées** (> 60 %) et annulées ensuite (< 5 %) ; ouverture de la note du matin ; **conversion essai → abonnement** (> 25 %) et désabonnement mensuel (< 6 %) ; respect du programme (jours où le quota est fait) ; préparation prévue contre note réelle ; rétention J7 / J30 par langue ; coût IA par abonné.
 
 | Risque | Parade |
 |---|---|
 | L'IA invente une information | Consigne « rien hors de la source », validation avant rangement, reçus et annulation pour Mentor. |
 | Mentor fait une action non voulue | Reçus, annulation en un clic, confirmation des suppressions, journal `mentor_actions`. |
+| Un assistant propose une correction fausse | Les assistants ne modifient rien eux-mêmes : chaque proposition montre l'avant / après et attend un clic ; « Annuler les changements » restaure l'état d'avant la mission ; le taux de propositions refusées est suivi par assistant. |
+| Abonnés très actifs non rentables | Configuration recommandée (§11), usage raisonnable chiffré, abonnement Web encouragé, suivi du coût IA par abonné (§13). |
 | Coûts d'IA | Quotas serveur, cache, Haiku pour les corrections, Expert réservé à l'offre haute, cascade de correction. |
 | Traductions approximatives | Relecture native, captures d'écran par langue dans les tests, retours utilisateurs intégrés. |
 | Anki est gratuit | Import/export complet : essayer Engram ne coûte rien. On se bat sur le temps gagné et l'accompagnement. |
@@ -406,7 +486,9 @@ Marge sur un abonné Pro normal : 7,99 € − 15 % de commission − ≈ 5,50 �
 
 L'identité part d'un lieu : **la salle de lecture**. Tout vient du monde réel de l'étude, pour éviter l'apparence générique des interfaces « faites par IA » : les paquets sont des tiroirs de fichier ; la progression, une boîte de Leitner ; la série, une fiche de prêt tamponnée ; la fin de séance imprime un bordereau ; les récompenses sont des cachets de cire ; les statistiques sont tracées sur papier millimétré ; Mentor écrit ses lettres à la plume. Les fiches sont de vraies fiches (lignes, marge rouge, numéro, retournement 3D) et les corrections s'écrivent au stylo rouge.
 
-Les sept thèmes déclinent ce lieu à différentes heures et dans différentes matières (laiton le soir, ivoire en plein jour, cuivre la nuit, terre cuite à l'atelier, or sur ébène). Mouvements : un geste par moment clé (la pile qui se déploie, le tampon qui s'abat, la fiche qui s'envole vers son compartiment, le reçu de Mentor qui s'imprime), réglables et désactivés si le système demande moins d'animations.
+Les sept thèmes déclinent ce lieu à différentes heures et dans différentes matières (laiton le soir, ivoire en plein jour, cuivre la nuit, terre cuite à l'atelier, or sur ébène). **Engram Pro** prolonge ce lieu : la formule payante est une **carte de lecteur** en cuir estampé à la feuille d'or, qui s'incline sous le doigt et que traverse un reflet ; les assistants sont des fiches d'index, chacun avec son cachet de cire et sa couleur ; leurs notes sont des lettres à la plume ; une proposition appliquée reçoit un tampon. Pas de dégradés violets ni d'icônes génériques : du cuir, du papier, de l'encre et du laiton.
+
+Mouvements : un geste par moment clé (la pile qui se déploie, le tampon qui s'abat, la fiche qui s'envole vers son compartiment, le reçu de Mentor qui s'imprime), réglables et désactivés si le système demande moins d'animations.
 
 ---
 
@@ -419,6 +501,7 @@ Scripts automatisés (Chromium sans interface), tous au vert sur la version livr
 - **Serveur** (29 vérifications, sur une fausse API Claude) : flux de texte, niveaux et modèles, effort, repli automatique et en-tête bêta, cache, mode JSON, refus, repli en cours de réponse (blocs retirés avant la frontière), dernier tour sans outil, validation, code d'accès, limite de débit ; puis l'app réelle branchée dessus : détection automatique, Mentor qui crée un paquet par un outil, blocs de réflexion renvoyés intacts, annulation, refus affiché proprement, correction IA d'une réponse.
 - **Stylet** (navigateur sans interface, tracés simulés avec pression) : feuille d'écriture en séance sur iPad (portrait et paysage), téléphone et ordinateur ; trois traits enregistrés, image envoyée à l'IA (PNG, une seule image), écriture lue affichée au verso, note suggérée ; écriture illisible signalée ; paume ignorée après le stylet ; annuler et rétablir ; brouillon ; schéma dessiné enregistré avec la fiche et affiché au verso ; page de notes manuscrites ajoutée au scanner ; les 5 langues sans phrase manquante ni débordement.
 - **Mise en ligne** (24 vérifications sur une fausse API Claude) : serveur Node (flux, modèles, effort, repli, en-tête bêta, cache, mode JSON, battement pendant la réflexion, refus, validation, code d'accès, limite de débit, coupure par la page, fichiers de l'app installable, aucun fichier du serveur exposé) et fonction Netlify appelée directement (santé et flux) ; fonction empaquetée avec esbuild ; dossier publié `_site` construit.
+- **Engram Pro et assistants** : page Pro, salle des assistants, accueil de l'offre, note du matin sur l'accueil, fenêtres de quota, les 6 missions, dans les 5 langues × téléphone, iPad et ordinateur : aucune phrase manquante, aucun débordement, aucune erreur ; missions avec une IA simulée qui appelle vraiment les outils : propositions affichées, « Tout appliquer » modifie les fiches (réécriture, suppression), « Annuler les changements » restaure tout, séance et examen blanc préparés qui se lancent, erreur d'outil rapportée à l'IA, modèle Expert choisi en Pro Expert ; quotas de Découverte (3 missions IA, puis analyse locale ou offre Pro) ; autopilote (note du matin réécrite par l'IA, bilan du lundi) ; Mentor qui confie une mission ; mission arrêtée quand on ferme la fenêtre ; retour à Découverte qui coupe l'autopilote.
 - **Apparence** : 7 thèmes × vues principales, accents, polices, tailles 85 % et 130 %, densité, 4 papiers, mouvement coupé ; contraste du texte ≥ 4,5:1 partout.
 
-Non testé ici : les appels à la vraie API Claude (pas de clé dans l'environnement de test), la synchronisation réelle dans l'app Claude, un vrai déploiement Netlify et un vrai Apple Pencil (tracés simulés dans le navigateur).
+Non testé ici : les vrais paiements (non branchés dans le prototype), les appels à la vraie API Claude (pas de clé dans l'environnement de test), la synchronisation réelle dans l'app Claude, un vrai déploiement Netlify et un vrai Apple Pencil (tracés simulés dans le navigateur).

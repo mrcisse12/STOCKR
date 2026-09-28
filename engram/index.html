@@ -1182,6 +1182,269 @@ button,a,label,select,.chip,.opt,.ochip{touch-action:manipulation}
 @keyframes sealInk{from{opacity:0;transform:translateY(3px)}}
 :root[data-motion="none"] .seal .ring:first-of-type{stroke-dashoffset:0;animation:none}
 
+/* ── Engram Pro : carte de lecteur, formules, assistants ──────────── */
+/* Cuir vert bibliothèque, dorure à chaud. Les couleurs du cuir restent sombres dans les deux thèmes. */
+:root{--leather:#17271F;--leather-2:#0F1B15;--gilt:#E3C47E;--gilt-2:#B8913F;--gilt-lo:#7C5A22;--on-leather:#EADDB8;--on-leather-2:rgba(234,221,184,.66);
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --pebble:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='turbulence' baseFrequency='.16' numOctaves='2' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 .95 0 0 0 0 .8 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E")}
+.foil{background:linear-gradient(105deg,var(--gilt-lo) 0%,#E9CF8A 16%,#FFF1C2 24%,var(--gilt-2) 36%,#F2D998 52%,#8F6A28 66%,#E8C878 84%,#FFF0BD 100%);background-size:240% 100%;background-position:var(--fx,30%) 0;
+  -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(0 1px 0 rgba(0,0,0,.5));transition:background-position .9s var(--ease)}
+.leather{background:radial-gradient(120% 90% at var(--mx,30%) var(--my,20%),rgba(255,236,190,.09),transparent 55%),var(--pebble),var(--grain),linear-gradient(160deg,#20362B,var(--leather) 45%,var(--leather-2));color:var(--on-leather)}
+.gilt-rule{box-shadow:inset 0 0 0 1px rgba(227,196,126,.28),inset 0 0 0 6px rgba(0,0,0,.16),inset 0 0 0 7px rgba(227,196,126,.16)}
+
+/* La carte de lecteur */
+.lcard{--rx:0deg;--ry:0deg;--mx:30%;--my:20%;position:relative;width:min(430px,100%);aspect-ratio:1.586;border-radius:18px;padding:clamp(18px,4%,26px) clamp(20px,5.5%,28px);display:flex;flex-direction:column;justify-content:space-between;
+  transform:perspective(1100px) rotateX(var(--rx)) rotateY(var(--ry));transition:transform .7s var(--ease);will-change:transform;
+  box-shadow:inset 0 0 0 1px rgba(227,196,126,.3),inset 0 1px 1px rgba(255,255,255,.08),0 2px 3px rgba(0,0,0,.25),0 34px 60px -26px rgba(0,0,0,.7),0 14px 28px -14px rgba(0,0,0,.5)}
+.lcard.live{transition:transform .12s linear}
+.lcard .lc-frame{position:absolute;inset:11px;border-radius:11px;border:1px solid rgba(227,196,126,.34);pointer-events:none;box-shadow:inset 0 0 0 3px rgba(0,0,0,.14),inset 0 0 0 4px rgba(227,196,126,.14)}
+.lcard .lc-frame::before,.lcard .lc-frame::after{content:"";position:absolute;width:18px;height:18px;border:1.5px solid rgba(227,196,126,.55);border-radius:50%}
+.lcard .lc-frame::before{top:-9px;left:-9px;clip-path:inset(50% 0 0 50%)}.lcard .lc-frame::after{bottom:-9px;right:-9px;clip-path:inset(0 50% 50% 0)}
+.lcard .lc-sheen{position:absolute;inset:0;border-radius:inherit;pointer-events:none;mix-blend-mode:screen;
+  background:linear-gradient(115deg,transparent 32%,rgba(255,240,200,.15) 44%,rgba(255,255,255,.07) 50%,transparent 60%);background-size:260% 100%;background-position:var(--sx,130%) 0;animation:sheen 7s 1.2s var(--ease) infinite}
+.lcard.live .lc-sheen{animation:none}
+@keyframes sheen{0%{background-position:130% 0}28%,100%{background-position:-40% 0}}
+.lc-top,.lc-bot{position:relative;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.lc-brand{font:400 clamp(20px,5vw,26px)/1 var(--f-display);letter-spacing:.02em}
+.lc-no{font:700 10.5px/1 var(--f-type);letter-spacing:.14em;color:var(--on-leather-2)}
+.lc-mid{position:relative;display:flex;flex-direction:column;gap:2px}
+.lc-kind{font:700 10px/1 var(--f-type);letter-spacing:.2em;text-transform:uppercase;color:var(--on-leather-2)}
+.lc-pro{font:400 clamp(44px,12vw,68px)/.95 var(--f-display);letter-spacing:-.01em;padding-bottom:4px}
+.lc-bot{font:700 10.5px/1.3 var(--f-type);letter-spacing:.1em;text-transform:uppercase;color:var(--on-leather)}
+.lc-bot span:last-child{color:var(--on-leather-2);text-align:right}
+.lc-seal{position:absolute;right:clamp(14px,5%,26px);top:38%;width:clamp(54px,15%,70px);filter:drop-shadow(0 6px 8px rgba(0,0,0,.45));animation:sealStamp .8s .25s var(--snap) both}
+.lc-seal svg{width:100%;height:auto;display:block}
+@keyframes sealStamp{0%{opacity:0;transform:scale(2.3) rotate(-30deg)}55%{opacity:1;transform:scale(.9) rotate(-8deg)}100%{transform:scale(1) rotate(-12deg)}}
+.lcard.sm{width:min(300px,100%);border-radius:14px}
+.lcard.sm .lc-pro{font-size:44px}.lcard.sm .lc-frame{inset:8px}
+
+/* Page Pro */
+.pro-hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(24px,5vw,72px);align-items:center}
+.pro-hero .lede{margin-top:16px}
+.pro-hero .hero-actions{margin-top:26px}
+.pro-fine{margin-top:14px;font:700 10.5px/1.5 var(--f-type);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pro-stage{position:relative;display:grid;place-items:center;padding:12px 0 22px}
+.pro-stage::before{content:"";position:absolute;inset:8% 6% -4%;border-radius:50%;background:radial-gradient(closest-side,var(--brass-glow),transparent);filter:blur(24px);opacity:.55;pointer-events:none}
+@media (max-width:900px){.pro-hero{grid-template-columns:1fr}.pro-stage{order:-1;padding-top:0}}
+.bill{position:relative;display:inline-grid;grid-template-columns:1fr 1fr;padding:4px;border-radius:99px;border:1px solid var(--hair-2);background:var(--desk-2)}
+.bill button{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:9px 18px;border-radius:99px;font-weight:600;font-size:13.5px;color:var(--text-2);transition:color .35s}
+.bill button.on{color:var(--on-brass)}
+.bill button small{font:700 10px/1 var(--f-type);letter-spacing:.06em;padding:3px 5px;border-radius:4px;background:var(--brass-soft);color:var(--brass-text);transition:all .35s}
+.bill button.on small{background:rgba(0,0,0,.14);color:var(--on-brass)}
+.bill .knob{position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:99px;background:linear-gradient(180deg,var(--brass-hi) -30%,var(--brass-btn) 50%,var(--brass-lo) 140%);box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 6px 14px -8px var(--brass-glow);transition:transform .5s var(--spring)}
+.bill.y .knob{transform:translateX(100%)}
+.tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}
+@media (max-width:900px){.tiers{grid-template-columns:1fr}}
+.tier{position:relative;display:flex;flex-direction:column;gap:16px;padding:24px 22px;border-radius:16px;border:1px solid var(--hair-2);background:var(--folder-2);transition:transform .5s var(--spring),box-shadow .4s}
+.tier:hover{transform:translateY(-3px)}
+.tier h3{margin:0;font:400 28px/1 var(--f-display)}
+.tier .t-sub{font-size:13.5px;color:var(--muted);margin-top:-8px;min-height:2.6em}
+.tier .price{display:flex;align-items:baseline;gap:8px;min-height:48px}
+.tier .price b{font:400 46px/1 var(--f-display);letter-spacing:-.02em;display:inline-block}
+.tier .price b.flip{animation:priceIn .55s var(--snap) both}
+@keyframes priceIn{from{opacity:0;transform:translateY(-14px) rotateX(70deg)}}
+.tier .price span{font-size:13px;color:var(--muted)}
+.tier .t-bill{font:700 10.5px/1.4 var(--f-type);letter-spacing:.06em;color:var(--muted);min-height:15px;margin-top:-10px}
+.tier ul{list-style:none;margin:0;padding:0;display:grid;gap:9px;font-size:14px;color:var(--text-2);flex:1}
+.tier li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:9px;align-items:start;line-height:1.45}
+.tier li .i{width:16px;height:16px;margin-top:2px;color:var(--good)}
+.tier .btn{width:100%}
+.tier.hi{border:0;transform:translateY(-6px)}
+.tier.hi:hover{transform:translateY(-9px)}
+.tier.hi::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(227,196,126,.45),inset 0 0 0 7px rgba(0,0,0,.14),inset 0 0 0 8px rgba(227,196,126,.18)}
+.tier.hi{box-shadow:0 30px 60px -30px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.2)}
+.tier.hi h3{color:var(--on-leather)}
+.tier.hi .t-sub,.tier.hi .price span,.tier.hi .t-bill{color:var(--on-leather-2)}
+.tier.hi ul{color:var(--on-leather)}
+.tier.hi li .i{color:var(--gilt)}
+.tier.hi .tag{position:absolute;top:18px;right:18px;border-color:rgba(227,196,126,.5);color:var(--gilt)}
+.tier.cur:not(.hi){border-color:var(--hair-3)}
+.tier.hi.cur::after{content:"";position:absolute;inset:-3px;border-radius:18px;border:2px solid var(--gilt);pointer-events:none}
+.btn-gilt{border:0;color:#1B1407;background:linear-gradient(180deg,#FBE7B0 -20%,#D8B060 45%,#9C7430 130%);box-shadow:0 1px 0 rgba(255,255,255,.55) inset,0 -1px 0 rgba(0,0,0,.2) inset,0 12px 26px -12px rgba(227,196,126,.6)}
+.btn-gilt:hover{background:linear-gradient(180deg,#FFF0C4 -20%,#E2BC6C 45%,#A57B2E 130%);transform:translateY(-1px)}
+.tag.gilt{color:var(--brass-text);border-color:var(--brass);background:linear-gradient(180deg,var(--brass-soft),transparent)}
+.cmp-wrap{overflow-x:auto;border-radius:14px;border:1px solid var(--hair);background:var(--folder-2);-webkit-overflow-scrolling:touch}
+.cmp{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
+.cmp th,.cmp td{padding:13px 16px;text-align:center;border-top:1px solid var(--hair)}
+.cmp thead th{border-top:0;font:700 10.5px/1.2 var(--f-type);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);background:var(--folder-3)}
+.cmp thead th.hi{color:var(--brass-text)}
+.cmp td:first-child,.cmp th:first-child{text-align:left;color:var(--text-2)}
+.cmp td{color:var(--text)}
+.cmp td.hi{background:var(--brass-soft)}
+.cmp .i{width:17px;height:17px;color:var(--good);vertical-align:-3px}
+.cmp .no{color:var(--muted)}
+.meters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.meters{grid-template-columns:1fr 1fr}}
+.meter{display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;border:1px solid var(--hair);background:var(--folder-2)}
+.meter b{display:block;font:400 22px/1 var(--f-display)}.meter small{display:block;color:var(--muted);font-size:12.5px;margin-top:4px}
+.faq{display:flex;flex-direction:column}
+.faq details{border-top:1px solid var(--hair);padding:4px 0}
+.faq details:first-child{border-top:0}
+.faq summary{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px 0;cursor:pointer;font-weight:600;font-size:15.5px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary .i{transition:transform .4s var(--spring);color:var(--brass-text);flex:none}
+.faq details[open] summary .i{transform:rotate(45deg)}
+.faq details p{margin:0 0 14px;color:var(--text-2);line-height:1.6;max-width:70ch;animation:rise .45s var(--ease) both}
+.pro-note{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:12px;border:1px dashed var(--hair-3);color:var(--text-2);font-size:13.5px;line-height:1.55}
+.pro-note .i{color:var(--brass-text);flex:none;margin-top:2px}
+
+/* Les assistants */
+.team{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:1100px){.team{grid-template-columns:1fr 1fr}}
+@media (max-width:620px){.team{grid-template-columns:1fr}}
+.agent{--ac:#7A4E14;position:relative;display:flex;flex-direction:column;gap:12px;padding:20px 20px 18px 22px;border-radius:6px;background-color:var(--paper);color:var(--p-ink);text-align:left;box-shadow:var(--sh-card);
+  background-image:linear-gradient(180deg,transparent 58px,var(--p-margin) 58px,var(--p-margin) 59px,transparent 59px),linear-gradient(180deg,transparent calc(100% - 1px),var(--p-rule) calc(100% - 1px));background-size:100% 100%,100% 26px;background-position:0 0,0 59px;background-repeat:no-repeat,repeat-y;
+  transition:transform .5s var(--spring),box-shadow .4s}
+.agent:nth-child(odd){transform:rotate(-.35deg)}.agent:nth-child(even){transform:rotate(.3deg)}
+.agent:hover{transform:translateY(-4px) rotate(0)}
+.agent::after{content:"";position:absolute;top:0;left:22px;width:38px;height:6px;border-radius:0 0 3px 3px;background:var(--ac);opacity:.85}
+.ag-top{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;min-height:40px}
+.ag-top svg{width:46px;height:46px;margin:-6px 0;transition:transform .6s var(--spring)}
+.agent:hover .ag-top svg{transform:rotate(-12deg) scale(1.06)}
+.ag-top .kicker{color:var(--p-muted);font-size:10px}
+.ag-top h3{margin:3px 0 0;font:400 22px/1.05 var(--f-display);color:var(--p-ink);overflow-wrap:break-word;hyphens:auto}
+.ag-top .tag{border-color:rgba(0,0,0,.2);color:var(--p-muted)}
+.agent p{margin:4px 0 0;font-size:14.5px;line-height:26px;color:var(--p-ink)}
+.ag-last{font:700 10.5px/1.4 var(--f-type);letter-spacing:.04em;color:var(--p-muted);min-height:15px}
+.ag-last b{color:var(--pen)}
+.ag-act{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:auto}
+.agent .btn{color:var(--p-ink);border-color:rgba(0,0,0,.18)}
+.agent .btn:hover{background:rgba(0,0,0,.04)}
+.agent .btn-brass{color:var(--on-brass);border:0}
+:root[data-card="slate"] .agent{background-image:none}
+.autopilot{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:18px;align-items:center;padding:20px 22px;border-radius:16px;position:relative;overflow:hidden}
+.autopilot .ap-dial{position:relative;width:64px;height:64px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(227,196,126,.4);box-shadow:inset 0 0 0 5px rgba(0,0,0,.18),inset 0 0 0 6px rgba(227,196,126,.18)}
+.autopilot .ap-dial .i{width:26px;height:26px;color:var(--gilt)}
+.autopilot .ap-dial::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:1.5px solid transparent;border-top-color:var(--gilt);opacity:0;transition:opacity .4s}
+.autopilot.on .ap-dial::after{opacity:1;animation:spin 3.2s linear infinite}
+.autopilot b{display:block;font:400 24px/1.1 var(--f-display);color:var(--on-leather)}
+.autopilot span{display:block;color:var(--on-leather-2);font-size:13.5px;line-height:1.5;margin-top:4px;max-width:62ch}
+.autopilot .switch{background:rgba(0,0,0,.3);border-color:rgba(227,196,126,.35)}
+.autopilot .switch.on{background:var(--gilt-2)}
+@media (max-width:620px){.autopilot{grid-template-columns:auto minmax(0,1fr)}.autopilot .switch{grid-column:2;justify-self:start}}
+.mlog-list{display:flex;flex-direction:column}
+.mlog-list li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 0;border-top:1px solid var(--hair);font-size:14px}
+.mlog-list li:first-child{border-top:0}
+.mlog-list li svg{width:30px;height:30px}
+.mlog-list small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.mlog-list time{font:700 10.5px var(--f-type);color:var(--muted);white-space:nowrap}
+
+/* Accueil : le mot du planificateur et la rangée d'assistants */
+.crew{display:flex;flex-direction:column;gap:14px}
+.crew-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+@media (max-width:1000px){.crew-row{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px;margin:0 -2px;scrollbar-width:none}.crew-row::-webkit-scrollbar{display:none}.crew-row>*{flex:0 0 150px;scroll-snap-align:start}}
+.crew-b{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 10px 14px;border-radius:12px;border:1px solid var(--hair);background:var(--folder-2);text-align:center;transition:all .35s var(--ease);min-width:0}
+.crew-b:hover{border-color:var(--hair-3);transform:translateY(-2px)}
+.crew-b svg{width:48px;height:48px;transition:transform .6s var(--spring)}
+.crew-b:hover svg{transform:rotate(-14deg) scale(1.08)}
+.crew-b b{font:400 17px/1.1 var(--f-display)}
+.crew-b small{font-size:12px;color:var(--muted);line-height:1.35}
+.crew-b .dot{position:absolute;top:10px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 0 3px color-mix(in srgb,var(--good) 25%,transparent);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px transparent}}
+.brief{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:end}
+.brief .pen-letter{font-size:20px}
+.brief .pl-h{display:flex;align-items:center;gap:10px;font:700 10.5px/1 var(--f-type);letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted);margin-bottom:10px}
+.brief .pl-h svg{width:28px;height:28px}
+.brief-actions{display:flex;flex-direction:column;gap:8px}
+@media (max-width:760px){.brief{grid-template-columns:1fr}.brief-actions{flex-direction:row;flex-wrap:wrap}}
+
+/* Mission : journal de bord, note, propositions */
+.modal.mission{width:min(1080px,100%);padding:0;display:flex;flex-direction:column;max-height:calc(100vh - 40px)}
+.ms-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:center;padding:22px 24px 18px;border-bottom:1px solid var(--hair)}
+.ms-head .ms-seal svg{width:60px;height:60px;display:block;animation:sealStamp .7s var(--snap) both}
+.ms-head h2{margin:4px 0 0;font:400 30px/1.05 var(--f-display)}
+.ms-head .ms-sub{font-size:13px;margin-top:4px}
+.ms-body{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.5fr);min-height:0;flex:1;overflow:hidden}
+.ms-log-w{padding:18px 22px;border-right:1px solid var(--hair);overflow:auto;background:linear-gradient(180deg,var(--folder-2),var(--folder))}
+.ms-out{padding:18px 24px 22px;overflow:auto;display:flex;flex-direction:column;gap:16px}
+.ms-out>*{flex-shrink:0}
+.ms-log{list-style:none;margin:10px 0 0;padding:0;position:relative}
+.ms-log::before{content:"";position:absolute;left:10px;top:8px;bottom:8px;width:1px;background:repeating-linear-gradient(180deg,var(--hair-3) 0 3px,transparent 3px 7px)}
+.ms-log li{position:relative;display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:12px;align-items:start;padding:7px 0;font-size:13.5px;line-height:1.4;color:var(--text-2);animation:rise .45s var(--ease) both}
+.ms-log li .d{position:relative;z-index:1;width:21px;height:21px;border-radius:50%;display:grid;place-items:center;background:var(--folder);border:1.5px solid var(--hair-3)}
+.ms-log li.run .d{border-color:var(--brass);border-top-color:transparent;animation:spin .9s linear infinite}
+.ms-log li.done .d{background:var(--good);border-color:var(--good);animation:popIn .4s var(--spring)}
+.ms-log li.done .d .i{width:12px;height:12px;color:var(--folder);stroke-width:3}
+.ms-log li.err .d{border-color:var(--again);background:color-mix(in srgb,var(--again) 20%,var(--folder))}
+.ms-log li.done{color:var(--text)}
+.ms-log li small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.ms-log time{font:700 10px/1.8 var(--f-type);color:var(--muted);letter-spacing:.04em}
+.ms-letter{position:relative;padding:20px 24px 22px 60px;border-radius:4px;color:var(--p-ink);background-color:var(--paper);box-shadow:var(--sh-card);font-size:15.5px;line-height:26px;min-height:120px;
+  background-image:linear-gradient(90deg,transparent 38px,var(--p-margin) 38px,var(--p-margin) 39.5px,transparent 39.5px),linear-gradient(180deg,transparent 25px,var(--p-rule) 25px);background-size:100% 100%,100% 26px;background-position:0 0,0 20px}
+.ms-letter .ml-h{font:600 23px/26px var(--f-pen);color:var(--pen);margin-bottom:0}
+.ms-letter p{margin:0 0 0}.ms-letter p+p{margin-top:0}
+.ms-letter ul{margin:0;padding-left:20px}
+.ms-letter .thinking{margin-top:6px}
+.ms-letter.wait{color:var(--p-muted)}
+.ms-props{display:flex;flex-direction:column;gap:12px}
+.ms-props-h{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.prop{position:relative;padding:14px 16px;border-radius:12px;border:1px solid var(--hair-2);background:var(--folder-2);animation:rise .5s var(--ease) both;overflow:hidden;transition:opacity .4s,border-color .3s}
+.prop header{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.prop header .why{font-size:13px;color:var(--muted);flex:1 1 220px}
+.prop .pd{display:grid;grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr);gap:10px;align-items:stretch}
+.prop .pd.one{grid-template-columns:minmax(0,1fr)}
+.prop .pd>div{padding:10px 12px;border-radius:6px;font-size:14px;line-height:1.45;min-width:0;overflow-wrap:anywhere}
+.prop .pd small{display:block;font:700 9.5px/1 var(--f-type);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+.prop .pd-old{background:color-mix(in srgb,var(--again) 7%,transparent);color:var(--text-2)}
+.prop .pd-old small{color:var(--again)}
+.prop .pd-old .x{text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--again) 60%,transparent)}
+.prop .pd-new{background:var(--paper);color:var(--p-ink);box-shadow:0 1px 2px rgba(0,0,0,.18)}
+.prop .pd-new small{color:var(--green-hi)}
+:root[data-theme="light"] .prop .pd-new small{color:var(--good)}
+.prop .pd-arrow{display:grid;place-items:center;color:var(--brass-text)}
+.prop .pd q{quotes:none;display:block}
+.prop .pd .lbl{font-weight:600}
+.prop footer{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+.prop.done{border-color:color-mix(in srgb,var(--good) 55%,transparent)}
+.prop.skip{opacity:.5}
+.prop .pstamp{position:absolute;right:14px;top:10px;width:130px;opacity:.9;pointer-events:none;animation:slam2 .55s var(--snap) both;transform:rotate(-10deg)}
+.prop.done footer,.prop.skip footer{display:none}
+.ms-foot{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;padding:14px 24px calc(14px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--hair);background:var(--folder)}
+.ms-foot .sp{flex:1}
+.ms-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;padding:20px 24px}
+.ms-pick button{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:14px 16px;border-radius:10px;border:1px solid var(--hair-2);background:var(--folder-2);text-align:left;transition:all .25s var(--ease)}
+.ms-pick button:hover{border-color:var(--brass);background:var(--brass-soft);transform:translateY(-2px)}
+.ms-pick b{font:400 19px/1.15 var(--f-display)}.ms-pick small{color:var(--muted);font-size:12.5px}
+.ms-pick i.d{width:26px;height:5px;border-radius:3px;background:var(--c)}
+.ms-need{padding:26px 24px;display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+@media (max-width:820px){
+  .ms-body{grid-template-columns:1fr;overflow:auto}
+  .ms-log-w{border-right:0;border-bottom:1px solid var(--hair);overflow:visible}
+  .ms-out{overflow:visible}
+  .prop .pd{grid-template-columns:1fr}.prop .pd-arrow{transform:rotate(90deg);height:18px}
+}
+@media (max-width:620px){
+  .modal.mission{max-height:94vh}
+  .ms-head{padding:18px 16px 14px;gap:12px}.ms-head .ms-seal svg{width:46px;height:46px}.ms-head h2{font-size:24px}
+  .ms-log-w,.ms-out{padding:14px 16px}.ms-foot{padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))}
+  .ms-foot .btn{flex:1 1 auto}.ms-foot .sp{display:none}
+  .ms-letter{padding:16px 16px 18px 44px;background-image:linear-gradient(90deg,transparent 26px,var(--p-margin) 26px,var(--p-margin) 27.5px,transparent 27.5px),linear-gradient(180deg,transparent 25px,var(--p-rule) 25px)}
+}
+
+.up{display:grid;grid-template-columns:auto minmax(0,1fr);gap:24px;align-items:center}
+.up-card{width:230px}.up-card .lcard{width:100%}
+@media (max-width:620px){.up{grid-template-columns:1fr}.up-card{width:min(280px,100%);margin:0 auto}}
+.prop .ex{display:block;font-style:normal;font-size:13px;margin-top:6px;opacity:.85}
+.prop .nc{padding:7px 0;border-top:1px dashed rgba(0,0,0,.13)}.prop .nc:first-of-type{border-top:0;padding-top:0}
+.pro-btn.on{gap:6px;padding:0 12px}.pro-btn .i{width:14px;height:14px}
+.ftab{padding:0 13px;gap:7px}
+/* Écrans moyens (iPad en paysage, petits portables) : les onglets inactifs gardent seulement leur icône. */
+@media (max-width:1180px){.ftab:not(.on)>span:not(.count){display:none}.ftab:not(.on){padding:0 12px}.hdr{gap:16px}}
+
+/* Bienvenue dans Pro : la carte arrive, le cachet tombe, quelques paillettes d'or */
+.pro-welcome{position:fixed;inset:0;z-index:250;display:grid;place-items:center;padding:24px;background:radial-gradient(60% 50% at 50% 45%,rgba(40,30,10,.55),rgba(4,8,6,.82));backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);animation:fadeIn .4s both}
+.pro-welcome .pw-in{display:flex;flex-direction:column;align-items:center;gap:22px;text-align:center;width:min(460px,100%)}
+.pro-welcome .lcard{text-align:left;animation:cardArrive 1.1s var(--ease) both}
+@keyframes cardArrive{0%{opacity:0;transform:perspective(1100px) translateY(80px) rotateX(55deg) rotateZ(-6deg) scale(.8)}100%{opacity:1}}
+.pro-welcome h2{margin:0;font:400 clamp(30px,6vw,44px)/1.05 var(--f-display);color:#F3E8CC;animation:rise .8s .6s var(--ease) both}
+.pro-welcome p{margin:0;color:rgba(243,232,204,.75);font-size:15px;line-height:1.55;animation:rise .8s .75s var(--ease) both}
+.pro-welcome .btn{animation:rise .8s .9s var(--ease) both}
+.flake{position:fixed;top:-20px;z-index:251;width:var(--w,9px);height:calc(var(--w,9px) * .6);border-radius:1px;background:linear-gradient(135deg,#FFF1C2,#D8B060 50%,#8F6A28);pointer-events:none;opacity:.95;
+  animation:flake var(--d,2.4s) var(--dl,0s) cubic-bezier(.3,.6,.4,1) forwards}
+@keyframes flake{0%{transform:translate3d(0,0,0) rotate(0) rotateY(0)}100%{transform:translate3d(var(--x,0),105vh,0) rotate(var(--r,540deg)) rotateY(720deg);opacity:.2}}
+:root[data-motion="none"] .flake{display:none}
+:root[data-motion="none"] .lcard .lc-sheen{animation:none}
+
 /* ── Divers ───────────────────────────────────────────────────────── */
 .c-img{display:block;max-width:100%;max-height:180px;margin:0 auto;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.25)}
 .onb-langs{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
@@ -1221,7 +1484,7 @@ button,a,label,select,.chip,.opt,.ochip{touch-action:manipulation}
       <button class="lang-btn" id="langBtn" data-act="lang" data-i18n-aria="Langue" data-i18n-tip="Langue">FR</button>
       <button class="icon-btn" data-act="palette" data-i18n-aria="Rechercher (Ctrl K)" data-i18n-tip="Rechercher (Ctrl K)"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
       <button class="icon-btn hide-m" data-act="settings" data-i18n-aria="Réglages" data-i18n-tip="Réglages"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg></button>
-      <button class="pro-btn" data-act="pro">Pro</button>
+      <button class="pro-btn" id="proBtn" data-act="pro">Pro</button>
     </div>
   </header>
   <main class="folder" id="view" tabindex="-1"></main>
@@ -1550,6 +1813,10 @@ function normalizeState(st) {
   p.xp = p.xp || 0; p.bestStreak = p.bestStreak || 0;
   p.badges = p.badges || {}; p.flags = p.flags || {}; p.matchBest = p.matchBest || {};
   p.memory = Array.isArray(p.memory) ? p.memory : [];
+  p.pro = p.pro && typeof p.pro === 'object' ? p.pro : { plan: 'free' };
+  p.usage = p.usage && typeof p.usage === 'object' ? p.usage : {};
+  p.agents = { autopilot: false, brief: null, report: null, ...(p.agents || {}) };
+  if (!Array.isArray(p.agents.runs)) p.agents.runs = [];
   // v2 → v3 : un seul examen devient une liste d'examens.
   if (!Array.isArray(p.exams)) p.exams = [];
   if (p.exam && p.exam.date) { p.exams.push({ id: uid('x'), name: p.exam.name, date: p.exam.date, deckIds: p.exam.deckId ? [p.exam.deckId] : [], example: p.exam.example }); }
@@ -2853,13 +3120,16 @@ const App = {
   refreshAI() { if (['scan', 'settings', 'deck', 'plan'].includes(this.route.v) && !Scan.running && !Study.active) this.render(); Mentor.refresh(); },
   chrome() {
     const due = todayCounts().total, v = this.route.v === 'deck' ? 'library' : this.route.v;
-    $('#tabs').innerHTML = TABS.map(([k, ic, label]) => `<button class="ftab ${v === k ? 'on' : ''}" data-act="go" data-v="${k}">${icon(ic, 'i-sm')}<span>${t(label)}</span>${k === 'today' && due ? `<span class="count tnum">${due}</span>` : ''}</button>`).join('');
+    $('#tabs').innerHTML = TABS.map(([k, ic, label]) => `<button class="ftab ${v === k ? 'on' : ''}" data-act="go" data-v="${k}" aria-label="${esc(t(label))}" ${v === k ? '' : `data-tip="${esc(t(label))}"`}>${icon(ic, 'i-sm')}<span>${t(label)}</span>${k === 'today' && due ? `<span class="count tnum">${due}</span>` : ''}</button>`).join('');
     const dock = [['today', 'home', N_('Accueil')], ['plan', 'route', N_('Programme')], ['scan'], ['library', 'drawer', N_('Fichier')], ['games', 'grid', N_('Jeux')]];
     $('#dock').innerHTML = dock.map(([k, ic, label]) => k === 'scan'
       ? `<button class="scan" data-act="go" data-v="scan" aria-label="${esc(t('Scanner un cours'))}">${icon('camera')}</button>`
       : `<button class="${v === k ? 'on' : ''}" data-act="go" data-v="${k}">${icon(ic)}<span>${t(label)}</span></button>`).join('');
     $('#streak').innerHTML = icon('flame') + `<span class="tnum">${streak()}</span>`;
     $('#langBtn').textContent = UI_LANG_META[LANG].flag;
+    const pb = $('#proBtn'); pb.classList.toggle('on', Pro.on);
+    pb.innerHTML = Pro.on ? `${icon('crown')}${Pro.expert ? 'Expert' : 'Pro'}` : 'Pro';
+    pb.dataset.tip = Pro.on ? (Pro.trial ? t('Essai · encore {n}', { n: tp(Pro.daysLeft(), '{n} jour|{n} jours') }) : Pro.name()) : t('Découvrir Engram Pro');
     applyStatic($('#shell'));
   },
   after() {
@@ -2968,6 +3238,7 @@ Views.today = () => {
       <span class="mb-chips">${sugg.slice(1).map(s => `<span class="chip" data-mentor-q="${esc(s)}">${esc(s)}</span>`).join('')}</span>
       <kbd>/</kbd>
     </button>
+    ${crewHTML()}
     ${examBanner()}
     ${Plan.todayStrip()}
     <section class="sec">
@@ -3058,6 +3329,9 @@ Views.deck = id => {
     </div>
     <div class="toolbar rise" style="margin-top:-24px">
       <button class="btn btn-sm" data-act="mentor" data-deck="${d.id}">${icon('sparkles', 'i-sm')}${t('Mentor')}</button>
+      <button class="btn btn-sm" data-act="agent" data-id="proof" data-deck="${d.id}">${icon('pen', 'i-sm')}${t('Faire relire')}</button>
+      <button class="btn btn-sm" data-act="agent" data-id="librarian" data-deck="${d.id}">${icon('search', 'i-sm')}${t('Compléter')}</button>
+      ${leeches ? `<button class="btn btn-sm" data-act="agent" data-id="coach" data-deck="${d.id}">${icon('bulb', 'i-sm')}${t('Anti-oubli')}</button>` : ''}
       <button class="btn btn-sm" data-act="chat" data-deck="${d.id}">${icon('chat', 'i-sm')}${t('Demander au prof')}</button>
       <button class="btn btn-sm" data-act="sheet" data-deck="${d.id}">${icon('file', 'i-sm')}${t('Fiche de synthèse')}</button>
       <button class="btn btn-sm" data-act="addCard" data-deck="${d.id}">${icon('plus', 'i-sm')}${t('Fiche')}</button>
@@ -3485,7 +3759,7 @@ function openPalette() {
     [N_('Scanner un cours'), 'camera', () => App.go('scan')], [N_('Nouvelle fiche'), 'plus', () => openEditor(null, App.route.v === 'deck' ? App.route.arg : S.decks[0]?.id)],
     [N_('Nouveau paquet'), 'drawer', () => openNewDeck()], [N_('Importer (Anki, Quizlet, CSV, PDF)'), 'upload', () => openImport()], [N_('Jeu des paires'), 'grid', () => openGame('match')], [N_('Examen blanc'), 'timer', () => openGame('exam')],
     [N_('Examen en vue'), 'cal', () => openExamPlan()], [N_('Ajouter mon programme à mon agenda'), 'cal', () => openCalendar()], [N_('Carnet et statistiques'), 'book', () => App.go('stats')], [N_('Partager ma progression'), 'share', () => shareProgress()],
-    [N_('Apparence'), 'palette', () => App.go('settings', 'look')], [N_('Langue'), 'globe', () => openLangMenu()], [N_('Réglages'), 'settings', () => App.go('settings')], [N_('Engram Pro'), 'crown', () => openPro()]
+    [N_('Apparence'), 'palette', () => App.go('settings', 'look')], [N_('Langue'), 'globe', () => openLangMenu()], [N_('Réglages'), 'settings', () => App.go('settings')], [N_('Engram Pro'), 'crown', () => openPro()], [N_('Les assistants'), 'layers', () => App.go('agents')], [N_('Le Correcteur : relire un paquet'), 'pen', () => Agents.run('proof')], [N_('L\'Examinateur : examen blanc sur mesure'), 'timer', () => Agents.run('examiner')]
   ];
   let items = [], sel = 0;
   const draw = () => {
@@ -3519,17 +3793,743 @@ function changeLang(l) {
   toast(UI_LANG_META[l].name, 'globe');
 }
 
-function openPro() {
-  const f = x => `<li>${icon('check')}<span>${x}</span></li>`;
-  Modal.open(mh(`Engram <em style="font-style:normal;color:var(--brass-text)">Pro</em>`, t('Aperçu du modèle économique — prototype')) + `
-    <p class="muted" style="margin-top:0;max-width:62ch">${t("Chaque photo analysée coûte un peu d'IA : l'offre gratuite reste généreuse, l'abonnement finance le reste. Les paiements ne sont pas actifs dans ce prototype.")}</p>
-    <div class="plans">
-      <div class="plan"><h4>${t('Découverte')}</h4><div class="price">${t('0 €')}</div><ul>${f(t('3 scans de cours par mois'))}${f(t('Fiches illimitées, FSRS complet'))}${f(t('Correction locale des réponses'))}${f(t('Import Anki, Quizlet, CSV'))}${f(t('5 langues, tous les thèmes'))}</ul></div>
-      <div class="plan hi"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h4>Pro</h4><span class="tag ai">${t('Le plus choisi')}</span></div><div class="price">${t('6,99 €')} <small>${t('/ mois')}</small></div><ul>${f(t('Scans illimités (photos, PDF)'))}${f(t('Correction IA de chaque réponse'))}${f(t('Mentor : l\'assistant qui agit pour vous'))}${f(t('Programme personnalisé et agenda'))}${f(t("Examens blancs générés par l'IA"))}${f(t('Synchronisation et mode écoute'))}</ul></div>
-      <div class="plan"><h4>${t('Étudiant · annuel')}</h4><div class="price">${t('49 €')} <small>${t('/ an')}</small></div><ul>${f(t('Tout Pro, 2 mois offerts'))}${f(t('Paquets partagés en classe'))}${f(t('Mentor en mode expert'))}${f(t('Fiches imprimables en PDF'))}</ul></div>
-    </div>
-    <div class="modal-f"><button class="btn btn-brass" data-act="close">${t('Compris')}</button></div>`, 'wide');
+/* ════════════════════════════════════════════════════════════════════
+   ENGRAM PRO
+   · Trois formules : Découverte (gratuite), Pro, Pro Expert, et un essai
+     de 14 jours où tout est inclus.
+   · La formule gratuite a des quotas sur ce qui coûte de l'IA : scans,
+     messages à Mentor, corrections, missions d'assistants. Au-delà, l'app
+     retombe sur ses méthodes locales ou propose Pro, sans jamais bloquer
+     la révision.
+   · Prototype : aucun paiement. Choisir une formule l'active sur l'appareil.
+   ════════════════════════════════════════════════════════════════════ */
+const PLANS = {
+  free: { name: N_('Découverte'), sub: N_('Pour réviser chaque jour et essayer l\'IA.'), m: 0, y: 0 },
+  pro: { name: 'Pro', sub: N_('Scans, corrections et assistants sans limite.'), m: 7.99, y: 79.9 },
+  expert: { name: 'Pro Expert', sub: N_('Le modèle d\'IA le plus puissant, pour les concours et les longues études.'), m: 14.99, y: 149.9 }
+};
+const QUOTA = { scan: 3, mentor: 20, agent: 3, grade: 30 }; // par mois, sauf les corrections (par jour)
+const money = v => new Intl.NumberFormat(locale(), { style: 'currency', currency: 'EUR', minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 }).format(v);
+function ago(ts) {
+  const s = (ts - Date.now()) / 1000, rtf = new Intl.RelativeTimeFormat(locale(), { numeric: 'auto' });
+  if (s > -60) return t('à l\'instant');
+  if (s > -3600) return rtf.format(Math.round(s / 60), 'minute');
+  if (s > -86400) return rtf.format(Math.round(s / 3600), 'hour');
+  return rtf.format(Math.round(s / 86400), 'day');
 }
+const Pro = {
+  bill: 'year',
+  get plan() { const p = S.profile.pro; if (!p || !PLANS[p.plan] || p.plan === 'free') return 'free'; if (p.until && p.until < Date.now()) return 'free'; return p.plan; },
+  get on() { return this.plan !== 'free'; },
+  get expert() { return this.plan === 'expert'; },
+  get trial() { return this.on && !!S.profile.pro.trial; },
+  get canTrial() { return !S.profile.flags.proTrial; },
+  daysLeft() { const u = S.profile.pro?.until; return u ? Math.max(1, Math.ceil((u - Date.now()) / DAY)) : 0; },
+  name(k = this.plan) { return t(PLANS[k].name); },
+  usage() {
+    const u = S.profile.usage, m = dayKey().slice(0, 7), d = dayKey();
+    if (u.month !== m) Object.assign(u, { month: m, scan: 0, mentor: 0, agent: 0 });
+    if (u.day !== d) Object.assign(u, { day: d, grade: 0 });
+    return u;
+  },
+  left(kind) { return this.on ? Infinity : Math.max(0, QUOTA[kind] - (this.usage()[kind] || 0)); },
+  /** Décompte une utilisation ; faux si le quota gratuit est atteint. */
+  use(kind) {
+    if (this.on) return true;
+    const u = this.usage(); if ((u[kind] || 0) >= QUOTA[kind]) return false;
+    u[kind] = (u[kind] || 0) + 1; Store.touch('profile'); return true;
+  },
+  start(plan, o = {}) {
+    const prev = S.profile.pro || {};
+    S.profile.pro = { plan, trial: !!o.trial, since: prev.plan && prev.plan !== 'free' && prev.since ? prev.since : Date.now(), until: o.trial ? Date.now() + 14 * DAY : null, billing: o.trial ? null : this.bill };
+    if (o.trial) S.profile.flags.proTrial = 1;
+    Store.touch('profile');
+    this.welcome(!!o.trial);
+  },
+  stop() {
+    S.profile.pro = { plan: 'free' }; S.profile.agents.autopilot = false;
+    Store.touch('profile'); App.render(); toast(t('Vous êtes revenu à la formule Découverte. Rien n\'est perdu.'), 'check');
+  },
+  welcome(trial) {
+    const el = document.createElement('div'); el.className = 'pro-welcome';
+    el.innerHTML = `<div class="pw-in">${proCard()}<h2>${t('Bienvenue dans Engram Pro')}</h2><p>${trial ? t('Quatorze jours pour tout essayer : scans illimités, les six assistants, l\'autopilote et le mode Expert. Aucun paiement n\'est demandé.') : t('Votre formule est active. Les six assistants sont à votre service.')}</p><button class="btn btn-gilt btn-lg">${icon('sparkles')}${t('Rencontrer les assistants')}</button></div>`;
+    document.body.append(el);
+    Sound.play('seal'); haptic(30); App.chrome();
+    if (!REDUCED && S.profile.settings.anim !== 'none') {
+      for (let i = 0; i < 34; i++) {
+        const f = document.createElement('i'); f.className = 'flake';
+        f.style.cssText = `left:${(Math.random() * 100).toFixed(1)}vw;--w:${(6 + Math.random() * 8).toFixed(1)}px;--x:${((Math.random() - .5) * 30).toFixed(1)}vw;--r:${Math.round(360 + Math.random() * 720)}deg;--d:${(2 + Math.random() * 1.8).toFixed(2)}s;--dl:${(.35 + Math.random() * .9).toFixed(2)}s`;
+        document.body.append(f); setTimeout(() => f.remove(), 5000);
+      }
+    }
+    bindCardTilt(el);
+    const done = go => { el.style.transition = 'opacity .3s'; el.style.opacity = 0; setTimeout(() => el.remove(), 300); if (go) App.go('agents'); else App.render(); };
+    el.querySelector('.btn').onclick = () => done(true);
+    el.addEventListener('click', e => { if (e.target === el) done(false); });
+  },
+  upsell(kind) {
+    const L = {
+      scan: [t('Vos 3 scans du mois sont utilisés'), t('Avec Pro, photographiez autant de cours que vous voulez : pages manuscrites, PDF, notes au stylet.')],
+      mentor: [t('Vos 20 messages à Mentor sont utilisés ce mois-ci'), t('Avec Pro, Mentor répond et agit pour vous sans limite.')],
+      agent: [t('Vos 3 missions du mois sont utilisées'), t('Avec Pro, les six assistants travaillent pour vous sans limite. Les analyses sans IA restent libres.')],
+      expert: [t('Le mode Expert fait partie de Pro Expert'), t('Le modèle le plus puissant, pour les plans de concours et les raisonnements longs.')],
+      autopilot: [t('L\'autopilote fait partie de Pro'), t('Chaque matin, le Planificateur prépare votre séance ; chaque lundi, le Chroniqueur fait le bilan de la semaine.')]
+    }[kind] || [t('Cette fonction fait partie de Pro'), ''];
+    const m = Modal.open(`<div class="up"><div class="up-card">${proCard({ sm: true })}</div><div><div class="kicker">Engram Pro</div><h2 class="h2" style="margin-top:8px">${L[0]}</h2><p class="muted" style="margin:10px 0 0;line-height:1.55">${L[1]}</p></div></div>
+      <div class="modal-f"><button class="btn btn-ghost" data-act="close">${t('Plus tard')}</button><button class="btn" id="upSee">${t('Voir les formules')}</button><button class="btn btn-gilt" id="upTry">${icon('sparkles')}${this.canTrial ? t('Essayer 14 jours') : t('Passer à Pro')}</button></div>`);
+    bindCardTilt(m);
+    m.querySelector('#upSee').onclick = () => { Modal.close(); App.go('pro'); };
+    m.querySelector('#upTry').onclick = () => { Modal.close(); if (this.canTrial) this.start('expert', { trial: true }); else App.go('pro'); };
+  }
+};
+
+/* La carte de lecteur, en cuir et dorure à chaud. */
+function proCard(o = {}) {
+  const p = S.profile.pro || {}, name = S.profile.study.name;
+  const no = String(hash('engram' + (p.since || S.profile.study.name || 'reader')) % 900000 + 100000);
+  const line = Pro.on ? (Pro.trial ? t('Essai · encore {n}', { n: tp(Pro.daysLeft(), '{n} jour|{n} jours') }) : t('Membre depuis {d}', { d: fmtDate(p.since || Date.now(), { month: 'long', year: 'numeric' }) })) : t('Réserve · accès illimité');
+  return `<div class="lcard leather ${o.sm ? 'sm' : ''} ${Pro.on ? 'on' : ''}" role="img" aria-label="${esc(t('Carte Engram Pro'))}">
+    <span class="lc-sheen"></span><span class="lc-frame"></span>
+    <div class="lc-top"><span class="foil lc-brand">Engram</span><span class="lc-no">${t('N°')} ${no}</span></div>
+    <div class="lc-mid"><span class="lc-kind">${t('Carte de lecteur')}</span><span class="foil lc-pro">${Pro.expert ? 'Expert' : 'Pro'}</span></div>
+    <div class="lc-bot"><span>${esc(name || t('Votre nom'))}</span><span>${esc(line)}</span></div>
+    ${Pro.on ? `<span class="lc-seal">${waxSeal({ id: 'pro-seal', glyph: 'E', color: '#7A1F17' }, 70)}</span>` : ''}
+  </div>`;
+}
+/* La carte suit le doigt ou la souris : légère inclinaison, reflet de la dorure. */
+function bindCardTilt(root) {
+  if (REDUCED) return;
+  $$('.lcard', root).forEach(c => {
+    let raf = 0;
+    c.addEventListener('pointermove', e => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0; const r = c.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+        c.classList.add('live');
+        c.style.setProperty('--ry', ((x - .5) * 14).toFixed(2) + 'deg'); c.style.setProperty('--rx', ((.5 - y) * 10).toFixed(2) + 'deg');
+        c.style.setProperty('--mx', (x * 100).toFixed(1) + '%'); c.style.setProperty('--my', (y * 100).toFixed(1) + '%');
+        c.style.setProperty('--sx', (140 - x * 180).toFixed(1) + '%');
+        $$('.foil', c).forEach(f => f.style.setProperty('--fx', (x * 100).toFixed(1) + '%'));
+      });
+    });
+    c.addEventListener('pointerleave', () => { c.classList.remove('live'); ['--rx', '--ry', '--sx'].forEach(k => c.style.removeProperty(k)); $$('.foil', c).forEach(f => f.style.removeProperty('--fx')); });
+  });
+}
+function openPro() { App.go('pro'); }
+
+const PRO_FEATURES = {
+  free: [N_('3 scans de cours par mois'), N_('30 corrections IA par jour'), N_('Mentor : 20 messages par mois'), N_('3 missions d\'assistants par mois'), N_('Fiches illimitées, FSRS, 5 langues'), N_('Import et export Anki')],
+  pro: [N_('Scans illimités : photos, PDF, notes au stylet'), N_('Correction IA de chaque réponse'), N_('Mentor sans limite'), N_('Les six assistants, sans limite'), N_('Autopilote : le mot du matin, le bilan du lundi'), N_('Examens blancs sur mesure')],
+  expert: [N_('Tout Pro'), N_('Mentor et assistants avec le modèle le plus puissant'), N_('Des plans et des raisonnements plus poussés pour les concours'), N_('Les assistants relisent jusqu\'à 150 fiches par mission')]
+};
+const PRO_CMP = [
+  [N_('Fiches, paquets, algorithme FSRS'), 1, 1, 1],
+  [N_('Téléphone, iPad avec stylet, ordinateur'), 1, 1, 1],
+  [N_('Import et export Anki, Quizlet, PDF'), 1, 1, 1],
+  [N_('Scans de cours par l\'IA'), N_('3 par mois'), N_('Illimités'), N_('Illimités')],
+  [N_('Correction IA des réponses'), N_('30 par jour'), N_('Illimitée'), N_('Illimitée')],
+  [N_('Mentor, l\'assistant qui agit'), N_('20 messages par mois'), N_('Illimité'), N_('Illimité')],
+  [N_('Les six assistants'), N_('3 missions par mois'), N_('Illimités'), N_('Illimités')],
+  [N_('Autopilote du matin et bilan du lundi'), 0, 1, 1],
+  [N_('Modèle d\'IA le plus puissant'), 0, 0, 1]
+];
+const PRO_FAQ = [
+  [N_('Les assistants modifient-ils mes fiches sans me demander ?'), N_('Jamais. Ils lisent, analysent et proposent. Chaque changement attend votre accord, et un seul bouton annule tout ce qui a été appliqué.')],
+  [N_('Que se passe-t-il à la fin de l\'essai ?'), N_('Vous revenez à Découverte sans rien perdre : paquets, historique et notes restent à vous. Aucun paiement n\'est demandé pour l\'essai.')],
+  [N_('Puis-je arrêter à tout moment ?'), N_('Oui, en un clic depuis cette page. Sans engagement.')],
+  [N_('Quelle IA fait tourner Engram ?'), N_('Claude, d\'Anthropic : par votre compte Claude dans l\'app Claude, ou par le serveur Engram ailleurs. Sans IA, Engram continue de fonctionner avec ses méthodes locales.')]
+];
+function tierHTML(k) {
+  const P = PLANS[k], hi = k === 'pro', cur = Pro.plan === k, y = Pro.bill === 'year';
+  const price = k === 'free' ? money(0) : money(y ? P.y / 12 : P.m);
+  const note = k === 'free' ? t('Pour toujours') : y ? t('soit {x} par an', { x: money(P.y) }) : t('Sans engagement');
+  const feats = (k === 'pro' ? [t('Tout Découverte, et :')] : []).concat(PRO_FEATURES[k].map(x => t(x)));
+  const btn = cur ? `<button class="btn" disabled>${icon('check')}${t('Votre formule')}</button>`
+    : k === 'free' ? `<button class="btn" data-act="proPick" data-plan="free">${t('Revenir à Découverte')}</button>`
+    : `<button class="btn ${hi ? 'btn-gilt' : 'btn-brass'}" data-act="proPick" data-plan="${k}">${Pro.canTrial && !Pro.on ? t('Essayer 14 jours') : t('Choisir {p}', { p: P.name })}</button>`;
+  return `<article class="tier ${hi ? 'hi leather' : ''} ${cur ? 'cur' : ''} rise" data-tier="${k}">
+    ${hi ? `<span class="tag">${t('Recommandé')}</span>` : ''}
+    <h3 class="${hi ? 'foil' : ''}">${Pro.name(k)}</h3><div class="t-sub">${t(P.sub)}</div>
+    <div class="price"><b class="tnum" data-price="${k}">${price}</b>${k === 'free' ? '' : `<span>${t('/ mois')}</span>`}</div>
+    <div class="t-bill" data-note="${k}">${note}</div>
+    <ul>${feats.map((x, i) => `<li>${k === 'pro' && i === 0 ? '<span></span>' : icon('check')}<span>${i === 0 && k !== 'free' ? `<b>${x}</b>` : x}</span></li>`).join('')}</ul>
+    ${btn}
+  </article>`;
+}
+Views.pro = () => {
+  const y = Pro.bill === 'year', u = Pro.usage();
+  const cell = v => v === 1 ? icon('check') : v === 0 ? `<span class="no">—</span>` : esc(t(v));
+  const meters = [['camera', u.scan, QUOTA.scan, t('scans ce mois-ci')], ['sparkles', u.mentor, QUOTA.mentor, t('messages à Mentor ce mois-ci')], ['layers', u.agent, QUOTA.agent, t('missions ce mois-ci')], ['check', u.grade, QUOTA.grade, t('corrections IA aujourd\'hui')]];
+  const p = S.profile.pro || {};
+  return `
+    <section class="pro-hero">
+      <div>
+        <div class="kicker rise"><b>Engram Pro</b>${Pro.on ? ' · ' + esc(Pro.trial ? t('essai en cours') : Pro.name()) : ''}</div>
+        <h1 class="display" style="margin-top:12px">${words(t('Une équipe qui <em>travaille</em> pour vous.'))}</h1>
+        <p class="lede rise" style="animation-delay:.2s">${t('Six assistants lisent vos fiches, les corrigent, les complètent, préparent vos séances et vos examens blancs. Ils proposent, vous décidez.')}</p>
+        <div class="hero-actions rise" style="animation-delay:.3s">
+          ${Pro.on ? `<button class="btn btn-gilt btn-lg" data-act="go" data-v="agents">${icon('sparkles')}${t('Ouvrir les assistants')}</button>` : `<button class="btn btn-gilt btn-lg" data-act="proTrial">${icon('sparkles')}${Pro.canTrial ? t('Essayer 14 jours gratuitement') : t('Passer à Pro')}</button>`}
+          <button class="btn btn-lg" data-jump="tiers">${t('Voir les formules')}</button>
+        </div>
+        <div class="pro-fine rise" style="animation-delay:.4s">${Pro.on && Pro.trial ? t('Essai jusqu\'au {d} · tout est inclus', { d: fmtDate(p.until) }) : t('Sans engagement · prototype : aucun paiement demandé')}</div>
+      </div>
+      <div class="pro-stage rise" style="animation-delay:.15s">${proCard()}</div>
+    </section>
+    ${Pro.on ? '' : `<section class="meters rise">${meters.map(([ic, used, max, l]) => `<div class="meter">${ring((used || 0) / max, 46, 4)}<div><b class="tnum">${num(used || 0)} / ${num(max)}</b><small>${l}</small></div></div>`).join('')}</section>`}
+    <section class="sec" id="tiers">
+      <div class="sec-h"><div><h2 class="h2">${t('Trois formules')}</h2><p>${t('Découverte reste gratuite et sans publicité. L\'abonnement paie l\'IA : chaque photo analysée, chaque correction et chaque mission a un coût.')}</p></div>
+        <div class="bill ${y ? 'y' : ''}" id="bill"><span class="knob"></span><button class="${y ? '' : 'on'}" data-bill="month">${t('Mensuel')}</button><button class="${y ? 'on' : ''}" data-bill="year">${t('Annuel')} <small>${pct(PLANS.pro.y / (PLANS.pro.m * 12) - 1)}</small></button></div></div>
+      <div class="tiers">${['free', 'pro', 'expert'].map(tierHTML).join('')}</div>
+    </section>
+    <section class="sec">
+      <div class="sec-h"><div><h2 class="h2">${t('L\'équipe Pro')}</h2><p>${t('Chacun son métier. Lancez-les quand vous voulez, ou laissez l\'autopilote les réveiller.')}</p></div><button class="btn btn-sm" data-act="go" data-v="agents">${t('Voir les assistants')}${icon('arrow', 'i-sm')}</button></div>
+      <div class="team">${AGENTS.map(agentCard).join('')}</div>
+    </section>
+    <section class="sec">
+      <div class="sec-h"><div><h2 class="h2">${t('Comparer en détail')}</h2></div></div>
+      <div class="cmp-wrap rise"><table class="cmp"><thead><tr><th></th>${['free', 'pro', 'expert'].map(k => `<th class="${k === 'pro' ? 'hi' : ''}">${Pro.name(k)}</th>`).join('')}</tr></thead>
+        <tbody>${PRO_CMP.map(([l, a, b, c]) => `<tr><td>${t(l)}</td><td>${cell(a)}</td><td class="hi">${cell(b)}</td><td>${cell(c)}</td></tr>`).join('')}
+        <tr><td>${t('Prix')}</td><td>${money(0)}</td><td class="hi">${t('{m} / mois', { m: money(PLANS.pro.m) })}</td><td>${t('{m} / mois', { m: money(PLANS.expert.m) })}</td></tr></tbody></table></div>
+    </section>
+    <section class="sec">
+      <div class="sec-h"><div><h2 class="h2">${t('Questions fréquentes')}</h2></div></div>
+      <article class="panel faq rise">${PRO_FAQ.map(([q, a]) => `<details><summary>${t(q)}${icon('plus')}</summary><p>${t(a)}</p></details>`).join('')}</article>
+    </section>
+    ${Pro.on ? `<section class="sec"><div class="sec-h"><div><h2 class="h2">${t('Votre abonnement')}</h2><p>${esc(Pro.trial ? t('Essai de Pro Expert jusqu\'au {d}.', { d: fmtDate(p.until, { day: 'numeric', month: 'long', year: 'numeric' }) }) : t('{p} depuis le {d}.', { p: Pro.name(), d: fmtDate(p.since, { day: 'numeric', month: 'long', year: 'numeric' }) }))}</p></div><button class="btn btn-sm btn-danger" data-act="proPick" data-plan="free">${t('Revenir à Découverte')}</button></div></section>` : ''}
+    <div class="pro-note rise">${icon('eye')}<span>${t('Prototype : les paiements ne sont pas branchés. Choisir une formule l\'active tout de suite sur cet appareil. À la mise en ligne, le paiement passera par Stripe sur le Web, et par l\'App Store et Google Play dans les applications.')}</span></div>`;
+};
+Hooks.pro = () => {
+  const v = $('#view'); bindCardTilt(v);
+  $('#bill')?.addEventListener('click', e => {
+    const b = e.target.closest('[data-bill]'); if (!b || b.dataset.bill === Pro.bill) return;
+    Pro.bill = b.dataset.bill; const y = Pro.bill === 'year';
+    $('#bill').classList.toggle('y', y); $$('#bill button').forEach(x => x.classList.toggle('on', x === b));
+    for (const k of ['pro', 'expert']) {
+      const el = $(`[data-price="${k}"]`), P = PLANS[k];
+      el.classList.remove('flip'); void el.offsetWidth; el.textContent = money(y ? P.y / 12 : P.m); el.classList.add('flip');
+      $(`[data-note="${k}"]`).textContent = y ? t('soit {x} par an', { x: money(P.y) }) : t('Sans engagement');
+    }
+    Sound.play('tick');
+  });
+  $$('[data-jump]', v).forEach(b => b.addEventListener('click', () => document.getElementById(b.dataset.jump)?.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'start' })));
+};
+
+/* ════════════════════════════════════════════════════════════════════
+   LES ASSISTANTS (agents)
+   Six assistants spécialisés. Chacun lit l'état de l'app avec des outils,
+   travaille (avec l'IA, ou avec des analyses locales quand c'est possible),
+   écrit une note et PROPOSE des changements : la personne applique ou
+   ignore chaque proposition, et peut tout annuler d'un clic.
+   L'autopilote réveille le Planificateur chaque matin et le Chroniqueur
+   chaque lundi, à l'ouverture de l'app, sans rien modifier.
+   ════════════════════════════════════════════════════════════════════ */
+const AGENTS = [
+  { id: 'planner', name: N_('Le Planificateur'), note: N_('Note du Planificateur'), session: N_('Séance du Planificateur'), job: N_('Le mot du matin'), icon: 'route', color: '#1F5A40', local: true,
+    desc: N_('Il lit votre journée : fiches dues, examens, temps libre. Il prépare la séance idéale et vous l\'explique en trois lignes.') },
+  { id: 'proof', name: N_('Le Correcteur'), note: N_('Note du Correcteur'), job: N_('Docteur des fiches'), icon: 'pen', color: '#8E2A22', local: true, deck: true,
+    desc: N_('Il relit un paquet comme un professeur : questions floues, réponses trop longues, doublons, erreurs. Il propose, vous validez.') },
+  { id: 'coach', name: N_('Le Répétiteur'), note: N_('Note du Répétiteur'), session: N_('Séance du Répétiteur'), job: N_('Anti-oubli'), icon: 'bulb', color: '#7A4E14', deck: true,
+    desc: N_('Pour les fiches qui vous échappent, il invente un moyen mnémotechnique, une image ou un exemple, puis vous les fait revoir.') },
+  { id: 'librarian', name: N_('Le Documentaliste'), note: N_('Note du Documentaliste'), job: N_('Paquets complets'), icon: 'search', color: '#23407E', deck: true,
+    desc: N_('Il repère ce qui manque à un paquet pour couvrir le sujet, et rédige les fiches absentes.') },
+  { id: 'examiner', name: N_('L\'Examinateur'), note: N_('Note de l\'Examinateur'), job: N_('Examens blancs sur mesure'), icon: 'timer', color: '#5B2A5E', local: true,
+    desc: N_('Il compose un examen blanc sur vos points faibles et sur le programme du prochain examen, chronomètre compris.') },
+  { id: 'chronicler', name: N_('Le Chroniqueur'), note: N_('Note du Chroniqueur'), job: N_('Bilan de la semaine'), icon: 'book', color: '#3B3B3B', local: true,
+    desc: N_('Chaque lundi, il fait le point : ce qui progresse, ce qui glisse, où vous en êtes pour l\'examen, et trois priorités.') }
+];
+const AGENT = Object.fromEntries(AGENTS.map(a => [a.id, a]));
+const agentSeal = (a, size = 46) => waxSeal({ id: 'ag-' + a.id, icon: a.icon, color: a.color }, size);
+function agentCard(a) {
+  const last = S.profile.agents.runs.find(r => r.id === a.id);
+  return `<article class="agent rise" style="--ac:${a.color}">
+    <div class="ag-top">${agentSeal(a)}<div><div class="kicker">${t(a.job)}</div><h3>${t(a.name)}</h3></div>${a.local ? '' : `<span class="tag">${t('IA')}</span>`}</div>
+    <p>${t(a.desc)}</p>
+    <div class="ag-last">${last ? t('Dernière mission {when}', { when: ago(last.at) }) + (last.n ? ` · <b>${plural(last.n, 'proposition|propositions')}</b>` : '') : ''}</div>
+    <div class="ag-act"><button class="btn btn-sm btn-brass" data-act="agent" data-id="${a.id}">${icon('play', 'i-sm')}${t('Lancer')}</button></div>
+  </article>`;
+}
+Views.agents = () => {
+  const A = S.profile.agents, runs = A.runs.slice(0, 8);
+  return `
+    <header class="rise"><div class="kicker"><b>Engram Pro</b> · ${t('les assistants')}</div><h1 class="display" style="margin-top:12px">${words(t('Six assistants, <em>une</em> règle : vous décidez.'))}</h1>
+      <p class="lede" style="margin-top:14px">${t('Chaque assistant lit vos fiches et votre historique, puis propose. Rien ne change sans votre accord, et tout s\'annule d\'un clic.')}</p></header>
+    ${Pro.on ? '' : `<div class="demo-note rise">${icon('crown', 'i-sm')}<span>${AI.on ? t('Formule Découverte : encore {n} ce mois-ci avec l\'IA. Les analyses locales sont illimitées.', { n: plural(Pro.left('agent'), 'mission|missions') }) : t('Formule Découverte : les analyses locales sont illimitées ; avec l\'IA, 3 missions par mois.')}</span><button class="btn btn-sm btn-gilt" data-act="proTrial">${Pro.canTrial ? t('Essayer Pro 14 jours') : t('Passer à Pro')}</button></div>`}
+    <article class="autopilot leather gilt-rule rise ${A.autopilot && Pro.on ? 'on' : ''}" id="apBox"><span class="ap-dial">${icon('sun')}</span>
+      <div><b>${t('Autopilote')}</b><span>${t('Chaque matin, le Planificateur prépare votre séance. Chaque lundi, le Chroniqueur fait le bilan de la semaine. Ils travaillent à l\'ouverture de l\'app, sans rien modifier.')}</span></div>
+      <button class="switch ${A.autopilot && Pro.on ? 'on' : ''}" id="apSw" role="switch" aria-checked="${!!(A.autopilot && Pro.on)}" aria-label="${esc(t('Autopilote'))}"></button></article>
+    <section class="team">${AGENTS.map(agentCard).join('')}</section>
+    ${runs.length ? `<section class="sec"><div class="sec-h"><div><h2 class="h2">${t('Journal des missions')}</h2></div></div>
+      <article class="panel rise"><ul class="mlog-list" style="list-style:none;margin:0;padding:0">${runs.map(r => { const a = AGENT[r.id]; if (!a) return ''; return `<li>${agentSeal(a, 30)}<div><b>${t(a.name)}</b>${r.deck ? ' · ' + esc(r.deck) : ''}<small>${r.n ? plural(r.n, 'proposition|propositions') + (r.applied ? ' · ' + tp(r.applied, '{n} appliquée|{n} appliquées') : '') : t('Note seulement')}${r.ai ? '' : ' · ' + t('analyse locale')}</small></div><time>${esc(ago(r.at))}</time></li>`; }).join('')}</ul></article></section>` : ''}`;
+};
+Hooks.agents = () => {
+  $('#apSw')?.addEventListener('click', () => {
+    if (!Pro.on) { Pro.upsell('autopilot'); return; }
+    const A = S.profile.agents; A.autopilot = !A.autopilot; Store.touch('profile');
+    $('#apSw').classList.toggle('on', A.autopilot); $('#apSw').setAttribute('aria-checked', A.autopilot); $('#apBox').classList.toggle('on', A.autopilot);
+    toast(A.autopilot ? t('Autopilote activé : rendez-vous demain matin.') : t('Autopilote désactivé.'), 'sun');
+    if (A.autopilot) Autopilot.check(true);
+  });
+};
+
+/* Les assistants sur l'accueil : le mot du matin et la rangée de cachets. */
+function crewHTML() {
+  const A = S.profile.agents, b = A.brief && A.brief.day === dayKey() && !A.brief.hidden ? A.brief : null;
+  const rep = A.report && Date.now() - A.report.at < 7 * DAY ? A.report : null;
+  const status = a => {
+    if (a.id === 'planner' && b) return t('Séance prête');
+    if (a.id === 'chronicler' && rep) return t('Bilan prêt');
+    const r = A.runs.find(x => x.id === a.id); return r ? ago(r.at) : t(a.job);
+  };
+  const ids = b ? b.ids.filter(id => findCard(id)[0]) : [];
+  return `<section class="crew">
+    ${b ? `<div class="brief rise"><div class="pen-letter"><div class="pl-h">${agentSeal(AGENT.planner, 28)}${t('Le mot du Planificateur')} · ${esc(fmtDate(b.at, { hour: '2-digit', minute: '2-digit' }))}</div>${md(b.text)}</div>
+      <div class="brief-actions">${ids.length ? `<button class="btn btn-brass" data-act="briefGo">${icon('play', 'i-sm')}${t('Lancer la séance préparée')} · ${num(ids.length)}</button>` : ''}<button class="btn btn-sm btn-ghost" data-act="briefHide">${t('Masquer')}</button></div></div>` : ''}
+    <div class="sec-h rise" style="padding-bottom:10px"><div><h2 class="h3" style="font:400 24px/1.1 var(--f-display)">${t('Vos assistants')}</h2></div><button class="btn btn-sm btn-ghost" data-act="go" data-v="agents">${Pro.on ? '' : `<span class="tag gilt">Pro</span>`}${t('Tout voir')}${icon('arrow', 'i-sm')}</button></div>
+    <div class="crew-row rise">${AGENTS.map(a => `<button class="crew-b" data-act="agent" data-id="${a.id}">${(a.id === 'planner' && b) || (a.id === 'chronicler' && rep) ? '<i class="dot"></i>' : ''}${agentSeal(a, 48)}<b>${t(a.name)}</b><small>${esc(status(a))}</small></button>`).join('')}</div>
+  </section>`;
+}
+
+/* ── Une mission : journal de bord, note, propositions ─────────────── */
+class Mission {
+  constructor(a, deck) { Object.assign(this, { a, deck, props: [], actions: [], snap: null, ctl: new AbortController(), applied: 0, ai: false, text: '', brief: null, rec: null }); }
+  q(s) { return this.m?.querySelector(s); }
+  open() {
+    const a = this.a;
+    this.m = Modal.open(`<div class="ms-head"><span class="ms-seal">${agentSeal(a, 60)}</span>
+      <div><div class="kicker">${t('Mission')} · ${t(a.job)}</div><h2>${t(a.name)}</h2><div class="muted ms-sub" data-r="sub">${this.deck ? esc(this.deck.name) : ''}</div></div>
+      <button class="icon-btn" data-act="close" aria-label="${esc(t('Fermer'))}">${icon('x')}</button></div><div data-r="main" style="display:contents"></div>`, 'mission');
+    Modal.onClose(this.m, () => { this.ctl.abort(); if (this.applied && !Study.active) App.render(); });
+    Sound.play('stamp');
+  }
+  sub(x) { const el = this.q('[data-r="sub"]'); if (el) el.textContent = x; }
+  pick() {
+    const decks = S.decks.filter(d => d.cards.length), main = this.q('[data-r="main"]');
+    main.innerHTML = `<div style="padding:18px 24px 0" class="kicker">${t('Sur quel paquet ?')}</div><div class="ms-pick">${decks.map(d => { const lee = d.cards.filter(c => (c.srs.lapses || 0) >= 2).length; return `<button data-deck="${d.id}" style="--c:${DECK_COLORS[d.color] || DECK_COLORS.brass}"><i class="d"></i><b>${esc(d.name)}</b><small>${plural(d.cards.length, 'fiche|fiches')}${lee ? ' · ' + plural(lee, 'souvent oubliée|souvent oubliées') : ''}</small></button>`; }).join('') || `<div class="muted">${t('Aucun paquet pour le moment.')}</div>`}</div>`;
+    main.onclick = e => { const b = e.target.closest('[data-deck]'); if (!b) return; this.deck = deckById(b.dataset.deck); this.sub(this.deck.name); main.onclick = null; this.go(); };
+  }
+  need() {
+    this.sub(t('A besoin de l\'IA'));
+    this.q('[data-r="main"]').innerHTML = `<div class="ms-need"><p class="lede" style="font-size:15.5px">${t('Cet assistant rédige : il a besoin de l\'IA. Ouvrez Engram dans l\'app Claude, ou branchez le serveur Engram (Réglages → IA et Mentor).')}</p><button class="btn" data-act="close">${t('Compris')}</button></div>`;
+  }
+  layout() {
+    this.q('[data-r="main"]').innerHTML = `<div class="ms-body"><div class="ms-log-w"><div class="kicker">${t('Journal de bord')}</div><ol class="ms-log" data-r="log"></ol></div>
+      <div class="ms-out"><div class="ms-letter wait" data-r="letter"><div class="ml-h">${t(this.a.note)}</div><div data-r="txt"><span class="thinking"><i></i><i></i><i></i></span></div></div><div class="ms-props" data-r="props"></div></div></div>
+      <div class="ms-foot" data-r="foot"><button class="btn btn-ghost" data-r="stop">${icon('stop', 'i-sm')}${t('Arrêter')}</button></div>`;
+    this.q('[data-r="stop"]').onclick = () => this.ctl.abort();
+    this.q('[data-r="props"]').addEventListener('click', e => { const b = e.target.closest('[data-pact]'); if (!b) return; const i = +b.closest('.prop').dataset.p; b.dataset.pact === 'ok' ? this.apply(i) : this.skip(i); this.foot(); });
+  }
+  nap(ms = 380) { return sleep(REDUCED ? 0 : ms); }
+  step(text, sub = '') {
+    const li = document.createElement('li'); li.className = 'run';
+    const d = new Date(), p2 = n => String(n).padStart(2, '0');
+    li.innerHTML = `<span class="d"></span><span><span class="tx">${esc(text)}</span><small>${esc(sub)}</small></span><time>${p2(d.getHours())}:${p2(d.getMinutes())}:${p2(d.getSeconds())}</time>`;
+    const log = this.q('[data-r="log"]'); log?.append(li); const w = log?.closest('.ms-log-w'); if (w && w.scrollHeight > w.clientHeight) w.scrollTop = w.scrollHeight;
+    const end = (cls, s) => { li.className = cls; li.querySelector('.d').innerHTML = cls === 'done' ? icon('check') : ''; if (s != null) li.querySelector('small').textContent = s; };
+    return { done: s => end('done', s), err: s => end('err', s) };
+  }
+  write(mdText) {
+    this.text = mdText;
+    const el = this.q('[data-r="txt"]'); if (!el) return;
+    this.q('[data-r="letter"]').classList.remove('wait'); el.innerHTML = md(mdText);
+  }
+  propose(p) {
+    if (p.kind === 'edit' || p.kind === 'mnemo') {
+      const [c, d] = findCard(p.cardId); if (!c) return false;
+      // Seuls les champs que ce type de fiche affiche : le texte pour un texte à trous, recto et verso sinon (pas de verso pour un QCM).
+      const fits = k => k === 'extra' || (c.type === 'cloze' ? k === 'text' : k === 'front' || (k === 'back' && c.type !== 'mcq'));
+      const ch = Object.entries(p.patch).filter(([k, v]) => v != null && String(v).trim() && String(c[k] || '').trim() !== String(v).trim() && fits(k));
+      if (!ch.length) return false;
+      p.patch = Object.fromEntries(ch); p.deckId = d.id;
+    }
+    if (p.kind === 'delete' && !p.cardIds.some(id => findCard(id)[0])) return false;
+    if (p.kind === 'add' && !(p.cards || []).length) return false;
+    if (p.cardId && this.props.some(x => x.cardId === p.cardId && x.kind === p.kind)) return false;
+    p.state = 'open'; p.i = this.props.length; this.props.push(p);
+    this.q('[data-r="props"]')?.insertAdjacentHTML('beforeend', this.propHTML(p)); this.head(); Sound.play('pop');
+    return true;
+  }
+  propHTML(p) {
+    const lab = { edit: t('Reformulation'), mnemo: t('Moyen mnémotechnique'), delete: t('Doublon'), add: t('Nouvelles fiches') }[p.kind];
+    const deck = deckById(p.deckId);
+    const face = c => { const f = cardFaces(c); return `<span class="lbl">${esc(plain(f.question).slice(0, 220))}</span><br>${esc(plain(f.expected || '').slice(0, 220))}${c.extra ? `<em class="ex">${esc(plain(c.extra).slice(0, 240))}</em>` : ''}`; };
+    let body;
+    if (p.kind === 'edit' || p.kind === 'mnemo') {
+      const [c] = findCard(p.cardId); const after = { ...c, ...p.patch };
+      body = `<div class="pd"><div class="pd-old"><small>${t('Avant')}</small><div class="x">${face(c)}</div></div><div class="pd-arrow">${icon('arrow')}</div><div class="pd-new"><small>${t('Après')}</small>${face(after)}</div></div>`;
+    } else if (p.kind === 'delete') {
+      body = `<div class="pd one"><div class="pd-old"><small>${t('À retirer')}</small><div class="x">${p.cardIds.map(id => findCard(id)[0]).filter(Boolean).map(face).join('<br>')}</div></div></div>`;
+    } else {
+      const ans = r => r.type === 'mcq' ? r.options?.[r.answer] : r.type === 'tf' ? (r.answer ? trueLbl() : falseLbl()) : r.back;
+      body = `<div class="pd one"><div class="pd-new"><small>${plural(p.cards.length, 'fiche proposée|fiches proposées')}</small>${p.cards.map(r => `<div class="nc"><span class="lbl">${esc(plain(r.type === 'cloze' ? r.text : r.front))}</span>${r.type === 'cloze' ? '' : `<br>${esc(plain(ans(r) || ''))}`}</div>`).join('')}</div></div>`;
+    }
+    return `<article class="prop" data-p="${p.i}"><header><span class="tag ai">${lab}</span>${deck ? `<span class="tag">${esc(deck.name)}</span>` : ''}<span class="why">${esc(p.reason || '')}</span></header>${body}
+      <footer><button class="btn btn-sm btn-ghost" data-pact="skip">${t('Ignorer')}</button><button class="btn btn-sm btn-brass" data-pact="ok">${icon('check', 'i-sm')}${t('Appliquer')}</button></footer></article>`;
+  }
+  head() {
+    const box = this.q('[data-r="props"]'); if (!box) return;
+    if (!box.querySelector('.ms-props-h')) box.insertAdjacentHTML('afterbegin', `<div class="ms-props-h"><h3 class="h3" style="font:400 22px/1.1 var(--f-display)">${t('Propositions')}</h3><span class="kicker" data-r="count"></span></div>`);
+    const open = this.props.filter(p => p.state === 'open').length;
+    this.q('[data-r="count"]').textContent = open ? t('{n} en attente', { n: open }) : t('Tout est traité');
+  }
+  apply(i) {
+    const p = this.props[i]; if (!p || p.state !== 'open') return;
+    const d = deckById(p.deckId); if (S.demo && d?.example) Store.leaveDemo(false);
+    if (p.kind === 'add') {
+      if (!d) return;
+      const made = [];
+      for (const r of p.cards) {
+        if (r.type === 'cloze') made.push(...clozeCards(r.text, { extra: r.extra || undefined, src: 'agent' }));
+        else made.push(mkCard(r.type, { front: r.front, back: r.back || '', extra: r.extra || undefined, ...(r.type === 'mcq' ? { options: r.options, answer: r.answer } : {}), ...(r.type === 'tf' ? { answer: r.answer } : {}), ...(r.type === 'order' ? { items: r.items } : {}), src: 'agent' }));
+      }
+      d.cards.push(...made); Store.touchDeck(d);
+    } else if (p.kind === 'delete') {
+      const ids = new Set(p.cardIds);
+      for (const dd of S.decks) { const n = dd.cards.length; dd.cards = dd.cards.filter(c => !ids.has(c.id)); if (dd.cards.length !== n) Store.touchDeck(dd); }
+    } else {
+      const [c, dd] = findCard(p.cardId); if (!c) { p.state = 'skip'; return; }
+      const P = p.patch;
+      if (c.type === 'cloze' && P.text && /\{\{c\d+::.+?\}\}/.test(P.text)) { dd.cards.filter(x => x.note && x.note === c.note).forEach(x => x.text = P.text); c.text = P.text; }
+      if (P.front) c.front = P.front;
+      if (P.back != null && c.type !== 'mcq') c.back = P.back;
+      if (P.extra != null) c.extra = P.extra || undefined;
+      Store.touchDeck(dd);
+    }
+    p.state = 'done'; this.applied++;
+    if (this.rec) { this.rec.applied = this.applied; Store.touch('profile'); }
+    const el = this.q(`.prop[data-p="${i}"]`); if (el) { el.classList.add('done'); el.insertAdjacentHTML('beforeend', `<span class="pstamp">${stampSVG(t('APPLIQUÉ'), 'var(--good)')}</span>`); }
+    Sound.play('stamp'); haptic(12); this.head();
+  }
+  skip(i) { const p = this.props[i]; if (!p || p.state !== 'open') return; p.state = 'skip'; this.q(`.prop[data-p="${i}"]`)?.classList.add('skip'); this.head(); }
+  action(o) { if (o.kind) this.actions = this.actions.filter(x => x.kind !== o.kind); this.actions.push(o); }
+  foot() {
+    const f = this.q('[data-r="foot"]'); if (!f) return;
+    const open = this.props.filter(p => p.state === 'open').length;
+    f.innerHTML = `${this.applied ? `<button class="btn btn-ghost" data-r="undo">${icon('undo', 'i-sm')}${t('Annuler les changements')}</button>` : ''}<span class="sp"></span>
+      ${open > 1 ? `<button class="btn" data-r="all">${icon('check', 'i-sm')}${t('Tout appliquer')} · ${num(open)}</button>` : ''}
+      ${this.actions.map((a, k) => `<button class="btn ${a.primary ? 'btn-brass' : ''}" data-mact="${k}">${icon(a.icon || 'play', 'i-sm')}${esc(a.label)}</button>`).join('')}
+      <button class="btn ${this.actions.some(a => a.primary) ? 'btn-ghost' : 'btn-brass'}" data-act="close">${t('Terminer')}</button>`;
+    this.q('[data-r="all"]')?.addEventListener('click', () => { this.props.forEach(p => p.state === 'open' && this.apply(p.i)); this.foot(); });
+    this.q('[data-r="undo"]')?.addEventListener('click', () => {
+      Store.restore(this.snap); this.applied = 0; if (this.rec) { this.rec.applied = 0; Store.touch('profile'); }
+      this.props.forEach(p => { if (p.state === 'done') { p.state = 'open'; const el = this.q(`.prop[data-p="${p.i}"]`); el?.classList.remove('done'); el?.querySelector('.pstamp')?.remove(); } });
+      this.head(); this.foot(); toast(t('Changements annulés'), 'undo');
+    });
+    $$('[data-mact]', f).forEach(b => b.addEventListener('click', () => this.actions[+b.dataset.mact]?.run()));
+  }
+  async go() {
+    const a = this.a;
+    if (!AI.on && !a.local) return this.need();
+    if (AI.on && !Pro.on && !Pro.use('agent')) {
+      if (a.local) { toast(t('Missions avec l\'IA épuisées ce mois-ci : analyse locale.'), 'crown'); return this.run(false); }
+      Modal.close(); return Pro.upsell('agent');
+    }
+    return this.run(AI.on);
+  }
+  async run(useAI) {
+    const a = this.a; this.ai = useAI;
+    this.layout(); this.snap = Store.snapshot();
+    this.sub([this.deck?.name, useAI ? t('avec l\'IA') : t('analyse locale')].filter(Boolean).join(' · '));
+    try {
+      if (useAI) await AgentAI.run(this); else await AgentLocal[a.id](this);
+    } catch (e) {
+      if (e?.code === 'cancelled' || this.ctl.signal.aborted) this.step(t('Mission arrêtée')).err('');
+      else {
+        this.step(t('L\'IA ne répond pas')).err(AI.fail(e) || '');
+        if (a.local && useAI) { this.ai = false; this.props = []; this.q('[data-r="props"]')?.replaceChildren(); await AgentLocal[a.id](this); }
+      }
+    }
+    if (!this.text) this.write(t('Rien à signaler pour cette fois.'));
+    this.step(t('Mission terminée')).done(this.props.length ? plural(this.props.length, 'proposition|propositions') : '');
+    const A = S.profile.agents;
+    this.rec = { id: a.id, at: Date.now(), deck: this.deck?.name || '', n: this.props.length, applied: this.applied, ai: this.ai };
+    A.runs.unshift(this.rec); A.runs = A.runs.slice(0, 30);
+    if (a.id === 'planner') A.brief = { day: dayKey(), at: Date.now(), text: this.text, ids: this.brief?.ids || [] };
+    if (a.id === 'chronicler' && this.text) A.report = { at: Date.now(), text: this.text };
+    Store.touch('profile');
+    this.foot();
+    if (!this.ctl.signal.aborted) Sound.play('done');
+  }
+}
+
+const Agents = {
+  run(id, o = {}) {
+    const a = AGENT[id]; if (!a) return;
+    if (Study.active) Study.close(true);
+    if (Mentor.isOpen) Mentor.close();
+    while (Modal.stack.length) Modal.close();
+    const deck = a.deck ? deckById(o.deckId || (App.route.v === 'deck' ? App.route.arg : '')) || null : null;
+    const M = new Mission(a, deck); M.open();
+    if (a.deck && !deck) M.pick(); else M.go();
+    return M;
+  }
+};
+
+/* Démarre l'examen blanc de l'Examinateur avec des fiches choisies. */
+function startExamWith(items) {
+  const n0 = Game.n; Game.only = items; Game.n = Math.min(items.length, 30);
+  const qs = buildExam(); Game.only = null; Game.n = n0;
+  if (qs.length < 3) { toast(t('Pas assez de fiches pour un examen : il en faut au moins 4.'), 'timer'); return; }
+  Object.assign(Game, { qs, mode: 'exam-run', i: 0, picked: null, results: [], left: Game.per, timed: true });
+  App.go('games');
+}
+
+/* Statistiques d'une semaine (0 = les 7 derniers jours, 1 = la semaine d'avant). */
+function weekStats(w = 0) {
+  const o = { r: 0, ok: 0, ms: 0, n: 0, days: 0 };
+  for (let k = w * 7; k < w * 7 + 7; k++) { const l = S.profile.log[dayKey(Date.now() - k * DAY)]; if (l?.r) { o.r += l.r; o.ok += l.ok; o.ms += l.ms; o.n += l.n || 0; o.days++; } }
+  o.acc = o.r ? o.ok / o.r : null; o.min = Math.round(o.ms / 60000);
+  return o;
+}
+function fragileCards(exclude = new Set(), max = 8) {
+  return allCards().filter(c => c.srs.state === 2 && !c.suspended && !exclude.has(c.id)).map(c => [c, FSRS.retrievability(c.srs)]).filter(([, r]) => r < 0.9).sort((a, b) => a[1] - b[1]).slice(0, max).map(([c]) => [c, c._deck]);
+}
+const QWORDS = {
+  fr: /^(qui|que|qu'|quoi|quel|quelle|quels|quelles|quand|où|ou se|comment|pourquoi|combien|lequel|laquelle|lesquels|lesquelles|est-ce|citez|donnez)\b/i,
+  en: /^(who|what|when|where|why|how|which|is|are|do|does|did|can|name)\b/i,
+  es: /^(¿)?(qué|quién|quiénes|cuándo|dónde|cómo|por qué|cuál|cuáles|cuánto|cuántos|cuántas)\b/i,
+  de: /^(wer|was|wann|wo|warum|wie|welche|welcher|welches|wieviel|wie viele)\b/i,
+  pt: /^(quem|que|o que|quando|onde|como|por que|porque|qual|quais|quanto|quantos|quantas)\b/i
+};
+
+/* Les analyses sans IA : rapides, gratuites, illimitées. */
+const AgentLocal = {
+  async planner(M) {
+    const s1 = M.step(t('Lecture de votre journée')); await M.nap();
+    const due = Study.build(); s1.done(plural(due.length, 'fiche prévue|fiches prévues'));
+    const s2 = M.step(t('Recherche des fiches fragiles')); await M.nap();
+    const fr = fragileCards(new Set(due.map(([c]) => c.id)), 8); s2.done(plural(fr.length, 'fiche fragile|fiches fragiles'));
+    const s3 = M.step(t('Lecture du programme et des examens')); await M.nap();
+    const x = upcomingExams()[0], adv = Plan.advice()[0]; s3.done(x ? t('« {exam} » dans {n} j', { exam: x.name, n: daysUntil(x.date) }) : t('Aucun examen prévu'));
+    const items = [...due, ...fr], mins = Math.max(1, Math.round(items.length * avgSecPerCard() / 60));
+    const deckCount = {}; for (const [, d] of items) deckCount[d.name] = (deckCount[d.name] || 0) + 1;
+    const top = Object.entries(deckCount).sort((a, b) => b[1] - a[1])[0];
+    const txt = items.length
+      ? [`**${t('Aujourd\'hui : {n}, environ {m}.', { n: plural(items.length, 'fiche|fiches'), m: tp(mins, '{n} minute|{n} minutes') })}**`,
+        fr.length ? t('{a} prévues, et {b} que j\'ajoute pour les consolider avant qu\'elles ne s\'effacent.', { a: num(due.length), b: plural(fr.length, 'fiche fragile|fiches fragiles') }) : t('Tout ce qui est prévu, rien de plus.'),
+        x ? t('Priorité à « {deck} » : « {exam} » est dans {n} jours.', { deck: top?.[0] || '', exam: x.name, n: daysUntil(x.date) }) : top ? t('Le gros morceau : « {deck} ».', { deck: top[0] }) : '',
+        adv ? adv[1] : ''].filter(Boolean).join(' ')
+      : t('**Rien d\'urgent aujourd\'hui.** Profitez-en pour scanner un nouveau cours ou lancer une partie.');
+    M.write(txt);
+    if (items.length) M.action({ label: t('Lancer la séance préparée'), icon: 'play', primary: true, run: () => { Modal.close(); Study.start({ items, title: t('Séance du Planificateur') }); } });
+    M.brief = { ids: items.map(([c]) => c.id), text: txt };
+  },
+  async proof(M) {
+    const d = M.deck, cards = d.cards.filter(c => c.type !== 'occlusion');
+    const s1 = M.step(t('Lecture du paquet')); await M.nap(); s1.done(plural(cards.length, 'fiche|fiches'));
+    const s2 = M.step(t('Recherche des doublons')); await M.nap();
+    const seen = new Map(); let dup = 0;
+    for (const c of cards) {
+      const k = normTxt(plain(cardFaces(c).question)); if (k.length < 6) continue;
+      const o = seen.get(k);
+      if (!o || (o.note && o.note === c.note)) { if (!o) seen.set(k, c); continue; }
+      const drop = (o.srs.reps || 0) >= (c.srs.reps || 0) ? c : o;
+      if (M.propose({ kind: 'delete', deckId: d.id, cardIds: [drop.id], reason: t('La même question existe déjà dans ce paquet : je garde celle qui a le plus d\'historique.') })) dup++;
+      if (drop === o) seen.set(k, c);
+    }
+    s2.done(dup ? plural(dup, 'doublon|doublons') : t('aucun'));
+    const s3 = M.step(t('Longueur des réponses')); await M.nap(); let long = 0;
+    for (const c of cards.filter(c => c.type === 'basic' && c.back)) {
+      const b = plain(c.back).trim(); if (b.split(/\s+/).length <= 22) continue;
+      const m = b.match(/^(.+?[.!?])\s+(.+)$/s); if (!m || m[1].split(/\s+/).length < 2) continue;
+      if (M.propose({ kind: 'edit', cardId: c.id, patch: { back: m[1], extra: [m[2], c.extra].filter(Boolean).join(' ') }, reason: t('Réponse trop longue pour être retenue d\'un coup : l\'essentiel au verso, le détail en complément.') })) long++;
+    }
+    s3.done(long ? plural(long, 'réponse à alléger|réponses à alléger') : t('rien à redire'));
+    const s4 = M.step(t('Forme des questions')); await M.nap(); let q = 0;
+    const re = QWORDS[d.lang] || QWORDS[LANG];
+    for (const c of cards.filter(c => c.type === 'basic' && c.front && !c.flang)) {
+      const f = c.front.trim(); if (/[?？]$/.test(f) || !re?.test(f)) continue;
+      const fixed = d.lang === 'fr' ? f.replace(/\s*$/, ' ?') : d.lang === 'es' ? (f.startsWith('¿') ? f : '¿' + f) + '?' : f + '?';
+      if (M.propose({ kind: 'edit', cardId: c.id, patch: { front: fixed }, reason: t('C\'est une question : le point d\'interrogation aide à la lire comme telle.') })) q++;
+      if (q >= 6) break;
+    }
+    s4.done(q ? plural(q, 'question à ponctuer|questions à ponctuer') : t('rien à redire'));
+    const n = M.props.length;
+    M.write(n ? `**${t('J\'ai relu {n} de « {deck} ».', { n: plural(cards.length, 'fiche|fiches'), deck: d.name })}** ${t('{x} à examiner ci-dessous. Appliquez ce qui vous convient, ignorez le reste.', { x: plural(n, 'proposition|propositions') })} ${AI.on ? '' : t('Avec l\'IA, je vérifie aussi le fond : questions ambiguës, erreurs, fiches à scinder.')}`
+      : `**${t('Rien à redire sur « {deck} ».', { deck: d.name })}** ${t('Pas de doublon, des réponses courtes, des questions nettes.')} ${AI.on ? '' : t('Avec l\'IA, je vérifie aussi le fond : questions ambiguës, erreurs, fiches à scinder.')}`);
+  },
+  async examiner(M) {
+    const x = upcomingExams()[0];
+    const decks = M.deck ? [M.deck] : x?.deckIds?.length ? S.decks.filter(d => x.deckIds.includes(d.id)) : S.decks;
+    const s1 = M.step(t('Lecture du programme')); await M.nap(); s1.done(x ? `${x.name} · ${t('J−{n}', { n: daysUntil(x.date) })}` : t('tous les paquets'));
+    const pool = decks.flatMap(d => d.cards.map(c => [c, d])).filter(([c]) => !['occlusion', 'order'].includes(c.type) && !c.suspended);
+    const s2 = M.step(t('Classement des fiches par fragilité')); await M.nap();
+    const now = Date.now();
+    const score = ([c]) => (c.srs.state === 0 ? .45 : 1 - FSRS.retrievability(c.srs)) + Math.min(.4, (c.srs.lapses || 0) * .1) + (c.srs.last && now - c.srs.last > 14 * DAY ? .15 : 0) + Math.random() * .08;
+    const ranked = pool.map(it => [it, score(it)]).sort((a, b) => b[1] - a[1]).map(([it]) => it);
+    const items = ranked.slice(0, Math.min(20, ranked.length)); s2.done(plural(items.length, 'question retenue|questions retenues'));
+    const weak = items.filter(([c]) => c.srs.state > 0 && FSRS.retrievability(c.srs) < .85).length;
+    const s3 = M.step(t('Réglage du chronomètre')); await M.nap(); s3.done(t('{n} s par question', { n: Game.per }));
+    const mins = Math.max(1, Math.round(items.length * Game.per / 60));
+    M.write(items.length >= 4 ? `**${t('Examen blanc : {n}, {m} au plus.', { n: plural(items.length, 'question|questions'), m: tp(mins, '{n} minute|{n} minutes') })}** ${weak ? t('Il vise d\'abord vos {n} les plus fragiles, puis ce que vous n\'avez pas revu depuis longtemps.', { n: plural(weak, 'fiche|fiches') }) : t('Il mélange les fiches du programme que vous avez le moins revues.')} ${x ? t('Le sujet suit le programme de « {exam} ».', { exam: x.name }) : ''}` : t('Il faut au moins quatre fiches pour composer un examen blanc.'));
+    if (items.length >= 4) M.action({ label: t('Commencer l\'examen blanc'), icon: 'timer', primary: true, run: () => { Modal.close(); startExamWith(items); } });
+  },
+  async chronicler(M) {
+    const s1 = M.step(t('Lecture du carnet de la semaine')); await M.nap();
+    const w = weekStats(0), p = weekStats(1); s1.done(plural(w.r, 'révision|révisions'));
+    const s2 = M.step(t('Comparaison avec la semaine d\'avant')); await M.nap(); s2.done(p.r ? pct(w.r / p.r - 1) : '—');
+    const s3 = M.step(t('Préparation de l\'examen')); await M.nap();
+    const x = upcomingExams()[0], rd = x ? Plan.readiness(x) : null; s3.done(x ? x.name : t('Aucun examen prévu'));
+    const decks = S.decks.map(d => ({ d, lee: d.cards.filter(isLeech).length, m: maturity(d.cards) })).sort((a, b) => b.lee - a.lee);
+    const lines = [];
+    lines.push(`**${w.r ? t('Cette semaine : {r} en {d}, {m}.', { r: plural(w.r, 'révision|révisions'), d: plural(w.days, 'jour|jours'), m: tp(w.min, '{n} minute|{n} minutes') }) : t('Cette semaine, le fichier est resté fermé.')}**`);
+    if (w.r && p.r) lines.push(w.r >= p.r ? t('C\'est {p} de plus que la semaine d\'avant.', { p: pct(w.r / p.r - 1) }) : t('C\'est {p} de moins que la semaine d\'avant : rien de grave, reprenez le fil.', { p: pct(1 - w.r / p.r) }));
+    if (w.acc != null) lines.push(t('Réussite : {a}{b}.', { a: pct(w.acc), b: p.acc != null ? ' ' + t('(contre {x})', { x: pct(p.acc) }) : '' }));
+    if (w.n) lines.push(t('{n} découvertes.', { n: plural(w.n, 'nouvelle fiche|nouvelles fiches') }));
+    if (streak()) lines.push(t('Série en cours : {n}.', { n: plural(streak(), 'jour|jours') }));
+    if (rd) lines.push(t('« {exam} » dans {n} jours : prêt à {p} si vous suivez le programme.', { exam: x.name, n: daysUntil(x.date), p: pct(rd.follow) }));
+    const pri = [];
+    if (decks[0]?.lee) pri.push(t('Passer « {deck} » au Répétiteur : {n}.', { deck: decks[0].d.name, n: plural(decks[0].lee, 'fiche oubliée souvent|fiches oubliées souvent') }));
+    if (w.days < 5) pri.push(t('Viser cinq jours sur sept, même dix minutes.'));
+    for (const a of Plan.advice().filter(a => a[0] !== 'check').slice(0, 2)) if (pri.length < 3) pri.push(a[1]);
+    const txt = lines.join(' ') + (pri.length ? `\n\n**${t('Trois priorités')}**\n${pri.slice(0, 3).map(x => '- ' + x).join('\n')}` : '');
+    M.write(txt);
+    S.profile.agents.report = { at: Date.now(), text: txt };
+    M.action({ label: t('Partager ma progression'), icon: 'share', run: () => { Modal.close(); shareProgress(); } });
+  }
+};
+
+/* Les missions avec l'IA : l'assistant lit l'app avec des outils et propose. */
+const AGENT_BRIEF = {
+  planner: 'Prepare today\'s study session. Look at the plan and the stats (get_plan, get_stats), then pick the cards for today: the due cards first (get_deck_cards with filter "due"), then at most 10 fragile cards to consolidate (filter "weak"), giving priority to the decks of the nearest exam. Call prepare_session ONCE with their ids. Then write the student a short morning note (at most 90 words): what today\'s session covers, why, and one concrete tip.',
+  proof: 'Audit the flashcards of the deck "{deck}" (deck_id {id}) like a demanding teacher: vague or ambiguous questions, answers too long to recall at once (move detail to extra), several ideas in one card, factual errors, typos, duplicates. Read the cards with get_deck_cards (limit {limit}). Propose at most 8 improvements with propose_edit, and propose_delete for true duplicates only. Keep the language of the deck, never change the meaning without a factual reason, and give a short reason for each proposal. Then write a short note (at most 80 words) summarising the audit.',
+  coach: 'Help the student with the cards they keep forgetting in the deck "{deck}" (deck_id {id}). Read them with get_deck_cards (filter "leech", then "weak"). For up to 6 of them, write a vivid mnemonic, image, analogy or example (at most 30 words, in the language of the deck unless it is a language-learning card) and propose it as the card\'s new "extra" with propose_edit (keep front and back unchanged; keep any existing extra at the end). If a card is badly worded, you may also propose a clearer front. Then call prepare_session with those card ids so they can review them right away. Write a short, encouraging note (at most 70 words).',
+  librarian: 'Find what is missing in the deck "{deck}" (deck_id {id}). Read its cards with get_deck_cards (limit {limit}), infer the subject and the level, list the important notions that are not covered yet, and propose up to 10 new atomic flashcards with propose_new_cards (varied types: basic, cloze, mcq, tf), in the language of the deck. Do not duplicate existing cards. Then write a short note (at most 80 words) naming the gaps you found.',
+  examiner: 'Build a mock exam tailored to the student. Prefer the decks of the nearest exam{deckHint}, then the weakest cards and the cards not reviewed for a long time (use get_deck_cards with filters "weak", "due" and "all"). Pick 15 to 25 card ids and call prepare_exam once. If a deck clearly lacks exam-style questions, you may propose up to 5 new multiple-choice cards with propose_new_cards. Write a short note (at most 70 words) explaining what the exam targets.',
+  chronicler: 'Write the student\'s weekly report. Use get_week (this week vs the week before) and get_stats. Say what was done, what improved, what slipped, where they stand for their next exam, and give three concrete priorities for next week as a short list. At most 160 words, warm but factual. Use only numbers returned by the tools or present in the app state: never invent a number.'
+};
+function agentRules(a) {
+  const st = S.profile.settings;
+  return `You are "${t(a.name)}", one of the six specialised assistants of Engram, a flashcard app (FSRS spaced repetition shown as a Leitner box, AI answer grading, exams, a personalised daily programme). You work autonomously with the tools provided, then write a note to the student.
+Your tone: ${TONES[st.tone]?.ai || TONES.gentle.ai}.
+Flashcard quality rules: one idea per card; precise, unambiguous question; short answer (under 20 words); useful detail in "extra"; cloze cards use {{c1::…}} on the most information-rich words (1–3 gaps); multiple-choice cards have 4 plausible options and exactly one correct; write cards in the language of the deck (see each deck's lang).
+
+Current state of the app (JSON):
+${JSON.stringify(Mentor.snapshot())}`;
+}
+const AgentAI = {
+  labels(name, i) {
+    const d = i?.deck_id ? deckById(String(i.deck_id))?.name : '';
+    return ({
+      get_deck_cards: t('Lecture des fiches') + (d ? ' · ' + d : ''), get_stats: t('Lecture des statistiques'), get_plan: t('Lecture du programme'), get_week: t('Lecture du carnet de la semaine'),
+      propose_edit: t('Rédaction d\'une proposition'), propose_delete: t('Repérage d\'un doublon'), propose_new_cards: t('Rédaction de nouvelles fiches') + (d ? ' · ' + d : ''),
+      prepare_session: t('Préparation de la séance'), prepare_exam: t('Composition de l\'examen blanc')
+    })[name] || name;
+  },
+  tools(M) {
+    const str = v => (v == null ? '' : String(v)).trim();
+    const base = Object.fromEntries(Mentor.toolDefs({ receipt() { }, confirm: async () => false, buttons: [], after: [], changed: false }).map(x => [x.name, x]));
+    const pick = ['get_stats', 'get_plan'].map(n => base[n]).filter(Boolean);
+    const lim = Pro.expert ? 150 : 60;
+    const own = [
+      { name: 'get_deck_cards', description: `List cards of a deck (id, type, question, answer, extra, tags, memory state). filter: all | due | new | weak (lowest memory first) | leech (often forgotten). Returns at most \`limit\` cards (max ${lim}).`,
+        inputSchema: { type: 'object', properties: { deck_id: { type: 'string' }, filter: { type: 'string', enum: ['all', 'due', 'new', 'weak', 'leech'] }, limit: { type: 'number' } }, required: ['deck_id'] },
+        execute: i => {
+          const d = deckById(str(i.deck_id)); if (!d) throw new Error('Unknown deck_id. Use a deck id from the app state.');
+          let list = d.cards.filter(c => c.type !== 'occlusion'); const f = str(i.filter) || 'all';
+          if (f === 'due') list = list.filter(c => isDue(c)); else if (f === 'new') list = list.filter(c => c.srs.state === 0);
+          else if (f === 'leech') list = list.filter(c => (c.srs.lapses || 0) >= 2).sort((a, b) => b.srs.lapses - a.srs.lapses);
+          else if (f === 'weak') list = list.filter(c => c.srs.state > 0).sort((a, b) => FSRS.retrievability(a.srs) - FSRS.retrievability(b.srs) || b.srs.lapses - a.srs.lapses);
+          return { deck: d.name, lang: d.lang, total: d.cards.length, cards: list.slice(0, clamp(+i.limit || lim, 1, lim)).map(c => ({ id: c.id, type: c.type, q: plain(cardTitle(c)).slice(0, 200), a: plain(cardAnswer(c) || '').slice(0, 180), extra: c.extra ? plain(c.extra).slice(0, 160) : undefined, tags: c.tags?.length ? c.tags : undefined, state: FSRS.STATE[c.srs.state], lapses: c.srs.lapses, memory: c.srs.state === 2 ? Math.round(FSRS.retrievability(c.srs) * 100) + '%' : null })) };
+        } },
+      { name: 'get_week', description: 'Reviews, accuracy, minutes, new cards and active days for the last 7 days and the 7 days before, plus the current streak and deck-level leeches.', inputSchema: { type: 'object', properties: {} },
+        execute: () => ({ this_week: weekStats(0), previous_week: weekStats(1), streak_days: streak(), decks: S.decks.map(d => ({ id: d.id, name: d.name, cards: d.cards.length, leeches: d.cards.filter(isLeech).length, ...maturity(d.cards) })) }) },
+      { name: 'propose_edit', description: 'Propose a change to one card (only the given fields change: front and back for most cards, front only for mcq, text for cloze cards keeping the {{c1::...}} gaps, extra for any card). The student sees before/after and decides. Give a short reason in the student\'s language.',
+        inputSchema: { type: 'object', properties: { card_id: { type: 'string' }, front: { type: 'string' }, back: { type: 'string' }, text: { type: 'string' }, extra: { type: 'string' }, reason: { type: 'string' } }, required: ['card_id', 'reason'] },
+        execute: i => { const ok = M.propose({ kind: M.a.id === 'coach' && str(i.extra) && !str(i.front) && !str(i.back) ? 'mnemo' : 'edit', cardId: str(i.card_id), patch: { front: str(i.front) || null, back: str(i.back) || null, text: str(i.text) || null, extra: str(i.extra) || null }, reason: str(i.reason) }); if (!ok) { const c = findCard(str(i.card_id))[0]; throw new Error(!c ? 'Unknown card_id.' : c.type === 'cloze' ? 'Nothing changes: this is a cloze card, edit its "text" (keep the {{c1::...}} gaps) or "extra".' : 'Nothing changes: give a new front, back (not for mcq) or extra.'); } return 'Shown to the student.'; } },
+      { name: 'propose_delete', description: 'Propose to remove duplicate cards (only true duplicates). The student decides.',
+        inputSchema: { type: 'object', properties: { card_ids: { type: 'array', items: { type: 'string' } }, reason: { type: 'string' } }, required: ['card_ids', 'reason'] },
+        execute: i => { const ids = (i.card_ids || []).map(str).filter(id => findCard(id)[0]); if (!ids.length) throw new Error('No matching card.'); M.propose({ kind: 'delete', deckId: findCard(ids[0])[1].id, cardIds: ids, reason: str(i.reason) }); return 'Shown to the student.'; } },
+      { name: 'propose_new_cards', description: 'Propose new flashcards for a deck. Types: basic {front, back, extra?}, cloze {text with {{c1::...}}}, mcq {front, options[4], answer (index), back?}, tf {front, answer (boolean), back?}. The student decides.',
+        inputSchema: { type: 'object', properties: { deck_id: { type: 'string' }, reason: { type: 'string' }, cards: { type: 'array', maxItems: 12, items: { type: 'object', properties: { type: { type: 'string', enum: ['basic', 'cloze', 'mcq', 'tf'] }, front: { type: 'string' }, back: { type: 'string' }, text: { type: 'string' }, options: { type: 'array', items: { type: 'string' } }, answer: {}, extra: { type: 'string' } }, required: ['type'] } } }, required: ['deck_id', 'cards'] },
+        execute: i => { const d = deckById(str(i.deck_id)); if (!d) throw new Error('Unknown deck_id.'); const cards = (i.cards || []).map(normGen).filter(Boolean).slice(0, 12); if (!cards.length) throw new Error('No valid card.'); M.propose({ kind: 'add', deckId: d.id, cards, reason: str(i.reason) }); return { proposed: cards.length }; } },
+      { name: 'prepare_session', description: 'Prepare a review session with these card ids; the student gets a button to start it.',
+        inputSchema: { type: 'object', properties: { card_ids: { type: 'array', items: { type: 'string' } } }, required: ['card_ids'] },
+        execute: i => { const items = (i.card_ids || []).map(id => findCard(str(id))).filter(x => x[0]); if (!items.length) throw new Error('No matching card.'); M.actions = M.actions.filter(x => x.kind !== 'session'); M.action({ kind: 'session', label: t('Lancer la séance préparée'), icon: 'play', primary: true, run: () => { Modal.close(); Study.start({ items, title: t(M.a.session || 'Séance préparée') }); } }); M.brief = { ids: items.map(([c]) => c.id) }; return { cards: items.length }; } },
+      { name: 'prepare_exam', description: 'Prepare a timed mock exam (multiple choice built from these cards, 30 s per question); the student gets a button to start it.',
+        inputSchema: { type: 'object', properties: { card_ids: { type: 'array', items: { type: 'string' } } }, required: ['card_ids'] },
+        execute: i => { const items = (i.card_ids || []).map(id => findCard(str(id))).filter(x => x[0] && !['occlusion', 'order'].includes(x[0].type)); if (items.length < 4) throw new Error('At least 4 valid cards are needed.'); M.actions = M.actions.filter(x => x.kind !== 'exam'); M.action({ kind: 'exam', label: t('Commencer l\'examen blanc'), icon: 'timer', primary: true, run: () => { Modal.close(); startExamWith(items); } }); return { questions: Math.min(items.length, 30) }; } }
+    ];
+    const want = { planner: ['get_plan', 'get_stats', 'get_deck_cards', 'prepare_session'], proof: ['get_deck_cards', 'propose_edit', 'propose_delete'], coach: ['get_deck_cards', 'propose_edit', 'prepare_session'],
+      librarian: ['get_deck_cards', 'propose_new_cards'], examiner: ['get_deck_cards', 'get_stats', 'prepare_exam', 'propose_new_cards'], chronicler: ['get_week', 'get_stats', 'get_plan'] }[M.a.id];
+    const all = [...pick, ...own].filter(x => want.includes(x.name));
+    // Chaque appel d'outil apparaît dans le journal de bord.
+    return all.map(x => ({ ...x, execute: async (i, c) => {
+      const s = M.step(this.labels(x.name, i));
+      try {
+        const out = await x.execute(i, c);
+        s.done(x.name === 'get_deck_cards' && out?.cards ? plural(out.cards.length, 'fiche lue|fiches lues') : x.name === 'propose_new_cards' ? plural(out.proposed, 'fiche proposée|fiches proposées') : '');
+        return out;
+      } catch (e) { s.err(''); throw e; }
+    } }));
+  },
+  async run(M) {
+    const s0 = M.step(t('Lecture de l\'état de l\'app')); await M.nap(250); s0.done(plural(S.decks.length, 'paquet|paquets'));
+    const x = upcomingExams()[0];
+    const brief = AGENT_BRIEF[M.a.id].replace(/\{deck\}/g, M.deck?.name || '').replace(/\{id\}/g, M.deck?.id || '').replace(/\{limit\}/g, Pro.expert ? 150 : 60)
+      .replace('{deckHint}', M.deck ? ` (or the deck "${M.deck.name}", deck_id ${M.deck.id})` : x ? ` ("${x.name}")` : '');
+    const rules = agentRules(M.a);
+    const input = [{ role: 'user', content: `${rules}\n\nYOUR MISSION\n${brief}\n\nRules: you never change anything yourself; you PROPOSE, the student decides. Write the final note in ${aiLang()}, in Markdown (short paragraphs, **bold** for key words), addressed to the student. Do not repeat the proposals one by one in the note: they are shown next to it. Use the tools first and write nothing until you are done with them; then write only the note.` }];
+    if (AI.tools) {
+      const r = await AI.ask(input, { tools: this.tools(M), signal: M.ctl.signal, modelTier: Pro.expert ? 'complex' : 'default', onText: ({ text }) => M.write(text) });
+      M.write(r.text || M.text);
+    } else await this.json(M, input);
+  },
+  /* Sans outils (certains comptes) : une seule réponse JSON avec la note et les propositions. */
+  async json(M, input) {
+    const s = M.step(t('Lecture des fiches'));
+    const d = M.deck; const lim = Pro.expert ? 150 : 60;
+    const cards = (d ? d.cards : allCards()).filter(c => c.type !== 'occlusion').slice(0, lim).map(c => ({ id: c.id, type: c.type, q: plain(cardTitle(c)).slice(0, 180), a: plain(cardAnswer(c) || '').slice(0, 160), extra: c.extra ? plain(c.extra).slice(0, 120) : undefined, lapses: c.srs.lapses, memory: c.srs.state === 2 ? Math.round(FSRS.retrievability(c.srs) * 100) : null }));
+    s.done(plural(cards.length, 'fiche lue|fiches lues'));
+    const s2 = M.step(t('Rédaction des propositions'));
+    const r = await AI.json([{ role: 'user', content: input[0].content + `\n\nCards (JSON): ${JSON.stringify(cards)}\nThis week: ${JSON.stringify(weekStats(0))}; previous week: ${JSON.stringify(weekStats(1))}\n\nReply with only a JSON object: {"note": "markdown note", "edits": [{"card_id": "...", "front"?: "...", "back"?: "...", "extra"?: "...", "reason": "..."}], "duplicates": [{"card_ids": ["..."], "reason": "..."}], "new_cards": [{"type": "basic|cloze|mcq|tf", ...}], "session_card_ids": ["..."], "exam_card_ids": ["..."]}` }], { signal: M.ctl.signal, modelTier: Pro.expert ? 'complex' : 'default' });
+    const T = this.tools(M), call = (n, i) => T.find(x => x.name === n)?.execute(i).catch?.(() => { });
+    for (const e of (r?.edits || []).slice(0, 10)) await Promise.resolve(call('propose_edit', e)).catch(() => { });
+    for (const e of (r?.duplicates || []).slice(0, 5)) await Promise.resolve(call('propose_delete', e)).catch(() => { });
+    if (d && r?.new_cards?.length) await Promise.resolve(call('propose_new_cards', { deck_id: d.id, cards: r.new_cards })).catch(() => { });
+    if (r?.session_card_ids?.length) await Promise.resolve(call('prepare_session', { card_ids: r.session_card_ids })).catch(() => { });
+    if (r?.exam_card_ids?.length) await Promise.resolve(call('prepare_exam', { card_ids: r.exam_card_ids })).catch(() => { });
+    s2.done(plural(M.props.length, 'proposition|propositions'));
+    M.write(String(r?.note || ''));
+  }
+};
+
+/* L'autopilote : le mot du matin (chaque jour) et le bilan (chaque lundi), à l'ouverture de l'app. */
+const Autopilot = {
+  busy: false,
+  async check(now = false) {
+    const A = S.profile.agents;
+    if (!A.autopilot || !Pro.on || this.busy || !S.profile.onboarded) return;
+    const today = dayKey();
+    const needBrief = !A.brief || A.brief.day !== today;
+    const needReport = (new Date().getDay() === 1 || now) && (!A.report || Date.now() - A.report.at > 6 * DAY);
+    if (!needBrief && !needReport) return;
+    this.busy = true;
+    try {
+      if (needBrief) {
+        const M = this.ghost(AGENT.planner);
+        await AgentLocal.planner(M);
+        // Avec l'IA, la note du matin est réécrite par le Planificateur (sans outils : rapide et bon marché).
+        if (AI.on) {
+          try {
+            const r = await AI.ask(`${Mentor.rules()}\n\nYou are "${t('Le Planificateur')}", Engram's planning assistant. Rewrite this morning note for the student in ${aiLang()} (at most 80 words, Markdown, warm and concrete, keep every number exactly as given, add nothing invented):\n\n${M.text}`, { modelTier: 'quick' });
+            if (r?.text?.trim()) M.text = r.text.trim();
+          } catch { }
+        }
+        A.brief = { day: today, at: Date.now(), text: M.text, ids: M.brief?.ids || [] };
+        A.runs.unshift({ id: 'planner', at: Date.now(), deck: '', n: 0, ai: AI.on, auto: true }); A.runs = A.runs.slice(0, 30);
+      }
+      if (needReport) {
+        const M = this.ghost(AGENT.chronicler);
+        await AgentLocal.chronicler(M);
+        A.runs.unshift({ id: 'chronicler', at: Date.now(), deck: '', n: 0, ai: false, auto: true }); A.runs = A.runs.slice(0, 30);
+      }
+      Store.touch('profile');
+      if (!Study.active && ['today', 'agents'].includes(App.route.v)) App.render();
+    } finally { this.busy = false; }
+  },
+  /** Une mission sans fenêtre : mêmes analyses, rien à l'écran. */
+  ghost(a) { return { a, deck: null, props: [], actions: [], text: '', brief: null, nap: () => Promise.resolve(), step: () => ({ done() { }, err() { } }), write(x) { this.text = x; }, propose() { return false; }, action() { } }; }
+};
 
 /* ── Mode écoute : un podcast de révision ──────────────────────────── */
 function speak(text, lang = UI_LANG_META[LANG].speech) { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(plain(text)); u.lang = lang; speechSynthesis.speak(u); } catch { } }
@@ -3695,6 +4695,11 @@ const Actions = {
   mentor: el => Mentor.open('', false, el.dataset.deck),
   boxFilter: el => { if (el.dataset.deck) { deckFilter = el.dataset.k; if (App.route.v === 'deck') { $$('#deckFilter button').forEach(x => x.classList.toggle('on', x.dataset.f === deckFilter)); Hooks.deck(el.dataset.deck); $('#deckCards')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); } } else { libFilter = el.dataset.k; App.go('library'); } },
   pro: () => openPro(),
+  proTrial: () => { if (Pro.canTrial) Pro.start('expert', { trial: true }); else if (App.route.v === 'pro') $('#tiers')?.scrollIntoView({ behavior: 'smooth' }); else App.go('pro'); },
+  proPick: el => { const k = el.dataset.plan; if (k === 'free') return Pro.stop(); Pro.start(k, { trial: Pro.canTrial && !Pro.on }); },
+  agent: el => Agents.run(el.dataset.id, { deckId: el.dataset.deck }),
+  briefGo: () => { const b = S.profile.agents.brief; const items = (b?.ids || []).map(id => findCard(id)).filter(x => x[0]); if (items.length) Study.start({ items, title: t('Séance du Planificateur') }); },
+  briefHide: () => { const b = S.profile.agents.brief; if (b) { b.hidden = true; Store.touch('profile'); App.render(); } },
   palette: () => openPalette(),
   lang: () => openLangMenu(),
   settings: () => App.go('settings'),
@@ -3823,6 +4828,7 @@ Views.settings = arg => {
 
     <section class="sec" id="sAI"><div class="sec-h"><div><h2 class="h2">${t('IA et Mentor')}</h2><p>${t('Création de fiches depuis une photo, correction des réponses, prof virtuel, fiches de synthèse, et Mentor, l\'assistant qui agit dans l\'app pour vous.')}</p></div></div>
     <article class="panel rise"><div class="settings">
+      ${setRow(t('Formule'), Pro.on ? (Pro.trial ? t('Essai de Pro Expert : encore {n}.', { n: tp(Pro.daysLeft(), '{n} jour|{n} jours') }) : t('Scans, corrections, Mentor et assistants sans limite.')) : t('Ce mois-ci : {a} sur 3, {b} sur 20 à Mentor, {c} sur 3.', { a: plural(Pro.usage().scan || 0, 'scan|scans'), b: plural(Pro.usage().mentor || 0, 'message|messages'), c: plural(Pro.usage().agent || 0, 'mission|missions') }), `<button class="btn btn-sm ${Pro.on ? '' : 'btn-gilt'}" data-act="go" data-v="pro">${icon('crown', 'i-sm')}${Pro.on ? esc(Pro.name()) : t('Découvrir Pro')}</button>`)}
       ${setRow(t('État'), via, `<span class="pill ${AI.on ? 'on' : ''}"><i></i>${aiTxt}${AI.on ? (AI.images ? ' · ' + t('photos ✓') : ' · ' + t('texte seul')) + (AI.tools ? ' · ' + t('actions ✓') : '') : ''}</span>`)}
       ${setRow(t('Puissance de Mentor'), t(MENTOR_TIERS[s.mentorTier][1]), segCtl('mentorTier', Object.entries(MENTOR_TIERS).map(([k, v]) => [k, t(v[0])]), s.mentorTier))}
       ${setRow(t('Ton de Mentor et du prof'), t(TONES[s.tone].desc), segCtl('tone', Object.entries(TONES).map(([k, v]) => [k, t(v.label)]), s.tone))}
@@ -3857,7 +4863,9 @@ Hooks.settings = arg => {
   const look = new Set(['font', 'textSize', 'density', 'cardStyle', 'anim']);
   $$('[data-seg]').forEach(seg => seg.addEventListener('click', e => {
     const b = e.target.closest('[data-val]'); if (!b) return;
-    const k = seg.dataset.seg; s[k] = k === 'textSize' ? +b.dataset.val : b.dataset.val; Store.touch('profile');
+    const k = seg.dataset.seg;
+    if (k === 'mentorTier' && b.dataset.val === 'complex' && !Pro.expert) { Pro.upsell('expert'); return; }
+    s[k] = k === 'textSize' ? +b.dataset.val : b.dataset.val; Store.touch('profile');
     $$('button', seg).forEach(x => x.classList.toggle('on', x === b));
     if (k === 'ambient' && b.dataset.val !== 'off') { Ambient.set(b.dataset.val); setTimeout(() => Ambient.set('off'), 2500); }
     if (look.has(k)) Custom.apply();
@@ -4236,6 +5244,7 @@ const Study = {
     const strict = S.profile.settings.strict;
     const local = localGrade(ans, f.expected, strict);
     if (!AI.on || local.score >= 97) { this.verdict = { ...local, note: local.note || (AI.on ? t('correspondance exacte') : '') }; return this.afterCheck(); }
+    if (!Pro.use('grade')) { this.verdict = { ...local, note: t('corrections IA du jour épuisées : correction locale') }; return this.afterCheck(); }
     this.verdict = { pending: true };
     $('#verdictBox').innerHTML = this.verdictHTML(); inp.disabled = true;
     const card = this.cur; this.ctl?.abort(); this.ctl = new AbortController();
@@ -4255,6 +5264,7 @@ const Study = {
     const [c] = this.cur; const f = cardFaces(c); const card = this.cur;
     const img = pad.image({ maxW: 1400 }); this.inkURL = pad.image({ bg: null, ink: '#1D1C18', maxW: 900 }).url;
     if (!AI.images) { this.verdict = null; Sound.play('flip'); return this.flip(); }
+    if (!Pro.use('grade')) { this.verdict = null; toast(t('Corrections IA du jour épuisées : comparez vous-même, ou passez à Pro.'), 'crown'); Sound.play('flip'); return this.flip(); }
     this.verdict = { pending: true, ink: true };
     $('#verdictBox').innerHTML = this.verdictHTML(); $('#inkPad')?.classList.add('busy'); const go = $('#inkGo'); if (go) go.disabled = true;
     this.ctl?.abort(); this.ctl = new AbortController();
@@ -4729,6 +5739,7 @@ async function runScan() {
     if (!Scan.results.length) Scan.err = t('Aucune fiche trouvée : le texte doit contenir des définitions (« terme : explication »), des phrases avec « est / sont », des dates ou des chiffres.');
     App.render(); return;
   }
+  if (!Pro.use('scan')) { Pro.upsell('scan'); return; }
   Scan.phase = 'running'; Scan.running = true; App.render();
   const msgs = photo || pdfImgs ? [t('Détection des bords de la page…'), t("Déchiffrage de l'écriture…"), t('Repérage des titres et des encadrés…'), t('Identification des définitions et des dates…'), t('Choix des mots-clés à masquer…'), t('Rédaction des questions…')]
     : [t('Lecture…'), t('Repérage des notions clés…'), t('Identification des définitions et des dates…'), t('Choix des mots-clés à masquer…'), t('Rédaction des questions…')];
@@ -4936,8 +5947,8 @@ function matchFinish() {
 /* Examen blanc */
 function buildExam() {
   const decks = Game.deckId ? [deckById(Game.deckId)].filter(Boolean) : S.decks;
-  const pool = decks.flatMap(d => d.cards.map(c => [c, d])).filter(([c]) => !['occlusion', 'order'].includes(c.type));
-  const ans = pool.filter(([c]) => !['mcq', 'tf'].includes(c.type)).map(([c, d]) => [plain(cardFaces(c).expected), d]).filter(([x]) => x && x.length < 120);
+  const pool = (Game.only || decks.flatMap(d => d.cards.map(c => [c, d]))).filter(([c]) => !['occlusion', 'order'].includes(c.type));
+  const ans = (Game.only ? S.decks.flatMap(d => d.cards.map(c => [c, d])) : pool).filter(([c]) => !['occlusion', 'order'].includes(c.type)).filter(([c]) => !['mcq', 'tf'].includes(c.type)).map(([c, d]) => [plain(cardFaces(c).expected), d]).filter(([x]) => x && x.length < 120);
   const qs = [];
   for (const [c, d] of shuffle(pool)) {
     if (qs.length >= Game.n) break;
@@ -5386,7 +6397,7 @@ const Mentor = {
   bind() {
     $('#mClose').onclick = () => this.close();
     $('#mNew').onclick = () => { this.ctl?.abort(); this.turns = []; this.save(); this.render(); };
-    $('#mTier').onclick = () => { const order = ['quick', 'default', 'complex']; const s = S.profile.settings; s.mentorTier = order[(order.indexOf(s.mentorTier) + 1) % 3]; Store.touch('profile'); $('#mTier').innerHTML = icon('brain', 'i-sm') + this.tierLabel(); toast(t('Mentor : {x}', { x: this.tierLabel() }) + ' — ' + t(MENTOR_TIERS[s.mentorTier][1]), 'sparkles'); };
+    $('#mTier').onclick = () => { const order = ['quick', 'default', 'complex']; const s = S.profile.settings; let nx = order[(order.indexOf(s.mentorTier) + 1) % 3]; if (nx === 'complex' && !Pro.expert) { nx = 'quick'; toast(t('Le mode Expert fait partie de Pro Expert'), 'crown'); } s.mentorTier = nx; Store.touch('profile'); $('#mTier').innerHTML = icon('brain', 'i-sm') + this.tierLabel(); toast(t('Mentor : {x}', { x: this.tierLabel() }) + ' — ' + t(MENTOR_TIERS[s.mentorTier][1]), 'sparkles'); };
     $('#mSugg').onclick = e => {
       const q = e.target.closest('[data-q]'); if (q) { this.send(q.dataset.q); return; }
       const o = e.target.closest('[data-off]'); if (!o) return;
@@ -5429,6 +6440,7 @@ const Mentor = {
 Your tone: ${TONES[s.tone]?.ai || TONES.gentle.ai}. Reply in ${aiLang()} unless the student writes to you in another language (then use theirs). Be concise: short paragraphs, **bold** for key words, simple lists when useful, no headings, no tables.
 ${AI.tools ? `You can act inside the app with the tools provided. When the student asks for something the tools can do, DO it with the tools instead of explaining how, then confirm in one or two sentences what you did. Call get_deck_cards before editing or quizzing on specific cards. Create at most 30 cards per add_cards call (call it several times for more). When you learn something durable about the student (goal, weakness, preference, constraint), save it with remember. Never delete anything the student did not explicitly ask to delete — the app asks them to confirm deletions. Everything you change can be undone by the student with one click.` : `In this view you cannot act in the app: answer, advise and tell the student which button to use.`}
 Flashcard quality rules: one idea per card; precise, unambiguous question; short answer (under 20 words); useful detail in "extra"; cloze cards use {{c1::…}} on the most information-rich words (1–3 gaps); multiple-choice cards have 4 plausible options and exactly one correct; write cards in the language of the deck (see each deck's lang) unless asked otherwise.
+Engram Pro also has six specialised assistants you can hand a task to with run_agent (the student then reviews their proposals): planner (prepares today's session), proof (audits a deck's cards), coach (mnemonics for often-forgotten cards), librarian (finds missing notions and drafts new cards), examiner (tailored timed mock exam), chronicler (weekly report). Use them for audits, mock exams and weekly reports.
 Planning rules: the app computes the daily programme itself from exams, available minutes per weekday and FSRS; to change it, adjust exams, weekly minutes or the new-cards cap — then explain the effect with get_plan.
 To quiz the student in the chat: ask one question at a time, wait for their answer, grade it kindly (accept synonyms), then continue.
 
@@ -5572,6 +6584,9 @@ ${JSON.stringify(this.snapshot())}`;
       { name: 'save_note', description: 'Save a note or summary sheet (Markdown: ## title, ### sections, - bullets, **bold**) inside a deck, where the student can reread and export it.',
         inputSchema: { type: 'object', properties: { deck_id: { type: 'string' }, title: { type: 'string' }, markdown: { type: 'string' } }, required: ['deck_id', 'title', 'markdown'] },
         execute: i => { const d = deckOf(i.deck_id); d.notes.unshift({ id: uid('note'), title: str(i.title).slice(0, 100), md: str(i.markdown).slice(0, 20000), created: Date.now() }); Store.touchDeck(d); mark(); say(t('Note enregistrée : « {t} »', { t: str(i.title) })); return 'saved'; } },
+      { name: 'run_agent', description: 'Hand a task to one of Engram\'s specialised assistants. It opens its mission window; its proposals wait for the student\'s approval. agent: planner | proof | coach | librarian | examiner | chronicler. deck_id is used by proof, coach and librarian (and optionally examiner).',
+        inputSchema: { type: 'object', properties: { agent: { type: 'string', enum: AGENTS.map(a => a.id) }, deck_id: { type: 'string' } }, required: ['agent'] },
+        execute: i => { const a = AGENT[str(i.agent)]; if (!a) throw new Error('Unknown agent.'); const deckId = str(i.deck_id) && deckById(str(i.deck_id)) ? str(i.deck_id) : undefined; ctx.after.push(() => { this.close(); Agents.run(a.id, { deckId }); }); say(t('Mission confiée : {a}', { a: t(a.name) })); return 'The assistant\'s window opens when you finish your reply. Tell the student in one sentence.'; } },
       { name: 'export_calendar', description: 'Offer the student a button to download the programme and exams as a calendar file (.ics) for Google Calendar, Apple Calendar or Outlook.', inputSchema: { type: 'object', properties: {} },
         execute: () => { ctx.buttons.push({ label: t("Ajouter à mon agenda"), icon: 'cal', run: () => openCalendar() }); return 'A download button is shown under your message.'; } }
     ];
@@ -5581,6 +6596,7 @@ ${JSON.stringify(this.snapshot())}`;
   async send(text) {
     if (this.busy || !text.trim()) return;
     if (!AI.on) { toast(t("Mentor a besoin de l'IA : ouvrez Engram dans l'app Claude."), 'sparkles'); return; }
+    if (!Pro.use('mentor')) { Pro.upsell('mentor'); return; }
     $('#mSugg')?.setAttribute('hidden', '');
     this.turns.push({ role: 'user', content: text }); this.save();
     const body = $('#mBody'); body.querySelector('.m-intro')?.remove();
@@ -5606,7 +6622,7 @@ ${JSON.stringify(this.snapshot())}`;
     const input = [{ role: 'user', content: this.rules() }, ...this.turns.slice(-16).map(x => ({ role: x.role, content: x.content }))];
     let out = '';
     try {
-      const opts = { signal: this.ctl.signal, modelTier: S.profile.settings.mentorTier, onText: ({ text: x }) => { out = x; txt.innerHTML = md(x); body.scrollTop = body.scrollHeight; } };
+      const opts = { signal: this.ctl.signal, modelTier: S.profile.settings.mentorTier === 'complex' && !Pro.expert ? 'default' : S.profile.settings.mentorTier, onText: ({ text: x }) => { out = x; txt.innerHTML = md(x); body.scrollTop = body.scrollHeight; } };
       if (AI.tools) opts.tools = this.toolDefs(ctx); else opts.cache = false;
       const r = await AI.ask(input, opts);
       out = r.text;
@@ -6590,7 +7606,6 @@ TR = {
   "Import Anki, Quizlet, CSV": ["Anki, Quizlet, CSV import","Importación Anki, Quizlet, CSV","Import aus Anki, Quizlet, CSV","Importação Anki, Quizlet, CSV"],
   "5 langues, tous les thèmes": ["5 languages, every theme","5 idiomas, todos los temas","5 Sprachen, alle Themen","5 idiomas, todos os temas"],
   "Le plus choisi": ["Most popular","El más elegido","Am beliebtesten","O mais escolhido"],
-  "6,99 €": ["$6.99","6,99 €","6,99 €","R$ 19,90"],
   "/ mois": ["/ month","/ mes","/ Monat","/ mês"],
   "Scans illimités (photos, PDF)": ["Unlimited scans (photos, PDF)","Escaneos ilimitados (fotos, PDF)","Unbegrenzte Scans (Fotos, PDF)","Escaneamentos ilimitados (fotos, PDF)"],
   "Correction IA de chaque réponse": ["AI grading of every answer","Corrección con IA de cada respuesta","KI-Korrektur jeder Antwort","Correção por IA de cada resposta"],
@@ -7285,7 +8300,277 @@ TR = {
   "Écrivez comme sur une feuille : titres, définitions, flèches, schémas.": ["Write as you would on paper: headings, definitions, arrows, diagrams.","Escribe como en una hoja: títulos, definiciones, flechas, esquemas.","Schreiben Sie wie auf Papier: Überschriften, Definitionen, Pfeile, Skizzen.","Escreva como numa folha: títulos, definições, setas, esquemas."],
   "Écrivez votre cours ici…": ["Write your course here…","Escribe tu curso aquí…","Schreiben Sie Ihren Stoff hier…","Escreva sua matéria aqui…"],
   "Écrivez votre réponse ici, au stylet ou au doigt": ["Write your answer here, with a stylus or a finger","Escribe tu respuesta aquí, con el lápiz o con el dedo","Schreiben Sie Ihre Antwort hier, mit Stift oder Finger","Escreva sua resposta aqui, com a caneta ou o dedo"],
-  "écriture illisible": ["illegible handwriting","letra ilegible","unleserliche Schrift","letra ilegível"]
+  "écriture illisible": ["illegible handwriting","letra ilegible","unleserliche Schrift","letra ilegível"],
+  // Engram Pro et assistants
+  "Pro": ["Pro","Pro","Pro","Pro"],
+  "Pro Expert": ["Pro Expert","Pro Expert","Pro Expert","Pro Expert"],
+  "{n} jour|{n} jours": ["{n} day|{n} days","{n} día|{n} días","{n} Tag|{n} Tage","{n} dia|{n} dias"],
+  "(contre {x})": ["(vs {x})","(frente a {x})","(gegenüber {x})","(contra {x})"],
+  "**Rien d'urgent aujourd'hui.** Profitez-en pour scanner un nouveau cours ou lancer une partie.": ["**Nothing urgent today.** A good moment to scan a new course or start a game.","**Nada urgente hoy.** Aprovecha para escanear un curso nuevo o empezar una partida.","**Heute nichts Dringendes.** Nutze die Zeit, um einen neuen Kurs zu scannen oder ein Spiel zu starten.","**Nada urgente hoje.** Aproveite para escanear uma nova aula ou começar uma partida."],
+  "20 messages par mois": ["20 messages a month","20 mensajes al mes","20 Nachrichten pro Monat","20 mensagens por mês"],
+  "3 missions d'assistants par mois": ["3 assistant missions a month","3 misiones de asistentes al mes","3 Assistenten-Aufträge pro Monat","3 missões de assistentes por mês"],
+  "3 missions par mois": ["3 missions a month","3 misiones al mes","3 Aufträge pro Monat","3 missões por mês"],
+  "3 par mois": ["3 a month","3 al mes","3 pro Monat","3 por mês"],
+  "30 corrections IA par jour": ["30 AI checks a day","30 correcciones con IA al día","30 KI-Korrekturen pro Tag","30 correções com IA por dia"],
+  "30 par jour": ["30 a day","30 al día","30 pro Tag","30 por dia"],
+  "A besoin de l'IA": ["Needs AI","Necesita la IA","Braucht die KI","Precisa da IA"],
+  "APPLIQUÉ": ["APPLIED","APLICADO","ÜBERNOMMEN","APLICADO"],
+  "Annuel": ["Yearly","Anual","Jährlich","Anual"],
+  "Annuler les changements": ["Undo the changes","Deshacer los cambios","Änderungen rückgängig machen","Desfazer as alterações"],
+  "Anti-oubli": ["Forget-proof","Antiolvido","Gegen das Vergessen","Antiesquecimento"],
+  "Appliquer": ["Apply","Aplicar","Übernehmen","Aplicar"],
+  "Après": ["After","Después","Nachher","Depois"],
+  "Aucun examen prévu": ["No exam planned","Ningún examen previsto","Keine Prüfung geplant","Nenhuma prova prevista"],
+  "Aucun paquet pour le moment.": ["No decks yet.","Todavía no hay mazos.","Noch keine Stapel.","Nenhum baralho por enquanto."],
+  "Aujourd'hui : {n}, environ {m}.": ["Today: {n}, about {m}.","Hoy: {n}, unos {m}.","Heute: {n}, etwa {m}.","Hoje: {n}, cerca de {m}."],
+  "Autopilote": ["Autopilot","Piloto automático","Autopilot","Piloto automático"],
+  "Autopilote : le mot du matin, le bilan du lundi": ["Autopilot: the morning note, the Monday review","Piloto automático: la nota de la mañana, el balance del lunes","Autopilot: die Morgennotiz, der Montagsrückblick","Piloto automático: o recado da manhã, o balanço de segunda"],
+  "Autopilote activé : rendez-vous demain matin.": ["Autopilot on: see you tomorrow morning.","Piloto automático activado: nos vemos mañana por la mañana.","Autopilot an: bis morgen früh.","Piloto automático ativado: até amanhã de manhã."],
+  "Autopilote du matin et bilan du lundi": ["Morning autopilot and Monday review","Piloto automático por la mañana y balance del lunes","Autopilot am Morgen und Montagsrückblick","Piloto automático de manhã e balanço de segunda"],
+  "Autopilote désactivé.": ["Autopilot off.","Piloto automático desactivado.","Autopilot aus.","Piloto automático desativado."],
+  "Avant": ["Before","Antes","Vorher","Antes"],
+  "Avec Pro, Mentor répond et agit pour vous sans limite.": ["With Pro, Mentor answers and acts for you without limits.","Con Pro, Mentor responde y actúa por ti sin límite.","Mit Pro antwortet und handelt Mentor unbegrenzt für dich.","Com o Pro, o Mentor responde e age por você sem limite."],
+  "Avec Pro, les six assistants travaillent pour vous sans limite. Les analyses sans IA restent libres.": ["With Pro, the six assistants work for you without limits. Analyses without AI stay free.","Con Pro, los seis asistentes trabajan para ti sin límite. Los análisis sin IA siguen siendo libres.","Mit Pro arbeiten die sechs Assistenten unbegrenzt für dich. Analysen ohne KI bleiben frei.","Com o Pro, os seis assistentes trabalham para você sem limite. As análises sem IA continuam livres."],
+  "Avec Pro, photographiez autant de cours que vous voulez : pages manuscrites, PDF, notes au stylet.": ["With Pro, photograph as many courses as you like: handwritten pages, PDFs, pen notes.","Con Pro, fotografía todos los cursos que quieras: páginas manuscritas, PDF, notas con lápiz.","Mit Pro fotografierst du so viele Kurse, wie du willst: handschriftliche Seiten, PDFs, Stiftnotizen.","Com o Pro, fotografe quantas aulas quiser: páginas manuscritas, PDF, anotações com a caneta."],
+  "Avec l'IA, je vérifie aussi le fond : questions ambiguës, erreurs, fiches à scinder.": ["With AI, I also check the substance: ambiguous questions, mistakes, cards to split.","Con la IA, también reviso el fondo: preguntas ambiguas, errores, tarjetas que dividir.","Mit KI prüfe ich auch den Inhalt: mehrdeutige Fragen, Fehler, Karten zum Aufteilen.","Com a IA, também verifico o conteúdo: perguntas ambíguas, erros, cartões a dividir."],
+  "Bienvenue dans Engram Pro": ["Welcome to Engram Pro","Bienvenido a Engram Pro","Willkommen bei Engram Pro","Boas-vindas ao Engram Pro"],
+  "Bilan de la semaine": ["Weekly review","Balance de la semana","Wochenrückblick","Balanço da semana"],
+  "Bilan prêt": ["Review ready","Balance listo","Rückblick fertig","Balanço pronto"],
+  "C'est une question : le point d'interrogation aide à la lire comme telle.": ["It is a question: a question mark helps read it as one.","Es una pregunta: el signo de interrogación ayuda a leerla como tal.","Es ist eine Frage: Das Fragezeichen hilft, sie als solche zu lesen.","É uma pergunta: o ponto de interrogação ajuda a lê-la como tal."],
+  "C'est {p} de moins que la semaine d'avant : rien de grave, reprenez le fil.": ["That is {p} less than the week before: nothing serious, just pick up the thread.","Es un {p} menos que la semana anterior: nada grave, retoma el hilo.","Das sind {p} weniger als in der Woche davor: nicht schlimm, knüpf einfach wieder an.","São {p} a menos que na semana anterior: nada grave, retome o ritmo."],
+  "C'est {p} de plus que la semaine d'avant.": ["That is {p} more than the week before.","Es un {p} más que la semana anterior.","Das sind {p} mehr als in der Woche davor.","São {p} a mais que na semana anterior."],
+  "Carte Engram Pro": ["Engram Pro card","Tarjeta Engram Pro","Engram-Pro-Karte","Cartão Engram Pro"],
+  "Carte de lecteur": ["Reader's card","Carné de lector","Leseausweis","Carteirinha de leitor"],
+  "Ce mois-ci : {a} sur 3, {b} sur 20 à Mentor, {c} sur 3.": ["This month: {a} of 3, {b} of 20 to Mentor, {c} of 3.","Este mes: {a} de 3, {b} de 20 a Mentor, {c} de 3.","Diesen Monat: {a} von 3, {b} von 20 an Mentor, {c} von 3.","Este mês: {a} de 3, {b} de 20 ao Mentor, {c} de 3."],
+  "Cet assistant rédige : il a besoin de l'IA. Ouvrez Engram dans l'app Claude, ou branchez le serveur Engram (Réglages → IA et Mentor).": ["This assistant writes, so it needs AI. Open Engram in the Claude app, or connect the Engram server (Settings → AI and Mentor).","Este asistente redacta: necesita la IA. Abre Engram en la app de Claude o conecta el servidor de Engram (Ajustes → IA y Mentor).","Dieser Assistent schreibt, also braucht er die KI. Öffne Engram in der Claude-App oder verbinde den Engram-Server (Einstellungen → KI und Mentor).","Este assistente escreve: ele precisa da IA. Abra o Engram no app do Claude ou conecte o servidor do Engram (Ajustes → IA e Mentor)."],
+  "Cette fonction fait partie de Pro": ["This feature is part of Pro","Esta función forma parte de Pro","Diese Funktion gehört zu Pro","Este recurso faz parte do Pro"],
+  "Cette semaine : {r} en {d}, {m}.": ["This week: {r} over {d}, {m}.","Esta semana: {r} en {d}, {m}.","Diese Woche: {r} an {d}, {m}.","Esta semana: {r} em {d}, {m}."],
+  "Cette semaine, le fichier est resté fermé.": ["This week, the cabinet stayed closed.","Esta semana, el fichero se quedó cerrado.","Diese Woche blieb die Kartei zu.","Esta semana, o fichário ficou fechado."],
+  "Chacun son métier. Lancez-les quand vous voulez, ou laissez l'autopilote les réveiller.": ["Each has a trade. Run them whenever you like, or let the autopilot wake them up.","Cada uno tiene su oficio. Lánzalos cuando quieras o deja que el piloto automático los despierte.","Jeder hat sein Handwerk. Starte sie, wann du willst, oder lass den Autopiloten sie wecken.","Cada um tem seu ofício. Acione-os quando quiser ou deixe o piloto automático acordá-los."],
+  "Changements annulés": ["Changes undone","Cambios deshechos","Änderungen rückgängig gemacht","Alterações desfeitas"],
+  "Chaque assistant lit vos fiches et votre historique, puis propose. Rien ne change sans votre accord, et tout s'annule d'un clic.": ["Each assistant reads your cards and your history, then suggests. Nothing changes without your say-so, and everything undoes in one click.","Cada asistente lee tus tarjetas y tu historial, y luego propone. Nada cambia sin tu permiso, y todo se deshace con un clic.","Jeder Assistent liest deine Karten und deinen Verlauf und macht dann Vorschläge. Nichts ändert sich ohne dein Okay, und alles lässt sich mit einem Klick rückgängig machen.","Cada assistente lê seus cartões e seu histórico e depois propõe. Nada muda sem sua permissão, e tudo se desfaz com um clique."],
+  "Chaque lundi, il fait le point : ce qui progresse, ce qui glisse, où vous en êtes pour l'examen, et trois priorités.": ["Every Monday, it takes stock: what is improving, what is slipping, where you stand for the exam, and three priorities.","Cada lunes hace balance: lo que avanza, lo que se escapa, cómo vas para el examen y tres prioridades.","Jeden Montag zieht er Bilanz: was vorangeht, was abrutscht, wo du für die Prüfung stehst, und drei Prioritäten.","Toda segunda, ele faz o balanço: o que avança, o que escorrega, como você está para a prova e três prioridades."],
+  "Chaque matin, le Planificateur prépare votre séance ; chaque lundi, le Chroniqueur fait le bilan de la semaine.": ["Every morning, the Planner prepares your session; every Monday, the Chronicler reviews your week.","Cada mañana, el Planificador prepara tu sesión; cada lunes, el Cronista hace el balance de la semana.","Jeden Morgen bereitet der Planer deine Sitzung vor; jeden Montag zieht der Chronist Bilanz über die Woche.","Toda manhã, o Planejador prepara sua sessão; toda segunda, o Cronista faz o balanço da semana."],
+  "Chaque matin, le Planificateur prépare votre séance. Chaque lundi, le Chroniqueur fait le bilan de la semaine. Ils travaillent à l'ouverture de l'app, sans rien modifier.": ["Every morning, the Planner prepares your session. Every Monday, the Chronicler reviews your week. They work when you open the app, without changing anything.","Cada mañana, el Planificador prepara tu sesión. Cada lunes, el Cronista hace el balance de la semana. Trabajan al abrir la app, sin modificar nada.","Jeden Morgen bereitet der Planer deine Sitzung vor. Jeden Montag zieht der Chronist Bilanz über die Woche. Sie arbeiten beim Öffnen der App, ohne etwas zu ändern.","Toda manhã, o Planejador prepara sua sessão. Toda segunda, o Cronista faz o balanço da semana. Eles trabalham quando você abre o app, sem alterar nada."],
+  "Choisir {p}": ["Choose {p}","Elegir {p}","{p} wählen","Escolher {p}"],
+  "Classement des fiches par fragilité": ["Ranking cards by fragility","Clasificación de tarjetas por fragilidad","Karten nach Anfälligkeit sortieren","Classificação dos cartões por fragilidade"],
+  "Claude, d'Anthropic : par votre compte Claude dans l'app Claude, ou par le serveur Engram ailleurs. Sans IA, Engram continue de fonctionner avec ses méthodes locales.": ["Claude, by Anthropic: through your Claude account in the Claude app, or through the Engram server elsewhere. Without AI, Engram keeps working with its local methods.","Claude, de Anthropic: con tu cuenta de Claude en la app de Claude, o con el servidor de Engram en otros sitios. Sin IA, Engram sigue funcionando con sus métodos locales.","Claude von Anthropic: über dein Claude-Konto in der Claude-App oder anderswo über den Engram-Server. Ohne KI funktioniert Engram mit seinen lokalen Methoden weiter.","Claude, da Anthropic: pela sua conta Claude no app do Claude ou pelo servidor do Engram em outros lugares. Sem IA, o Engram continua funcionando com seus métodos locais."],
+  "Commencer l'examen blanc": ["Start the mock exam","Empezar el simulacro","Probeprüfung starten","Começar o simulado"],
+  "Comparaison avec la semaine d'avant": ["Comparing with the week before","Comparación con la semana anterior","Vergleich mit der Vorwoche","Comparação com a semana anterior"],
+  "Comparer en détail": ["Compare in detail","Comparar en detalle","Im Detail vergleichen","Comparar em detalhes"],
+  "Compléter": ["Fill the gaps","Completar","Ergänzen","Completar"],
+  "Composition de l'examen blanc": ["Putting the mock exam together","Preparación del simulacro","Probeprüfung wird zusammengestellt","Montagem do simulado"],
+  "Correction IA des réponses": ["AI answer checking","Corrección de respuestas con IA","KI-Korrektur der Antworten","Correção das respostas com IA"],
+  "Corrections IA du jour épuisées : comparez vous-même, ou passez à Pro.": ["Today's AI checks are used up: compare it yourself, or upgrade to Pro.","Correcciones con IA de hoy agotadas: compara tú mismo o pásate a Pro.","Die KI-Korrekturen für heute sind aufgebraucht: vergleiche selbst oder wechsle zu Pro.","Correções com IA de hoje esgotadas: compare você mesmo ou passe para o Pro."],
+  "Dernière mission {when}": ["Last mission {when}","Última misión {when}","Letzter Auftrag {when}","Última missão {when}"],
+  "Des plans et des raisonnements plus poussés pour les concours": ["Deeper plans and reasoning for competitive exams","Planes y razonamientos más avanzados para oposiciones y concursos","Gründlichere Pläne und Überlegungen für Auswahlprüfungen","Planos e raciocínios mais aprofundados para concursos e vestibulares"],
+  "Docteur des fiches": ["Card doctor","Doctor de tarjetas","Kartendoktor","Doutor dos cartões"],
+  "Doublon": ["Duplicate","Duplicado","Doppelt","Duplicado"],
+  "Découverte reste gratuite et sans publicité. L'abonnement paie l'IA : chaque photo analysée, chaque correction et chaque mission a un coût.": ["Discovery stays free and ad-free. The subscription pays for the AI: every photo analysed, every check and every mission has a cost.","Descubrimiento sigue siendo gratis y sin publicidad. La suscripción paga la IA: cada foto analizada, cada corrección y cada misión tiene un coste.","Entdecken bleibt kostenlos und werbefrei. Das Abo bezahlt die KI: Jedes analysierte Foto, jede Korrektur und jeder Auftrag kostet etwas.","Descoberta continua grátis e sem anúncios. A assinatura paga a IA: cada foto analisada, cada correção e cada missão tem um custo."],
+  "Découvrir Engram Pro": ["Discover Engram Pro","Descubrir Engram Pro","Engram Pro entdecken","Conhecer o Engram Pro"],
+  "Découvrir Pro": ["Discover Pro","Descubrir Pro","Pro entdecken","Conhecer o Pro"],
+  "Essai de Pro Expert : encore {n}.": ["Pro Expert trial: {n} left.","Prueba de Pro Expert: quedan {n}.","Pro-Expert-Test: noch {n}.","Teste do Pro Expert: faltam {n}."],
+  "Essai de Pro Expert jusqu'au {d}.": ["Pro Expert trial until {d}.","Prueba de Pro Expert hasta el {d}.","Pro-Expert-Test bis {d}.","Teste do Pro Expert até {d}."],
+  "Essai jusqu'au {d} · tout est inclus": ["Trial until {d} · everything included","Prueba hasta el {d} · todo incluido","Test bis {d} · alles inklusive","Teste até {d} · tudo incluído"],
+  "Essai · encore {n}": ["Trial · {n} left","Prueba · quedan {n}","Test · noch {n}","Teste · faltam {n}"],
+  "Essayer 14 jours": ["Try for 14 days","Probar 14 días","14 Tage testen","Testar 14 dias"],
+  "Essayer 14 jours gratuitement": ["Try free for 14 days","Probar gratis 14 días","14 Tage kostenlos testen","Testar grátis por 14 dias"],
+  "Essayer Pro 14 jours": ["Try Pro for 14 days","Probar Pro 14 días","Pro 14 Tage testen","Testar o Pro por 14 dias"],
+  "Examen blanc : {n}, {m} au plus.": ["Mock exam: {n}, {m} at most.","Simulacro: {n}, {m} como máximo.","Probeprüfung: {n}, höchstens {m}.","Simulado: {n}, no máximo {m}."],
+  "Examens blancs sur mesure": ["Tailor-made mock exams","Simulacros a medida","Probeprüfungen nach Maß","Simulados sob medida"],
+  "Faire relire": ["Get it proofread","Hacer revisar","Korrekturlesen lassen","Mandar revisar"],
+  "Fiches illimitées, FSRS, 5 langues": ["Unlimited cards, FSRS, 5 languages","Tarjetas ilimitadas, FSRS, 5 idiomas","Unbegrenzte Karten, FSRS, 5 Sprachen","Cartões ilimitados, FSRS, 5 idiomas"],
+  "Fiches, paquets, algorithme FSRS": ["Cards, decks, FSRS algorithm","Tarjetas, mazos, algoritmo FSRS","Karten, Stapel, FSRS-Algorithmus","Cartões, baralhos, algoritmo FSRS"],
+  "Forme des questions": ["Question wording","Forma de las preguntas","Form der Fragen","Forma das perguntas"],
+  "Formule": ["Plan","Plan","Tarif","Plano"],
+  "Formule Découverte : encore {n} ce mois-ci avec l'IA. Les analyses locales sont illimitées.": ["Discovery plan: {n} left this month with AI. Local analyses are unlimited.","Plan Descubrimiento: te quedan {n} este mes con IA. Los análisis locales son ilimitados.","Tarif Entdecken: diesen Monat noch {n} mit KI. Lokale Analysen sind unbegrenzt.","Plano Descoberta: restam {n} este mês com IA. As análises locais são ilimitadas."],
+  "Formule Découverte : les analyses locales sont illimitées ; avec l'IA, 3 missions par mois.": ["Discovery plan: local analyses are unlimited; with AI, 3 missions a month.","Plan Descubrimiento: los análisis locales son ilimitados; con IA, 3 misiones al mes.","Tarif Entdecken: lokale Analysen sind unbegrenzt; mit KI 3 Aufträge pro Monat.","Plano Descoberta: as análises locais são ilimitadas; com IA, 3 missões por mês."],
+  "IA": ["AI","IA","KI","IA"],
+  "Ignorer": ["Skip","Ignorar","Ignorieren","Ignorar"],
+  "Il compose un examen blanc sur vos points faibles et sur le programme du prochain examen, chronomètre compris.": ["It builds a mock exam on your weak spots and the syllabus of your next exam, timer included.","Prepara un simulacro sobre tus puntos débiles y el temario del próximo examen, con cronómetro.","Er stellt eine Probeprüfung zu deinen Schwachstellen und zum Stoff der nächsten Prüfung zusammen, mit Stoppuhr.","Ele monta um simulado com seus pontos fracos e o conteúdo da próxima prova, com cronômetro."],
+  "Il faut au moins quatre fiches pour composer un examen blanc.": ["A mock exam needs at least four cards.","Hacen falta al menos cuatro tarjetas para preparar un simulacro.","Für eine Probeprüfung braucht es mindestens vier Karten.","São necessários pelo menos quatro cartões para montar um simulado."],
+  "Il lit votre journée : fiches dues, examens, temps libre. Il prépare la séance idéale et vous l'explique en trois lignes.": ["It reads your day: cards due, exams, free time. It prepares the ideal session and explains it in three lines.","Lee tu día: tarjetas pendientes, exámenes, tiempo libre. Prepara la sesión ideal y te la explica en tres líneas.","Er liest deinen Tag: fällige Karten, Prüfungen, freie Zeit. Er bereitet die ideale Sitzung vor und erklärt sie dir in drei Zeilen.","Ele lê seu dia: cartões pendentes, provas, tempo livre. Prepara a sessão ideal e a explica em três linhas."],
+  "Il mélange les fiches du programme que vous avez le moins revues.": ["It mixes the syllabus cards you have reviewed least.","Mezcla las tarjetas del temario que menos has repasado.","Er mischt die Karten aus dem Stoff, die du am wenigsten wiederholt hast.","Ele mistura os cartões do conteúdo que você menos revisou."],
+  "Il relit un paquet comme un professeur : questions floues, réponses trop longues, doublons, erreurs. Il propose, vous validez.": ["It reads a deck like a teacher: vague questions, overlong answers, duplicates, mistakes. It suggests, you approve.","Revisa un mazo como un profesor: preguntas vagas, respuestas demasiado largas, duplicados, errores. Él propone, tú validas.","Er liest einen Stapel wie ein Lehrer: unklare Fragen, zu lange Antworten, Doppelte, Fehler. Er schlägt vor, du entscheidest.","Ele revisa um baralho como um professor: perguntas vagas, respostas longas demais, duplicados, erros. Ele propõe, você aprova."],
+  "Il repère ce qui manque à un paquet pour couvrir le sujet, et rédige les fiches absentes.": ["It spots what a deck is missing to cover the subject, and writes the missing cards.","Detecta lo que le falta a un mazo para cubrir el tema y redacta las tarjetas ausentes.","Er erkennt, was einem Stapel fehlt, um das Thema abzudecken, und schreibt die fehlenden Karten.","Ele identifica o que falta num baralho para cobrir o assunto e escreve os cartões ausentes."],
+  "Il vise d'abord vos {n} les plus fragiles, puis ce que vous n'avez pas revu depuis longtemps.": ["It goes first for your weakest ones ({n}), then what you have not reviewed for a long time.","Apunta primero a tus más frágiles ({n}) y luego a lo que no repasas desde hace tiempo.","Er nimmt sich zuerst deine anfälligsten vor ({n}), dann das, was du lange nicht wiederholt hast.","Ele mira primeiro os seus mais frágeis ({n}), depois o que você não revisa há muito tempo."],
+  "Illimité": ["Unlimited","Ilimitado","Unbegrenzt","Ilimitado"],
+  "Illimitée": ["Unlimited","Ilimitada","Unbegrenzt","Ilimitada"],
+  "Illimités": ["Unlimited","Ilimitados","Unbegrenzt","Ilimitados"],
+  "Import et export Anki": ["Anki import and export","Importación y exportación de Anki","Anki-Import und -Export","Importação e exportação do Anki"],
+  "Import et export Anki, Quizlet, PDF": ["Import and export: Anki, Quizlet, PDF","Importar y exportar: Anki, Quizlet, PDF","Import und Export: Anki, Quizlet, PDF","Importar e exportar: Anki, Quizlet, PDF"],
+  "J'ai relu {n} de « {deck} ».": ["I read {n} from “{deck}”.","He revisado {n} de «{deck}».","Ich habe {n} aus „{deck}“ gelesen.","Revisei {n} de “{deck}”."],
+  "Jamais. Ils lisent, analysent et proposent. Chaque changement attend votre accord, et un seul bouton annule tout ce qui a été appliqué.": ["Never. They read, analyse and suggest. Each change waits for your approval, and a single button undoes everything that was applied.","Nunca. Leen, analizan y proponen. Cada cambio espera tu permiso, y un solo botón deshace todo lo aplicado.","Nie. Sie lesen, analysieren und schlagen vor. Jede Änderung wartet auf dein Okay, und ein einziger Knopf macht alles Übernommene rückgängig.","Nunca. Eles leem, analisam e propõem. Cada alteração espera sua aprovação, e um único botão desfaz tudo o que foi aplicado."],
+  "Journal de bord": ["Logbook","Cuaderno de bitácora","Logbuch","Diário de bordo"],
+  "Journal des missions": ["Mission log","Registro de misiones","Auftragsprotokoll","Registro das missões"],
+  "L'Examinateur": ["The Examiner","El Examinador","Der Prüfer","O Examinador"],
+  "L'Examinateur : examen blanc sur mesure": ["The Examiner: tailor-made mock exam","El Examinador: simulacro a medida","Der Prüfer: Probeprüfung nach Maß","O Examinador: simulado sob medida"],
+  "L'IA ne répond pas": ["The AI is not answering","La IA no responde","Die KI antwortet nicht","A IA não responde"],
+  "L'autopilote fait partie de Pro": ["The autopilot is part of Pro","El piloto automático forma parte de Pro","Der Autopilot gehört zu Pro","O piloto automático faz parte do Pro"],
+  "L'équipe Pro": ["The Pro team","El equipo Pro","Das Pro-Team","A equipe Pro"],
+  "La même question existe déjà dans ce paquet : je garde celle qui a le plus d'historique.": ["The same question already exists in this deck: I keep the one with the most history.","La misma pregunta ya existe en este mazo: me quedo con la que tiene más historial.","Dieselbe Frage gibt es schon in diesem Stapel: Ich behalte die mit dem längsten Verlauf.","A mesma pergunta já existe neste baralho: mantenho a que tem mais histórico."],
+  "Lancer": ["Run","Lanzar","Starten","Iniciar"],
+  "Lancer la séance préparée": ["Start the prepared session","Empezar la sesión preparada","Vorbereitete Sitzung starten","Começar a sessão preparada"],
+  "Le Chroniqueur": ["The Chronicler","El Cronista","Der Chronist","O Cronista"],
+  "Le Correcteur": ["The Proofreader","El Corrector","Der Korrektor","O Revisor"],
+  "Le Correcteur : relire un paquet": ["The Proofreader: check a deck","El Corrector: revisar un mazo","Der Korrektor: einen Stapel prüfen","O Revisor: revisar um baralho"],
+  "Le Documentaliste": ["The Librarian","El Documentalista","Der Archivar","O Documentalista"],
+  "Le Planificateur": ["The Planner","El Planificador","Der Planer","O Planejador"],
+  "Le Répétiteur": ["The Tutor","El Tutor","Der Tutor","O Tutor"],
+  "Le gros morceau : « {deck} ».": ["The big one: “{deck}”.","Lo más gordo: «{deck}».","Der dicke Brocken: „{deck}“.","O grosso do trabalho: “{deck}”."],
+  "Le mode Expert fait partie de Pro Expert": ["Expert mode is part of Pro Expert","El modo Experto forma parte de Pro Expert","Der Expertenmodus gehört zu Pro Expert","O modo Especialista faz parte do Pro Expert"],
+  "Le modèle d'IA le plus puissant, pour les concours et les longues études.": ["The most powerful AI model, for competitive exams and long degrees.","El modelo de IA más potente, para oposiciones y carreras largas.","Das stärkste KI-Modell, für Auswahlprüfungen und lange Studiengänge.","O modelo de IA mais potente, para concursos e cursos longos."],
+  "Le modèle le plus puissant, pour les plans de concours et les raisonnements longs.": ["The most powerful model, for competitive-exam plans and long reasoning.","El modelo más potente, para planes de oposiciones y razonamientos largos.","Das stärkste Modell, für Prüfungspläne und lange Überlegungen.","O modelo mais potente, para planos de concurso e raciocínios longos."],
+  "Le mot du Planificateur": ["A word from the Planner","Unas palabras del Planificador","Ein Wort vom Planer","Um recado do Planejador"],
+  "Le mot du matin": ["The morning note","La nota de la mañana","Die Morgennotiz","O recado da manhã"],
+  "Le sujet suit le programme de « {exam} ».": ["The paper follows the syllabus of “{exam}”.","El examen sigue el temario de «{exam}».","Die Aufgaben folgen dem Stoff von „{exam}“.","A prova segue o conteúdo de “{exam}”."],
+  "Lecture de l'état de l'app": ["Reading the app's state","Leyendo el estado de la app","App-Zustand wird gelesen","Lendo o estado do app"],
+  "Lecture de votre journée": ["Reading your day","Leyendo tu día","Dein Tag wird gelesen","Lendo o seu dia"],
+  "Lecture des fiches": ["Reading the cards","Leyendo las tarjetas","Karten werden gelesen","Lendo os cartões"],
+  "Lecture des statistiques": ["Reading the statistics","Leyendo las estadísticas","Statistiken werden gelesen","Lendo as estatísticas"],
+  "Lecture du carnet de la semaine": ["Reading the week's log","Leyendo el registro de la semana","Wochenprotokoll wird gelesen","Lendo o registro da semana"],
+  "Lecture du paquet": ["Reading the deck","Leyendo el mazo","Stapel wird gelesen","Lendo o baralho"],
+  "Lecture du programme": ["Reading the programme","Leyendo el programa","Programm wird gelesen","Lendo o programa"],
+  "Lecture du programme et des examens": ["Reading the programme and exams","Leyendo el programa y los exámenes","Programm und Prüfungen werden gelesen","Lendo o programa e as provas"],
+  "Les assistants": ["The assistants","Los asistentes","Die Assistenten","Os assistentes"],
+  "Les assistants modifient-ils mes fiches sans me demander ?": ["Do the assistants change my cards without asking?","¿Los asistentes modifican mis tarjetas sin preguntarme?","Ändern die Assistenten meine Karten, ohne zu fragen?","Os assistentes alteram meus cartões sem me perguntar?"],
+  "Les assistants relisent jusqu'à 150 fiches par mission": ["Assistants read up to 150 cards per mission","Los asistentes revisan hasta 150 tarjetas por misión","Die Assistenten lesen bis zu 150 Karten pro Auftrag","Os assistentes revisam até 150 cartões por missão"],
+  "Les six assistants": ["The six assistants","Los seis asistentes","Die sechs Assistenten","Os seis assistentes"],
+  "Les six assistants, sans limite": ["The six assistants, without limits","Los seis asistentes, sin límite","Die sechs Assistenten, unbegrenzt","Os seis assistentes, sem limite"],
+  "Longueur des réponses": ["Answer length","Longitud de las respuestas","Länge der Antworten","Tamanho das respostas"],
+  "Masquer": ["Hide","Ocultar","Ausblenden","Ocultar"],
+  "Membre depuis {d}": ["Member since {d}","Miembro desde {d}","Mitglied seit {d}","Membro desde {d}"],
+  "Mensuel": ["Monthly","Mensual","Monatlich","Mensal"],
+  "Mentor : 20 messages par mois": ["Mentor: 20 messages a month","Mentor: 20 mensajes al mes","Mentor: 20 Nachrichten pro Monat","Mentor: 20 mensagens por mês"],
+  "Mentor et assistants avec le modèle le plus puissant": ["Mentor and assistants on the most powerful model","Mentor y asistentes con el modelo más potente","Mentor und Assistenten mit dem stärksten Modell","Mentor e assistentes com o modelo mais potente"],
+  "Mentor sans limite": ["Unlimited Mentor","Mentor sin límite","Mentor unbegrenzt","Mentor sem limite"],
+  "Mentor, l'assistant qui agit": ["Mentor, the assistant that acts","Mentor, el asistente que actúa","Mentor, der Assistent, der handelt","Mentor, o assistente que age"],
+  "Mission": ["Mission","Misión","Auftrag","Missão"],
+  "Mission arrêtée": ["Mission stopped","Misión detenida","Auftrag abgebrochen","Missão interrompida"],
+  "Mission confiée : {a}": ["Mission handed to {a}","Misión encargada: {a}","Auftrag übergeben: {a}","Missão confiada: {a}"],
+  "Mission terminée": ["Mission complete","Misión terminada","Auftrag erledigt","Missão concluída"],
+  "Missions avec l'IA épuisées ce mois-ci : analyse locale.": ["AI missions used up this month: local analysis.","Misiones con IA agotadas este mes: análisis local.","KI-Aufträge für diesen Monat aufgebraucht: lokale Analyse.","Missões com IA esgotadas este mês: análise local."],
+  "Modèle d'IA le plus puissant": ["Most powerful AI model","Modelo de IA más potente","Stärkstes KI-Modell","Modelo de IA mais potente"],
+  "Note de l'Examinateur": ["The Examiner's note","Nota del Examinador","Notiz des Prüfers","Nota do Examinador"],
+  "Note du Chroniqueur": ["The Chronicler's note","Nota del Cronista","Notiz des Chronisten","Nota do Cronista"],
+  "Note du Correcteur": ["The Proofreader's note","Nota del Corrector","Notiz des Korrektors","Nota do Revisor"],
+  "Note du Documentaliste": ["The Librarian's note","Nota del Documentalista","Notiz des Archivars","Nota do Documentalista"],
+  "Note du Planificateur": ["The Planner's note","Nota del Planificador","Notiz des Planers","Nota do Planejador"],
+  "Note du Répétiteur": ["The Tutor's note","Nota del Tutor","Notiz des Tutors","Nota do Tutor"],
+  "Note seulement": ["Note only","Solo nota","Nur Notiz","Só nota"],
+  "Nouvelles fiches": ["New cards","Tarjetas nuevas","Neue Karten","Cartões novos"],
+  "Oui, en un clic depuis cette page. Sans engagement.": ["Yes, in one click from this page. No commitment.","Sí, con un clic desde esta página. Sin permanencia.","Ja, mit einem Klick auf dieser Seite. Ohne Bindung.","Sim, com um clique nesta página. Sem fidelidade."],
+  "Ouvrir les assistants": ["Open the assistants","Abrir los asistentes","Assistenten öffnen","Abrir os assistentes"],
+  "Paquets complets": ["Complete decks","Mazos completos","Vollständige Stapel","Baralhos completos"],
+  "Pas de doublon, des réponses courtes, des questions nettes.": ["No duplicates, short answers, clear questions.","Sin duplicados, respuestas cortas, preguntas claras.","Keine Doppelten, kurze Antworten, klare Fragen.","Sem duplicados, respostas curtas, perguntas claras."],
+  "Passer « {deck} » au Répétiteur : {n}.": ["Send “{deck}” to the Tutor: {n}.","Pasar «{deck}» al Tutor: {n}.","„{deck}“ dem Tutor geben: {n}.","Passar “{deck}” para o Tutor: {n}."],
+  "Passer à Pro": ["Upgrade to Pro","Pasarse a Pro","Zu Pro wechseln","Passar para o Pro"],
+  "Plus tard": ["Later","Más tarde","Später","Mais tarde"],
+  "Pour les fiches qui vous échappent, il invente un moyen mnémotechnique, une image ou un exemple, puis vous les fait revoir.": ["For the cards that keep slipping away, it invents a mnemonic, an image or an example, then has you review them.","Para las tarjetas que se te escapan, inventa una regla mnemotécnica, una imagen o un ejemplo, y luego te las hace repasar.","Für die Karten, die dir entgleiten, erfindet er eine Eselsbrücke, ein Bild oder ein Beispiel und lässt dich sie dann wiederholen.","Para os cartões que escapam, ele inventa um macete, uma imagem ou um exemplo e depois faz você revisá-los."],
+  "Pour réviser chaque jour et essayer l'IA.": ["To review every day and try the AI.","Para repasar cada día y probar la IA.","Zum täglichen Wiederholen und um die KI auszuprobieren.","Para revisar todo dia e experimentar a IA."],
+  "Pour toujours": ["Forever","Para siempre","Für immer","Para sempre"],
+  "Priorité à « {deck} » : « {exam} » est dans {n} jours.": ["Priority to “{deck}”: “{exam}” is in {n} days.","Prioridad a «{deck}»: «{exam}» es dentro de {n} días.","Vorrang für „{deck}“: „{exam}“ ist in {n} Tagen.","Prioridade para “{deck}”: “{exam}” é daqui a {n} dias."],
+  "Prix": ["Price","Precio","Preis","Preço"],
+  "Propositions": ["Suggestions","Propuestas","Vorschläge","Propostas"],
+  "Prototype : les paiements ne sont pas branchés. Choisir une formule l'active tout de suite sur cet appareil. À la mise en ligne, le paiement passera par Stripe sur le Web, et par l'App Store et Google Play dans les applications.": ["Prototype: payments are not connected. Choosing a plan activates it right away on this device. At launch, payment will go through Stripe on the web, and through the App Store and Google Play in the apps.","Prototipo: los pagos no están conectados. Elegir un plan lo activa al momento en este dispositivo. Al lanzarse, el pago pasará por Stripe en la web, y por la App Store y Google Play en las apps.","Prototyp: Zahlungen sind nicht angebunden. Wenn du einen Tarif wählst, wird er sofort auf diesem Gerät aktiviert. Zum Start läuft die Zahlung über Stripe im Web und über den App Store und Google Play in den Apps.","Protótipo: os pagamentos não estão conectados. Escolher um plano o ativa na hora neste aparelho. No lançamento, o pagamento passará pelo Stripe na web e pela App Store e Google Play nos apps."],
+  "Préparation de l'examen": ["Preparing the exam","Preparación del examen","Prüfung wird vorbereitet","Preparação da prova"],
+  "Préparation de la séance": ["Preparing the session","Preparación de la sesión","Sitzung wird vorbereitet","Preparação da sessão"],
+  "Puis-je arrêter à tout moment ?": ["Can I stop at any time?","¿Puedo cancelar en cualquier momento?","Kann ich jederzeit aufhören?","Posso cancelar a qualquer momento?"],
+  "Quatorze jours pour tout essayer : scans illimités, les six assistants, l'autopilote et le mode Expert. Aucun paiement n'est demandé.": ["Fourteen days to try everything: unlimited scans, the six assistants, the autopilot and Expert mode. No payment is asked for.","Catorce días para probarlo todo: escaneos ilimitados, los seis asistentes, el piloto automático y el modo Experto. No se pide ningún pago.","Vierzehn Tage, um alles auszuprobieren: unbegrenzte Scans, die sechs Assistenten, den Autopiloten und den Expertenmodus. Es wird keine Zahlung verlangt.","Catorze dias para testar tudo: escaneamentos ilimitados, os seis assistentes, o piloto automático e o modo Especialista. Nenhum pagamento é pedido."],
+  "Que se passe-t-il à la fin de l'essai ?": ["What happens when the trial ends?","¿Qué pasa al terminar la prueba?","Was passiert am Ende des Tests?","O que acontece no fim do teste?"],
+  "Quelle IA fait tourner Engram ?": ["Which AI powers Engram?","¿Qué IA hace funcionar Engram?","Welche KI steckt hinter Engram?","Qual IA faz o Engram funcionar?"],
+  "Questions fréquentes": ["Frequently asked questions","Preguntas frecuentes","Häufige Fragen","Perguntas frequentes"],
+  "Recherche des doublons": ["Looking for duplicates","Buscando duplicados","Suche nach Doppelten","Procurando duplicados"],
+  "Recherche des fiches fragiles": ["Looking for fragile cards","Buscando tarjetas frágiles","Suche nach anfälligen Karten","Procurando cartões frágeis"],
+  "Recommandé": ["Recommended","Recomendado","Empfohlen","Recomendado"],
+  "Reformulation": ["Rewording","Reformulación","Umformulierung","Reformulação"],
+  "Rencontrer les assistants": ["Meet the assistants","Conocer a los asistentes","Die Assistenten kennenlernen","Conhecer os assistentes"],
+  "Repérage d'un doublon": ["Spotting a duplicate","Detectando un duplicado","Doppelte Karte entdeckt","Identificando um duplicado"],
+  "Revenir à Découverte": ["Go back to Discovery","Volver a Descubrimiento","Zurück zu Entdecken","Voltar para Descoberta"],
+  "Rien à redire sur « {deck} ».": ["Nothing to fix in “{deck}”.","Nada que objetar en «{deck}».","An „{deck}“ gibt es nichts auszusetzen.","Nada a corrigir em “{deck}”."],
+  "Rien à signaler pour cette fois.": ["Nothing to report this time.","Nada que señalar esta vez.","Diesmal nichts zu melden.","Nada a relatar desta vez."],
+  "Rédaction d'une proposition": ["Writing a suggestion","Redactando una propuesta","Vorschlag wird geschrieben","Escrevendo uma proposta"],
+  "Rédaction de nouvelles fiches": ["Writing new cards","Redactando tarjetas nuevas","Neue Karten werden geschrieben","Escrevendo cartões novos"],
+  "Rédaction des propositions": ["Writing the suggestions","Redactando las propuestas","Vorschläge werden geschrieben","Escrevendo as propostas"],
+  "Réglage du chronomètre": ["Setting the timer","Ajustando el cronómetro","Stoppuhr wird eingestellt","Ajustando o cronômetro"],
+  "Réponse trop longue pour être retenue d'un coup : l'essentiel au verso, le détail en complément.": ["Answer too long to remember in one go: the gist on the back, the detail as an extra.","Respuesta demasiado larga para retenerla de golpe: lo esencial en el reverso, el detalle como complemento.","Antwort zu lang, um sie auf einmal zu behalten: das Wesentliche auf die Rückseite, die Details als Ergänzung.","Resposta longa demais para guardar de uma vez: o essencial no verso, o detalhe como complemento."],
+  "Réserve · accès illimité": ["Reserved · unlimited access","Reservado · acceso ilimitado","Reserviert · unbegrenzter Zugang","Reservado · acesso ilimitado"],
+  "Réussite : {a}{b}.": ["Success rate: {a}{b}.","Acierto: {a}{b}.","Trefferquote: {a}{b}.","Acerto: {a}{b}."],
+  "Sans engagement": ["No commitment","Sin permanencia","Ohne Bindung","Sem fidelidade"],
+  "Sans engagement · prototype : aucun paiement demandé": ["No commitment · prototype: no payment asked","Sin permanencia · prototipo: no se pide ningún pago","Ohne Bindung · Prototyp: keine Zahlung verlangt","Sem fidelidade · protótipo: nenhum pagamento pedido"],
+  "Scans de cours par l'IA": ["AI course scans","Escaneos de cursos con IA","KI-Kursscans","Escaneamento de aulas com IA"],
+  "Scans illimités : photos, PDF, notes au stylet": ["Unlimited scans: photos, PDFs, pen notes","Escaneos ilimitados: fotos, PDF, notas con lápiz","Unbegrenzte Scans: Fotos, PDFs, Stiftnotizen","Escaneamentos ilimitados: fotos, PDF, anotações com caneta"],
+  "Scans, corrections et assistants sans limite.": ["Unlimited scans, checks and assistants.","Escaneos, correcciones y asistentes sin límite.","Scans, Korrekturen und Assistenten unbegrenzt.","Escaneamentos, correções e assistentes sem limite."],
+  "Scans, corrections, Mentor et assistants sans limite.": ["Unlimited scans, checks, Mentor and assistants.","Escaneos, correcciones, Mentor y asistentes sin límite.","Scans, Korrekturen, Mentor und Assistenten unbegrenzt.","Escaneamentos, correções, Mentor e assistentes sem limite."],
+  "Six assistants lisent vos fiches, les corrigent, les complètent, préparent vos séances et vos examens blancs. Ils proposent, vous décidez.": ["Six assistants read your cards, fix them, fill the gaps, prepare your sessions and your mock exams. They suggest, you decide.","Seis asistentes leen tus tarjetas, las corrigen, las completan y preparan tus sesiones y tus simulacros. Ellos proponen, tú decides.","Sechs Assistenten lesen deine Karten, korrigieren und ergänzen sie, bereiten deine Sitzungen und Probeprüfungen vor. Sie schlagen vor, du entscheidest.","Seis assistentes leem seus cartões, corrigem, completam e preparam suas sessões e seus simulados. Eles propõem, você decide."],
+  "Six assistants, <em>une</em> règle : vous décidez.": ["Six assistants, <em>one</em> rule: you decide.","Seis asistentes, <em>una</em> regla: tú decides.","Sechs Assistenten, <em>eine</em> Regel: Du entscheidest.","Seis assistentes, <em>uma</em> regra: você decide."],
+  "Sur quel paquet ?": ["Which deck?","¿Con qué mazo?","Welcher Stapel?","Em qual baralho?"],
+  "Séance du Planificateur": ["The Planner's session","Sesión del Planificador","Sitzung des Planers","Sessão do Planejador"],
+  "Séance du Répétiteur": ["The Tutor's session","Sesión del Tutor","Sitzung des Tutors","Sessão do Tutor"],
+  "Séance prête": ["Session ready","Sesión lista","Sitzung bereit","Sessão pronta"],
+  "Série en cours : {n}.": ["Current streak: {n}.","Racha actual: {n}.","Aktuelle Serie: {n}.","Sequência atual: {n}."],
+  "Tout Découverte, et :": ["All of Discovery, plus:","Todo Descubrimiento, y además:","Alles aus Entdecken, dazu:","Tudo do Descoberta, e mais:"],
+  "Tout Pro": ["All of Pro","Todo Pro","Alles aus Pro","Tudo do Pro"],
+  "Tout appliquer": ["Apply all","Aplicar todo","Alle übernehmen","Aplicar tudo"],
+  "Tout ce qui est prévu, rien de plus.": ["Everything that is due, nothing more.","Todo lo previsto, nada más.","Alles, was ansteht, nicht mehr.","Tudo o que está previsto, nada mais."],
+  "Tout est traité": ["All handled","Todo resuelto","Alles erledigt","Tudo resolvido"],
+  "Tout voir": ["See all","Ver todo","Alle ansehen","Ver tudo"],
+  "Trois formules": ["Three plans","Tres planes","Drei Tarife","Três planos"],
+  "Trois priorités": ["Three priorities","Tres prioridades","Drei Prioritäten","Três prioridades"],
+  "Téléphone, iPad avec stylet, ordinateur": ["Phone, iPad with pen, computer","Teléfono, iPad con lápiz, ordenador","Handy, iPad mit Stift, Computer","Celular, iPad com caneta, computador"],
+  "Une équipe qui <em>travaille</em> pour vous.": ["A team that <em>works</em> for you.","Un equipo que <em>trabaja</em> para ti.","Ein Team, das für dich <em>arbeitet</em>.","Uma equipe que <em>trabalha</em> para você."],
+  "Viser cinq jours sur sept, même dix minutes.": ["Aim for five days out of seven, even ten minutes.","Apunta a cinco días de cada siete, aunque sean diez minutos.","Fünf von sieben Tagen anpeilen, auch nur zehn Minuten.","Mire em cinco dias de cada sete, mesmo que dez minutos."],
+  "Voir les assistants": ["See the assistants","Ver los asistentes","Assistenten ansehen","Ver os assistentes"],
+  "Voir les formules": ["See the plans","Ver los planes","Tarife ansehen","Ver os planos"],
+  "Vos 20 messages à Mentor sont utilisés ce mois-ci": ["Your 20 Mentor messages are used up this month","Ya usaste tus 20 mensajes a Mentor este mes","Deine 20 Mentor-Nachrichten sind diesen Monat aufgebraucht","Suas 20 mensagens ao Mentor deste mês foram usadas"],
+  "Vos 3 missions du mois sont utilisées": ["Your 3 missions this month are used up","Ya usaste tus 3 misiones del mes","Deine 3 Aufträge dieses Monats sind aufgebraucht","Suas 3 missões do mês foram usadas"],
+  "Vos 3 scans du mois sont utilisés": ["Your 3 scans this month are used up","Ya usaste tus 3 escaneos del mes","Deine 3 Scans dieses Monats sind aufgebraucht","Seus 3 escaneamentos do mês foram usados"],
+  "Vos assistants": ["Your assistants","Tus asistentes","Deine Assistenten","Seus assistentes"],
+  "Votre abonnement": ["Your subscription","Tu suscripción","Dein Abo","Sua assinatura"],
+  "Votre formule": ["Your plan","Tu plan","Dein Tarif","Seu plano"],
+  "Votre formule est active. Les six assistants sont à votre service.": ["Your plan is active. The six assistants are at your service.","Tu plan está activo. Los seis asistentes están a tu servicio.","Dein Tarif ist aktiv. Die sechs Assistenten stehen dir zu Diensten.","Seu plano está ativo. Os seis assistentes estão a seu dispor."],
+  "Votre nom": ["Your name","Tu nombre","Dein Name","Seu nome"],
+  "Vous revenez à Découverte sans rien perdre : paquets, historique et notes restent à vous. Aucun paiement n'est demandé pour l'essai.": ["You go back to Discovery without losing anything: decks, history and notes stay yours. No payment is asked for the trial.","Vuelves a Descubrimiento sin perder nada: mazos, historial y notas siguen siendo tuyos. No se pide ningún pago por la prueba.","Du kehrst zu Entdecken zurück, ohne etwas zu verlieren: Stapel, Verlauf und Notizen bleiben deine. Für den Test wird keine Zahlung verlangt.","Você volta para o Descoberta sem perder nada: baralhos, histórico e notas continuam seus. Nenhum pagamento é pedido pelo teste."],
+  "Vous êtes revenu à la formule Découverte. Rien n'est perdu.": ["You are back on the Discovery plan. Nothing is lost.","Has vuelto al plan Descubrimiento. No se pierde nada.","Du bist zurück im Tarif Entdecken. Nichts geht verloren.","Você voltou para o plano Descoberta. Nada foi perdido."],
+  "analyse locale": ["local analysis","análisis local","lokale Analyse","análise local"],
+  "aucun": ["none","ninguno","keine","nenhum"],
+  "avec l'IA": ["with AI","con IA","mit KI","com IA"],
+  "corrections IA aujourd'hui": ["AI checks today","correcciones con IA hoy","KI-Korrekturen heute","correções com IA hoje"],
+  "corrections IA du jour épuisées : correction locale": ["today's AI checks used up: local check","correcciones con IA de hoy agotadas: corrección local","KI-Korrekturen für heute aufgebraucht: lokale Korrektur","correções com IA de hoje esgotadas: correção local"],
+  "doublon|doublons": ["duplicate|duplicates","duplicado|duplicados","Doppelte|Doppelte","duplicado|duplicados"],
+  "essai en cours": ["trial in progress","prueba en curso","Test läuft","teste em andamento"],
+  "fiche fragile|fiches fragiles": ["fragile card|fragile cards","tarjeta frágil|tarjetas frágiles","anfällige Karte|anfällige Karten","cartão frágil|cartões frágeis"],
+  "fiche lue|fiches lues": ["card read|cards read","tarjeta leída|tarjetas leídas","Karte gelesen|Karten gelesen","cartão lido|cartões lidos"],
+  "fiche oubliée souvent|fiches oubliées souvent": ["often-forgotten card|often-forgotten cards","tarjeta olvidada a menudo|tarjetas olvidadas a menudo","oft vergessene Karte|oft vergessene Karten","cartão esquecido com frequência|cartões esquecidos com frequência"],
+  "fiche proposée|fiches proposées": ["card suggested|cards suggested","tarjeta propuesta|tarjetas propuestas","Karte vorgeschlagen|Karten vorgeschlagen","cartão proposto|cartões propostos"],
+  "les assistants": ["the assistants","los asistentes","die Assistenten","os assistentes"],
+  "messages à Mentor ce mois-ci": ["Mentor messages this month","mensajes a Mentor este mes","Mentor-Nachrichten diesen Monat","mensagens ao Mentor este mês"],
+  "message|messages": ["message|messages","mensaje|mensajes","Nachricht|Nachrichten","mensagem|mensagens"],
+  "missions ce mois-ci": ["missions this month","misiones este mes","Aufträge diesen Monat","missões este mês"],
+  "mission|missions": ["mission|missions","misión|misiones","Auftrag|Aufträge","missão|missões"],
+  "nouvelle fiche|nouvelles fiches": ["new card|new cards","tarjeta nueva|tarjetas nuevas","neue Karte|neue Karten","cartão novo|cartões novos"],
+  "proposition|propositions": ["suggestion|suggestions","propuesta|propuestas","Vorschlag|Vorschläge","proposta|propostas"],
+  "question retenue|questions retenues": ["question selected|questions selected","pregunta elegida|preguntas elegidas","Frage ausgewählt|Fragen ausgewählt","pergunta escolhida|perguntas escolhidas"],
+  "question à ponctuer|questions à ponctuer": ["question to punctuate|questions to punctuate","pregunta que puntuar|preguntas que puntuar","Frage ohne Fragezeichen|Fragen ohne Fragezeichen","pergunta a pontuar|perguntas a pontuar"],
+  "question|questions": ["question|questions","pregunta|preguntas","Frage|Fragen","pergunta|perguntas"],
+  "rien à redire": ["nothing to fix","nada que objetar","nichts auszusetzen","nada a corrigir"],
+  "réponse à alléger|réponses à alléger": ["answer to trim|answers to trim","respuesta que aligerar|respuestas que aligerar","Antwort zum Kürzen|Antworten zum Kürzen","resposta a enxugar|respostas a enxugar"],
+  "scans ce mois-ci": ["scans this month","escaneos este mes","Scans diesen Monat","escaneamentos este mês"],
+  "scan|scans": ["scan|scans","escaneo|escaneos","Scan|Scans","escaneamento|escaneamentos"],
+  "soit {x} par an": ["that is {x} a year","o sea, {x} al año","also {x} pro Jahr","ou seja, {x} por ano"],
+  "souvent oubliée|souvent oubliées": ["often forgotten|often forgotten","olvidada a menudo|olvidadas a menudo","oft vergessen|oft vergessen","esquecido com frequência|esquecidos com frequência"],
+  "{a} prévues, et {b} que j'ajoute pour les consolider avant qu'elles ne s'effacent.": ["{a} due, plus {b} I am adding to strengthen them before they fade.","{a} previstas, y {b} que añado para afianzarlas antes de que se borren.","{a} fällig, dazu {b}, die ich hinzufüge, um sie zu festigen, bevor sie verblassen.","{a} previstos, e {b} que acrescento para consolidá-los antes que se apaguem."],
+  "{m} / mois": ["{m} / month","{m} / mes","{m} / Monat","{m} / mês"],
+  "{n} appliquée|{n} appliquées": ["{n} applied|{n} applied","{n} aplicada|{n} aplicadas","{n} übernommen|{n} übernommen","{n} aplicada|{n} aplicadas"],
+  "{n} découvertes.": ["{n} learned.","{n} descubiertas.","{n} neu gelernt.","{n} descobertos."],
+  "{n} en attente": ["{n} pending","{n} pendientes","{n} offen","{n} pendentes"],
+  "{n} s par question": ["{n} s per question","{n} s por pregunta","{n} s pro Frage","{n} s por pergunta"],
+  "{p} depuis le {d}.": ["{p} since {d}.","{p} desde el {d}.","{p} seit {d}.","{p} desde {d}."],
+  "{x} à examiner ci-dessous. Appliquez ce qui vous convient, ignorez le reste.": ["{x} to look at below. Apply what suits you, skip the rest.","{x} que revisar abajo. Aplica lo que te convenga e ignora el resto.","{x} zum Ansehen unten. Übernimm, was dir passt, ignoriere den Rest.","{x} para ver abaixo. Aplique o que servir, ignore o resto."],
+  "« {exam} » dans {n} j": ["“{exam}” in {n} d","«{exam}» en {n} d","„{exam}“ in {n} T","“{exam}” em {n} d"],
+  "« {exam} » dans {n} jours : prêt à {p} si vous suivez le programme.": ["“{exam}” in {n} days: {p} ready if you follow the programme.","«{exam}» dentro de {n} días: preparado al {p} si sigues el programa.","„{exam}“ in {n} Tagen: zu {p} bereit, wenn du dem Programm folgst.","“{exam}” daqui a {n} dias: {p} pronto se seguir o programa."],
+  "À retirer": ["To remove","Para quitar","Zu entfernen","A remover"],
+  "à l'instant": ["just now","ahora mismo","gerade eben","agora mesmo"]
 };
 
 /* ── Démarrage ─────────────────────────────────────────────────────── */
@@ -7296,8 +8581,9 @@ function boot() {
   bootApp(); Mentor.mount(); bootDrop();
   App.render();
   if (!S.profile.onboarded) Onb.open();
-  AI.init();
+  AI.init().then(() => setTimeout(() => Autopilot.check(), 1200));
   Store.connect();
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') Autopilot.check(); });
   // Les lignes des fiches dépendent des polices et de la taille de l'écran : on les recale quand l'une change.
   let relay = 0;
   const reRule = () => { clearTimeout(relay); relay = setTimeout(() => { if (Study.active) Study.layout(); Ruling.scan(); }, 120); };
