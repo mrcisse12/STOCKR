@@ -56,14 +56,16 @@ L'app détecte seule le serveur qui la sert. Si l'app est hébergée ailleurs (N
 |---|---|---|
 | `ANTHROPIC_API_KEY` | — | Clé de l'API Claude |
 | `ENGRAM_ACCESS_CODE` | — | Code d'accès à saisir dans Réglages (conseillé pour un serveur public) |
-| `ENGRAM_MODEL_QUICK` / `_DEFAULT` / `_COMPLEX` | `claude-opus-5` / `claude-opus-5` / `claude-fable-5-1` | Modèles des niveaux Rapide, Standard et Expert |
+| `ENGRAM_MODEL_QUICK` / `_DEFAULT` / `_COMPLEX` | `claude-sonnet-5-5` / `claude-opus-5-5` / `claude-fable-5-1` | Modèles des niveaux Rapide, Standard et Expert |
 | `ENGRAM_EFFORT_QUICK` / `_DEFAULT` / `_COMPLEX` | `low` / `medium` / `high` | Effort de réflexion |
 | `ENGRAM_RATE_PER_MIN` | `30` | Requêtes par minute et par adresse |
 | `ENGRAM_FALLBACKS` | activé | Repli automatique sur le modèle recommandé si une requête est déclinée (`off` pour couper) |
 | `ENGRAM_CORS_ORIGIN` | — | Origines autorisées (`*` ou liste séparée par des virgules) |
 | `PORT`, `ENGRAM_MAX_TOKENS`, `ENGRAM_MAX_BODY_MB`, `ENGRAM_TRUST_PROXY`, `ENGRAM_LOG` | `8787`, `32000`, `12`, —, — | Réseau, limites, journal |
 
-Astuce coût : `ENGRAM_MODEL_QUICK=claude-haiku-4-5` rend les corrections de réponses environ cinq fois moins chères.
+Coûts : environ 0,002 $ par correction, 0,06 $ par page scannée, 0,04 $ par message à Mentor ; environ 5,45 $ par mois pour un abonné Pro normal (détail dans la fiche technique, §11). Astuce : `ENGRAM_MODEL_DEFAULT=claude-sonnet-5-5` divise encore par deux le prix des scans et de Mentor, à valider sur de vraies photos de cours.
+
+Obtenir la clé : créez un compte sur [platform.claude.com](https://platform.claude.com/), ajoutez une carte et une limite de dépense dans **Settings → Billing**, puis **Settings → API keys → Create key** (la clé commence par `sk-ant-` et ne s'affiche qu'une fois). Si la clé manque ou si le budget du mois est atteint, l'app le dit clairement au lieu d'un simple « connexion interrompue ».
 
 ## Mentor
 

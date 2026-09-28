@@ -1017,6 +1017,9 @@ body.studying .mentor-fab,body.mentor-on .mentor-fab,#onb:not([hidden])~.mentor-
 .set-nav{position:sticky;top:10px;z-index:5;display:flex;gap:6px;flex-wrap:wrap;padding:6px;border-radius:12px;border:1px solid var(--hair-2);background:color-mix(in srgb,var(--folder) 90%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);width:max-content;max-width:100%}
 .set-nav a{padding:7px 12px;border-radius:8px;font-size:13px;font-weight:500;color:var(--text-2);text-decoration:none}
 .set-nav a:hover{background:var(--brass-soft);color:var(--text)}
+/* Sur téléphone, le sommaire des réglages tient sur une ligne qui défile, au lieu de masquer trois lignes de contenu. */
+.view .sec[id^="s"]{scroll-margin-top:64px}
+@media (max-width:620px){.set-nav{flex-wrap:nowrap;overflow-x:auto;width:auto;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-mask-image:linear-gradient(90deg,#000 86%,transparent);mask-image:linear-gradient(90deg,#000 86%,transparent)}.set-nav::-webkit-scrollbar{display:none}.set-nav a{flex:none;white-space:nowrap}}
 .set-row.col{flex-direction:column;align-items:stretch}
 .set-row.col .t span{max-width:none}
 .look-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:28px}
@@ -2128,13 +2131,14 @@ const AI = {
     return location.protocol.startsWith('http') ? location.origin + '/api/ai' : '';
   },
   async probeServer() {
-    const url = this.serverUrl();
+    const url = this.serverUrl(); this.nokey = false;
     if (!url) { this.status = 'off'; return; }
     try {
       const ctl = new AbortController(); setTimeout(() => ctl.abort(), 4000);
       const r = await fetch(url + '/health', { signal: ctl.signal, headers: this.headers() });
       const j = r.ok ? await r.json() : null;
       if (!j?.ok) { this.status = 'off'; return; }
+      if (j.key === false) { this.status = 'off'; this.nokey = true; return; }
       this.info = j; this.via = 'server'; this.server = url;
       this.limits = { maxPromptBytes: 180000, images: j.images ? { maxCount: 5, maxInputBytes: 20e6, mediaTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] } : null, tools: { maxCount: 24 } };
       this.status = j.locked && !S.profile.settings.aiCode ? 'locked' : 'on';
@@ -2154,7 +2158,9 @@ const AI = {
       images_unavailable: t('Les photos ne sont pas prises en charge ici. Collez le texte du cours à la place.'),
       refused: t("L'IA a refusé ce contenu. Reformulez ou essayez une autre source."), empty_completion: t("L'IA n'a rien renvoyé. Réessayez avec moins de contenu."),
       invalid_json: t("La réponse de l'IA était mal formée. Réessayez."), prompt_too_large: t('Le texte est trop long : envoyez un chapitre à la fois.'),
-      tools_unavailable: t("L'assistant ne peut pas agir dans l'app ici : il répond seulement.")
+      tools_unavailable: t("L'assistant ne peut pas agir dans l'app ici : il répond seulement."),
+      budget: t("Le budget IA du serveur est atteint pour ce mois. La correction locale prend le relais."),
+      server_key: t("Le serveur IA n'a pas de clé d'API valide (variable ANTHROPIC_API_KEY).")
     })[code] ?? t("Connexion à l'IA interrompue. Réessayez.");
   },
   ask(input, opts = {}) { return this.via === 'server' ? ServerAI.ask(input, opts) : this.fn(input, opts); },
@@ -4946,7 +4952,13 @@ Views.settings = arg => {
         <form class="mem-add" id="memAdd"><input class="input" id="memIn" placeholder="${esc(t('Ex. Je confonds souvent mitose et méiose'))}"><button class="btn btn-sm">${icon('plus', 'i-sm')}${t('Ajouter')}</button></form></div></div>
       <div class="set-row col" id="sServer"><div class="t"><b>${t('Serveur IA (hors de l\'app Claude)')}</b><span>${t("Dans l'app Claude, rien à configurer. Ailleurs, lancez le serveur Engram (dossier engram/server) qui détient votre clé d'API ; l'adresse /api/ai est détectée automatiquement.")}</span></div>
         <div class="two" style="width:100%"><div class="field"><label for="aiSrv">${t('Adresse du serveur')}</label><input class="input" id="aiSrv" value="${esc(s.aiServer)}" placeholder="https://…/api/ai"></div><div class="field"><label for="aiCode">${t("Code d'accès")}</label><input class="input" id="aiCode" type="password" value="${esc(s.aiCode)}" placeholder="${esc(t('Si le serveur en demande un'))}"></div></div>
-        <button class="btn btn-sm" id="aiRecheck">${icon('link', 'i-sm')}${t('Se connecter')}</button></div>
+        <button class="btn btn-sm" id="aiRecheck">${icon('link', 'i-sm')}${t('Se connecter')}</button>
+        <details class="howto"><summary>${t("Brancher l'IA : la clé d'API en 4 étapes")}</summary><ol class="lk-steps">${[
+          t('Créez un compte sur platform.claude.com, ajoutez une carte dans Settings → Billing et fixez une limite de dépense mensuelle.'),
+          t("Settings → API keys → Create key. Copiez la clé (elle commence par sk-ant-) : elle ne s'affiche qu'une fois."),
+          t("Sur Netlify, dans le site d'Engram : ajoutez ANTHROPIC_API_KEY et ENGRAM_ACCESS_CODE (Environment variables), puis redéployez."),
+          t("Ici, saisissez le code d'accès et touchez « Se connecter ». La clé reste sur le serveur, jamais dans l'app.")
+        ].map(x => `<li><span>${x}</span></li>`).join('')}</ol></details></div>
     </div></article></section>
 
     <section class="sec" id="sData"><div class="sec-h"><div><h2 class="h2">${t('Données et intégrations')}</h2></div></div>
@@ -4990,7 +5002,7 @@ Hooks.settings = arg => {
   $$('#stWeek input').forEach(inp => inp.addEventListener('input', () => { const i = +inp.dataset.wd; st.weekly[i] = +inp.value; $('#wdOut' + i).textContent = inp.value; Store.touch('profile'); }));
   $('#memList')?.addEventListener('click', e => { const b = e.target.closest('[data-forget]'); if (!b) return; S.profile.memory.splice(+b.dataset.forget, 1); Store.touch('profile'); App.render(); });
   $('#memAdd')?.addEventListener('submit', e => { e.preventDefault(); const v = $('#memIn').value.trim(); if (!v) return; S.profile.memory.push(v.slice(0, 200)); Store.touch('profile'); App.render(); });
-  $('#aiRecheck')?.addEventListener('click', async () => { s.aiServer = $('#aiSrv').value.trim(); s.aiCode = $('#aiCode').value.trim(); Store.touch('profile'); if (AI.via !== 'claude') { AI.status = 'checking'; await AI.probeServer(); AI.changed(); toast(AI.on ? t('Serveur IA connecté') : t('Serveur IA introuvable'), AI.on ? 'check' : 'x'); App.render(); } });
+  $('#aiRecheck')?.addEventListener('click', async () => { s.aiServer = $('#aiSrv').value.trim(); s.aiCode = $('#aiCode').value.trim(); Store.touch('profile'); if (AI.via !== 'claude') { AI.status = 'checking'; await AI.probeServer(); AI.changed(); toast(AI.on ? t('Serveur IA connecté') : AI.nokey ? t("Serveur trouvé, mais sans clé d'API : ajoutez ANTHROPIC_API_KEY puis redéployez.") : t('Serveur IA introuvable'), AI.on ? 'check' : 'x'); App.render(); } });
   $$('.set-nav [data-jump]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); $('#' + a.dataset.jump)?.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'start' }); }));
   if (arg === 'look') setTimeout(() => $('#sLook')?.scrollIntoView({ block: 'start' }), 60);
 };
@@ -8023,6 +8035,14 @@ TR = {
   "Quitter": ["Quit","Salir","Beenden","Sair"],
   "Serveur IA connecté": ["AI server connected","Servidor de IA conectado","KI-Server verbunden","Servidor de IA conectado"],
   "Serveur IA introuvable": ["AI server not found","Servidor de IA no encontrado","KI-Server nicht gefunden","Servidor de IA não encontrado"],
+  "Le budget IA du serveur est atteint pour ce mois. La correction locale prend le relais.": ["The AI server's budget is used up for this month. Local grading takes over.","El presupuesto de IA del servidor se agotó este mes. La corrección local toma el relevo.","Das KI-Budget des Servers ist für diesen Monat aufgebraucht. Die lokale Korrektur übernimmt.","O orçamento de IA do servidor acabou neste mês. A correção local assume."],
+  "Le serveur IA n'a pas de clé d'API valide (variable ANTHROPIC_API_KEY).": ["The AI server has no valid API key (ANTHROPIC_API_KEY variable).","El servidor de IA no tiene una clave de API válida (variable ANTHROPIC_API_KEY).","Der KI-Server hat keinen gültigen API-Schlüssel (Variable ANTHROPIC_API_KEY).","O servidor de IA não tem uma chave de API válida (variável ANTHROPIC_API_KEY)."],
+  "Serveur trouvé, mais sans clé d'API : ajoutez ANTHROPIC_API_KEY puis redéployez.": ["Server found, but it has no API key: add ANTHROPIC_API_KEY, then redeploy.","Servidor encontrado, pero sin clave de API: añada ANTHROPIC_API_KEY y vuelva a desplegar.","Server gefunden, aber ohne API-Schlüssel: ANTHROPIC_API_KEY hinzufügen und neu bereitstellen.","Servidor encontrado, mas sem chave de API: adicione ANTHROPIC_API_KEY e publique de novo."],
+  "Brancher l'IA : la clé d'API en 4 étapes": ["Connect the AI: the API key in 4 steps","Conectar la IA: la clave de API en 4 pasos","KI anbinden: der API-Schlüssel in 4 Schritten","Ligar a IA: a chave de API em 4 passos"],
+  "Créez un compte sur platform.claude.com, ajoutez une carte dans Settings → Billing et fixez une limite de dépense mensuelle.": ["Create an account on platform.claude.com, add a card under Settings → Billing and set a monthly spend limit.","Cree una cuenta en platform.claude.com, añada una tarjeta en Settings → Billing y fije un límite de gasto mensual.","Legen Sie ein Konto auf platform.claude.com an, hinterlegen Sie unter Settings → Billing eine Karte und setzen Sie ein monatliches Ausgabenlimit.","Crie uma conta em platform.claude.com, adicione um cartão em Settings → Billing e defina um limite de gasto mensal."],
+  "Settings → API keys → Create key. Copiez la clé (elle commence par sk-ant-) : elle ne s'affiche qu'une fois.": ["Settings → API keys → Create key. Copy the key (it starts with sk-ant-): it is shown only once.","Settings → API keys → Create key. Copie la clave (empieza por sk-ant-): solo se muestra una vez.","Settings → API keys → Create key. Kopieren Sie den Schlüssel (er beginnt mit sk-ant-): Er wird nur einmal angezeigt.","Settings → API keys → Create key. Copie a chave (começa com sk-ant-): ela só aparece uma vez."],
+  "Sur Netlify, dans le site d'Engram : ajoutez ANTHROPIC_API_KEY et ENGRAM_ACCESS_CODE (Environment variables), puis redéployez.": ["On Netlify, in the Engram site: add ANTHROPIC_API_KEY and ENGRAM_ACCESS_CODE (Environment variables), then redeploy.","En Netlify, en el sitio de Engram: añada ANTHROPIC_API_KEY y ENGRAM_ACCESS_CODE (Environment variables) y vuelva a desplegar.","In Netlify, auf der Engram-Site: ANTHROPIC_API_KEY und ENGRAM_ACCESS_CODE hinzufügen (Environment variables), dann neu bereitstellen.","No Netlify, no site do Engram: adicione ANTHROPIC_API_KEY e ENGRAM_ACCESS_CODE (Environment variables) e publique de novo."],
+  "Ici, saisissez le code d'accès et touchez « Se connecter ». La clé reste sur le serveur, jamais dans l'app.": ["Here, enter the access code and tap “Connect”. The key stays on the server, never in the app.","Aquí, escriba el código de acceso y toque «Conectar». La clave se queda en el servidor, nunca en la app.","Geben Sie hier den Zugangscode ein und tippen Sie auf „Verbinden“. Der Schlüssel bleibt auf dem Server, nie in der App.","Aqui, digite o código de acesso e toque em “Conectar”. A chave fica no servidor, nunca no app."],
   "PHOTOGRAPHIEZ · RETENEZ · SALLE DE LECTURE · ": ["PHOTOGRAPH · REMEMBER · READING ROOM · ","FOTOGRAFÍA · RECUERDA · SALA DE LECTURA · ","FOTOGRAFIEREN · BEHALTEN · LESESAAL · ","FOTOGRAFE · LEMBRE · SALA DE LEITURA ·"],
   "Continuer": ["Continue","Continuar","Weiter","Continuar"],
   "Retour": ["Back","Atrás","Zurück","Voltar"],

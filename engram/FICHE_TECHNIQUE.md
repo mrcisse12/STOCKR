@@ -261,7 +261,7 @@ ou avec Docker, depuis `engram/` : `docker build -f server/Dockerfile -t engram 
 | Variable | Défaut | Rôle |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | — | Clé de l'API Claude (obligatoire) |
-| `ENGRAM_MODEL_QUICK` / `_DEFAULT` / `_COMPLEX` | `claude-opus-5` / `claude-opus-5` / `claude-fable-5-1` | Modèle de chaque niveau (Rapide, Standard, Expert) |
+| `ENGRAM_MODEL_QUICK` / `_DEFAULT` / `_COMPLEX` | `claude-sonnet-5-5` / `claude-opus-5-5` / `claude-fable-5-1` | Modèle de chaque niveau (Rapide, Standard, Expert) |
 | `ENGRAM_EFFORT_QUICK` / `_DEFAULT` / `_COMPLEX` | `low` / `medium` / `high` | Effort de réflexion par niveau |
 | `ENGRAM_ACCESS_CODE` | — | Code demandé dans Réglages → IA (recommandé dès que le serveur est public) |
 | `ENGRAM_RATE_PER_MIN` | 30 | Requêtes par minute et par adresse |
@@ -289,7 +289,7 @@ if (msg.stop_reason === "refusal") write({ type: "error", code: "refused" });
 else write({ type: "done", content: sanitize(msg.content, msg.stop_reason), stop_reason: msg.stop_reason });
 ```
 
-Pour réduire les coûts de correction, `ENGRAM_MODEL_QUICK=claude-haiku-4-5` divise environ par cinq le prix des tâches courtes.
+Pour réduire encore les coûts, `ENGRAM_MODEL_DEFAULT=claude-sonnet-5-5` divise par deux le prix des scans, de Mentor et des assistants : à valider d'abord sur de vraies photos de cours.
 
 Le relais lui-même est dans `server/core.mjs`, écrit avec les objets standard du Web (`Request`, `Response`, flux) : le même code tourne dans le serveur Node, dans l'image Docker et dans une fonction Netlify. Pendant que le modèle réfléchit, le relais envoie une ligne `{"type":"ping"}` toutes les 10 secondes pour que les hébergeurs ne coupent pas une connexion muette.
 
@@ -341,47 +341,48 @@ flowchart LR
 
 ## 11. Coûts de l'IA, chiffrés
 
-Tarifs publics de l'API Claude (par million de tokens, entrée / sortie) :
+Tarifs publics de l'API Claude au 28 septembre 2026 (par million de tokens ; source : platform.claude.com/docs/en/about-claude/pricing) :
 
-| Modèle | Entrée | Sortie | Rôle dans Engram |
-|---|---|---|---|
-| **Claude Fable 5.1** | 10 $ | 50 $ | Mentor **Expert** : plans de révision complexes, restructuration de paquets, explications difficiles |
-| **Claude Opus 5** | 5 $ | 25 $ | Lecture des photos et des PDF, rédaction des fiches, Mentor Standard |
-| **Claude Haiku 4.5** | 1 $ | 5 $ | Option économique pour les corrections et les tâches courtes |
+| Modèle | Entrée | Sortie | Lecture en cache | Rôle dans Engram |
+|---|---|---|---|---|
+| **Claude Fable 5.1** | 10 $ | 50 $ | 0,25 $ | Niveau **Expert** : Mentor et assistants de l'offre Pro Expert |
+| **Claude Opus 5.5** | 4 $ | 20 $ | 0,20 $ | Niveau **Standard**, par défaut : photos et PDF → fiches, Mentor, missions des assistants, lettre de la semaine |
+| **Claude Sonnet 5.5** | 2 $ | 10 $ | 0,20 $ | Niveau **Rapide** : corrections, notes du matin, amélioration d'une fiche, moyen mnémotechnique |
+| Claude Haiku 4.5 | 1 $ | 5 $ | 0,10 $ | Le moins cher, mais plus ancien (connaissances arrêtées en février 2025) et retrait possible dès le 15 octobre 2026 : à éviter pour une app qui démarre |
 
-Lectures en cache : environ 10 % du prix d'entrée (0,25 $ par million sur Fable 5.1).
+Opus 5.5 remplace Opus 5 : plus récent et 20 % moins cher (Opus 5 coûtait 5 $ / 25 $). Batch API : −50 % pour les tâches qui peuvent attendre. Fable, Opus et Sonnet lisent les images et acceptent jusqu'à un million de tokens, sans supplément pour les longs documents.
 
 | Tâche | Tokens (entrée / sortie, réflexion comprise) | Coût |
 |---|---|---|
-| Scan d'une page → 15 fiches (Opus 5) | ≈ 2 300 / 2 500 | **≈ 0,07 $** |
-| PDF de 20 pages de texte → 40 fiches (Opus 5) | ≈ 12 000 / 6 000 | ≈ 0,21 $ |
-| Correction d'une réponse (Opus 5, effort bas) | ≈ 400 / 150 | ≈ 0,006 $ — avec Haiku 4.5 : ≈ 0,001 $ |
-| Correction d'une réponse **manuscrite** (image recadrée sur l'écriture, Opus 5) | ≈ 1 200 / 200 | ≈ 0,011 $ — avec Haiku 4.5 : ≈ 0,002 $ |
-| Page de notes manuscrites → fiches (Opus 5) | ≈ 2 300 / 2 500 | ≈ 0,07 $ (comme une photo) |
-| Message à Mentor, 2 à 3 actions (Opus 5, cache) | ≈ 12 000 (dont 70 % en cache) / 1 200 | ≈ 0,05 $ |
-| Message à Mentor en **Expert** (Fable 5.1, cache) | ≈ 12 000 / 2 000 | ≈ 0,15 $ |
-| Lettre hebdomadaire de Mentor | ≈ 3 000 / 800 | ≈ 0,035 $ |
-| Mission du **Correcteur**, 60 fiches, 3 tours d'outils (Opus 5, cache) | ≈ 25 000 (la moitié en cache) / 2 500 | ≈ 0,13 $ |
-| Mission du **Documentaliste**, 10 fiches rédigées (Opus 5) | ≈ 20 000 / 3 500 | ≈ 0,15 $ |
-| Mission du **Planificateur** ou de l'**Examinateur** (Opus 5) | ≈ 15 000 / 1 200 | ≈ 0,08 $ |
-| Mission en **Expert**, 150 fiches lues (Fable 5.1, cache) | ≈ 46 000 (la moitié en cache) / 3 000 | ≈ 0,40 $ |
-| Note du matin de l'autopilote (niveau rapide, sans outils) | ≈ 1 500 / 200 | ≈ 0,012 $ ; avec Haiku 4.5 : ≈ 0,003 $ |
+| Scan d'une page → 15 fiches (Opus 5.5) | ≈ 2 300 / 2 500 | **≈ 0,06 $** |
+| PDF de 20 pages de texte → 40 fiches (Opus 5.5) | ≈ 12 000 / 6 000 | ≈ 0,17 $ |
+| Correction d'une réponse (Sonnet 5.5, effort bas) | ≈ 400 / 150 | ≈ 0,002 $ |
+| Correction d'une réponse **manuscrite** (image recadrée sur l'écriture, Sonnet 5.5) | ≈ 1 200 / 200 | ≈ 0,004 $ |
+| Page de notes manuscrites → fiches (Opus 5.5) | ≈ 2 300 / 2 500 | ≈ 0,06 $ (comme une photo) |
+| Message à Mentor, 2 à 3 actions (Opus 5.5, cache) | ≈ 12 000 (dont 70 % en cache) / 1 200 | ≈ 0,04 $ ; question simple sur Sonnet 5.5 : ≈ 0,02 $ |
+| Message à Mentor en **Expert** (Fable 5.1, cache) | ≈ 12 000 / 2 000 | ≈ 0,14 $ |
+| Lettre hebdomadaire de Mentor (Opus 5.5) | ≈ 3 000 / 800 | ≈ 0,03 $ |
+| Mission du **Correcteur**, 60 fiches, 3 tours d'outils (Opus 5.5, cache) | ≈ 25 000 (la moitié en cache) / 2 500 | ≈ 0,10 $ |
+| Mission du **Documentaliste**, 10 fiches rédigées (Opus 5.5) | ≈ 20 000 / 3 500 | ≈ 0,11 $ |
+| Mission du **Planificateur** ou de l'**Examinateur** (Opus 5.5) | ≈ 15 000 / 1 200 | ≈ 0,06 $ |
+| Mission en **Expert**, 150 fiches lues (Fable 5.1, cache) | ≈ 46 000 (la moitié en cache) / 3 000 | ≈ 0,39 $ |
+| Note du matin de l'autopilote (Sonnet 5.5, sans outils) | ≈ 1 500 / 200 | ≈ 0,005 $ |
 | Bilan du lundi, analyses locales des assistants | calcul sur l'appareil | 0 $ |
 
 La cascade de correction (locale d'abord, IA seulement si ambigu) évite environ la moitié des appels.
 
 **Coût IA par utilisateur et par mois** (en dollars ; 1 $ ≈ 0,92 €)
 
-| Profil | Usage | Opus 5 partout | Haiku 4.5 pour les tâches rapides | **Configuration recommandée** |
+| Profil | Usage | Opus 5.5 partout | Réglage par défaut du serveur | **Configuration recommandée** |
 |---|---|---|---|---|
-| Découverte | 3 scans, 60 corrections, 20 messages Mentor, 3 missions | ≈ 1,75 $ | ≈ 1,60 $ | **≈ 0,42 $** (tout sur Haiku 4.5) |
-| Pro, usage normal | 30 scans, 600 corrections, 60 messages Mentor, 4 lettres, 12 missions, 30 notes du matin | ≈ 8,80 $ | ≈ 7,00 $ | **≈ 5,50 $** |
-| Pro, usage intensif | 120 scans, 2 000 corrections, 200 messages, 40 missions | ≈ 29,70 $ | ≈ 24,40 $ | ≈ 19,40 $ → « usage raisonnable » |
-| Pro Expert, usage normal | comme Pro normal, dont 30 messages et 8 missions en Expert | ≈ 14,10 $ | ≈ 12,30 $ | **≈ 11,50 $** |
+| Découverte | 3 scans, 60 corrections, 20 messages Mentor, 3 missions | ≈ 1,40 $ | ≈ 1,30 $ | **≈ 0,70 $** (tout sur Sonnet 5.5) |
+| Pro, usage normal | 30 scans, 600 corrections, 60 messages Mentor, 4 lettres, 12 missions, 30 notes du matin | ≈ 7,05 $ | ≈ 6,20 $ | **≈ 5,45 $** |
+| Pro, usage intensif | 120 scans, 2 000 corrections, 200 messages, 40 missions | ≈ 23,70 $ | ≈ 21,30 $ | ≈ 18,70 $ → « usage raisonnable » |
+| Pro Expert, usage normal | comme Pro normal, dont 30 messages et 8 missions en Expert | ≈ 12,35 $ | ≈ 11,50 $ | **≈ 11,15 $** |
 
-**Configuration recommandée** : niveau rapide sur Haiku 4.5 (`ENGRAM_MODEL_QUICK`, déjà prévu par le serveur : corrections, note du matin, améliorations de fiches) ; Mentor répond avec Haiku 4.5 aux questions simples (environ 2 messages sur 3) et passe à Opus 5 dès qu'il doit agir avec des outils ; Découverte entièrement sur Haiku 4.5. La correction en cascade (locale d'abord, IA seulement si ambigu) évite déjà la moitié des appels, et les analyses locales des assistants ne coûtent rien.
+**Réglage par défaut du serveur** (`server/core.mjs`) : Sonnet 5.5 pour le niveau rapide, Opus 5.5 pour le niveau standard, Fable 5.1 pour Expert. **Configuration recommandée** : ce réglage, plus Mentor qui répond avec Sonnet 5.5 aux questions simples (environ 2 messages sur 3) et passe à Opus 5.5 dès qu'il doit agir avec des outils ; Découverte entièrement sur Sonnet 5.5. À usage égal, c'est environ 20 % de moins qu'avec Opus 5, le modèle des versions précédentes de cette fiche.
 
-C'est plus cher qu'en v2 parce que Mentor et les assistants lisent l'état de l'app : c'est ce qui les rend utiles. Autres leviers : cache (déjà actif), résumé de conversation après 16 échanges, Batch API (−50 %) pour l'autopilote et les imports lourds de nuit.
+C'est plus cher qu'en v2 parce que Mentor et les assistants lisent l'état de l'app : c'est ce qui les rend utiles. Autres leviers : cache (déjà actif ; sur Opus 5.5, une lecture en cache coûte 5 % du prix d'entrée), résumé de conversation après 16 échanges, Batch API (−50 %) pour l'autopilote et les imports lourds de nuit, et, si le jeu d'évaluation montre la même qualité, la lecture des photos sur Sonnet 5.5 : Pro normal passe alors à ≈ 4,55 $.
 
 ---
 
@@ -421,7 +422,7 @@ C'est plus cher qu'en v2 parce que Mentor et les assistants lisent l'état de l'
 3. **Des traductions et des exemples natifs**, relus par des enseignants de chaque pays, plus des examens blancs au format local (bac, Abitur, ENEM, selectividad, A-levels).
 4. **L'acquisition locale** (créateurs étudiants par pays) seulement une fois la rétention J30 au-dessus de 25 %.
 
-**Frais fixes, quel que soit le scénario** : Apple Developer 99 $/an ; Google Play 25 $ une fois ; domaine ~15 €/an ; Supabase Pro 25 $/mois ; Expo EAS 0 – 99 $/mois ; RevenueCat gratuit jusqu'à 2 500 $ de revenus mensuels ; hébergement du serveur Engram (Render, Fly, Railway, Scaleway) 5 – 25 €/mois, ou Netlify (offre gratuite pour la bêta, puis environ 10 – 20 $/mois selon le trafic : à vérifier sur netlify.com/pricing) ; marque INPI ~190 € (EUIPO ~850 € pour l'UE). Commission des stores sur les abonnements : 15 % sous 1 million de dollars de chiffre d'affaires annuel.
+**Frais fixes, quel que soit le scénario** : Apple Developer 99 $/an ; Google Play 25 $ une fois ; domaine ~15 €/an ; Supabase Pro 25 $/mois ; Expo EAS gratuit (15 compilations iOS et 15 Android par mois), 19 $/mois en Starter ; RevenueCat gratuit jusqu'à 2 500 $ de revenus mensuels ; hébergement du serveur Engram (Render, Fly, Railway, Scaleway) 5 – 25 €/mois, ou Netlify (gratuit avec 300 crédits par mois, puis 9 $/mois en Personal ou 20 $/mois en Pro, relevé en septembre 2026) ; marque INPI 190 € pour une classe, 40 € par classe en plus (EUIPO ~850 € pour l'UE). Commission des stores sur les abonnements : 15 % sous 1 million de dollars de chiffre d'affaires annuel.
 
 ---
 
@@ -444,14 +445,14 @@ Prix adaptés par pays (parité de pouvoir d'achat) : environ 4,99 $ au Brésil,
 | Hors TVA | 6,66 € | 5,55 € | 12,49 € | 10,41 € |
 | Reste, sur les stores (15 %) | 5,66 € | 4,72 € | 10,62 € | 8,85 € |
 | Reste, sur le Web (Stripe ≈ 1,5 % + 0,25 €) | 6,29 € | 5,43 € | 12,02 € | 10,20 € |
-| Coût IA, usage normal | 5,05 € | 5,05 € | 10,60 € | 10,60 € |
-| **Marge, usage normal (stores / Web)** | 0,61 € / 1,24 € | −0,33 € / 0,38 € | 0,02 € / 1,42 € | −1,75 € / −0,40 € |
-| **Marge, usage médian (moitié du normal)** | 3,13 € / 3,76 € | 2,19 € / 2,90 € | 5,32 € / 6,72 € | 3,55 € / 4,90 € |
+| Coût IA, usage normal | 5,00 € | 5,00 € | 10,25 € | 10,25 € |
+| **Marge, usage normal (stores / Web)** | 0,66 € / 1,29 € | −0,28 € / 0,43 € | 0,37 € / 1,77 € | −1,40 € / −0,05 € |
+| **Marge, usage médian (moitié du normal)** | 3,16 € / 3,79 € | 2,22 € / 2,93 € | 5,50 € / 6,90 € | 3,73 € / 5,08 € |
 
 **Ce que ces chiffres disent**
-1. L'abonné médian est rentable partout. L'abonné très actif ne l'est qu'avec la configuration recommandée, et l'annuel peut perdre de l'argent : d'où un **usage raisonnable** chiffré dans les CGU (Pro : 60 scans, 150 messages Mentor, 30 missions par mois à pleine vitesse, puis Haiku 4.5 ; Expert : 60 messages et 20 missions sur Fable 5.1, puis Opus 5).
+1. L'abonné médian est rentable partout. L'abonné très actif ne l'est qu'avec la configuration recommandée, et l'annuel peut perdre de l'argent : d'où un **usage raisonnable** chiffré dans les CGU (Pro : 60 scans, 150 messages Mentor, 30 missions par mois à pleine vitesse, puis Sonnet 5.5 ; Expert : 60 messages et 20 missions sur Fable 5.1, puis Opus 5.5).
 2. **Le Web rapporte plus que les stores** : encourager l'abonnement sur le site (dans les limites des règles d'Apple et Google, pays par pays).
-3. **Les utilisateurs gratuits sont un coût d'acquisition** : environ 0,40 € par mois pour un utilisateur Découverte actif (profil du §11), plutôt 0,12 € en moyenne. Avec 5 % de conversion, chaque abonné « porte » 19 gratuits, soit ≈ 2,30 € par mois : c'est moins cher qu'une campagne publicitaire (20 à 40 € par abonné), à condition de garder Découverte sur Haiku 4.5.
+3. **Les utilisateurs gratuits sont un coût d'acquisition** : environ 0,65 € par mois pour un utilisateur Découverte actif (profil du §11), plutôt 0,20 € en moyenne. Avec 5 % de conversion, chaque abonné « porte » 19 gratuits, soit ≈ 3,70 € par mois : c'est trop face à la marge du Pro mensuel. Deux leviers : 10 messages Mentor au lieu de 20 dans Découverte (≈ 0,50 $ pour un actif), ou Découverte sur Haiku 4.5 tant qu'il reste proposé (≈ 0,36 $). À comparer à une campagne publicitaire : 20 à 40 € par abonné.
 4. **À mesurer dès la bêta** (coût IA par abonné, table `ai_jobs`) : si l'usage réel dépasse ces hypothèses, passer à 9,99 € / 17,99 €, ou ramener l'annuel à 1 mois offert.
 
 ---
@@ -480,7 +481,7 @@ Prix adaptés par pays (parité de pouvoir d'achat) : environ 4,99 $ au Brésil,
 | Mentor fait une action non voulue | Reçus, annulation en un clic, confirmation des suppressions, journal `mentor_actions`. |
 | Un assistant propose une correction fausse | Les assistants ne modifient rien eux-mêmes : chaque proposition montre l'avant / après et attend un clic ; « Annuler les changements » restaure l'état d'avant la mission ; le taux de propositions refusées est suivi par assistant. |
 | Abonnés très actifs non rentables | Configuration recommandée (§11), usage raisonnable chiffré, abonnement Web encouragé, suivi du coût IA par abonné (§13). |
-| Coûts d'IA | Quotas serveur, cache, Haiku pour les corrections, Expert réservé à l'offre haute, cascade de correction. |
+| Coûts d'IA | Quotas serveur, cache, Sonnet 5.5 pour les corrections, Expert réservé à l'offre haute, cascade de correction. |
 | Traductions approximatives | Relecture native, captures d'écran par langue dans les tests, retours utilisateurs intégrés. |
 | Anki est gratuit | Import/export complet : essayer Engram ne coûte rien. On se bat sur le temps gagné et l'accompagnement. |
 | RGPD, mineurs, pays multiples | Hébergement UE, suppression du compte en un clic, consentement parental (15 ans en France, 16 en Allemagne, 13 aux États-Unis), CGU locales, LGPD au Brésil. |

@@ -56,11 +56,13 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
 
   // Trois niveaux choisis par la page (réglage « Mentor » ou type de tâche).
   const TIERS = {
-    quick: { model: env.ENGRAM_MODEL_QUICK || 'claude-opus-5', effort: env.ENGRAM_EFFORT_QUICK || 'low' },
-    default: { model: env.ENGRAM_MODEL_DEFAULT || 'claude-opus-5', effort: env.ENGRAM_EFFORT_DEFAULT || 'medium' },
+    quick: { model: env.ENGRAM_MODEL_QUICK || 'claude-sonnet-5-5', effort: env.ENGRAM_EFFORT_QUICK || 'low' },
+    default: { model: env.ENGRAM_MODEL_DEFAULT || 'claude-opus-5-5', effort: env.ENGRAM_EFFORT_DEFAULT || 'medium' },
     complex: { model: env.ENGRAM_MODEL_COMPLEX || 'claude-fable-5-1', effort: env.ENGRAM_EFFORT_COMPLEX || 'high' }
   };
 
+  // Sans clé, le serveur répond quand même à /health pour que l'app puisse dire ce qui manque.
+  const HAS_KEY = !!(client || env.ANTHROPIC_API_KEY || env.ANTHROPIC_AUTH_TOKEN);
   const api = client || new Anthropic({
     maxRetries: 2,
     apiKey: env.ANTHROPIC_API_KEY || null,
@@ -166,10 +168,15 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
           }
         } catch (e) {
           if (!ac.signal.aborted) {
-            const status = e?.status;
-            const code = status === 429 || status === 529 ? 'rate_limited' : status === 413 || /prompt is too long|too many tokens/i.test(e?.message || '') ? 'prompt_too_large' : 'upstream_error';
-            console.error('[engram] API error', status || '', e?.message || e);
-            write({ type: 'error', code, message: status === 401 || /authentication/i.test(e?.message || '') ? 'server API key missing or invalid' : String(e?.message || 'error').slice(0, 300) });
+            const status = e?.status, text = String(e?.message || '');
+            // Plafond mensuel atteint (429 sans délai) ou limite fixée dans la console, crédit épuisé : ce n'est pas un simple « trop vite ».
+            const budget = e?.error?.error?.details?.error_code === 'enforced_spend_limit_reached' || /enforced_spend_limit_reached|specified (workspace )?API usage limits|credit balance/i.test(text);
+            const code = budget ? 'budget'
+              : status === 401 || status === 403 || /authentication|x-api-key/i.test(text) ? 'server_key'
+              : status === 429 || status === 529 ? 'rate_limited'
+              : status === 413 || /prompt is too long|too many tokens/i.test(text) ? 'prompt_too_large' : 'upstream_error';
+            console.error('[engram] API error', status || '', text || e);
+            write({ type: 'error', code, message: code === 'server_key' ? 'server API key missing or invalid' : text.slice(0, 300) || 'error' });
           }
         } finally {
           clearInterval(beat); open = false;
@@ -189,7 +196,7 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
       if (!pathname.startsWith('/api/ai')) return null;
       if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders(request) });
       if (pathname === '/api/ai/health' && request.method === 'GET') {
-        return json(request, 200, { ok: true, images: true, tools: true, locked: !!ACCESS_CODE, fallbacks: FALLBACKS, models: Object.fromEntries(Object.entries(TIERS).map(([k, v]) => [k, v.model])) });
+        return json(request, 200, { ok: true, key: HAS_KEY, images: true, tools: true, locked: !!ACCESS_CODE, fallbacks: FALLBACKS, models: Object.fromEntries(Object.entries(TIERS).map(([k, v]) => [k, v.model])) });
       }
       if (pathname === '/api/ai' && request.method === 'POST') return handleAI(request, ip);
       return json(request, 404, { code: 'upstream_error', message: 'not found' });

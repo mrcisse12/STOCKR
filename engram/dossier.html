@@ -561,18 +561,18 @@ scan_jobs    id · user_id · pages · model · tokens_in · tokens_out · cost_
       <div class="tbl-wrap reveal"><table>
         <thead><tr><th>Modèle</th><th class="num">Entrée</th><th class="num">Sortie</th><th class="num">Exemple</th><th>Rôle dans Engram</th></tr></thead>
         <tbody>
-          <tr><td><b>Claude Fable 5.1</b></td><td class="num">10 $</td><td class="num">50 $</td><td class="num">≈ 0,15 $ le message</td><td>Mentor Expert : plans complexes, explications difficiles</td></tr>
-          <tr class="hi"><td><b>Claude Opus 5</b></td><td class="num">5 $</td><td class="num">25 $</td><td class="num">≈ 0,07 $ la page</td><td>Photos et PDF → fiches, Mentor Standard (≈ 0,05 $ le message)</td></tr>
-          <tr><td><b>Claude Haiku 4.5</b></td><td class="num">1 $</td><td class="num">5 $</td><td class="num">≈ 0,001 $ la réponse</td><td>Option économique pour corriger les réponses</td></tr>
+          <tr><td><b>Claude Fable 5.1</b></td><td class="num">10 $</td><td class="num">50 $</td><td class="num">≈ 0,14 $ le message</td><td>Niveau Expert : Mentor et assistants de l'offre Pro Expert</td></tr>
+          <tr class="hi"><td><b>Claude Opus 5.5</b></td><td class="num">4 $</td><td class="num">20 $</td><td class="num">≈ 0,06 $ la page</td><td>Niveau Standard : photos et PDF → fiches, Mentor (≈ 0,04 $ le message), assistants</td></tr>
+          <tr><td><b>Claude Sonnet 5.5</b></td><td class="num">2 $</td><td class="num">10 $</td><td class="num">≈ 0,002 $ la réponse</td><td>Niveau Rapide : corriger les réponses, note du matin, retouche d'une fiche</td></tr>
         </tbody>
       </table></div>
       <div style="height:22px"></div>
       <div class="scen">
-        <article class="sc reveal"><div class="kicker">Utilisateur gratuit</div><div class="price">≈ 0,40 – 1,75 $<small class="muted" style="font:400 14px var(--f-ui)"> / mois</small></div><p class="muted">3 scans, 20 messages à Mentor et 3 missions d'assistants par mois ; ≈ 0,40 $ si tout passe par Haiku 4.5.</p></article>
-        <article class="sc hi reveal"><div class="kicker"><b>Abonné Pro</b></div><div class="price">≈ 5,50 – 8,80 $<small class="muted" style="font:400 14px var(--f-ui)"> / mois</small></div><p class="muted">30 scans, 600 corrections dont la moitié tranchées localement, 60 messages à Mentor, 12 missions d'assistants, l'autopilote chaque matin.</p></article>
-        <article class="sc reveal"><div class="kicker">Usage intensif</div><div class="price">≈ 19 – 30 $<small class="muted" style="font:400 14px var(--f-ui)"> / mois</small></div><p class="muted">120 scans, 2 000 corrections, 200 messages, 40 missions : limite « usage raisonnable ».</p></article>
+        <article class="sc reveal"><div class="kicker">Utilisateur gratuit</div><div class="price">≈ 0,70 – 1,40 $<small class="muted" style="font:400 14px var(--f-ui)"> / mois</small></div><p class="muted">3 scans, 20 messages à Mentor et 3 missions d'assistants par mois ; ≈ 0,70 $ si tout passe par Sonnet 5.5.</p></article>
+        <article class="sc hi reveal"><div class="kicker"><b>Abonné Pro</b></div><div class="price">≈ 5,45 – 7,05 $<small class="muted" style="font:400 14px var(--f-ui)"> / mois</small></div><p class="muted">30 scans, 600 corrections dont la moitié tranchées localement, 60 messages à Mentor, 12 missions d'assistants, l'autopilote chaque matin.</p></article>
+        <article class="sc reveal"><div class="kicker">Usage intensif</div><div class="price">≈ 19 – 24 $<small class="muted" style="font:400 14px var(--f-ui)"> / mois</small></div><p class="muted">120 scans, 2 000 corrections, 200 messages, 40 missions : limite « usage raisonnable ».</p></article>
       </div>
-      <p class="muted reveal" style="margin-top:18px;font-size:14px;max-width:80ch">Leviers d'économie : mise en cache du début de conversation (déjà actif dans le serveur Engram), Haiku 4.5 pour les corrections, correction en cascade, Mentor Expert réservé à l'offre haute, Batch API (−50 %) pour les imports de nuit. Le choix des modèles se tranche sur un jeu de vraies photos de cours, dans chaque langue.</p>
+      <p class="muted reveal" style="margin-top:18px;font-size:14px;max-width:80ch">Leviers d'économie : mise en cache du début de conversation (déjà actif dans le serveur Engram), Sonnet 5.5 pour les corrections et les questions simples, correction en cascade, Mentor Expert réservé à l'offre haute, Batch API (−50 %) pour les imports de nuit. Le choix des modèles se tranche sur un jeu de vraies photos de cours, dans chaque langue.</p>
     </section>
 
     <!-- Budget -->
@@ -607,10 +607,10 @@ scan_jobs    id · user_id · pages · model · tokens_in · tokens_out · cost_
           <h3 class="h3" style="margin-bottom:14px">Modèle économique</h3>
           <div class="plans" style="grid-template-columns:1fr">
             <div class="plan"><div class="kicker">Découverte</div><div class="price">0 €</div><ul><li>3 scans, 20 messages à Mentor et 3 missions d'assistants par mois</li><li>FSRS, programme, import / export Anki</li><li>Jeux, carnet, série</li></ul></div>
-            <div class="plan hi"><div class="kicker"><b>Pro</b></div><div class="price">7,99 € <small>/ mois</small></div><ul><li>Scans, corrections, Mentor et six assistants sans limite (usage raisonnable)</li><li>Autopilote : note du matin, bilan du lundi</li><li>Marge ≈ 3 € pour l'abonné médian, ≈ 0,60 € pour un abonné très actif, après TVA, commission et IA</li></ul></div>
-            <div class="plan"><div class="kicker"><b>Pro Expert</b></div><div class="price">14,99 € <small>/ mois</small></div><ul><li>Tout Pro + le modèle le plus puissant (Claude Fable 5.1) pour Mentor et les assistants</li><li>150 fiches lues par mission</li><li>Marge ≈ 5,30 € pour l'abonné médian</li></ul></div>
+            <div class="plan hi"><div class="kicker"><b>Pro</b></div><div class="price">7,99 € <small>/ mois</small></div><ul><li>Scans, corrections, Mentor et six assistants sans limite (usage raisonnable)</li><li>Autopilote : note du matin, bilan du lundi</li><li>Marge ≈ 3,15 € pour l'abonné médian, ≈ 0,65 € pour un abonné très actif, après TVA, commission et IA</li></ul></div>
+            <div class="plan"><div class="kicker"><b>Pro Expert</b></div><div class="price">14,99 € <small>/ mois</small></div><ul><li>Tout Pro + le modèle le plus puissant (Claude Fable 5.1) pour Mentor et les assistants</li><li>150 fiches lues par mission</li><li>Marge ≈ 5,50 € pour l'abonné médian</li></ul></div>
           </div>
-          <p class="muted" style="margin-top:14px;font-size:14px">Annuel : 79,90 € et 149,90 € (2 mois offerts). La marge tient grâce à Haiku 4.5 pour les tâches rapides, à un usage raisonnable chiffré et aux abonnements pris sur le Web : détail dans la fiche technique (§13), à mesurer dès la bêta. Prix adaptés par pays (≈ 4,99 $ au Brésil).</p>
+          <p class="muted" style="margin-top:14px;font-size:14px">Annuel : 79,90 € et 149,90 € (2 mois offerts). La marge tient grâce à Sonnet 5.5 pour les tâches rapides, à un usage raisonnable chiffré et aux abonnements pris sur le Web : détail dans la fiche technique (§13), à mesurer dès la bêta. Prix adaptés par pays (≈ 4,99 $ au Brésil).</p>
         </div>
       </div>
     </section>
