@@ -8,6 +8,7 @@ Ce document accompagne le prototype livré dans ce dossier (`engram/index.html` 
 1. [Ce qui change en v3](#1-ce-qui-change-en-v3)
    - [Stylet, iPad et mise en ligne](#1-bis-stylet-ipad-et-mise-en-ligne)
    - [Engram Pro et les six assistants](#1-ter-engram-pro-et-les-six-assistants)
+   - [Écoles et entreprises](#1-quater-écoles-et-entreprises)
 2. [Anki : ce qu'il fait bien, ce qu'il fait mal](#2-anki--ce-quil-fait-bien-ce-quil-fait-mal)
 3. [Ce que le prototype fait](#3-ce-que-le-prototype-fait)
 4. [Cinq langues, entièrement traduites](#4-cinq-langues-entièrement-traduites)
@@ -107,6 +108,18 @@ Ce document accompagne le prototype livré dans ce dossier (`engram/index.html` 
 
 ---
 
+## 1 quater. Écoles et entreprises
+
+Une page à part, **Écoles et entreprises**, ouverte depuis la page Pro, les Réglages, les Intégrations et Mentor. Un sélecteur passe d'un public à l'autre : les textes, le tableau de bord, les formules et le calcul changent ensemble (classe, élèves, devoir, contrôle ; équipe, personnes, parcours, échéance).
+
+- **Le kit de classe ou d'équipe, qui marche dès maintenant.** Le professeur choisit ses paquets et, s'il veut, la date du contrôle. Engram enregistre un fichier `kit-….json` (paquets, notes, images, date), **sans la progression du professeur**, à envoyer par l'ENT, un e-mail, WhatsApp, Teams ou Slack. L'élève l'ouvre (bouton, collage ou glisser-déposer) : les paquets arrivent avec l'étiquette de la classe, et la date devient un examen de son programme. Quand le professeur envoie une **nouvelle version**, les fiches modifiées sont mises à jour, les nouvelles ajoutées, les retirées supprimées, et **chaque élève garde ses intervalles** : chaque fiche porte un identifiant stable (`ref`). Aucun compte ni serveur n'est nécessaire.
+- **Le tableau de bord du professeur** (exemple, construit avec les fiches de la personne) : élèves actifs, devoir fini, mémoire moyenne, prêts pour le contrôle, liste des élèves (à jour, en retard, décroche) et les cinq fiches qui résistent à la classe. Il se remplira avec les vrais résultats quand les comptes seront synchronisés (Supabase, §10).
+- **Les formules et le calcul du budget** : prix dégressifs, estimation copiée pour un e-mail ou un bon de commande (détail au §13).
+
+Code : `Views.teams`, `kitJSON`, `joinKit`, `teamQuote`, `TEAM_PRICE`.
+
+---
+
 ## 2. Anki : ce qu'il fait bien, ce qu'il fait mal
 
 | | Anki |
@@ -138,6 +151,7 @@ Ce document accompagne le prototype livré dans ce dossier (`engram/index.html` 
 | **Jouer, s'évaluer** | Jeu des paires chronométré, examen blanc noté **au barème du pays** (sur 20 en France, 1,0–5,0 en Allemagne, sur 10 en Espagne et au Brésil, pourcentage et lettre en anglais), mode écoute | `Game`, `gradeScale` |
 | **Motiver** | Série sur fiche de prêt, niveaux, 18 cachets de cire, bordereau de fin de séance, image de progression à partager | `BADGES`, `Study.summary`, `shareProgress` |
 | **Importer, exporter** | §7 | `70-integrations` |
+| **Écoles et entreprises** | §1 quater : kit de classe ou d'équipe, mise à jour qui garde la progression, tableau de bord d'exemple, prix dégressifs et estimation à copier | `Views.teams`, `joinKit` |
 | **Personnaliser** | §8 | `Custom` |
 | **Tout le reste** | Accueil guidé en 5 étapes (langue, profil, rythme, examen, apparence), palette de commandes (Ctrl/⌘ K), raccourcis clavier complets, synchronisation multi-appareils dans l'app Claude, mobile, accessibilité (mouvement réduit, focus visible, contrastes WCAG AA) | `Onb`, `openPalette`, `Store` |
 
@@ -220,6 +234,7 @@ Tout passe par une seule page, **Intégrations**, en quatre onglets : Importer, 
 | **Excel, Numbers, Google Sheets** | export | Tableau copié (colonnes recto, verso, note, paquet) à coller dans une feuille, ou fichier CSV. |
 | **Notion** | export | Tableau Markdown copié, qui devient un tableau en le collant dans une page. |
 | CSV / TSV / TXT | import, export | Détection du séparateur, guillemets CSV. |
+| **Kit de classe ou d'équipe** (JSON) | import, export | Paquets sans la progression, notes, images, date du contrôle ou de l'échéance. À l'ouverture : paquets étiquetés, examen ajouté au programme ; une nouvelle version met les fiches à jour et garde la progression (fiches reliées par `ref`). |
 | Sauvegarde Engram (JSON) | import, export | Paquets, notes, images, examens, profil. Restauration par fichier ou en collant le contenu ; les paquets s'ajoutent, rien n'est effacé. |
 | **PDF de cours** | import | Texte extrait dans le navigateur (pdf.js, jusqu'à 80 pages), puis fiches par l'IA ou localement ; un PDF scanné est rendu en images pour l'IA. |
 | **Fiches à imprimer** | export | PDF A4, 8 fiches par page, recto-verso aligné pour l'impression bord long, traits de coupe. |
@@ -455,6 +470,31 @@ Prix adaptés par pays (parité de pouvoir d'achat) : environ 4,99 $ au Brésil,
 3. **Les utilisateurs gratuits sont un coût d'acquisition** : environ 0,65 € par mois pour un utilisateur Découverte actif (profil du §11), plutôt 0,20 € en moyenne. Avec 5 % de conversion, chaque abonné « porte » 19 gratuits, soit ≈ 3,70 € par mois : c'est trop face à la marge du Pro mensuel. Deux leviers : 10 messages Mentor au lieu de 20 dans Découverte (≈ 0,50 $ pour un actif), ou Découverte sur Haiku 4.5 tant qu'il reste proposé (≈ 0,36 $). À comparer à une campagne publicitaire : 20 à 40 € par abonné.
 4. **À mesurer dès la bêta** (coût IA par abonné, table `ai_jobs`) : si l'usage réel dépasse ces hypothèses, passer à 9,99 € / 17,99 €, ou ramener l'annuel à 1 mois offert.
 
+### Écoles et entreprises
+
+Prix hors taxes, par place, dégressifs : le palier atteint s'applique à toutes les places.
+
+| Offre | Prix | Pour qui | En plus de Pro pour chacun |
+|---|---|---|---|
+| **Classe** | 25 € par élève et par an (10 à 299 élèves) ; le professeur est offert | Un professeur et ses classes | Kit de classe, devoirs et contrôles dans le programme, tableau de bord, Correcteur sur les paquets, crédit IA mis en commun |
+| **Établissement** | Sur devis : 19 € (300 à 999 élèves), 16 € (1 000 et plus) | Collège, lycée, université | Tous les professeurs, connexion Google Workspace et Microsoft 365, classes importées de l'ENT, bibliothèque de paquets, bon de commande et virement, hébergement UE |
+| **Équipe** | 6 € par personne et par mois, facturé à l'année (5 à 49) | Service, agence, boutique | Parcours de formation, échéances et rappels, tableau de bord et export CSV, crédit IA mis en commun |
+| **Entreprise** | Sur devis : 5 € (50 à 249), 4,50 € (250 et plus) | Réseau, siège, centre de formation | SSO (Microsoft Entra, Okta, Google), SCIM, mode Expert pour les formateurs, recertification, journal d'audit, contrat de traitement des données, interlocuteur dédié |
+
+**Coût IA et marge par place** (profils du §11, configuration recommandée) : un élève qui révise sur des paquets préparés par le professeur coûte ≈ 0,93 € d'IA par mois ; une classe de 30 élèves (70 % actifs) et son professeur ≈ 25 € par mois, soit **≈ 0,84 € par élève**. Une équipe de 20 personnes (80 % actives) et son formateur ≈ 21 € par mois, soit **≈ 1,05 € par personne**.
+
+| | Classe | Établissement | Équipe | Entreprise |
+|---|---|---|---|---|
+| Prix par place et par mois | 2,08 € | 1,33 – 1,58 € | 6 € | 4,50 – 5 € |
+| Coût IA par place et par mois | ≈ 0,84 € | ≈ 0,84 € | ≈ 1,05 € | ≈ 1,55 € (avec Expert pour les formateurs) |
+| **Marge par place et par mois** | **≈ 1,20 €** (≈ 58 %) | **≈ 0,50 – 0,75 €** | **≈ 4,90 €** (≈ 82 %) | **≈ 2,95 – 3,45 €** |
+
+Le prix des écoles est ramené sur 12 mois, alors que l'IA sert surtout pendant les 10 mois de cours : la marge réelle est un peu meilleure. Le paiement par virement évite la commission des stores (15 %).
+
+**Crédit IA mis en commun** : chaque place apporte à la réserve de la classe ou de l'équipe l'équivalent de 1 € d'IA par mois (écoles) ou 1,50 € (entreprises), soit environ le double de l'usage moyen. Les élèves qui l'utilisent peu laissent de la place aux autres. Réserve épuisée : la correction locale prend le relais et Mentor passe sur le modèle rapide (code `budget` du serveur, §9).
+
+**Pourquoi c'est intéressant** : une école paie d'avance, pour l'année ; un professeur convainc trente élèves d'un coup, pour un coût d'acquisition bien plus bas qu'une publicité ; et les élèves qui ont aimé Engram en classe restent ensuite en Pro. Exemples de chiffre d'affaires annuel : 10 classes de 30 élèves, 7 500 € ; un lycée de 1 200 élèves, 19 200 € ; une entreprise de 200 personnes, 12 000 €.
+
 ---
 
 ## 14. Planning
@@ -513,6 +553,7 @@ Scripts automatisés (Chromium sans interface), tous au vert sur la version livr
 - **Stylet** (navigateur sans interface, tracés simulés avec pression) : feuille d'écriture en séance sur iPad (portrait et paysage), téléphone et ordinateur ; trois traits enregistrés, image envoyée à l'IA (PNG, une seule image), écriture lue affichée au verso, note suggérée ; écriture illisible signalée ; paume ignorée après le stylet ; annuler et rétablir ; brouillon ; schéma dessiné enregistré avec la fiche et affiché au verso ; page de notes manuscrites ajoutée au scanner ; les 5 langues sans phrase manquante ni débordement.
 - **Mise en ligne** (24 vérifications sur une fausse API Claude) : serveur Node (flux, modèles, effort, repli, en-tête bêta, cache, mode JSON, battement pendant la réflexion, refus, validation, code d'accès, limite de débit, coupure par la page, fichiers de l'app installable, aucun fichier du serveur exposé) et fonction Netlify appelée directement (santé et flux) ; fonction empaquetée avec esbuild ; dossier publié `_site` construit.
 - **Engram Pro et assistants** : page Pro, salle des assistants, accueil de l'offre, note du matin sur l'accueil, fenêtres de quota, les 6 missions, dans les 5 langues × téléphone, iPad et ordinateur : aucune phrase manquante, aucun débordement, aucune erreur ; missions avec une IA simulée qui appelle vraiment les outils : propositions affichées, « Tout appliquer » modifie les fiches (réécriture, suppression), « Annuler les changements » restaure tout, séance et examen blanc préparés qui se lancent, erreur d'outil rapportée à l'IA, modèle Expert choisi en Pro Expert ; quotas de Découverte (3 missions IA, puis analyse locale ou offre Pro) ; autopilote (note du matin réécrite par l'IA, bilan du lundi) ; Mentor qui confie une mission ; mission arrêtée quand on ferme la fenêtre ; retour à Découverte qui coupe l'autopilote.
+- **Écoles et entreprises** (34 vérifications × téléphone, iPad et ordinateur) : page complète pour les deux publics ; calcul du budget (26 élèves = 650 €, 350 = 6 650 € en Établissement, 1 200 = 19 200 €, minimum de 10 élèves, curseur et champ synchronisés, estimation copiée) ; kit enregistré (nom du fichier, aucune progression du professeur, date) puis ouvert : paquet étiqueté, examen ajouté, message d'accueil ; nouvelle version collée après une révision de l'élève : progression gardée, fiche modifiée mise à jour, fiche retirée supprimée, fiche ajoutée, « 1 fiche modifiée, 1 ajoutée, 1 retirée » ; liens depuis Pro, Réglages et Intégrations ; 4 autres langues sans phrase manquante ni débordement.
 - **Apparence** : 7 thèmes × vues principales, accents, polices, tailles 85 % et 130 %, densité, 4 papiers, mouvement coupé ; contraste du texte ≥ 4,5:1 partout.
 
 Non testé ici : les vrais paiements (non branchés dans le prototype), les appels à la vraie API Claude (pas de clé dans l'environnement de test), la synchronisation réelle dans l'app Claude, un vrai déploiement Netlify et un vrai Apple Pencil (tracés simulés dans le navigateur).

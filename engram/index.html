@@ -1373,6 +1373,107 @@ button,a,label,select,.chip,.opt,.ochip{touch-action:manipulation}
 .pro-note{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:12px;border:1px dashed var(--hair-3);color:var(--text-2);font-size:13.5px;line-height:1.55}
 .pro-note .i{color:var(--brass-text);flex:none;margin-top:2px}
 
+/* Écoles et entreprises */
+.tm-hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(24px,5vw,72px);align-items:center}
+.tm-hero .lede{margin-top:24px}
+.tm-hero .tm-aud{margin-top:24px}
+.tm-hero .hero-actions{margin-top:18px}
+@media (max-width:900px){.tm-hero{grid-template-columns:1fr}.tm-hero .pro-stage{order:-1;padding-top:0}}
+.tm-aud button .i{width:15px;height:15px}
+.tm-card .lc-seal{top:30%;width:clamp(58px,17%,78px);filter:drop-shadow(0 6px 10px rgba(0,0,0,.4));animation:none}
+.tm-card .mark{display:block;width:100%;height:auto;--mk-line:var(--gilt);--mk-dot:var(--gilt);--mk-e:var(--gilt);--mk-t:.35s}
+.tm-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:760px){.tm-steps{grid-template-columns:1fr}}
+.tm-step{position:relative;padding:18px 20px 20px;border-radius:14px;border:1px solid var(--hair);background:var(--folder-2)}
+.tm-step .n{display:block;font:400 38px/1 var(--f-display);color:var(--brass-text)}
+.tm-step h3{margin:10px 0 6px;font:600 16px/1.3 var(--f-ui)}
+.tm-step p{margin:0;color:var(--text-2);font-size:14px;line-height:1.55}
+@media (min-width:761px){.tm-step:not(:last-child)::after{content:"";position:absolute;top:36px;right:-17px;width:18px;height:1px;background:var(--hair-3)}}
+.tm-board{border-radius:18px;border:1px solid var(--hair-2);background:var(--folder-2);overflow:hidden;box-shadow:0 34px 60px -44px rgba(0,0,0,.55)}
+.tm-bh{display:flex;align-items:center;gap:16px;padding:16px 20px;border-bottom:1px solid var(--hair);background:var(--folder-3)}
+.tm-bh .ttl{flex:1;min-width:0}
+.tm-bh b{display:block;font:400 24px/1.1 var(--f-display)}
+.tm-bh small{display:block;color:var(--muted);font-size:13px;margin-top:4px;overflow-wrap:anywhere}
+.tm-j{font:400 34px/1 var(--f-display);color:var(--brass-text);min-width:2.6ch;text-align:center}
+@media (max-width:520px){.tm-bh{position:relative;gap:12px;padding:14px 16px}.tm-bh .ttl{padding-right:74px}.tm-bh b{font-size:21px}.tm-bh .tag{position:absolute;top:14px;right:14px}.tm-j{font-size:28px}}
+.tm-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-bottom:1px solid var(--hair)}
+.tm-kpi{display:flex;align-items:center;gap:12px;padding:16px 20px;border-left:1px solid var(--hair);min-width:0}
+.tm-kpi:first-child{border-left:0}
+.tm-kpi b{display:block;font:400 28px/1 var(--f-display)}
+.tm-kpi b small{font-size:15px;color:var(--muted)}
+.tm-kpi span{display:block;color:var(--muted);font-size:12.5px;line-height:1.35;margin-top:5px}
+.tm-kpi svg{flex:none}
+@media (max-width:760px){.tm-kpis{grid-template-columns:1fr 1fr}.tm-kpi{padding:14px 16px}.tm-kpi:nth-child(3){border-left:0}.tm-kpi:nth-child(n+3){border-top:1px solid var(--hair)}}
+.tm-cols{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr)}
+.tm-cols > div{padding:16px 20px 18px;min-width:0}
+.tm-cols > div + div{border-left:1px solid var(--hair)}
+@media (max-width:900px){.tm-cols{grid-template-columns:1fr}.tm-cols > div + div{border-left:0;border-top:1px solid var(--hair)}}
+.tm-colh{display:flex;justify-content:space-between;gap:12px;padding-bottom:10px}
+.tm-roster,.tm-hard{list-style:none;margin:0;padding:0}
+.tm-roster li{display:grid;grid-template-columns:32px minmax(0,1fr) 46px 104px;gap:12px;align-items:center;padding:9px 0;border-top:1px solid var(--hair)}
+.tm-av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:600 11.5px/1 var(--f-ui);letter-spacing:.02em;color:#fff;background:var(--c,var(--brass));box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.tm-av .i{width:16px;height:16px}
+.tm-roster .nm{display:grid;gap:6px;min-width:0}
+.tm-roster .nm b{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tm-bar{display:block;height:5px;border-radius:9px;background:var(--hair);overflow:hidden}
+.tm-bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--brass-lo),var(--brass));transform-origin:left;animation:fill 1s var(--ease) both}
+.tm-bar.bad i{background:linear-gradient(90deg,color-mix(in srgb,var(--again) 55%,transparent),var(--again))}
+.tm-roster .mem{font:600 13px/1 var(--f-ui);text-align:right;color:var(--text-2)}
+.tm-st{display:inline-flex;align-items:center;gap:6px;justify-self:end;font:700 10px/1 var(--f-type);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;color:var(--muted)}
+.tm-st i{width:7px;height:7px;border-radius:50%;background:currentColor}
+.tm-st.ok{color:var(--good)}.tm-st.late{color:var(--hard)}.tm-st.off{color:var(--again)}
+@media (max-width:520px){.tm-roster li{grid-template-columns:32px minmax(0,1fr) 104px}.tm-roster .mem{display:none}}
+.tm-hard li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px 12px;align-items:baseline;padding:10px 0;border-top:1px solid var(--hair)}
+.tm-hard .q{font-size:14px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tm-hard .p{font:600 13px/1 var(--f-ui);color:var(--again)}
+.tm-hard .tm-bar{grid-column:1/-1}
+.tm-more{padding-top:10px;border-top:1px solid var(--hair);font-size:12.5px;color:var(--muted)}
+.tm-insight{display:flex;gap:10px;align-items:flex-start;padding:14px 20px;border-top:1px solid var(--hair);font-size:13.5px;line-height:1.5;color:var(--text-2);background:var(--brass-soft)}
+.tm-insight .i{color:var(--brass-text);flex:none;margin-top:1px}
+.tm-tiers{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:900px){.tm-tiers{grid-template-columns:1fr}}
+.tm-tiers .price b{font-size:44px}
+.tm-calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(18px,4vw,40px);align-items:center;padding:24px}
+@media (max-width:760px){.tm-calc{grid-template-columns:1fr}}
+.tm-calc-in{display:grid;gap:12px}
+.tm-seats{display:flex;align-items:center;gap:16px}
+.tm-seats .input{width:104px;flex:none;text-align:center;font:400 24px/1 var(--f-display);padding:10px 8px;-moz-appearance:textfield;appearance:textfield}
+.tm-seats .input::-webkit-inner-spin-button,.tm-seats .input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.tm-calc-p{margin:-4px 0 4px;font-size:13.5px;line-height:1.5}
+.tm-range{-webkit-appearance:none;appearance:none;flex:1;min-width:0;height:6px;margin:14px 0;border-radius:9px;background:linear-gradient(90deg,var(--brass) var(--p,0%),var(--hair-2) var(--p,0%));cursor:pointer}
+.tm-range::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;border:0;background:radial-gradient(circle at 35% 30%,var(--brass-hi),var(--brass-btn) 60%,var(--brass-lo));box-shadow:0 2px 8px rgba(0,0,0,.35),0 0 0 4px var(--folder-2);transition:transform .25s var(--spring)}
+.tm-range::-moz-range-thumb{width:26px;height:26px;border-radius:50%;border:0;background:radial-gradient(circle at 35% 30%,var(--brass-hi),var(--brass-btn) 60%,var(--brass-lo));box-shadow:0 2px 8px rgba(0,0,0,.35),0 0 0 4px var(--folder-2)}
+.tm-range:active::-webkit-slider-thumb{transform:scale(1.12)}
+.tm-scale{display:flex;flex-wrap:wrap;gap:8px}
+.tm-scale span{padding:6px 10px;border-radius:7px;border:1px solid var(--hair-2);font-size:12.5px;color:var(--muted);transition:all .3s}
+.tm-scale span.on{border-color:var(--brass);color:var(--brass-text);background:var(--brass-soft)}
+.tm-out{display:grid;gap:12px;padding:20px 22px;border-radius:14px;border:1px solid var(--hair);background:var(--desk-2)}
+.tm-out .tm-plan{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.tm-out .tm-plan b{font:400 22px/1 var(--f-display);color:var(--brass-text)}
+.tm-total{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.tm-total b{font:400 clamp(40px,6vw,56px)/1 var(--f-display);letter-spacing:-.02em}
+.tm-total span{color:var(--muted);font-size:14px}
+.tm-lines{display:grid;gap:5px;font-size:13.5px;color:var(--text-2)}
+.tm-save{font-style:normal;font-weight:700;color:var(--good);margin-left:4px}
+.tm-out .btn{justify-self:start}
+.tm-try{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:760px){.tm-try{grid-template-columns:1fr}}
+.tm-tc{display:flex;flex-direction:column;gap:10px}
+.tm-tc .tm-ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--brass-soft);color:var(--brass-text)}
+.tm-tc p{margin:0;color:var(--text-2);font-size:14px;line-height:1.55;flex:1}
+.tm-tc .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.tm-joined{display:grid;gap:8px;margin-top:8px;padding-top:12px;border-top:1px solid var(--hair)}
+.tm-kits{display:grid;gap:10px}
+.tm-kit{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px 16px;border-radius:12px;border:1px solid var(--hair);background:var(--folder-2)}
+.tm-kit b{display:block;font-weight:600}
+.tm-kit small{display:block;color:var(--muted);font-size:13px;margin-top:3px}
+.tm-kit .acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+@media (max-width:620px){.tm-kit{grid-template-columns:auto minmax(0,1fr)}.tm-kit .acts{grid-column:1/-1;justify-content:flex-start}}
+.tm-kn{display:flex;gap:8px;align-items:flex-start;margin:0;font-size:13px}
+.tm-kn .i{flex:none;margin-top:2px}
+.tm-ad .btn{white-space:nowrap}
+@media (max-width:620px){.tm-ad{grid-template-columns:auto minmax(0,1fr)}.tm-ad .btn{grid-column:1/-1;justify-self:start}}
+
 /* Les assistants */
 .team{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 @media (max-width:1100px){.team{grid-template-columns:1fr 1fr}}
@@ -1825,7 +1926,10 @@ const I = {
   marker: '<path d="m9 15-3 3v2h4l3-3"/><path d="m9 15 7.5-7.5a2.1 2.1 0 0 1 3 3L12 18z"/>',
   eraser: '<path d="M20 20H9"/><path d="m4.5 15.5 9-9a2 2 0 0 1 2.8 0l2.2 2.2a2 2 0 0 1 0 2.8L11 19H8z"/><path d="m9 11 5 5"/>',
   redo: '<path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/>',
-  scribble: '<path d="M3 17c3-6 5-9 6.5-9S10 13 12 13s3-6 4.5-6S18 12 21 11"/>'
+  scribble: '<path d="M3 17c3-6 5-9 6.5-9S10 13 12 13s3-6 4.5-6S18 12 21 11"/>',
+  users: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 5.2a3 3 0 0 1 0 5.6"/><path d="M18 14.3c1.8.8 3 2.6 3 4.7"/>',
+  school: '<path d="M2 9.5 12 5l10 4.5L12 14z"/><path d="M6 11.3V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.7"/><path d="M22 9.5v5"/>',
+  building: '<path d="M4 21V4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v17"/><path d="M15 9h4a1 1 0 0 1 1 1v11"/><path d="M2.5 21h19"/><path d="M8 7h3M8 11h3M8 15h3"/>'
 };
 const icon = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${I[n] || ''}</svg>`;
 
@@ -1912,6 +2016,7 @@ function normalizeState(st) {
   if (!Array.isArray(p.agents.runs)) p.agents.runs = [];
   // v2 → v3 : un seul examen devient une liste d'examens.
   if (!Array.isArray(p.exams)) p.exams = [];
+  if (!Array.isArray(p.classes)) p.classes = []; // kits de classe ou d'équipe créés sur cet appareil
   if (p.exam && p.exam.date) { p.exams.push({ id: uid('x'), name: p.exam.name, date: p.exam.date, deckIds: p.exam.deckId ? [p.exam.deckId] : [], example: p.exam.example }); }
   delete p.exam;
   for (const d of st.decks) {
@@ -3038,7 +3143,7 @@ function leitner(cards, deckId = '') {
 function drawer(d, i = 0) {
   const c = todayCounts(d.id);
   return `<article class="drawer rise" style="animation-delay:${i * 60}ms" data-act="deck" data-id="${d.id}" tabindex="0" role="link" aria-label="${esc(t('Ouvrir {name}', { name: d.name }))}">
-    ${d.example ? `<span class="ex-tag">${t('Exemple')}</span>` : ''}
+    ${d.example ? `<span class="ex-tag">${t('Exemple')}</span>` : d.cls ? `<span class="ex-tag">${esc(d.cls.name)}</span>` : ''}
     <div class="holder"><div class="label" style="--c:${DECK_COLORS[d.color] || DECK_COLORS.brass}"><b>${esc(d.name)}</b><small>${plural(d.cards.length, 'fiche|fiches')} · ${(d.lang || 'fr').toUpperCase()}</small></div></div>
     <div class="pull" aria-hidden="true"></div>
     <div class="drawer-foot"><div class="due tnum">${c.total ? `<span><i style="background:var(--st-n)"></i>${c.nNew}</span><span><i style="background:var(--st-l)"></i>${c.nLearn}</span><span><i style="background:var(--st-m)"></i>${c.nRev}</span>` : `<span class="muted">${t('À jour')}</span>`}</div>
@@ -3460,7 +3565,7 @@ Views.deck = id => {
     <button class="btn btn-ghost btn-sm rise" style="align-self:flex-start" data-act="go" data-v="library">${icon('back', 'i-sm')}${t('Le fichier')}</button>
     <header class="deck-head">
       <div class="holder rise"><div class="label" style="--c:${DECK_COLORS[d.color] || DECK_COLORS.brass}"><b>${esc(d.name)}</b><small>${plural(d.cards.length, 'fiche|fiches')} · ${esc(langName(d.lang || 'fr'))}</small></div></div>
-      <div style="display:flex;flex-direction:column;gap:12px"><div class="kicker">${t('Tiroir')}${d.example ? ' · ' + t('exemple') : ''}</div><h1 class="display" style="font-size:clamp(36px,5vw,62px)">${words(esc(d.name))}</h1>${d.desc ? `<p class="lede">${esc(d.desc)}</p>` : ''}</div>
+      <div style="display:flex;flex-direction:column;gap:12px"><div class="kicker">${t('Tiroir')}${d.example ? ' · ' + t('exemple') : ''}${d.cls ? ' · ' + t((TEAM_TXT[d.cls.org] || TEAM_TXT.school).tagged, { c: esc(d.cls.name) }) : ''}</div><h1 class="display" style="font-size:clamp(36px,5vw,62px)">${words(esc(d.name))}</h1>${d.desc ? `<p class="lede">${esc(d.desc)}</p>` : ''}</div>
     </header>
     ${examBanner(id)}
     <div class="toolbar rise">
@@ -4123,6 +4228,7 @@ Views.pro = () => {
       <div class="sec-h"><div><h2 class="h2">${t('Trois formules')}</h2><p>${t('Découverte reste gratuite et sans publicité. L\'abonnement paie l\'IA : chaque photo analysée, chaque correction et chaque mission a un coût.')}</p></div>
         <div class="bill ${y ? 'y' : ''}" id="bill"><span class="knob"></span><button class="${y ? '' : 'on'}" data-bill="month">${t('Mensuel')}</button><button class="${y ? 'on' : ''}" data-bill="year">${t('Annuel')} <small>${pct(PLANS.pro.y / (PLANS.pro.m * 12) - 1)}</small></button></div></div>
       <div class="tiers">${['free', 'pro', 'expert'].map(tierHTML).join('')}</div>
+      <article class="autopilot tm-ad leather gilt-rule rise"><span class="ap-dial">${icon('users')}</span><div><b>${t('Pour une classe ou une équipe')}</b><span>${t('Des paquets partagés, la date du contrôle dans le programme de chacun et un tableau de bord pour suivre la classe. Le professeur est offert.')}</span></div><button class="btn btn-gilt" data-act="go" data-v="teams">${t('Écoles et entreprises')}${icon('arrow', 'i-sm')}</button></article>
     </section>
     <section class="sec">
       <div class="sec-h"><div><h2 class="h2">${t('L\'équipe Pro')}</h2><p>${t('Chacun son métier. Lancez-les quand vous voulez, ou laissez l\'autopilote les réveiller.')}</p></div><button class="btn btn-sm" data-act="go" data-v="agents">${t('Voir les assistants')}${icon('arrow', 'i-sm')}</button></div>
@@ -4156,6 +4262,327 @@ Hooks.pro = () => {
   });
   $$('[data-jump]', v).forEach(b => b.addEventListener('click', () => document.getElementById(b.dataset.jump)?.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'start' })));
 };
+
+/* ════════════════════════════════════════════════════════════════════
+   ÉCOLES ET ENTREPRISES
+   · Deux publics, un même moteur : une classe (professeur et élèves) ou
+     une équipe (formateur et collaborateurs).
+   · Le kit marche dès maintenant, sans compte ni serveur : le professeur
+     enregistre un fichier (paquets et date du contrôle), chaque élève
+     l'ouvre. Une nouvelle version du kit met les fiches à jour sans
+     toucher à la progression : les fiches sont reliées par « ref ».
+   · Le tableau de bord est un exemple construit avec les fiches de la
+     personne ; il se remplira quand les comptes seront synchronisés.
+   · Prix dégressifs par siège : voir la fiche technique, §13.
+   ════════════════════════════════════════════════════════════════════ */
+const TEAM_PRICE = {
+  // Écoles : prix par élève et par an. Entreprises : par personne et par mois, facturé à l'année.
+  school: { per: 'year', min: 10, max: 2000, seats: 26, steps: [[10, 25], [300, 19], [1000, 16]] },
+  work: { per: 'month', min: 5, max: 1000, seats: 18, steps: [[5, 6], [50, 5], [250, 4.5]] }
+};
+const TEAM_TXT = {
+  school: {
+    title: N_('Toute une classe, <em>un seul</em> programme.'),
+    lede: N_('Le professeur publie ses paquets et la date du contrôle. Chaque élève reçoit un programme à sa mesure, et le professeur voit où la classe accroche.'),
+    make: N_('Créer un kit de classe'), join: N_('Ouvrir un kit reçu'), cardKind: N_('Carte de classe'), cardWord: N_('Classe'), seats: N_('{n} élève|{n} élèves'), group: N_('Terminale B'), tagged: N_('Classe {c}'),
+    steps: [[N_('Le professeur publie'), N_("Il choisit ses paquets et la date du contrôle. Engram en fait un kit à envoyer par l'ENT, par e-mail ou par WhatsApp.")],
+      [N_('Chaque élève révise'), N_('En ouvrant le kit, les fiches et la date entrent dans son programme. FSRS ajuste ensuite les révisions à chaque élève.')],
+      [N_('La classe progresse'), N_('Le tableau de bord montre qui suit, qui décroche et quelles fiches résistent. Avant le contrôle, pas après.')]],
+    boardH: N_('Ce que voit le professeur'), boardP: N_('Un exemple, construit avec vos propres fiches. Il se remplira avec les vrais résultats de la classe quand les comptes seront synchronisés.'),
+    kpi: [N_('élèves actifs cette semaine'), N_('ont fini le devoir'), N_('mémoire moyenne de la classe'), N_('prêts pour le contrôle')],
+    due: N_('Contrôle le {d}'), roster: N_('Les élèves'), task: N_('Devoir'),
+    insight: N_('Le Correcteur peut reformuler ces fiches avant le contrôle, et le Répétiteur les fera revoir aux élèves qui les oublient.'),
+    plansP: N_("Chaque élève a tout Engram Pro, et le professeur est offert. Plus il y a d'élèves, plus le prix baisse."),
+    plans: [
+      { name: N_('Classe'), sub: N_('Pour un professeur et ses classes.'), price: 25, unit: N_('/ élève / an'), note: N_('Le professeur est offert · dès 10 élèves'),
+        feats: [N_('Tout Engram Pro pour chaque élève'), N_('Paquets de classe mis à jour sans perdre la progression'), N_('Devoirs et contrôles dans le programme de chacun'), N_('Tableau de bord de la classe'), N_('Le Correcteur relit vos paquets avant de les envoyer'), N_("Crédit d'IA mis en commun pour la classe")] },
+      { name: N_('Établissement'), sub: N_('Pour un collège, un lycée ou une université.'), from: 16, note: N_('Dès 300 élèves · à partir de {p} par élève et par an'), lead: N_('Tout Classe, et :'),
+        feats: [N_('Tous les professeurs et toutes les classes'), N_('Connexion avec Google Workspace et Microsoft 365'), N_("Classes importées depuis l'ENT ou un fichier"), N_("Bibliothèque de paquets de l'établissement"), N_('Bon de commande, facture et virement'), N_("Données hébergées dans l'Union européenne")] }
+    ],
+    seatsL: N_("Nombre d'élèves"), unitL: N_('{p} par élève et par an'), alt: N_('soit {p} par élève et par mois'), scaleL: N_('Prix par élève et par an'), free: N_('le professeur est offert'),
+    tryP: N_('Le kit de classe marche déjà, sans compte ni serveur : un fichier que chaque élève ouvre dans Engram.'),
+    makeP: N_("Choisissez vos paquets et, si vous voulez, la date du contrôle. Envoyez le fichier par l'ENT, par e-mail ou par WhatsApp."),
+    joinP: N_('Les paquets et la date du contrôle entrent dans votre programme. Quand le professeur envoie une nouvelle version, les fiches changent et votre progression reste.'),
+    nameL: N_('Nom de la classe'), nameEx: N_('Ex. Terminale B, histoire'), examL: N_('Contrôle (facultatif)'), examEx: N_('Ex. Contrôle du chapitre 3'), examDefault: N_('Contrôle'),
+    kitNote: N_('Les élèves reçoivent les fiches, pas votre progression.'),
+    faq: [[N_('Les élèves ont-ils besoin d\'un compte ?'), N_('Pas pour le kit : ils ouvrent le fichier dans Engram, sur téléphone, iPad ou ordinateur. Le compte sert à remonter les résultats vers le tableau de bord, avec la formule Classe.')],
+      [N_('Que devient la progression quand je modifie un paquet ?'), N_('Elle est gardée. Envoyez la nouvelle version du kit : les fiches modifiées sont mises à jour, les nouvelles s\'ajoutent, et chaque élève garde ses intervalles de révision.')],
+      [N_('Et les données des élèves ?'), N_('Elles servent à réviser, rien d\'autre : pas de publicité, pas de revente. À la mise en ligne, elles seront hébergées dans l\'Union européenne, avec un contrat de traitement des données pour l\'établissement.')],
+      [N_('Comment l\'établissement paie-t-il ?'), N_('Par bon de commande et virement, sur facture annuelle. Pour une seule classe, la carte bancaire suffit.')]]
+  },
+  work: {
+    title: N_('Toute une équipe, <em>formée</em> et à jour.'),
+    lede: N_('Le formateur publie un parcours et son échéance. Chacun révise à son rythme, et le responsable voit ce qui est acquis et ce qui ne l\'est pas encore.'),
+    make: N_('Créer un kit d\'équipe'), join: N_('Ouvrir un kit reçu'), cardKind: N_('Carte d\'équipe'), cardWord: N_('Équipe'), seats: N_('{n} personne|{n} personnes'), group: N_('Service client'), tagged: N_('Équipe {c}'),
+    steps: [[N_('Le formateur publie'), N_('Il choisit un parcours (produits, procédures, sécurité, langues) et son échéance. Engram en fait un kit à partager.')],
+      [N_('Chacun révise'), N_('Quelques minutes par jour, quand ça l\'arrange. Le programme part de ce que chaque personne sait déjà.')],
+      [N_('L\'équipe est prête'), N_('Le tableau de bord montre ce qui est acquis, les notions fragiles et les retards. Avant l\'échéance, pas après.')]],
+    boardH: N_('Ce que voit le responsable'), boardP: N_('Un exemple, construit avec vos propres fiches. Il se remplira avec les vrais résultats de l\'équipe quand les comptes seront synchronisés.'),
+    kpi: [N_('actifs cette semaine'), N_('ont fini le parcours'), N_('mémoire moyenne de l\'équipe'), N_('prêts pour l\'échéance')],
+    due: N_('Échéance le {d}'), roster: N_('L\'équipe'), task: N_('Parcours'),
+    insight: N_('Le Correcteur peut reformuler ces fiches avant l\'échéance, et le Répétiteur les fera revoir aux personnes qui les oublient.'),
+    plansP: N_('Chaque personne a tout Engram Pro. Plus l\'équipe est grande, plus le prix baisse.'),
+    plans: [
+      { name: N_('Équipe'), sub: N_('Pour un service, une agence ou une boutique.'), price: 6, unit: N_('/ personne / mois'), note: N_('Facturé à l\'année · dès 5 personnes'),
+        feats: [N_('Tout Engram Pro pour chaque personne'), N_('Parcours de formation mis à jour sans perdre la progression'), N_('Échéances et rappels dans le programme de chacun'), N_('Tableau de bord de l\'équipe, export CSV'), N_('Le Correcteur relit vos parcours avant de les envoyer'), N_('Crédit d\'IA mis en commun pour l\'équipe')] },
+      { name: N_('Entreprise'), sub: N_('Pour un réseau, un siège ou un centre de formation.'), from: 4.5, note: N_('Dès 50 personnes · à partir de {p} par personne et par mois'), lead: N_('Tout Équipe, et :'),
+        feats: [N_('Connexion unique (SSO) : Microsoft Entra, Okta, Google'), N_('Comptes créés et fermés automatiquement (SCIM)'), N_('Mode Expert pour les formateurs'), N_('Recertification planifiée avant chaque échéance'), N_('Journal d\'audit et contrat de traitement des données'), N_('Un interlocuteur dédié')] }
+    ],
+    seatsL: N_('Nombre de personnes'), unitL: N_('{p} par personne et par mois'), alt: N_('soit {p} par personne et par an'), scaleL: N_('Prix par personne et par mois'), free: '',
+    tryP: N_('Le kit d\'équipe marche déjà, sans compte ni serveur : un fichier que chaque personne ouvre dans Engram.'),
+    makeP: N_('Choisissez un parcours et, si vous voulez, son échéance. Envoyez le fichier par e-mail, Teams ou Slack.'),
+    joinP: N_('Les fiches et l\'échéance entrent dans votre programme. Quand le formateur envoie une nouvelle version, les fiches changent et votre progression reste.'),
+    nameL: N_('Nom de l\'équipe'), nameEx: N_('Ex. Service client, nouveaux arrivants'), examL: N_('Échéance (facultatif)'), examEx: N_('Ex. Certification produits'), examDefault: N_('Échéance'),
+    kitNote: N_('Chacun reçoit les fiches, pas votre progression.'),
+    faq: [[N_('Les collaborateurs ont-ils besoin d\'un compte ?'), N_('Pas pour le kit : chacun ouvre le fichier dans Engram. Le compte, avec la connexion de l\'entreprise, remonte les résultats vers le tableau de bord.')],
+      [N_('Que devient la progression quand je modifie un parcours ?'), N_('Elle est gardée. Envoyez la nouvelle version du kit : les fiches modifiées sont mises à jour, les nouvelles s\'ajoutent, et chacun garde ses intervalles de révision.')],
+      [N_('Nos contenus restent-ils confidentiels ?'), N_('Oui. Ils ne servent qu\'à votre équipe : pas de publicité, pas de revente. La formule Entreprise ajoute la connexion unique, le journal d\'audit et un contrat de traitement des données.')],
+      [N_('Comment se passe la facturation ?'), N_('Une facture annuelle, par carte ou par virement. Les places s\'ajustent quand l\'équipe grandit.')]]
+  }
+};
+// Données d'exemple du tableau de bord : [nom, part du devoir faite, mémoire].
+const TEAM_DEMO = {
+  school: { total: 26, kpi: [22, 17, .76, 15], people: [['Awa K.', 1, .91], ['Hugo M.', 1, .84], ['Aminata D.', .8, .79], ['Léa B.', .65, .72], ['Kouassi Y.', .45, .63], ['Inès R.', .3, .58], ['Moussa T.', .1, .41]] },
+  work: { total: 18, kpi: [16, 11, .81, 12], people: [['Mariam C.', 1, .93], ['Julien F.', 1, .88], ['Fatou N.', .85, .82], ['Karim B.', .7, .76], ['Élodie V.', .5, .69], ['Yao K.', .35, .61], ['Samuel A.', .15, .47]] }
+};
+const Teams = { aud: 'school', seats: { school: TEAM_PRICE.school.seats, work: TEAM_PRICE.work.seats } };
+const orgIcon = org => org === 'work' ? 'building' : 'school';
+// Curseur logarithmique : une classe de 26 élèves et un lycée de 1 200 tiennent sur la même règle.
+const seatPos = (k, n) => { const P = TEAM_PRICE[k]; return Math.round(1000 * Math.log(n / P.min) / Math.log(P.max / P.min)); };
+const posSeat = (k, x) => { const P = TEAM_PRICE[k], v = P.min * Math.pow(P.max / P.min, x / 1000), q = v < 100 ? 1 : v < 1000 ? 5 : 10; return clamp(Math.round(v / q) * q, P.min, P.max); };
+function teamQuote(k, n) {
+  const P = TEAM_PRICE[k]; let u = 0, step = 0;
+  P.steps.forEach(([from, v], i) => { if (n >= from) { u = v; step = i; } });
+  const year = n * u * (P.per === 'month' ? 12 : 1);
+  return { u, step, year, alt: P.per === 'month' ? u * 12 : u / 12, plan: TEAM_TXT[k].plans[step ? 1 : 0], pro: n * PLANS.pro.y };
+}
+/* La carte de classe, sœur de la carte de lecteur Pro. */
+function classCard(k) {
+  const T = TEAM_TXT[k], D = TEAM_DEMO[k];
+  return `<div class="lcard leather tm-card" role="img" aria-label="${esc(t(T.cardKind))}">
+    <span class="lc-sheen"></span><span class="lc-frame"></span>
+    <div class="lc-top"><span class="foil lc-brand">Engram</span><span class="lc-no">${t(k === 'work' ? 'Entreprises' : 'Écoles')}</span></div>
+    <div class="lc-mid"><span class="lc-kind">${t(T.cardKind)}</span><span class="foil lc-pro">${t(T.cardWord)}</span></div>
+    <div class="lc-bot"><span>${esc(t(T.group))}</span><span>${tp(D.total, T.seats)}</span></div>
+    <span class="lc-seal">${markSVG()}</span>
+  </div>`;
+}
+function teamBoard(k) {
+  const T = TEAM_TXT[k], D = TEAM_DEMO[k], when = Date.now() + 9 * DAY;
+  const deck = S.decks.find(d => d.cards.filter(c => c.type !== 'occlusion').length >= 3);
+  const hard = deck ? deck.cards.filter(c => c.type !== 'occlusion').map(c => [c, .22 + hash(c.id + k) % 37 / 100]).sort((a, b) => b[1] - a[1]).slice(0, 5) : [];
+  const status = (done, mem) => done >= 1 ? ['ok', t('À jour')] : done < .4 && mem < .6 ? ['off', t('Décroche')] : ['late', t('En retard')];
+  const cols = Object.values(DECK_COLORS), [act, fin, mem, ready] = D.kpi;
+  const kpi = (v, l) => `<div class="tm-kpi"><div><b class="tnum">${num(v)}<small> / ${num(D.total)}</small></b><span>${t(l)}</span></div></div>`;
+  return `<article class="tm-board rise">
+    <header class="tm-bh"><span class="tm-j tnum">${t('J−{n}', { n: 9 })}</span><div class="ttl"><b>${esc(t(T.group))}</b><small>${deck ? esc(deck.name) + ' · ' : ''}${t(T.due, { d: fmtDate(when) })}</small></div><span class="tag">${t('Exemple')}</span></header>
+    <div class="tm-kpis">${kpi(act, T.kpi[0])}${kpi(fin, T.kpi[1])}<div class="tm-kpi">${ring(mem, 46, 4)}<div><b class="tnum">${pct(mem)}</b><span>${t(T.kpi[2])}</span></div></div>${kpi(ready, T.kpi[3])}</div>
+    <div class="tm-cols">
+      <div><div class="tm-colh"><span class="kicker">${t(T.roster)}</span><span class="kicker">${t(T.task)} · ${t('Mémoire')}</span></div>
+        <ul class="tm-roster">${D.people.map(([name, done, m], i) => { const [cl, lab] = status(done, m); return `<li><span class="tm-av" style="--c:${cols[i % cols.length]}">${esc(name.split(' ').map(x => x[0]).join(''))}</span><div class="nm"><b>${esc(name)}</b><span class="tm-bar"><i style="width:${done * 100}%;animation-delay:${i * 60}ms"></i></span></div><span class="mem tnum">${pct(m)}</span><span class="tm-st ${cl}"><i></i>${lab}</span></li>`; }).join('')}</ul>
+        <div class="tm-more">${t('et {n} autres', { n: D.total - D.people.length })}</div></div>
+      <div><div class="tm-colh"><span class="kicker">${t('Les fiches qui résistent')}</span></div>
+        ${hard.length ? `<ol class="tm-hard">${hard.map(([c, r], i) => `<li><span class="q">${esc(cardTitle(c))}</span><span class="p tnum">${pct(r)}</span><span class="tm-bar bad"><i style="width:${r * 100}%;animation-delay:${i * 70}ms"></i></span></li>`).join('')}</ol><div class="tm-more">${t('Part des réponses oubliées cette semaine')}</div>`
+          : `<p class="muted" style="margin:0;font-size:14px">${t('Ajoutez un paquet pour voir cet exemple avec vos propres fiches.')}</p>`}</div>
+    </div>
+    <footer class="tm-insight">${icon('bulb', 'i-sm')}<span>${t(T.insight)}</span></footer>
+  </article>`;
+}
+function teamTier(k, p, i) {
+  const hi = i === 0, feats = (p.lead ? [t(p.lead)] : []).concat(p.feats.map(x => t(x)));
+  return `<article class="tier ${hi ? 'hi leather' : ''} rise">
+    ${hi ? `<span class="tag">${t('Recommandé')}</span>` : ''}
+    <h3 class="${hi ? 'foil' : ''}">${t(p.name)}</h3><div class="t-sub">${t(p.sub)}</div>
+    <div class="price"><b class="tnum">${p.price ? money(p.price) : t('Sur devis')}</b>${p.price ? `<span>${t(p.unit)}</span>` : ''}</div>
+    <div class="t-bill">${t(p.note, { p: money(p.from || 0) })}</div>
+    <ul>${feats.map((x, j) => `<li>${p.lead && !j ? '<span></span>' : icon('check')}<span>${p.lead && !j ? `<b>${x}</b>` : x}</span></li>`).join('')}</ul>
+    ${hi ? `<button class="btn btn-gilt" data-act="kitNew">${icon('users', 'i-sm')}${t(TEAM_TXT[k].make)}</button>` : `<button class="btn btn-brass" data-jump="tmCalc">${t('Estimer le budget')}</button>`}
+  </article>`;
+}
+function teamOut(k) {
+  const n = Teams.seats[k], q = teamQuote(k, n), T = TEAM_TXT[k];
+  return `<div class="tm-plan"><span class="kicker">${t('Formule')}</span><b>${t(q.plan.name)}</b></div>
+    <div class="tm-total"><b class="tnum">${money(Math.round(q.year))}</b><span>${t('par an')}</span></div>
+    <div class="tm-lines"><span>${t(T.unitL, { p: money(q.u) })}</span><span>${t(T.alt, { p: money(q.alt) })}</span>
+      <span>${t('{n} abonnements Pro individuels : {x} par an', { n: num(n), x: money(Math.round(q.pro)) })}<em class="tm-save">${pct(q.year / q.pro - 1)}</em></span></div>
+    <button class="btn btn-brass" id="tmCopy">${icon('check', 'i-sm')}${t('Copier l\'estimation')}</button>`;
+}
+function teamCalc(k) {
+  const P = TEAM_PRICE[k], T = TEAM_TXT[k], n = Teams.seats[k], q = teamQuote(k, n);
+  const range = i => { const a = P.steps[i][0], b = P.steps[i + 1]?.[0]; return b ? `${num(a)}–${num(b - 1)}` : `${num(a)}+`; };
+  return `<article class="panel tm-calc rise" id="tmCalc">
+    <div class="tm-calc-in"><h3 class="h3">${t('Estimer le budget')}</h3><p class="muted tm-calc-p">${t('Prix hors taxes. Le prix baisse par paliers et s\'applique à toutes les places.')}</p>
+      <label class="flabel" for="tmN">${t(T.seatsL)}</label>
+      <div class="tm-seats"><input type="range" class="tm-range" id="tmR" min="0" max="1000" step="1" value="${seatPos(k, n)}" aria-label="${esc(t(T.seatsL))}" aria-valuetext="${num(n)}" style="--p:${(seatPos(k, n) / 10).toFixed(1)}%"><input class="input tnum" id="tmN" type="number" inputmode="numeric" min="${P.min}" max="${P.max}" value="${n}"></div>
+      <span class="flabel">${t(T.scaleL)}</span>
+      <div class="tm-scale">${P.steps.map(([, v], i) => `<span class="${i === q.step ? 'on' : ''}" data-step="${i}">${range(i)} · ${money(v)}</span>`).join('')}</div>
+    </div>
+    <div class="tm-out" id="tmOut" aria-live="polite">${teamOut(k)}</div>
+  </article>`;
+}
+function kitRow(k) {
+  const decks = k.deckIds.map(deckById).filter(Boolean), n = decks.reduce((a, d) => a + d.cards.length, 0), T = TEAM_TXT[k.org] || TEAM_TXT.school;
+  return `<article class="tm-kit"><span class="tm-av" style="--c:${k.org === 'work' ? '#23407E' : '#1F5A40'}">${icon(orgIcon(k.org), 'i-sm')}</span>
+    <div style="min-width:0"><b>${esc(k.name)}</b><small>${plural(decks.length, 'paquet|paquets')} · ${plural(n, 'fiche|fiches')}${k.exam?.date ? ' · ' + t(T.due, { d: fmtDate(keyToDate(k.exam.date)) }) : ''}</small></div>
+    <div class="acts"><button class="btn btn-sm" data-kit-edit="${k.id}">${icon('pen', 'i-sm')}${t('Modifier')}</button><button class="btn btn-sm btn-brass" data-kit-save="${k.id}" ${decks.length ? '' : 'disabled'}>${icon('download', 'i-sm')}${t('Nouvelle version')}</button></div></article>`;
+}
+Views.teams = arg => {
+  if (arg === 'school' || arg === 'work') Teams.aud = arg;
+  const k = Teams.aud, T = TEAM_TXT[k], w = k === 'work';
+  const kits = S.profile.classes.filter(x => x.org === k);
+  const joined = [...new Map(S.decks.filter(d => d.cls).map(d => [d.cls.id, d.cls])).values()];
+  return `
+    <section class="tm-hero">
+      <div>
+        <div class="kicker rise"><b>Engram</b> · ${t('Écoles et entreprises')}</div>
+        <h1 class="display" style="margin-top:12px">${words(t(T.title))}</h1>
+        <p class="lede rise" style="animation-delay:.2s">${t(T.lede)}</p>
+        <div class="bill tm-aud ${w ? 'y' : ''} rise" id="tmAud" role="tablist" aria-label="${esc(t('Écoles et entreprises'))}" style="animation-delay:.25s"><span class="knob"></span><button role="tab" aria-selected="${!w}" class="${w ? '' : 'on'}" data-aud="school">${icon('school', 'i-sm')}${t('Écoles')}</button><button role="tab" aria-selected="${w}" class="${w ? 'on' : ''}" data-aud="work">${icon('building', 'i-sm')}${t('Entreprises')}</button></div>
+        <div class="hero-actions rise" style="animation-delay:.3s"><button class="btn btn-gilt btn-lg" data-act="kitNew">${icon('users')}${t(T.make)}</button><button class="btn btn-lg" data-jump="tmPlans">${t('Voir les tarifs')}</button></div>
+        <div class="pro-fine rise" style="animation-delay:.4s">${t('Le kit marche dès aujourd\'hui, sans compte ni serveur')}</div>
+      </div>
+      <div class="pro-stage rise" style="animation-delay:.15s">${classCard(k)}</div>
+    </section>
+    <section class="tm-steps">${T.steps.map(([h, p], i) => `<article class="tm-step rise" style="animation-delay:${i * 80}ms"><span class="n">${i + 1}</span><h3>${t(h)}</h3><p>${t(p)}</p></article>`).join('')}</section>
+    <section class="sec"><div class="sec-h"><div><h2 class="h2">${t(T.boardH)}</h2><p>${t(T.boardP)}</p></div></div>${teamBoard(k)}</section>
+    <section class="sec" id="tmPlans"><div class="sec-h"><div><h2 class="h2">${t('Les formules')}</h2><p>${t(T.plansP)}</p></div></div>
+      <div class="tiers tm-tiers">${T.plans.map((p, i) => teamTier(k, p, i)).join('')}</div>
+      ${teamCalc(k)}
+    </section>
+    <section class="sec" id="tmTry"><div class="sec-h"><div><h2 class="h2">${t('Essayer dès maintenant')}</h2><p>${t(T.tryP)}</p></div></div>
+      <div class="tm-try">
+        <article class="panel tm-tc rise"><span class="tm-ic">${icon('layers')}</span><h3 class="h3">${t(T.make)}</h3><p>${t(T.makeP)}</p><div class="acts"><button class="btn btn-brass" data-act="kitNew">${icon('plus', 'i-sm')}${t('Créer un kit')}</button></div></article>
+        <article class="panel tm-tc rise" style="animation-delay:.08s"><span class="tm-ic">${icon('upload')}</span><h3 class="h3">${t(T.join)}</h3><p>${t(T.joinP)}</p><div class="acts">${lkFile('kit', t('Ouvrir le fichier'), 'application/json,.json', 'btn btn-brass')}${lkBtn('data-lkpaste="kit"', 'list', t('Coller'))}</div>
+          ${joined.length ? `<div class="tm-joined"><span class="flabel">${t('Vous suivez')}</span><div class="chips">${joined.map(c => `<span class="chip">${icon(orgIcon(c.org), 'i-sm')}${esc(c.name)}</span>`).join('')}</div></div>` : ''}</article>
+      </div>
+      ${kits.length ? `<div class="tm-kits"><h3 class="h3">${t('Vos kits')}</h3>${kits.map(kitRow).join('')}</div>` : ''}
+    </section>
+    <section class="sec"><div class="sec-h"><div><h2 class="h2">${t('Questions fréquentes')}</h2></div></div>
+      <article class="panel faq rise">${T.faq.map(([q, a]) => `<details><summary>${t(q)}${icon('plus')}</summary><p>${t(a)}</p></details>`).join('')}</article></section>
+    <div class="pro-note rise">${icon('eye')}<span>${t('Prototype : le kit marche dès maintenant. Le tableau de bord montre un exemple avec vos fiches ; il se remplira avec les vrais résultats quand les comptes seront synchronisés. Les paiements ne sont pas branchés.')}</span></div>`;
+};
+Hooks.teams = () => {
+  const root = $('#view > .view'); if (!root) return;
+  bindCardTilt(root);
+  const k = Teams.aud, P = TEAM_PRICE[k];
+  $('#tmAud')?.addEventListener('click', e => {
+    const b = e.target.closest('[data-aud]'); if (!b || b.dataset.aud === Teams.aud) return;
+    Teams.aud = b.dataset.aud; Sound.play('tick'); App.render(true);
+  });
+  $$('[data-jump]', root).forEach(b => b.addEventListener('click', () => document.getElementById(b.dataset.jump)?.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'start' })));
+  const r = $('#tmR'), inp = $('#tmN');
+  const set = (v, from) => {
+    const n = from === r ? posSeat(k, +v) : clamp(Math.round(+v || P.min), P.min, P.max); Teams.seats[k] = n;
+    if (from !== r) r.value = seatPos(k, n);
+    inp.value = n; r.setAttribute('aria-valuetext', num(n));
+    r.style.setProperty('--p', (+r.value / 10).toFixed(1) + '%');
+    const q = teamQuote(k, n);
+    $$('.tm-scale span', root).forEach(s => s.classList.toggle('on', +s.dataset.step === q.step));
+    $('#tmOut').innerHTML = teamOut(k);
+  };
+  r?.addEventListener('input', () => set(r.value, r));
+  inp?.addEventListener('change', () => set(inp.value, inp));
+  inp?.addEventListener('keydown', e => { if (e.key === 'Enter') set(inp.value, inp); });
+  root.addEventListener('click', e => {
+    if (e.target.closest('#tmCopy')) { copyTeamQuote(k); return; }
+    const p = e.target.closest('[data-lkpaste]'); if (p) { openPaste(p.dataset.lkpaste); return; }
+    const ed = e.target.closest('[data-kit-edit]'); if (ed) { openKit(ed.dataset.kitEdit); return; }
+    const sv = e.target.closest('[data-kit-save]'); if (sv) { const x = S.profile.classes.find(y => y.id === sv.dataset.kitSave); if (x) saveKit(x); }
+  });
+  root.addEventListener('change', e => {
+    const f = e.target.closest('[data-lkfile]'); if (!f) return;
+    const file = f.files?.[0]; f.value = ''; if (file) importFile(file, f.dataset.lkfile);
+  });
+};
+function copyTeamQuote(k) {
+  const n = Teams.seats[k], q = teamQuote(k, n), T = TEAM_TXT[k], c = colon();
+  const lines = [
+    `Engram · ${t(k === 'work' ? 'Entreprises' : 'Écoles')}`,
+    t('Formule') + c + t(q.plan.name),
+    t(T.seatsL) + c + num(n) + (T.free ? ` (${t(T.free)})` : ''),
+    t('Prix') + c + t(T.unitL, { p: money(q.u) }),
+    t('Total') + c + money(Math.round(q.year)) + ' ' + t('par an') + ', ' + t(T.alt, { p: money(q.alt) }),
+    t('Inclus') + c + T.plans[0].feats.map(x => t(x)).join(' ; '),
+    t('Estimation indicative, hors taxes, du {d}.', { d: fmtDate(Date.now(), { day: 'numeric', month: 'long', year: 'numeric' }) })
+  ];
+  copyText(lines.join('\n'), t('Estimation copiée : collez-la dans un e-mail ou un bon de commande.'));
+}
+/* Le kit : paquets sans la progression du professeur, date du contrôle, images. */
+function kitJSON(k) {
+  const images = {};
+  const decks = k.deckIds.map(deckById).filter(Boolean).map(d => ({
+    ref: d.ref || d.id, name: d.name, desc: d.desc || '', color: d.color, lang: d.lang, notes: d.notes || [],
+    cards: d.cards.map(c => {
+      const { id, srs, suspended, ...rest } = c;
+      for (const f of ['img', 'fimg', 'bimg']) if (c[f] && S.images[c[f]]) images[c[f]] = S.images[c[f]];
+      return { ...rest, ref: c.ref || id };
+    })
+  }));
+  return JSON.stringify({ app: 'engram', v: 3, kind: 'class', cls: { id: k.id, name: k.name, org: k.org, v: Date.now() }, exam: k.exam?.date ? k.exam : null, decks, images });
+}
+function saveKit(k) { return saveFile(`kit-${slug(k.name)}.json`, kitJSON(k)); }
+function openKit(id) {
+  const k0 = S.profile.classes.find(x => x.id === id), org = k0?.org || Teams.aud, T = TEAM_TXT[org];
+  if (!S.decks.length) { toast(t('Créez ou importez d\'abord un paquet.'), 'drawer'); return; }
+  const sel = k0 ? k0.deckIds : [S.decks[0].id];
+  const m = Modal.open(mh(t(T.make), t('Un fichier à envoyer')) + `<div class="form">
+    <div class="field"><label for="kName">${t(T.nameL)}</label><input class="input" id="kName" value="${esc(k0?.name || '')}" placeholder="${esc(t(T.nameEx))}" autofocus></div>
+    <div class="field"><span class="flabel">${t('Paquets')}</span><div class="chips" id="kDecks">${S.decks.map(d => `<button class="chip ${sel.includes(d.id) ? 'on' : ''}" data-id="${d.id}" aria-pressed="${sel.includes(d.id)}"><i class="d" style="background:${DECK_COLORS[d.color] || DECK_COLORS.brass}"></i>${esc(d.name)}</button>`).join('')}</div></div>
+    <div class="two"><div class="field"><label for="kExam">${t(T.examL)}</label><input class="input" id="kExam" value="${esc(k0?.exam?.name || '')}" placeholder="${esc(t(T.examEx))}"></div><div class="field"><label for="kDate">${t('Date')}</label><input class="input" type="date" id="kDate" value="${esc(k0?.exam?.date || '')}" min="${dayKey()}"></div></div>
+    <p class="muted tm-kn">${icon('eye', 'i-sm')}<span>${t(T.kitNote)}</span></p>
+  </div><div class="modal-f" style="justify-content:space-between"><div>${k0 ? `<button class="btn btn-sm btn-danger" id="kDel">${icon('trash', 'i-sm')}${t('Retirer')}</button>` : ''}</div><div style="display:flex;gap:8px"><button class="btn btn-ghost" data-act="close">${t('Annuler')}</button><button class="btn btn-brass" id="kSave">${icon('download')}${t('Enregistrer le kit')}</button></div></div>`);
+  m.querySelector('#kDecks').addEventListener('click', e => { const b = e.target.closest('[data-id]'); if (b) { b.classList.toggle('on'); b.setAttribute('aria-pressed', b.classList.contains('on')); } });
+  m.querySelector('#kSave').onclick = () => {
+    const name = m.querySelector('#kName').value.trim(), deckIds = $$('#kDecks .on', m).map(b => b.dataset.id);
+    if (!name) { m.querySelector('#kName').focus(); return; }
+    if (!deckIds.length) { toast(t('Choisissez au moins un paquet.'), 'drawer'); return; }
+    const date = m.querySelector('#kDate').value;
+    const k = k0 || { id: uid('k'), org, created: Date.now() };
+    Object.assign(k, { name, deckIds, exam: date ? { name: m.querySelector('#kExam').value.trim() || t(T.examDefault), date } : null });
+    if (!k0) S.profile.classes.unshift(k);
+    Store.touch('profile'); Modal.close(); saveKit(k);
+    if (App.route.v === 'teams') App.render();
+  };
+  m.querySelector('#kDel')?.addEventListener('click', () => {
+    S.profile.classes = S.profile.classes.filter(x => x !== k0); Store.touch('profile'); Modal.close(); App.render();
+    toast(t('Kit retiré. Vos paquets restent dans le fichier.'), 'trash');
+  });
+}
+/* Côté élève : un kit reçu ajoute les paquets, ou met à jour ceux de la même classe en gardant la progression. */
+function joinKit(P) {
+  if (S.demo) Store.leaveDemo(false);
+  for (const [k, v] of Object.entries(P.images || {})) if (typeof v === 'string' && v.startsWith('data:image/')) { S.images[k] = v; Store.dirty.add('img:' + k); }
+  const K = P.cls, made = []; let add = 0, upd = 0, rem = 0, fresh = true;
+  const body = o => JSON.stringify(Object.entries(o).filter(([f]) => !['id', 'srs', 'suspended', 'created', 'tags'].includes(f)).sort((a, b) => a[0].localeCompare(b[0])));
+  for (const d of P.decks) {
+    if (!d.cards.length) continue;
+    let nd = S.decks.find(x => x.cls?.id === K.id && x.ref === d.ref);
+    if (nd) {
+      fresh = false;
+      const old = new Map(nd.cards.map(c => [c.ref, c]));
+      nd.cards = d.cards.map(c => { const o = old.get(c.ref); if (!o) { add++; return c; } old.delete(c.ref); if (body(o) !== body(c)) upd++; return Object.assign(o, c, { id: o.id, srs: o.srs, suspended: o.suspended, created: o.created }); });
+      rem += old.size;
+      Object.assign(nd, { name: d.name || nd.name, desc: d.desc || '', cls: { ...K } });
+      for (const n of Array.isArray(d.notes) ? d.notes : []) { const o = nd.notes.find(x => x.id === n.id); if (o) Object.assign(o, n); else nd.notes.unshift(n); }
+    } else {
+      nd = { id: uid('d'), ref: d.ref, cls: { ...K }, name: d.name || K.name, desc: d.desc || '', color: DECK_COLORS[d.color] ? d.color : pick(Object.keys(DECK_COLORS)), lang: d.lang || LANG, created: Date.now(), updatedAt: Date.now(), cards: d.cards, notes: Array.isArray(d.notes) ? d.notes : [] };
+      S.decks.unshift(nd); add += d.cards.length;
+    }
+    Store.touchDeck(nd); made.push(nd);
+  }
+  if (!made.length) { toast(t('Ce kit ne contient aucune fiche.'), 'file'); return null; }
+  if (P.exam) {
+    const id = 'cls-' + K.id, o = { name: P.exam.name || t(TEAM_TXT[K.org].examDefault), date: P.exam.date, deckIds: made.map(d => d.id) };
+    const x = S.profile.exams.find(e => e.id === id); if (x) Object.assign(x, o); else S.profile.exams.push({ id, ...o });
+  }
+  S.profile.flags.importer = 1; Store.touch('profile');
+  App.go(made.length === 1 ? 'deck' : 'library', made.length === 1 ? made[0].id : null);
+  const parts = [upd && tp(upd, '{n} fiche modifiée|{n} fiches modifiées'), add && tp(add, '{n} ajoutée|{n} ajoutées'), rem && tp(rem, '{n} retirée|{n} retirées')].filter(Boolean);
+  toast(fresh ? t('Bienvenue dans {c} : {x}.', { c: quote(K.name), x: plural(add, 'fiche|fiches') })
+    : parts.length ? t('{c} est à jour : {x}. Votre progression est gardée.', { c: quote(K.name), x: parts.join(', ') }) : t('{c} était déjà à jour.', { c: quote(K.name) }), 'users');
+  checkBadges();
+  return made;
+}
 
 /* ════════════════════════════════════════════════════════════════════
    LES ASSISTANTS (agents)
@@ -4819,6 +5246,7 @@ async function shareProgress() {
 
 /* ── Actions (délégation de clics) ─────────────────────────────────── */
 const Actions = {
+  kitNew: () => openKit(),
   go: el => App.go(el.dataset.v, el.dataset.arg || null),
   deck: el => App.go('deck', el.dataset.id),
   study: el => Study.start({ deckId: el.dataset.deck }),
@@ -4856,7 +5284,7 @@ const Actions = {
   wipe: el => {
     if (!el.dataset.sure) { el.dataset.sure = 1; el.innerHTML = icon('trash', 'i-sm') + t('Confirmer : tout supprimer'); return; }
     const ids = S.decks.map(d => d.id), imgs = Object.keys(S.images);
-    S.decks = []; S.images = {}; Object.assign(S.profile, { log: {}, xp: 0, bestStreak: 0, badges: {}, flags: {}, exams: [], memory: [] });
+    S.decks = []; S.images = {}; Object.assign(S.profile, { log: {}, xp: 0, bestStreak: 0, badges: {}, flags: {}, exams: [], memory: [], classes: [] });
     ids.forEach(id => Store.dirty.add('deck:' + id)); imgs.forEach(k => Store.dirty.add('img:' + k)); Store.touch('profile');
     App.go('today'); toast(t('Tout a été effacé'), 'trash');
   }
@@ -4972,6 +5400,7 @@ Views.settings = arg => {
     <section class="sec" id="sAI"><div class="sec-h"><div><h2 class="h2">${t('IA et Mentor')}</h2><p>${t('Création de fiches depuis une photo, correction des réponses, prof virtuel, fiches de synthèse, et Mentor, l\'assistant qui agit dans l\'app pour vous.')}</p></div></div>
     <article class="panel rise"><div class="settings">
       ${setRow(t('Formule'), Pro.on ? (Pro.trial ? t('Essai de Pro Expert : encore {n}.', { n: tp(Pro.daysLeft(), '{n} jour|{n} jours') }) : t('Scans, corrections, Mentor et assistants sans limite.')) : t('Ce mois-ci : {a} sur 3, {b} sur 20 à Mentor, {c} sur 3.', { a: plural(Pro.usage().scan || 0, 'scan|scans'), b: plural(Pro.usage().mentor || 0, 'message|messages'), c: plural(Pro.usage().agent || 0, 'mission|missions') }), `<button class="btn btn-sm ${Pro.on ? '' : 'btn-gilt'}" data-act="go" data-v="pro">${icon('crown', 'i-sm')}${Pro.on ? esc(Pro.name()) : t('Découvrir Pro')}</button>`)}
+      ${setRow(t('Écoles et entreprises'), t("Kit de classe ou d'équipe, tarifs de groupe et tableau de bord."), `<button class="btn btn-sm" data-act="go" data-v="teams">${icon('users', 'i-sm')}${t('Découvrir')}</button>`)}
       ${setRow(t('État'), via, `<span class="pill ${AI.on ? 'on' : ''}"><i></i>${aiTxt}${AI.on ? (AI.images ? ' · ' + t('photos ✓') : ' · ' + t('texte seul')) + (AI.tools ? ' · ' + t('actions ✓') : '') : ''}</span>`)}
       ${setRow(t('Puissance de Mentor'), t(MENTOR_TIERS[s.mentorTier][1]), segCtl('mentorTier', Object.entries(MENTOR_TIERS).map(([k, v]) => [k, t(v[0])]), s.mentorTier))}
       ${setRow(t('Ton de Mentor et du prof'), t(TONES[s.tone].desc), segCtl('tone', Object.entries(TONES).map(([k, v]) => [k, t(v.label)]), s.tone))}
@@ -6739,8 +7168,8 @@ ${JSON.stringify(this.snapshot())}`;
           ctx.buttons.push({ label: str(i.label) || t('Lancer la séance'), icon: 'play', run: () => { this.close(); items ? Study.start({ items, title: 'Mentor' }) : Study.start({ deckId, cram: mode === 'ahead', weak: mode === 'weak' }); } });
           return 'A start button is shown under your message.';
         } },
-      { name: 'open_view', description: 'Navigate the app behind the chat: today, plan, scan, library, deck (needs deck_id), games, stats, settings.',
-        inputSchema: { type: 'object', properties: { view: { type: 'string', enum: ['today', 'plan', 'scan', 'library', 'deck', 'games', 'stats', 'settings'] }, deck_id: { type: 'string' } }, required: ['view'] },
+      { name: 'open_view', description: 'Navigate the app behind the chat: today, plan, scan, library, deck (needs deck_id), games, stats, settings, pro (plans), agents (the six assistants), links (import, export, calendar), teams (schools and companies: class kits, group pricing).',
+        inputSchema: { type: 'object', properties: { view: { type: 'string', enum: ['today', 'plan', 'scan', 'library', 'deck', 'games', 'stats', 'settings', 'pro', 'agents', 'links', 'teams'] }, deck_id: { type: 'string' } }, required: ['view'] },
         execute: i => { const v = str(i.view); if (v === 'deck') { deckOf(i.deck_id); ctx.after.push(() => App.go('deck', str(i.deck_id))); } else ctx.after.push(() => App.go(v)); return 'ok'; } },
       { name: 'save_note', description: 'Save a note or summary sheet (Markdown: ## title, ### sections, - bullets, **bold**) inside a deck, where the student can reread and export it.',
         inputSchema: { type: 'object', properties: { deck_id: { type: 'string' }, title: { type: 'string' }, markdown: { type: 'string' } }, required: ['deck_id', 'title', 'markdown'] },
@@ -6889,6 +7318,7 @@ function lkImport() {
     ${bridge({ m: 'Xl', c: '#1E7B4F', name: t('Excel, Numbers, Google Sheets'), desc: t('Deux colonnes : recto et verso. Une troisième colonne devient la note.'), how: ['paste', 'file'], steps: PASTE_STEPS.sheet.map(x => t(x)), acts: lkBtn('data-lkpaste="sheet"', 'list', t('Coller')) + lkFile('table', 'CSV') })}
     ${bridge({ m: 'N', c: '#37352F', name: 'Notion', desc: t('Un tableau ou une base copiés, ou une liste « terme – définition ».'), how: ['paste'], steps: PASTE_STEPS.notion.map(x => t(x)), acts: lkBtn('data-lkpaste="notion"', 'list', t('Coller')) })}
     ${bridge({ m: 'Pdf', c: '#C3342A', name: t('Cours en PDF'), desc: t("L'IA en tire les fiches ; sans IA, le texte est extrait."), how: ['file', 'ai'], acts: lkFile('pdf', t('Choisir le PDF'), 'application/pdf,.pdf') })}
+    ${bridge({ m: icon('users'), c: '#2C6A4D', name: t("Kit de classe ou d'équipe"), desc: t('Le fichier envoyé par un professeur ou un formateur : les paquets et la date arrivent dans votre programme.'), how: ['file', 'paste'], acts: lkFile('kit', t('Ouvrir le kit'), 'application/json,.json') + lkBtn('data-lkpaste="kit"', 'list', t('Coller')) + lkBtn('data-act="go" data-v="teams"', 'arrow', t('En savoir plus'), 'btn btn-ghost') })}
     ${bridge({ m: icon('camera'), c: '#C9A45C', name: t('Photo ou notes de cours'), desc: t("Photographiez une page ou collez vos notes : l'IA rédige les fiches."), how: ['ai'], acts: lkBtn('data-lkscan="photo"', 'camera', t('Photo')) + lkBtn('data-lkscan="text"', 'type', t('Texte')) })}
   </section>
   <p class="lk-fine">${icon('upload', 'i-sm')}<span>${t("Sur ordinateur, vous pouvez aussi glisser un fichier n'importe où sur la page.")}</span></p>`;
@@ -6999,10 +7429,12 @@ async function importFile(f, kind = '') {
     if (/^image\//.test(f.type)) { Scan.tab = 'photo'; Scan.files = [f]; Scan.urls = [URL.createObjectURL(f)]; App.go('scan'); return; }
     const text = await f.text();
     if (kind === 'backup' && !/^\s*[\[{]/.test(text)) { toast(t("Ce fichier n'est pas une sauvegarde Engram (.json)."), 'file'); return; }
+    if (kind === 'kit' && !/^\s*[\[{]/.test(text)) { toast(t("Ce fichier n'est pas un kit Engram (.json)."), 'file'); return; }
     addImported(parseImport(f.name, text));
   } catch (e) { console.warn(e); toast(t('Fichier illisible. Utilisez un paquet Anki, un JSON Engram, un CSV ou un TSV.'), 'file'); }
 }
 function addImported(parsed, opts = {}) {
+  if (parsed.cls) return joinKit(parsed);
   const decks = parsed.decks.filter(d => d.cards.length);
   if (!decks.length) { toast(t('Aucune fiche reconnue. Format attendu : recto;verso par ligne.'), 'file'); return null; }
   if (S.demo) Store.leaveDemo(false);
@@ -7025,6 +7457,13 @@ function parseImport(name, text) {
   const base = name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim() || t('Import');
   if (/^\s*[\[{]/.test(text)) {
     const j = JSON.parse(text);
+    // Kit de classe ou d'équipe : les fiches gardent leur « ref » pour les mises à jour.
+    if (j && j.kind === 'class' && j.cls?.id && Array.isArray(j.decks)) return {
+      cls: { id: String(j.cls.id), name: String(j.cls.name || t('Classe')).slice(0, 80), org: j.cls.org === 'work' ? 'work' : 'school', v: +j.cls.v || Date.now() },
+      exam: j.exam && /^\d{4}-\d{2}-\d{2}$/.test(j.exam.date) ? { name: String(j.exam.name || '').slice(0, 100), date: j.exam.date } : null,
+      images: j.images || {},
+      decks: j.decks.map(d => ({ ...d, ref: String(d.ref || uid('r')), cards: (d.cards || []).map(c => ({ ...c, ref: String(c.ref || uid('r')), id: uid('c'), srs: FSRS.blank(), tags: Array.isArray(c.tags) ? c.tags : [] })) }))
+    };
     if (j && Array.isArray(j.decks)) return { images: j.images || {}, exams: j.profile?.exams, decks: j.decks.map(d => ({ ...d, id: uid('d'), example: false, cards: (d.cards || []).map(c => ({ ...c, id: uid('c'), srs: c.srs || FSRS.blank(), tags: c.tags || [] })) })) };
     const arr = Array.isArray(j) ? j : j.cards || [];
     return { images: {}, decks: [{ name: base, cards: arr.map(o => mkCard('basic', { front: htmlToText(o.front ?? o.question ?? o.q ?? o.term), back: htmlToText(o.back ?? o.answer ?? o.a ?? o.definition), src: 'import' })).filter(c => c.front && c.back) }] };
@@ -7086,8 +7525,8 @@ const PASTE_EX = {
 function openPaste(src = '') {
   const st = { text: '', sep: 'auto', swap: false, both: false, dest: 'new', name: '' };
   const SEPS = [['auto', t('Automatique')], ['\t', t('Tabulation')], [' - ', t('Tiret')], [';', t('Point-virgule')], [',', t('Virgule')], [':', t('Deux-points')]];
-  const backup = src === 'backup';
-  const head = { quizlet: ['Quizlet', t('Coller une liste')], sheet: [t('Excel, Numbers, Google Sheets'), t('Coller une liste')], notion: ['Notion', t('Coller une liste')], backup: [t('Restaurer une sauvegarde'), t('Coller le contenu du fichier .json')] }[src] || [t('Coller une liste'), t('Quizlet, Excel, Google Sheets, Notion')];
+  const kit = src === 'kit', backup = src === 'backup' || kit;
+  const head = { quizlet: ['Quizlet', t('Coller une liste')], sheet: [t('Excel, Numbers, Google Sheets'), t('Coller une liste')], notion: ['Notion', t('Coller une liste')], backup: [t('Restaurer une sauvegarde'), t('Coller le contenu du fichier .json')], kit: [t('Ouvrir un kit reçu'), t('Coller le contenu du fichier .json')] }[src] || [t('Coller une liste'), t('Quizlet, Excel, Google Sheets, Notion')];
   const steps = PASTE_STEPS[src];
   const m = Modal.open(mh(head[0], head[1]) + `<div class="form">
     ${steps ? `<ol class="lk-steps paste-steps">${steps.slice(0, 2).map(x => `<li><span>${t(x)}</span></li>`).join('')}</ol>` : backup ? '' : `<p class="muted" style="margin:0;font-size:14px">${t('Une fiche par ligne, recto et verso séparés par une tabulation (copie depuis un tableur ou l\'export Quizlet), un tiret, un point-virgule ou deux-points.')}</p>`}
@@ -7101,7 +7540,7 @@ function openPaste(src = '') {
         <div class="paste-ticks"><label class="tick"><input type="checkbox" id="pSwap"> ${t('Inverser recto et verso')}</label><label class="tick"><input type="checkbox" id="pBoth"> ${t('Créer aussi le sens inverse')}</label></div>
       </details>
     </div>
-  </div><div class="modal-f"><button class="btn btn-ghost" data-act="close">${t('Annuler')}</button><button class="btn btn-brass" id="pGo" disabled>${icon('upload')}${backup ? t('Restaurer') : t('Importer')}</button></div>`, 'wide sticky-f');
+  </div><div class="modal-f"><button class="btn btn-ghost" data-act="close">${t('Annuler')}</button><button class="btn btn-brass" id="pGo" disabled>${icon('upload')}${kit ? t('Rejoindre') : backup ? t('Restaurer') : t('Importer')}</button></div>`, 'wide sticky-f');
   let json = null;
   const draw = () => {
     st.text = m.querySelector('#pText').value; st.sep = m.querySelector('#pSep').value; st.swap = m.querySelector('#pSwap').checked; st.both = m.querySelector('#pBoth').checked; st.dest = m.querySelector('#pDest').value;
@@ -7112,11 +7551,12 @@ function openPaste(src = '') {
     m.querySelector('#pOpts').hidden = backup || !!json;
     if (json) {
       const decks = json.decks.filter(d => d.cards.length), n = decks.reduce((a, d) => a + d.cards.length, 0);
-      go.disabled = !n; go.innerHTML = icon('upload') + (backup || json.exams ? t('Restaurer') : t('Importer'));
-      prev.innerHTML = n ? `<div class="paste-json">${icon('check', 'i-sm')}<span>${t('Contenu reconnu : {a}, {b}.', { a: plural(decks.length, 'paquet|paquets'), b: plural(n, 'fiche|fiches') })}</span></div>` : '';
+      const who = json.cls && quote(esc(json.cls.name));
+      go.disabled = !n; go.innerHTML = icon('upload') + (who ? t('Rejoindre {c}', { c: who }) : backup || json.exams ? t('Restaurer') : t('Importer'));
+      prev.innerHTML = n ? `<div class="paste-json">${icon('check', 'i-sm')}<span>${who ? t('Kit reconnu : {c}, {a}, {b}.', { c: who, a: plural(decks.length, 'paquet|paquets'), b: plural(n, 'fiche|fiches') }) : t('Contenu reconnu : {a}, {b}.', { a: plural(decks.length, 'paquet|paquets'), b: plural(n, 'fiche|fiches') })}</span></div>` : '';
       return [];
     }
-    if (backup) { go.disabled = true; prev.innerHTML = st.text.trim() ? `<div class="paste-json bad">${icon('x', 'i-sm')}<span>${t("Ce texte n'est pas une sauvegarde Engram complète. Copiez tout le contenu du fichier .json.")}</span></div>` : ''; return []; }
+    if (backup) { go.disabled = true; prev.innerHTML = st.text.trim() ? `<div class="paste-json bad">${icon('x', 'i-sm')}<span>${kit ? t("Ce texte n'est pas un kit Engram. Copiez tout le contenu du fichier .json.") : t("Ce texte n'est pas une sauvegarde Engram complète. Copiez tout le contenu du fichier .json.")}</span></div>` : ''; return []; }
     m.querySelector('#pNameF').hidden = st.dest !== 'new';
     const rows = st.text.trim() ? parseDelimited(st.text, st.sep === 'auto' ? null : st.sep) : [];
     const cards = rowsToCards(rows, st);
@@ -8915,7 +9355,194 @@ TR = {
   "Copier le texte": ["Copy the text","Copiar el texto","Text kopieren","Copiar o texto"],
   "La copie automatique est bloquée ici. Le texte est sélectionné : copiez-le (Ctrl+C, ou appui long puis Copier).": ["Automatic copying is blocked here. The text is selected: copy it (Ctrl+C, or long-press then Copy).","La copia automática está bloqueada aquí. El texto está seleccionado: cópialo (Ctrl+C, o mantén pulsado y luego Copiar).","Automatisches Kopieren ist hier blockiert. Der Text ist markiert: Kopiere ihn (Strg+C oder lange drücken und dann Kopieren).","A cópia automática está bloqueada aqui. O texto está selecionado: copie-o (Ctrl+C, ou toque e segure e depois Copiar)."],
   "Une fenêtre d'enregistrement est déjà ouverte.": ["A save window is already open.","Ya hay una ventana de guardado abierta.","Ein Speicherfenster ist bereits geöffnet.","Já há uma janela de salvamento aberta."],
-  "Fichier trop lourd pour être enregistré ici.": ["File too large to save here.","Archivo demasiado grande para guardarlo aquí.","Die Datei ist zu groß, um sie hier zu speichern.","Arquivo grande demais para ser salvo aqui."]
+  "Fichier trop lourd pour être enregistré ici.": ["File too large to save here.","Archivo demasiado grande para guardarlo aquí.","Die Datei ist zu groß, um sie hier zu speichern.","Arquivo grande demais para ser salvo aqui."],
+  // Écoles et entreprises
+  "Prix hors taxes. Le prix baisse par paliers et s'applique à toutes les places.": ["Prices exclude tax. The price drops in steps and applies to every seat.","Precios sin impuestos. El precio baja por tramos y se aplica a todas las plazas.","Preise ohne Steuern. Der Preis sinkt in Stufen und gilt für alle Plätze.","Preços sem impostos. O preço cai por faixas e vale para todas as vagas."],
+  "/ personne / mois": ["/ person / month","/ persona / mes","/ Person / Monat","/ pessoa / mês"],
+  "/ élève / an": ["/ student / year","/ alumno / año","/ Schüler / Jahr","/ aluno / ano"],
+  "Ajoutez un paquet pour voir cet exemple avec vos propres fiches.": ["Add a deck to see this example with your own cards.","Añade un mazo para ver este ejemplo con tus propias tarjetas.","Füge einen Stapel hinzu, um dieses Beispiel mit deinen eigenen Karten zu sehen.","Adicione um baralho para ver este exemplo com os seus próprios cartões."],
+  "Bibliothèque de paquets de l'établissement": ["A shared deck library for the whole school","Biblioteca de mazos del centro","Stapel-Bibliothek der Schule","Biblioteca de baralhos da instituição"],
+  "Bienvenue dans {c} : {x}.": ["Welcome to {c}: {x}.","Bienvenido a {c}: {x}.","Willkommen in {c}: {x}.","Bem-vindo a {c}: {x}."],
+  "Bon de commande, facture et virement": ["Purchase order, invoice and bank transfer","Orden de compra, factura y transferencia","Bestellschein, Rechnung und Überweisung","Ordem de compra, fatura e transferência"],
+  "Carte d'équipe": ["Team card","Tarjeta de equipo","Teamkarte","Cartão da equipe"],
+  "Carte de classe": ["Class card","Tarjeta de clase","Klassenkarte","Cartão da turma"],
+  "Ce fichier n'est pas un kit Engram (.json).": ["This file isn't an Engram kit (.json).","Este archivo no es un kit de Engram (.json).","Diese Datei ist kein Engram-Kit (.json).","Este arquivo não é um kit do Engram (.json)."],
+  "Ce kit ne contient aucune fiche.": ["This kit has no cards.","Este kit no contiene ninguna tarjeta.","Dieses Kit enthält keine Karten.","Este kit não contém nenhum cartão."],
+  "Ce que voit le professeur": ["What the teacher sees","Lo que ve el profesor","Was die Lehrkraft sieht","O que o professor vê"],
+  "Ce que voit le responsable": ["What the manager sees","Lo que ve el responsable","Was die Leitung sieht","O que o responsável vê"],
+  "Ce texte n'est pas un kit Engram. Copiez tout le contenu du fichier .json.": ["This text isn't an Engram kit. Copy the whole contents of the .json file.","Este texto no es un kit de Engram. Copia todo el contenido del archivo .json.","Dieser Text ist kein Engram-Kit. Kopiere den gesamten Inhalt der .json-Datei.","Este texto não é um kit do Engram. Copie todo o conteúdo do arquivo .json."],
+  "Chacun reçoit les fiches, pas votre progression.": ["Everyone gets the cards, not your progress.","Cada persona recibe las tarjetas, no tu progreso.","Alle bekommen die Karten, nicht deinen Fortschritt.","Cada pessoa recebe os cartões, não o seu progresso."],
+  "Chacun révise": ["Everyone reviews","Cada uno repasa","Alle wiederholen","Cada um revisa"],
+  "Chaque personne a tout Engram Pro. Plus l'équipe est grande, plus le prix baisse.": ["Everyone gets all of Engram Pro. The bigger the team, the lower the price.","Cada persona tiene todo Engram Pro. Cuanto más grande es el equipo, más baja el precio.","Alle bekommen das komplette Engram Pro. Je größer das Team, desto niedriger der Preis.","Cada pessoa tem todo o Engram Pro. Quanto maior a equipe, menor o preço."],
+  "Chaque élève a tout Engram Pro, et le professeur est offert. Plus il y a d'élèves, plus le prix baisse.": ["Every student gets all of Engram Pro, and the teacher is free. The more students, the lower the price.","Cada alumno tiene todo Engram Pro, y el profesor es gratis. Cuantos más alumnos, más baja el precio.","Alle Schüler bekommen das komplette Engram Pro, die Lehrkraft ist kostenlos. Je mehr Schüler, desto niedriger der Preis.","Cada aluno tem todo o Engram Pro, e o professor é gratuito. Quanto mais alunos, menor o preço."],
+  "Chaque élève révise": ["Each student reviews","Cada alumno repasa","Alle Schüler wiederholen","Cada aluno revisa"],
+  "Choisissez au moins un paquet.": ["Choose at least one deck.","Elige al menos un mazo.","Wähle mindestens einen Stapel.","Escolha pelo menos um baralho."],
+  "Choisissez un parcours et, si vous voulez, son échéance. Envoyez le fichier par e-mail, Teams ou Slack.": ["Choose a learning path and, if you like, its deadline. Send the file by email, Teams or Slack.","Elige un itinerario y, si quieres, su fecha límite. Envía el archivo por correo, Teams o Slack.","Wähle einen Lernpfad und, wenn du willst, seine Frist. Schick die Datei per E-Mail, Teams oder Slack.","Escolha uma trilha e, se quiser, o prazo. Envie o arquivo por e-mail, Teams ou Slack."],
+  "Choisissez vos paquets et, si vous voulez, la date du contrôle. Envoyez le fichier par l'ENT, par e-mail ou par WhatsApp.": ["Choose your decks and, if you like, the test date. Send the file through the school portal, by email or on WhatsApp.","Elige tus mazos y, si quieres, la fecha del examen. Envía el archivo por la plataforma del centro, por correo o por WhatsApp.","Wähle deine Stapel und, wenn du willst, das Datum des Tests. Schick die Datei über die Schulplattform, per E-Mail oder WhatsApp.","Escolha os seus baralhos e, se quiser, a data da prova. Envie o arquivo pela plataforma da escola, por e-mail ou pelo WhatsApp."],
+  "Classe": ["Class","Clase","Klasse","Turma"],
+  "Classe {c}": ["Class {c}","Clase {c}","Klasse {c}","Turma {c}"],
+  "Classes importées depuis l'ENT ou un fichier": ["Classes imported from the school portal or a file","Clases importadas desde la plataforma del centro o un archivo","Klassen aus der Schulplattform oder einer Datei importiert","Turmas importadas da plataforma da escola ou de um arquivo"],
+  "Comment l'établissement paie-t-il ?": ["How does the school pay?","¿Cómo paga el centro?","Wie bezahlt die Schule?","Como a instituição paga?"],
+  "Comment se passe la facturation ?": ["How does billing work?","¿Cómo funciona la facturación?","Wie läuft die Abrechnung?","Como funciona o faturamento?"],
+  "Comptes créés et fermés automatiquement (SCIM)": ["Accounts created and closed automatically (SCIM)","Cuentas creadas y cerradas automáticamente (SCIM)","Konten automatisch angelegt und geschlossen (SCIM)","Contas criadas e encerradas automaticamente (SCIM)"],
+  "Connexion avec Google Workspace et Microsoft 365": ["Sign-in with Google Workspace and Microsoft 365","Inicio de sesión con Google Workspace y Microsoft 365","Anmeldung mit Google Workspace und Microsoft 365","Login com Google Workspace e Microsoft 365"],
+  "Connexion unique (SSO) : Microsoft Entra, Okta, Google": ["Single sign-on (SSO): Microsoft Entra, Okta, Google","Inicio de sesión único (SSO): Microsoft Entra, Okta, Google","Single Sign-on (SSO): Microsoft Entra, Okta, Google","Login único (SSO): Microsoft Entra, Okta, Google"],
+  "Contrôle": ["Test","Examen","Test","Prova"],
+  "Contrôle (facultatif)": ["Test (optional)","Examen (opcional)","Test (optional)","Prova (opcional)"],
+  "Contrôle le {d}": ["Test on {d}","Examen el {d}","Test am {d}","Prova em {d}"],
+  "Copier l'estimation": ["Copy the estimate","Copiar la estimación","Schätzung kopieren","Copiar a estimativa"],
+  "Crédit d'IA mis en commun pour l'équipe": ["AI credit pooled across the team","Crédito de IA compartido por el equipo","KI-Guthaben für das ganze Team","Crédito de IA compartilhado pela equipe"],
+  "Crédit d'IA mis en commun pour la classe": ["AI credit pooled across the class","Crédito de IA compartido por la clase","KI-Guthaben für die ganze Klasse","Crédito de IA compartilhado pela turma"],
+  "Créer un kit": ["Create a kit","Crear un kit","Kit erstellen","Criar um kit"],
+  "Créer un kit d'équipe": ["Create a team kit","Crear un kit de equipo","Team-Kit erstellen","Criar um kit da equipe"],
+  "Créer un kit de classe": ["Create a class kit","Crear un kit de clase","Klassen-Kit erstellen","Criar um kit da turma"],
+  "Créez ou importez d'abord un paquet.": ["Create or import a deck first.","Primero crea o importa un mazo.","Erstelle oder importiere zuerst einen Stapel.","Primeiro crie ou importe um baralho."],
+  "Des paquets partagés, la date du contrôle dans le programme de chacun et un tableau de bord pour suivre la classe. Le professeur est offert.": ["Shared decks, the test date in everyone's plan and a dashboard to follow the class. The teacher is free.","Mazos compartidos, la fecha del examen en el programa de cada uno y un panel para seguir a la clase. El profesor es gratis.","Geteilte Stapel, das Testdatum im Plan aller und ein Dashboard, um die Klasse zu begleiten. Die Lehrkraft ist kostenlos.","Baralhos compartilhados, a data da prova no programa de cada um e um painel para acompanhar a turma. O professor é gratuito."],
+  "Devoir": ["Assignment","Tarea","Aufgabe","Tarefa"],
+  "Devoirs et contrôles dans le programme de chacun": ["Assignments and tests in everyone's plan","Tareas y exámenes en el programa de cada uno","Aufgaben und Tests im Plan aller","Tarefas e provas no programa de cada um"],
+  "Données hébergées dans l'Union européenne": ["Data hosted in the European Union","Datos alojados en la Unión Europea","Daten in der Europäischen Union gehostet","Dados hospedados na União Europeia"],
+  "Dès 300 élèves · à partir de {p} par élève et par an": ["From 300 students · from {p} per student per year","Desde 300 alumnos · desde {p} por alumno y año","Ab 300 Schülern · ab {p} pro Schüler und Jahr","A partir de 300 alunos · a partir de {p} por aluno por ano"],
+  "Dès 50 personnes · à partir de {p} par personne et par mois": ["From 50 people · from {p} per person per month","Desde 50 personas · desde {p} por persona y mes","Ab 50 Personen · ab {p} pro Person und Monat","A partir de 50 pessoas · a partir de {p} por pessoa por mês"],
+  "Découvrir": ["Explore","Descubrir","Entdecken","Descobrir"],
+  "Décroche": ["At risk","En riesgo","Gefährdet","Em risco"],
+  "Elle est gardée. Envoyez la nouvelle version du kit : les fiches modifiées sont mises à jour, les nouvelles s'ajoutent, et chacun garde ses intervalles de révision.": ["It's kept. Send the new version of the kit: edited cards are updated, new ones are added, and everyone keeps their review intervals.","Se conserva. Envía la nueva versión del kit: las tarjetas modificadas se actualizan, las nuevas se añaden y cada uno conserva sus intervalos de repaso.","Er bleibt erhalten. Schick die neue Version des Kits: Geänderte Karten werden aktualisiert, neue kommen hinzu, und alle behalten ihre Wiederholungsintervalle.","Ele é mantido. Envie a nova versão do kit: os cartões modificados são atualizados, os novos são adicionados e cada um mantém os seus intervalos de revisão."],
+  "Elle est gardée. Envoyez la nouvelle version du kit : les fiches modifiées sont mises à jour, les nouvelles s'ajoutent, et chaque élève garde ses intervalles de révision.": ["It's kept. Send the new version of the kit: edited cards are updated, new ones are added, and each student keeps their review intervals.","Se conserva. Envía la nueva versión del kit: las tarjetas modificadas se actualizan, las nuevas se añaden y cada alumno conserva sus intervalos de repaso.","Er bleibt erhalten. Schick die neue Version des Kits: Geänderte Karten werden aktualisiert, neue kommen hinzu, und alle Schüler behalten ihre Wiederholungsintervalle.","Ele é mantido. Envie a nova versão do kit: os cartões modificados são atualizados, os novos são adicionados e cada aluno mantém os seus intervalos de revisão."],
+  "Elles servent à réviser, rien d'autre : pas de publicité, pas de revente. À la mise en ligne, elles seront hébergées dans l'Union européenne, avec un contrat de traitement des données pour l'établissement.": ["They're used for studying, nothing else: no ads, no reselling. At launch, they'll be hosted in the European Union, with a data processing agreement for the school.","Sirven para repasar y nada más: sin publicidad ni reventa. En el lanzamiento, estarán alojados en la Unión Europea, con un contrato de tratamiento de datos para el centro.","Sie dienen nur dem Lernen: keine Werbung, kein Weiterverkauf. Zum Start werden sie in der Europäischen Union gehostet, mit einem Auftragsverarbeitungsvertrag für die Schule.","Eles servem para revisar e nada mais: sem publicidade, sem revenda. No lançamento, serão hospedados na União Europeia, com um contrato de tratamento de dados para a instituição."],
+  "En ouvrant le kit, les fiches et la date entrent dans son programme. FSRS ajuste ensuite les révisions à chaque élève.": ["Opening the kit adds the cards and the date to their plan. FSRS then fits the reviews to each student.","Al abrir el kit, las tarjetas y la fecha entran en su programa. Después, FSRS ajusta los repasos a cada alumno.","Beim Öffnen des Kits landen Karten und Datum im eigenen Plan. FSRS passt die Wiederholungen dann jedem Schüler an.","Ao abrir o kit, os cartões e a data entram no programa. Depois, o FSRS ajusta as revisões a cada aluno."],
+  "En retard": ["Behind","Con retraso","Im Rückstand","Atrasado"],
+  "En savoir plus": ["Learn more","Más información","Mehr erfahren","Saiba mais"],
+  "Enregistrer le kit": ["Save the kit","Guardar el kit","Kit speichern","Salvar o kit"],
+  "Entreprise": ["Enterprise","Empresa","Unternehmen","Empresa"],
+  "Entreprises": ["Businesses","Empresas","Unternehmen","Empresas"],
+  "Essayer dès maintenant": ["Try it now","Pruébalo ahora","Jetzt ausprobieren","Experimente agora"],
+  "Estimation copiée : collez-la dans un e-mail ou un bon de commande.": ["Estimate copied: paste it into an email or a purchase order.","Estimación copiada: pégala en un correo o una orden de compra.","Schätzung kopiert: Füge sie in eine E-Mail oder einen Bestellschein ein.","Estimativa copiada: cole-a em um e-mail ou em uma ordem de compra."],
+  "Estimation indicative, hors taxes, du {d}.": ["Indicative estimate, excluding tax, {d}.","Estimación orientativa, sin impuestos, del {d}.","Unverbindliche Schätzung ohne Steuern vom {d}.","Estimativa indicativa, sem impostos, de {d}."],
+  "Estimer le budget": ["Estimate the budget","Estimar el presupuesto","Budget schätzen","Estimar o orçamento"],
+  "Et les données des élèves ?": ["What about student data?","¿Y los datos de los alumnos?","Und die Daten der Schüler?","E os dados dos alunos?"],
+  "Ex. Certification produits": ["E.g. Product certification","Ej. Certificación de productos","Z. B. Produktzertifizierung","Ex.: Certificação de produtos"],
+  "Ex. Contrôle du chapitre 3": ["E.g. Chapter 3 test","Ej. Examen del tema 3","Z. B. Test zu Kapitel 3","Ex.: Prova do capítulo 3"],
+  "Ex. Service client, nouveaux arrivants": ["E.g. Customer care, new starters","Ej. Atención al cliente, recién llegados","Z. B. Kundenservice, neue Kollegen","Ex.: Atendimento, recém-chegados"],
+  "Ex. Terminale B, histoire": ["E.g. Grade 12B, history","Ej. 2.º Bachillerato B, historia","Z. B. Klasse 12b, Geschichte","Ex.: 3.º ano B, história"],
+  "Facturé à l'année · dès 5 personnes": ["Billed yearly · from 5 people","Facturación anual · desde 5 personas","Jährliche Abrechnung · ab 5 Personen","Cobrança anual · a partir de 5 pessoas"],
+  "Il choisit ses paquets et la date du contrôle. Engram en fait un kit à envoyer par l'ENT, par e-mail ou par WhatsApp.": ["They pick the decks and the test date. Engram turns them into a kit to send through the school portal, by email or on WhatsApp.","Elige sus mazos y la fecha del examen. Engram los convierte en un kit para enviar por la plataforma del centro, por correo o por WhatsApp.","Die Lehrkraft wählt ihre Stapel und das Testdatum. Engram macht daraus ein Kit, das über die Schulplattform, per E-Mail oder WhatsApp verschickt wird.","Ele escolhe os baralhos e a data da prova. O Engram transforma tudo em um kit para enviar pela plataforma da escola, por e-mail ou pelo WhatsApp."],
+  "Il choisit un parcours (produits, procédures, sécurité, langues) et son échéance. Engram en fait un kit à partager.": ["They pick a learning path (products, procedures, safety, languages) and its deadline. Engram turns it into a kit to share.","Elige un itinerario (productos, procedimientos, seguridad, idiomas) y su fecha límite. Engram lo convierte en un kit para compartir.","Die Trainerin oder der Trainer wählt einen Lernpfad (Produkte, Abläufe, Sicherheit, Sprachen) und seine Frist. Engram macht daraus ein Kit zum Teilen.","Ele escolhe uma trilha (produtos, procedimentos, segurança, idiomas) e o prazo. O Engram transforma tudo em um kit para compartilhar."],
+  "Inclus": ["Included","Incluido","Enthalten","Incluído"],
+  "Journal d'audit et contrat de traitement des données": ["Audit log and data processing agreement","Registro de auditoría y contrato de tratamiento de datos","Audit-Protokoll und Auftragsverarbeitungsvertrag","Registro de auditoria e contrato de tratamento de dados"],
+  "Kit de classe ou d'équipe": ["Class or team kit","Kit de clase o de equipo","Klassen- oder Team-Kit","Kit da turma ou da equipe"],
+  "Kit de classe ou d'équipe, tarifs de groupe et tableau de bord.": ["Class or team kit, group pricing and dashboard.","Kit de clase o de equipo, tarifas de grupo y panel.","Klassen- oder Team-Kit, Gruppenpreise und Dashboard.","Kit da turma ou da equipe, preços para grupos e painel."],
+  "Kit reconnu : {c}, {a}, {b}.": ["Kit recognised: {c}, {a}, {b}.","Kit reconocido: {c}, {a}, {b}.","Kit erkannt: {c}, {a}, {b}.","Kit reconhecido: {c}, {a}, {b}."],
+  "Kit retiré. Vos paquets restent dans le fichier.": ["Kit removed. Your decks stay in the cabinet.","Kit quitado. Tus mazos siguen en el fichero.","Kit entfernt. Deine Stapel bleiben in der Kartei.","Kit removido. Os seus baralhos continuam no fichário."],
+  "L'équipe": ["The team","El equipo","Das Team","A equipe"],
+  "L'équipe est prête": ["The team is ready","El equipo está listo","Das Team ist bereit","A equipe está pronta"],
+  "La classe progresse": ["The class moves forward","La clase progresa","Die Klasse kommt voran","A turma progride"],
+  "Le Correcteur peut reformuler ces fiches avant l'échéance, et le Répétiteur les fera revoir aux personnes qui les oublient.": ["The Proofreader can reword these cards before the deadline, and the Tutor will review them with the people who keep forgetting them.","El Corrector puede reformular estas tarjetas antes de la fecha límite, y el Tutor se las hará repasar a quienes las olvidan.","Der Korrektor kann diese Karten vor der Frist umformulieren, und der Tutor lässt sie alle wiederholen, die sie vergessen.","O Revisor pode reformular esses cartões antes do prazo, e o Tutor vai fazê-los revisar com quem os esquece."],
+  "Le Correcteur peut reformuler ces fiches avant le contrôle, et le Répétiteur les fera revoir aux élèves qui les oublient.": ["The Proofreader can reword these cards before the test, and the Tutor will review them with the students who keep forgetting them.","El Corrector puede reformular estas tarjetas antes del examen, y el Tutor se las hará repasar a los alumnos que las olvidan.","Der Korrektor kann diese Karten vor dem Test umformulieren, und der Tutor lässt sie die Schüler wiederholen, die sie vergessen.","O Revisor pode reformular esses cartões antes da prova, e o Tutor vai fazê-los revisar com os alunos que os esquecem."],
+  "Le Correcteur relit vos paquets avant de les envoyer": ["The Proofreader checks your decks before you send them","El Corrector revisa tus mazos antes de enviarlos","Der Korrektor prüft deine Stapel vor dem Versand","O Revisor relê os seus baralhos antes do envio"],
+  "Le Correcteur relit vos parcours avant de les envoyer": ["The Proofreader checks your learning paths before you send them","El Corrector revisa tus itinerarios antes de enviarlos","Der Korrektor prüft deine Lernpfade vor dem Versand","O Revisor relê as suas trilhas antes do envio"],
+  "Le fichier envoyé par un professeur ou un formateur : les paquets et la date arrivent dans votre programme.": ["The file sent by a teacher or trainer: the decks and the date land in your plan.","El archivo que envía un profesor o formador: los mazos y la fecha llegan a tu programa.","Die Datei von einer Lehrkraft oder einem Trainer: Stapel und Datum landen in deinem Plan.","O arquivo enviado por um professor ou instrutor: os baralhos e a data chegam ao seu programa."],
+  "Le formateur publie": ["The trainer publishes","El formador publica","Die Trainer veröffentlichen","O instrutor publica"],
+  "Le formateur publie un parcours et son échéance. Chacun révise à son rythme, et le responsable voit ce qui est acquis et ce qui ne l'est pas encore.": ["The trainer publishes a learning path and its deadline. Everyone reviews at their own pace, and the manager sees what has been learned and what hasn't yet.","El formador publica un itinerario y su fecha límite. Cada uno repasa a su ritmo, y el responsable ve lo que ya se sabe y lo que todavía no.","Die Trainer veröffentlichen einen Lernpfad und seine Frist. Alle lernen in ihrem Tempo, und die Leitung sieht, was sitzt und was noch nicht.","O instrutor publica uma trilha e o prazo. Cada um revisa no seu ritmo, e o responsável vê o que já foi aprendido e o que ainda não."],
+  "Le kit d'équipe marche déjà, sans compte ni serveur : un fichier que chaque personne ouvre dans Engram.": ["The team kit already works, with no account or server: a file each person opens in Engram.","El kit de equipo ya funciona, sin cuenta ni servidor: un archivo que cada persona abre en Engram.","Das Team-Kit funktioniert schon, ohne Konto und ohne Server: eine Datei, die jede Person in Engram öffnet.","O kit da equipe já funciona, sem conta nem servidor: um arquivo que cada pessoa abre no Engram."],
+  "Le kit de classe marche déjà, sans compte ni serveur : un fichier que chaque élève ouvre dans Engram.": ["The class kit already works, with no account or server: a file each student opens in Engram.","El kit de clase ya funciona, sin cuenta ni servidor: un archivo que cada alumno abre en Engram.","Das Klassen-Kit funktioniert schon, ohne Konto und ohne Server: eine Datei, die alle Schüler in Engram öffnen.","O kit da turma já funciona, sem conta nem servidor: um arquivo que cada aluno abre no Engram."],
+  "Le kit marche dès aujourd'hui, sans compte ni serveur": ["The kit works today, with no account or server","El kit funciona desde hoy, sin cuenta ni servidor","Das Kit funktioniert ab heute, ohne Konto und ohne Server","O kit funciona desde hoje, sem conta nem servidor"],
+  "Le professeur est offert · dès 10 élèves": ["The teacher is free · from 10 students","El profesor es gratis · desde 10 alumnos","Lehrkraft kostenlos · ab 10 Schülern","O professor é gratuito · a partir de 10 alunos"],
+  "Le professeur publie": ["The teacher publishes","El profesor publica","Die Lehrkraft veröffentlicht","O professor publica"],
+  "Le professeur publie ses paquets et la date du contrôle. Chaque élève reçoit un programme à sa mesure, et le professeur voit où la classe accroche.": ["The teacher publishes the decks and the test date. Each student gets a plan that fits them, and the teacher sees where the class gets stuck.","El profesor publica sus mazos y la fecha del examen. Cada alumno recibe un programa a su medida, y el profesor ve dónde se atasca la clase.","Die Lehrkraft veröffentlicht ihre Stapel und das Testdatum. Alle Schüler bekommen einen passenden Plan, und die Lehrkraft sieht, wo die Klasse hängt.","O professor publica os baralhos e a data da prova. Cada aluno recebe um programa sob medida, e o professor vê onde a turma trava."],
+  "Le tableau de bord montre ce qui est acquis, les notions fragiles et les retards. Avant l'échéance, pas après.": ["The dashboard shows what has been learned, the shaky topics and who is behind. Before the deadline, not after.","El panel muestra lo aprendido, los conceptos frágiles y los retrasos. Antes de la fecha límite, no después.","Das Dashboard zeigt, was sitzt, welche Themen wackeln und wer im Rückstand ist. Vor der Frist, nicht danach.","O painel mostra o que foi aprendido, os pontos frágeis e os atrasos. Antes do prazo, não depois."],
+  "Le tableau de bord montre qui suit, qui décroche et quelles fiches résistent. Avant le contrôle, pas après.": ["The dashboard shows who is keeping up, who is slipping and which cards won't stick. Before the test, not after.","El panel muestra quién sigue el ritmo, quién se descuelga y qué tarjetas se resisten. Antes del examen, no después.","Das Dashboard zeigt, wer mitkommt, wer abgehängt wird und welche Karten nicht sitzen. Vor dem Test, nicht danach.","O painel mostra quem acompanha, quem está ficando para trás e quais cartões resistem. Antes da prova, não depois."],
+  "Les collaborateurs ont-ils besoin d'un compte ?": ["Do employees need an account?","¿Los empleados necesitan una cuenta?","Brauchen die Mitarbeitenden ein Konto?","Os colaboradores precisam de uma conta?"],
+  "Les fiches et l'échéance entrent dans votre programme. Quand le formateur envoie une nouvelle version, les fiches changent et votre progression reste.": ["The cards and the deadline land in your plan. When the trainer sends a new version, the cards change and your progress stays.","Las tarjetas y la fecha límite entran en tu programa. Cuando el formador envía una nueva versión, las tarjetas cambian y tu progreso se mantiene.","Die Karten und die Frist landen in deinem Plan. Schicken die Trainer eine neue Version, ändern sich die Karten und dein Fortschritt bleibt.","Os cartões e o prazo entram no seu programa. Quando o instrutor envia uma nova versão, os cartões mudam e o seu progresso fica."],
+  "Les fiches qui résistent": ["Cards that won't stick","Las tarjetas que se resisten","Karten, die nicht sitzen","Os cartões que resistem"],
+  "Les formules": ["Plans","Los planes","Die Tarife","Os planos"],
+  "Les paquets et la date du contrôle entrent dans votre programme. Quand le professeur envoie une nouvelle version, les fiches changent et votre progression reste.": ["The decks and the test date land in your plan. When the teacher sends a new version, the cards change and your progress stays.","Los mazos y la fecha del examen entran en tu programa. Cuando el profesor envía una nueva versión, las tarjetas cambian y tu progreso se mantiene.","Die Stapel und das Testdatum landen in deinem Plan. Schickt die Lehrkraft eine neue Version, ändern sich die Karten und dein Fortschritt bleibt.","Os baralhos e a data da prova entram no seu programa. Quando o professor envia uma nova versão, os cartões mudam e o seu progresso fica."],
+  "Les élèves": ["Students","Los alumnos","Die Schüler","Os alunos"],
+  "Les élèves ont-ils besoin d'un compte ?": ["Do students need an account?","¿Los alumnos necesitan una cuenta?","Brauchen die Schüler ein Konto?","Os alunos precisam de uma conta?"],
+  "Les élèves reçoivent les fiches, pas votre progression.": ["Students get the cards, not your progress.","Los alumnos reciben las tarjetas, no tu progreso.","Die Schüler bekommen die Karten, nicht deinen Fortschritt.","Os alunos recebem os cartões, não o seu progresso."],
+  "Mode Expert pour les formateurs": ["Expert mode for trainers","Modo Experto para los formadores","Expertenmodus für Trainer","Modo Especialista para os instrutores"],
+  "Mémoire": ["Memory","Memoria","Gedächtnis","Memória"],
+  "Nom de l'équipe": ["Team name","Nombre del equipo","Name des Teams","Nome da equipe"],
+  "Nom de la classe": ["Class name","Nombre de la clase","Name der Klasse","Nome da turma"],
+  "Nombre d'élèves": ["Number of students","Número de alumnos","Anzahl der Schüler","Número de alunos"],
+  "Nombre de personnes": ["Number of people","Número de personas","Anzahl der Personen","Número de pessoas"],
+  "Nos contenus restent-ils confidentiels ?": ["Does our content stay confidential?","¿Nuestros contenidos siguen siendo confidenciales?","Bleiben unsere Inhalte vertraulich?","Os nossos conteúdos continuam confidenciais?"],
+  "Nouvelle version": ["New version","Nueva versión","Neue Version","Nova versão"],
+  "Oui. Ils ne servent qu'à votre équipe : pas de publicité, pas de revente. La formule Entreprise ajoute la connexion unique, le journal d'audit et un contrat de traitement des données.": ["Yes. It's only used for your team: no ads, no reselling. The Enterprise plan adds single sign-on, the audit log and a data processing agreement.","Sí. Solo sirven a tu equipo: sin publicidad ni reventa. El plan Empresa añade el inicio de sesión único, el registro de auditoría y un contrato de tratamiento de datos.","Ja. Sie dienen nur deinem Team: keine Werbung, kein Weiterverkauf. Der Tarif Unternehmen bringt Single Sign-on, das Audit-Protokoll und einen Auftragsverarbeitungsvertrag dazu.","Sim. Eles servem apenas à sua equipe: sem publicidade, sem revenda. O plano Empresa acrescenta o login único, o registro de auditoria e um contrato de tratamento de dados."],
+  "Ouvrir le fichier": ["Open the file","Abrir el archivo","Datei öffnen","Abrir o arquivo"],
+  "Ouvrir le kit": ["Open the kit","Abrir el kit","Kit öffnen","Abrir o kit"],
+  "Ouvrir un kit reçu": ["Open a kit you received","Abrir un kit recibido","Erhaltenes Kit öffnen","Abrir um kit recebido"],
+  "Paquets de classe mis à jour sans perdre la progression": ["Class decks updated without losing progress","Mazos de clase actualizados sin perder el progreso","Klassenstapel aktualisiert, ohne Fortschritt zu verlieren","Baralhos da turma atualizados sem perder o progresso"],
+  "Par bon de commande et virement, sur facture annuelle. Pour une seule classe, la carte bancaire suffit.": ["By purchase order and bank transfer, on a yearly invoice. For a single class, a bank card is enough.","Con orden de compra y transferencia, en factura anual. Para una sola clase, basta con la tarjeta.","Per Bestellschein und Überweisung, mit Jahresrechnung. Für eine einzelne Klasse reicht die Karte.","Por ordem de compra e transferência, com fatura anual. Para uma única turma, o cartão basta."],
+  "Parcours": ["Path","Itinerario","Lernpfad","Trilha"],
+  "Parcours de formation mis à jour sans perdre la progression": ["Learning paths updated without losing progress","Itinerarios de formación actualizados sin perder el progreso","Lernpfade aktualisiert, ohne Fortschritt zu verlieren","Trilhas de formação atualizadas sem perder o progresso"],
+  "Part des réponses oubliées cette semaine": ["Share of answers forgotten this week","Porcentaje de respuestas olvidadas esta semana","Anteil vergessener Antworten diese Woche","Parte das respostas esquecidas nesta semana"],
+  "Pas pour le kit : chacun ouvre le fichier dans Engram. Le compte, avec la connexion de l'entreprise, remonte les résultats vers le tableau de bord.": ["Not for the kit: everyone opens the file in Engram. The account, with company sign-in, sends the results to the dashboard.","Para el kit no: cada uno abre el archivo en Engram. La cuenta, con el inicio de sesión de la empresa, envía los resultados al panel.","Nicht für das Kit: Alle öffnen die Datei in Engram. Das Konto mit der Firmenanmeldung schickt die Ergebnisse ans Dashboard.","Não para o kit: cada um abre o arquivo no Engram. A conta, com o login da empresa, envia os resultados para o painel."],
+  "Pas pour le kit : ils ouvrent le fichier dans Engram, sur téléphone, iPad ou ordinateur. Le compte sert à remonter les résultats vers le tableau de bord, avec la formule Classe.": ["Not for the kit: they open the file in Engram, on a phone, iPad or computer. The account sends results to the dashboard, with the Class plan.","Para el kit no: abren el archivo en Engram, en el teléfono, el iPad o el ordenador. La cuenta sirve para enviar los resultados al panel, con el plan Clase.","Nicht für das Kit: Sie öffnen die Datei in Engram, auf dem Handy, iPad oder Computer. Das Konto schickt die Ergebnisse ans Dashboard, mit dem Tarif Klasse.","Não para o kit: eles abrem o arquivo no Engram, no celular, no iPad ou no computador. A conta serve para enviar os resultados para o painel, com o plano Turma."],
+  "Pour un collège, un lycée ou une université.": ["For a middle school, high school or university.","Para un colegio, un instituto o una universidad.","Für eine Schule, ein Gymnasium oder eine Hochschule.","Para uma escola, um colégio ou uma universidade."],
+  "Pour un professeur et ses classes.": ["For a teacher and their classes.","Para un profesor y sus clases.","Für eine Lehrkraft und ihre Klassen.","Para um professor e as suas turmas."],
+  "Pour un réseau, un siège ou un centre de formation.": ["For a network, a head office or a training centre.","Para una red, una sede o un centro de formación.","Für ein Netzwerk, eine Zentrale oder ein Schulungszentrum.","Para uma rede, uma sede ou um centro de formação."],
+  "Pour un service, une agence ou une boutique.": ["For a department, an agency or a shop.","Para un departamento, una agencia o una tienda.","Für eine Abteilung, eine Agentur oder einen Laden.","Para um setor, uma agência ou uma loja."],
+  "Pour une classe ou une équipe": ["For a class or a team","Para una clase o un equipo","Für eine Klasse oder ein Team","Para uma turma ou uma equipe"],
+  "Prix par personne et par mois": ["Price per person per month","Precio por persona y mes","Preis pro Person und Monat","Preço por pessoa por mês"],
+  "Prix par élève et par an": ["Price per student per year","Precio por alumno y año","Preis pro Schüler und Jahr","Preço por aluno por ano"],
+  "Prototype : le kit marche dès maintenant. Le tableau de bord montre un exemple avec vos fiches ; il se remplira avec les vrais résultats quand les comptes seront synchronisés. Les paiements ne sont pas branchés.": ["Prototype: the kit works right now. The dashboard shows an example with your cards; it will fill with real results once accounts are synced. Payments aren't connected.","Prototipo: el kit funciona desde ya. El panel muestra un ejemplo con tus tarjetas; se llenará con los resultados reales cuando las cuentas estén sincronizadas. Los pagos no están conectados.","Prototyp: Das Kit funktioniert schon jetzt. Das Dashboard zeigt ein Beispiel mit deinen Karten; es füllt sich mit echten Ergebnissen, sobald die Konten synchronisiert sind. Zahlungen sind nicht angebunden.","Protótipo: o kit já funciona. O painel mostra um exemplo com os seus cartões; ele será preenchido com os resultados reais quando as contas estiverem sincronizadas. Os pagamentos não estão conectados."],
+  "Que devient la progression quand je modifie un paquet ?": ["What happens to progress when I edit a deck?","¿Qué pasa con el progreso si modifico un mazo?","Was passiert mit dem Fortschritt, wenn ich einen Stapel ändere?","O que acontece com o progresso quando modifico um baralho?"],
+  "Que devient la progression quand je modifie un parcours ?": ["What happens to progress when I edit a learning path?","¿Qué pasa con el progreso si modifico un itinerario?","Was passiert mit dem Fortschritt, wenn ich einen Lernpfad ändere?","O que acontece com o progresso quando modifico uma trilha?"],
+  "Quelques minutes par jour, quand ça l'arrange. Le programme part de ce que chaque personne sait déjà.": ["A few minutes a day, whenever suits them. The plan starts from what each person already knows.","Unos minutos al día, cuando mejor le venga. El programa parte de lo que cada persona ya sabe.","Ein paar Minuten am Tag, wann es passt. Der Plan geht von dem aus, was jede Person schon weiß.","Alguns minutos por dia, quando for melhor. O programa parte do que cada pessoa já sabe."],
+  "Recertification planifiée avant chaque échéance": ["Recertification planned before every deadline","Recertificación planificada antes de cada fecha límite","Rezertifizierung vor jeder Frist eingeplant","Recertificação planejada antes de cada prazo"],
+  "Rejoindre": ["Join","Unirse","Beitreten","Entrar"],
+  "Rejoindre {c}": ["Join {c}","Unirse a {c}","{c} beitreten","Entrar em {c}"],
+  "Service client": ["Customer care","Atención al cliente","Kundenservice","Atendimento ao cliente"],
+  "Sur devis": ["On quote","Bajo presupuesto","Auf Anfrage","Sob orçamento"],
+  "Tableau de bord de l'équipe, export CSV": ["Team dashboard, CSV export","Panel del equipo, exportación CSV","Team-Dashboard, CSV-Export","Painel da equipe, exportação CSV"],
+  "Tableau de bord de la classe": ["Class dashboard","Panel de la clase","Klassen-Dashboard","Painel da turma"],
+  "Terminale B": ["Grade 12B","2.º Bachillerato B","Klasse 12b","3.º ano B"],
+  "Total": ["Total","Total","Gesamt","Total"],
+  "Tous les professeurs et toutes les classes": ["Every teacher and every class","Todos los profesores y todas las clases","Alle Lehrkräfte und alle Klassen","Todos os professores e todas as turmas"],
+  "Tout Classe, et :": ["Everything in Class, plus:","Todo Clase, y además:","Alles aus Klasse, dazu:","Tudo do Turma, e mais:"],
+  "Tout Engram Pro pour chaque personne": ["All of Engram Pro for every person","Todo Engram Pro para cada persona","Das komplette Engram Pro für jede Person","Todo o Engram Pro para cada pessoa"],
+  "Tout Engram Pro pour chaque élève": ["All of Engram Pro for every student","Todo Engram Pro para cada alumno","Das komplette Engram Pro für alle Schüler","Todo o Engram Pro para cada aluno"],
+  "Tout Équipe, et :": ["Everything in Team, plus:","Todo Equipo, y además:","Alles aus Team, dazu:","Tudo do Equipe, e mais:"],
+  "Toute une classe, <em>un seul</em> programme.": ["A whole class, <em>one</em> plan.","Toda una clase, <em>un solo</em> programa.","Eine ganze Klasse, <em>ein</em> Plan.","Uma turma inteira, <em>um só</em> programa."],
+  "Toute une équipe, <em>formée</em> et à jour.": ["A whole team, <em>trained</em> and up to date.","Todo un equipo, <em>formado</em> y al día.","Ein ganzes Team, <em>geschult</em> und auf dem neuesten Stand.","Uma equipe inteira, <em>treinada</em> e em dia."],
+  "Un exemple, construit avec vos propres fiches. Il se remplira avec les vrais résultats de l'équipe quand les comptes seront synchronisés.": ["An example built with your own cards. It will fill with the team's real results once accounts are synced.","Un ejemplo, hecho con tus propias tarjetas. Se llenará con los resultados reales del equipo cuando las cuentas estén sincronizadas.","Ein Beispiel, gebaut aus deinen eigenen Karten. Es füllt sich mit den echten Ergebnissen des Teams, sobald die Konten synchronisiert sind.","Um exemplo, feito com os seus próprios cartões. Ele será preenchido com os resultados reais da equipe quando as contas estiverem sincronizadas."],
+  "Un exemple, construit avec vos propres fiches. Il se remplira avec les vrais résultats de la classe quand les comptes seront synchronisés.": ["An example built with your own cards. It will fill with the class's real results once accounts are synced.","Un ejemplo, hecho con tus propias tarjetas. Se llenará con los resultados reales de la clase cuando las cuentas estén sincronizadas.","Ein Beispiel, gebaut aus deinen eigenen Karten. Es füllt sich mit den echten Ergebnissen der Klasse, sobald die Konten synchronisiert sind.","Um exemplo, feito com os seus próprios cartões. Ele será preenchido com os resultados reais da turma quando as contas estiverem sincronizadas."],
+  "Un fichier à envoyer": ["A file to send","Un archivo para enviar","Eine Datei zum Verschicken","Um arquivo para enviar"],
+  "Un interlocuteur dédié": ["A dedicated contact","Un interlocutor dedicado","Eine feste Ansprechperson","Um contato dedicado"],
+  "Une facture annuelle, par carte ou par virement. Les places s'ajustent quand l'équipe grandit.": ["One yearly invoice, by card or bank transfer. Seats adjust as the team grows.","Una factura anual, con tarjeta o transferencia. Las plazas se ajustan cuando el equipo crece.","Eine Jahresrechnung, per Karte oder Überweisung. Die Plätze passen sich an, wenn das Team wächst.","Uma fatura anual, por cartão ou transferência. As vagas se ajustam quando a equipe cresce."],
+  "Voir les tarifs": ["See pricing","Ver las tarifas","Preise ansehen","Ver os preços"],
+  "Vos kits": ["Your kits","Tus kits","Deine Kits","Os seus kits"],
+  "Vous suivez": ["You follow","Sigues","Du folgst","Você acompanha"],
+  "actifs cette semaine": ["active this week","activos esta semana","diese Woche aktiv","ativos nesta semana"],
+  "le professeur est offert": ["the teacher is free","el profesor es gratis","die Lehrkraft ist kostenlos","o professor é gratuito"],
+  "mémoire moyenne de l'équipe": ["team's average memory","memoria media del equipo","durchschnittliches Gedächtnis des Teams","memória média da equipe"],
+  "mémoire moyenne de la classe": ["class's average memory","memoria media de la clase","durchschnittliches Gedächtnis der Klasse","memória média da turma"],
+  "ont fini le devoir": ["finished the assignment","terminaron la tarea","haben die Aufgabe erledigt","terminaram a tarefa"],
+  "ont fini le parcours": ["finished the path","terminaron el itinerario","haben den Lernpfad abgeschlossen","terminaram a trilha"],
+  "par an": ["per year","al año","pro Jahr","por ano"],
+  "prêts pour l'échéance": ["ready for the deadline","listos para la fecha límite","bereit für die Frist","prontos para o prazo"],
+  "prêts pour le contrôle": ["ready for the test","listos para el examen","bereit für den Test","prontos para a prova"],
+  "soit {p} par personne et par an": ["that's {p} per person per year","es decir, {p} por persona y año","also {p} pro Person und Jahr","ou seja, {p} por pessoa por ano"],
+  "soit {p} par élève et par mois": ["that's {p} per student per month","es decir, {p} por alumno y mes","also {p} pro Schüler und Monat","ou seja, {p} por aluno por mês"],
+  "{c} est à jour : {x}. Votre progression est gardée.": ["{c} is up to date: {x}. Your progress is kept.","{c} está al día: {x}. Tu progreso se conserva.","{c} ist aktuell: {x}. Dein Fortschritt bleibt erhalten.","{c} está atualizado: {x}. O seu progresso foi mantido."],
+  "{c} était déjà à jour.": ["{c} was already up to date.","{c} ya estaba al día.","{c} war schon aktuell.","{c} já estava atualizado."],
+  "{n} abonnements Pro individuels : {x} par an": ["{n} individual Pro plans: {x} per year","{n} suscripciones Pro individuales: {x} al año","{n} einzelne Pro-Abos: {x} pro Jahr","{n} assinaturas Pro individuais: {x} por ano"],
+  "{n} ajoutée|{n} ajoutées": ["{n} added|{n} added","{n} añadida|{n} añadidas","{n} hinzugefügt|{n} hinzugefügt","{n} adicionado|{n} adicionados"],
+  "{n} fiche modifiée|{n} fiches modifiées": ["{n} card edited|{n} cards edited","{n} tarjeta modificada|{n} tarjetas modificadas","{n} Karte geändert|{n} Karten geändert","{n} cartão modificado|{n} cartões modificados"],
+  "{n} personne|{n} personnes": ["{n} person|{n} people","{n} persona|{n} personas","{n} Person|{n} Personen","{n} pessoa|{n} pessoas"],
+  "{n} retirée|{n} retirées": ["{n} removed|{n} removed","{n} quitada|{n} quitadas","{n} entfernt|{n} entfernt","{n} removido|{n} removidos"],
+  "{n} élève|{n} élèves": ["{n} student|{n} students","{n} alumno|{n} alumnos","{n} Schüler|{n} Schüler","{n} aluno|{n} alunos"],
+  "{p} par personne et par mois": ["{p} per person per month","{p} por persona y mes","{p} pro Person und Monat","{p} por pessoa por mês"],
+  "{p} par élève et par an": ["{p} per student per year","{p} por alumno y año","{p} pro Schüler und Jahr","{p} por aluno por ano"],
+  "Échéance": ["Deadline","Fecha límite","Frist","Prazo"],
+  "Échéance (facultatif)": ["Deadline (optional)","Fecha límite (opcional)","Frist (optional)","Prazo (opcional)"],
+  "Échéance le {d}": ["Deadline {d}","Fecha límite: {d}","Frist: {d}","Prazo: {d}"],
+  "Échéances et rappels dans le programme de chacun": ["Deadlines and reminders in everyone's plan","Fechas límite y recordatorios en el programa de cada uno","Fristen und Erinnerungen im Plan aller","Prazos e lembretes no programa de cada um"],
+  "Écoles": ["Schools","Escuelas","Schulen","Escolas"],
+  "Écoles et entreprises": ["Schools and businesses","Escuelas y empresas","Schulen und Unternehmen","Escolas e empresas"],
+  "Équipe": ["Team","Equipo","Team","Equipe"],
+  "Équipe {c}": ["Team {c}","Equipo {c}","Team {c}","Equipe {c}"],
+  "Établissement": ["Institution","Centro","Einrichtung","Instituição"],
+  "élèves actifs cette semaine": ["students active this week","alumnos activos esta semana","Schüler diese Woche aktiv","alunos ativos nesta semana"]
 };
 
 /* ── Démarrage ─────────────────────────────────────────────────────── */
