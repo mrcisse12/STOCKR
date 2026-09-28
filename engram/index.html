@@ -888,7 +888,7 @@ body.studying .shell,body.studying .dock{visibility:hidden}
 .lang-btn:hover{color:var(--text);border-color:var(--hair-2);background:var(--brass-soft)}
 button.streak{cursor:pointer;transition:all .25s var(--ease)}button.streak:hover{border-color:var(--hair-2);background:var(--brass-soft)}
 @media (max-width:1240px){.ftab{padding:0 12px;gap:7px;font-size:13.5px}.hdr{gap:16px}}
-@media (max-width:1060px) and (min-width:961px){.ftab .i{display:none}}
+@media (max-width:1060px) and (min-width:961px){.ftab.on .i{display:none}}
 @media (max-width:960px){.hdr-r .hide-m{display:none}}
 
 /* ── Mentor : bouton flottant et tiroir ───────────────────────────── */
@@ -1059,12 +1059,74 @@ body.studying .mentor-fab,body.mentor-on .mentor-fab,#onb:not([hidden])~.mentor-
 .tick input{accent-color:var(--brass);width:16px;height:16px}
 
 /* ── Import / export ──────────────────────────────────────────────── */
-.imp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
-.imp-tile{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:18px;border-radius:12px;border:1px solid var(--hair-2);background:var(--folder-2);color:inherit;text-align:left;text-decoration:none;transition:all .3s var(--ease)}
-.imp-tile:hover{border-color:var(--brass);transform:translateY(-2px);box-shadow:0 18px 30px -24px var(--brass-glow)}
-.imp-tile b{font:400 21px/1.15 var(--f-display)}
-.imp-tile small{color:var(--muted);font-size:12.5px;line-height:1.45}
-.imp-ico{display:grid;place-items:center;width:42px;height:42px;border-radius:10px;color:var(--brass-text);background:var(--brass-soft);border:1px solid var(--hair-2)}
+/* La page Intégrations : des fiches bristol à onglet de couleur, une rangée par passerelle */
+.lk-tabs{display:flex;gap:4px;margin:28px 0 18px;padding:5px;border-radius:14px;border:1px solid var(--hair-2);background:var(--desk-2);overflow-x:auto;scrollbar-width:none}
+.lk-tabs::-webkit-scrollbar{display:none}
+.lk-tabs button{flex:1 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 18px;border-radius:10px;font-weight:600;font-size:14.5px;color:var(--text-2);white-space:nowrap;transition:background .3s var(--ease),color .3s var(--ease),box-shadow .3s var(--ease)}
+.lk-tabs button:hover{color:var(--text)}
+.lk-tabs button.on{background:var(--folder-3);color:var(--text);box-shadow:0 0 0 1px var(--hair-2) inset,0 10px 22px -16px rgba(0,0,0,.7)}
+.lk-tabs button.on .i{color:var(--brass-text)}
+.panel.bridges{padding:0;overflow:hidden}
+.bridge{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:18px;align-items:start;padding:22px 24px;border-top:1px solid var(--hair);transition:background .3s var(--ease)}
+.bridge:first-child{border-top:0}
+.bridge:hover{background:linear-gradient(90deg,var(--brass-soft),transparent 70%)}
+.bridge h3{margin:2px 0 0;font:400 21px/1.2 var(--f-display);letter-spacing:.005em}
+.bridge .bd>p{margin:5px 0 0;color:var(--text-2);font-size:15px;line-height:1.55;max-width:60ch}
+.bridge .acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;align-self:start;margin-top:6px}
+.bridge .acts .btn{min-width:112px}
+.mono{position:relative;display:grid;place-items:center;width:56px;height:56px;border-radius:12px;background:var(--paper);color:var(--p-ink);font:400 24px/1 var(--f-display);letter-spacing:-.01em;overflow:hidden;
+  box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 0 0 1px rgba(0,0,0,.08) inset,0 12px 20px -14px rgba(0,0,0,.7)}
+.mono::before{content:"";position:absolute;left:0;right:0;top:0;height:8px;background:var(--m)}
+.mono::after{content:"";position:absolute;left:9px;right:9px;bottom:10px;height:1px;background:var(--p-rule)}
+.mono.s3{font-size:17px}
+.mono .i{width:22px;height:22px;margin-top:4px}
+.how{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.how span{padding:5px 9px;border-radius:99px;border:1px solid var(--hair-2);color:var(--muted);font:700 10.5px/1 var(--f-type);letter-spacing:.07em;text-transform:uppercase}
+.bnote{display:flex;gap:8px;align-items:flex-start;margin:10px 0 0;padding:9px 12px;border-radius:9px;background:var(--brass-soft);color:var(--text-2);font-size:13.5px;line-height:1.5}
+.bnote .i{color:var(--brass-text);margin-top:2px}
+.howto{margin-top:10px}
+.howto summary{display:inline-flex;align-items:center;gap:8px;min-height:32px;cursor:pointer;list-style:none;color:var(--brass-text);font-weight:600;font-size:14px}
+.howto summary::-webkit-details-marker{display:none}
+.howto summary::after{content:"";width:7px;height:7px;margin-top:-3px;border-right:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:rotate(45deg);transition:transform .3s var(--ease),margin .3s var(--ease)}
+.howto[open] summary::after{transform:rotate(225deg);margin-top:4px}
+.howto[open] .lk-steps{animation:rise .5s var(--ease) both}
+.lk-steps{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:9px;counter-reset:st;max-width:62ch}
+.lk-steps li{counter-increment:st;display:grid;grid-template-columns:24px 1fr;gap:10px;align-items:start;font-size:14.5px;line-height:1.5;color:var(--text-2)}
+.lk-steps li::before{content:counter(st);display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--brass-soft);border:1px solid var(--hair-2);color:var(--brass-text);font:700 11.5px/1 var(--f-type)}
+.bridge a.btn,.lk-exams a.chip{text-decoration:none}
+.lk-file{position:relative;overflow:hidden;cursor:pointer}
+.lk-file input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:16px}
+.lk-file:focus-within{outline:2px solid var(--brass);outline-offset:3px}
+.lk-pick{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 14px}
+.lk-pick label{font-weight:600}
+.lk-pick .select{flex:0 1 340px;min-height:46px}
+.lk-pick>span{color:var(--muted);font-size:14px}
+.lk-sum,.lk-fine{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px;color:var(--text-2);font-size:15px}
+.lk-sum .i,.lk-fine .i{color:var(--brass-text)}
+.lk-sum>span{flex:1 1 240px}.lk-fine>span{flex:1 1 200px}
+.lk-fine{margin:16px 0 0;font-size:13.5px;color:var(--muted)}
+.lk-exams{margin-top:24px}.lk-exams .chips{margin-top:12px}
+.lk-empty{display:flex;flex-direction:column;align-items:center;gap:12px;padding:40px 22px;text-align:center;color:var(--text-2)}
+.lk-empty>.i{color:var(--brass-text)}
+.modal.sticky-f .modal-f{position:sticky;bottom:-26px;z-index:2;margin:18px -26px -26px;padding:14px 26px 22px;background:var(--folder);border-top:1px solid var(--hair)}
+@media (max-width:620px){.modal.sticky-f .modal-f{bottom:calc(-22px - env(safe-area-inset-bottom,0px));margin:16px -16px calc(-22px - env(safe-area-inset-bottom,0px));padding:12px 16px calc(14px + env(safe-area-inset-bottom,0px))}.modal.sticky-f .modal-f .btn{flex:1}}
+.p-more{margin-top:14px}
+.paste-steps{margin:0;padding:14px 16px;border-radius:10px;background:var(--brass-soft);border:1px solid var(--hair)}
+.paste-area{min-height:190px;font:13.5px/1.55 var(--f-type)}
+.paste-ticks{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px}
+.paste-json{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;background:color-mix(in srgb,var(--good) 14%,transparent);color:var(--text);font-size:14px}
+.paste-json .i{color:var(--good)}
+.paste-json.bad{background:color-mix(in srgb,var(--again) 12%,transparent)}.paste-json.bad .i{color:var(--again)}
+@media (max-width:720px){
+  .lk-tabs{margin:22px -4px 16px}
+  .lk-tabs button{padding:0 14px;font-size:14px}
+  .bridge{grid-template-columns:46px minmax(0,1fr);gap:14px;padding:20px 16px}
+  .mono{width:46px;height:46px;font-size:20px;border-radius:10px}.mono.s3{font-size:14px}.mono::before{height:6px}.mono::after{bottom:8px;left:7px;right:7px}
+  .bridge .acts{grid-column:1/-1;justify-content:stretch}
+  .bridge .acts>*{flex:1 1 130px;min-height:48px}
+  .bridge .acts>.pill{flex:0 0 auto;min-height:0}
+}
+@media (max-width:560px){.lk-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:22px 0 16px}.lk-tabs button{flex-direction:column;gap:5px;min-height:60px;padding:6px 2px;font-size:12px;letter-spacing:-.005em}.lk-tabs button span{max-width:100%;overflow:hidden;text-overflow:ellipsis}}
 .imp-prog{display:flex;align-items:center;gap:12px;padding:14px 4px;color:var(--text-2)}
 .paste-prev{display:flex;flex-direction:column;border:1px solid var(--hair);border-radius:10px;overflow:hidden}
 .paste-prev>div{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--hair);font-size:13.5px}
@@ -1496,7 +1558,7 @@ button,a,label,select,.chip,.opt,.ochip{touch-action:manipulation}
 <div id="modals"></div>
 <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
 <div class="tip" id="tip" hidden></div>
-<input type="file" id="fileImport" accept=".json,.csv,.tsv,.txt,.apkg,.colpkg,.pdf" hidden>
+<input type="file" id="fileImport" hidden>
 <script>
 'use strict';
 /* ════════════════════════════════════════════════════════════════════
@@ -3077,28 +3139,75 @@ const Modal = {
 };
 const mh = (title, sub = '') => `<div class="modal-h"><div>${sub ? `<div class="kicker">${sub}</div>` : ''}<h2>${title}</h2></div><button class="icon-btn" data-act="close" aria-label="${esc(t('Fermer'))}">${icon('x')}</button></div>`;
 
+/* ── Enregistrer un fichier ────────────────────────────────────────────
+   Dans l'app Claude : la fenêtre de confirmation de Claude. Dans un
+   navigateur : le téléchargement habituel. Dans une fenêtre intégrée qui
+   ne sait pas télécharger : le texte est proposé à la copie ou au partage,
+   jamais de faux « Fichier prêt ». */
+const Dl = {
+  ns: undefined, dead: false,
+  framed: (() => { try { return window.top !== window.self; } catch { return true; } })(),
+  ready() { return this._p ||= (async () => { let d = null; try { if (window.claude?.use) d = await window.claude.use('downloads'); } catch { d = null; } return this.ns = d || null; })(); },
+  /** Les fichiers passent par la fenêtre d'enregistrement de Claude. */
+  get live() { return !!this.ns && !this.dead; },
+  /** Fenêtre intégrée à Claude sans téléchargement : seule la copie marche. */
+  get copyOnly() { return this.framed && !!window.claude && this.ns !== undefined && !this.live; }
+};
 async function saveFile(filename, data, o = {}) {
-  let dl = null; try { dl = await window.claude?.use?.('downloads'); } catch { }
-  if (dl) {
-    try { await dl.save({ filename, data }); toast(t('Fichier prêt : {f}', { f: filename }), 'download'); return true; }
-    catch (e) {
-      if (e?.code === 'declined') return false;
-      // Dans l'app Claude, seules certaines extensions sont permises : on passe par la variante prévue.
-      if (e?.code === 'rejected_extension' && o.alt) { try { await dl.save({ filename: o.alt, data }); toast(o.altNote || t('Fichier prêt : {f}', { f: o.alt }), 'download'); return true; } catch (e2) { if (e2?.code === 'declined') return false; } }
+  const dl = await Dl.ready();
+  if (dl && !Dl.dead) {
+    let name = filename;
+    for (;;) {
+      try {
+        await dl.save({ filename: name, data });
+        toast(name !== filename && o.altNote ? o.altNote : t('Fichier prêt : {f}', { f: name }), 'download');
+        return true;
+      } catch (e) {
+        const c = e?.code;
+        if (c === 'declined') return false;
+        if (c === 'rate_limited') { toast(t("Une fenêtre d'enregistrement est déjà ouverte."), 'download'); return false; }
+        if (c === 'too_large') { toast(t('Fichier trop lourd pour être enregistré ici.'), 'download'); return false; }
+        // Extension refusée par Claude (.apkg, .ics) : on réessaie avec la variante permise.
+        if (c === 'rejected_extension' && o.alt && name !== o.alt) { name = o.alt; continue; }
+        if (!['rejected_extension', 'extension_not_enabled', 'bad_request', 'transform_error'].includes(c)) Dl.dead = true;
+        console.warn('save', c, e?.message);
+        break;
+      }
     }
   }
-  if (!dl) {
-    // Hors de l'app Claude : téléchargement classique du navigateur.
+  if (!(Dl.framed && window.claude)) {
+    // Navigateur : téléchargement classique.
     try {
       const blob = data instanceof Blob ? data : new Blob([data], { type: /\.ics$/.test(filename) ? 'text/calendar' : /\.json$/.test(filename) ? 'application/json' : 'text/plain;charset=utf-8' });
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; document.body.append(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 4000); toast(t('Fichier prêt : {f}', { f: filename }), 'download'); return true;
     } catch { }
   }
-  if (typeof data !== 'string') { toast(t("Le téléchargement n'est pas disponible ici."), 'download'); return false; }
-  const m = Modal.open(mh(t('Copiez votre fichier'), esc(filename)) + `<p class="muted" style="margin-top:0">${t("Le téléchargement direct n'est pas disponible ici. Copiez ce contenu et enregistrez-le sous <b>{f}</b>.", { f: esc(filename) })}</p><textarea class="textarea" id="copyArea" style="min-height:260px;font:12px/1.5 var(--f-type)" readonly>${esc(data)}</textarea><div class="modal-f"><button class="btn btn-brass" data-act="copyArea">${icon('check')}${t('Copier')}</button></div>`);
-  m.querySelector('#copyArea').select();
+  return offerFile(filename, data);
+}
+/** Plan B : copier le texte, ou partager le fichier (feuille de partage du téléphone). */
+function offerFile(filename, data) {
+  const text = typeof data === 'string';
+  let file = null; try { if (!text) file = new File([data], filename, { type: data.type || '' }); } catch { }
+  let share = false; try { share = !!navigator.share && (text || !!(file && navigator.canShare?.({ files: [file] }))); } catch { }
+  if (!text && !share) { toast(t('Cette fenêtre ne peut pas enregistrer ce fichier. Ouvrez Engram dans votre navigateur pour le récupérer.'), 'download'); return false; }
+  const m = Modal.open(mh(t('Votre fichier est prêt'), esc(filename)) + `<p class="muted" style="margin-top:0">${text ? t("Cette fenêtre n'enregistre pas les fichiers directement. Copiez le contenu, puis collez-le où vous voulez ou enregistrez-le sous <b>{f}</b>.", { f: esc(filename) }) : t("Cette fenêtre n'enregistre pas les fichiers directement : envoyez-le vers Fichiers, un courriel ou une autre app.")}</p>
+    ${text ? `<textarea class="textarea" id="copyArea" style="min-height:220px;font:12px/1.5 var(--f-type)" readonly>${esc(data)}</textarea>` : ''}
+    <div class="modal-f">${share ? `<button class="btn" id="ofShare">${icon('share')}${t('Partager…')}</button>` : ''}${text ? `<button class="btn btn-brass" data-act="copyArea">${icon('check')}${t('Copier')}</button>` : ''}</div>`);
+  m.querySelector('#ofShare')?.addEventListener('click', async () => {
+    try { await navigator.share(text ? { title: filename, text: data } : { title: filename, files: [file] }); }
+    catch (e) { if (e?.name !== 'AbortError') toast(t('Partage indisponible ici.'), 'share'); }
+  });
   return false;
+}
+/** Copie dans le presse-papiers ; si c'est bloqué, le texte s'affiche sélectionné. */
+function copyText(text, okMsg) {
+  let p = null; try { p = navigator.clipboard?.writeText(text); } catch { p = null; }
+  return Promise.resolve(p || Promise.reject(new Error('clipboard'))).then(() => { toast(okMsg || t('Copié'), 'check'); return true; }, () => {
+    const m = Modal.open(mh(t('Copier le texte')) + `<p class="muted" style="margin-top:0">${t('La copie automatique est bloquée ici. Le texte est sélectionné : copiez-le (Ctrl+C, ou appui long puis Copier).')}</p><textarea class="textarea" id="copyArea" style="min-height:220px;font:12px/1.5 var(--f-type)" readonly>${esc(text)}</textarea><div class="modal-f"><button class="btn btn-brass" data-act="copyArea">${icon('check')}${t('Copier')}</button></div>`);
+    setTimeout(() => { const ta = m.querySelector('#copyArea'); ta?.focus(); ta?.select(); }, 80);
+    return false;
+  });
 }
 
 /* ── Application ───────────────────────────────────────────────────── */
@@ -3757,7 +3866,7 @@ function openPalette() {
   const actions = [
     [N_('Réviser maintenant'), 'play', () => Study.start()], [N_('Programme du jour'), 'route', () => App.go('plan')], [N_('Demander à Mentor'), 'sparkles', () => Mentor.open()],
     [N_('Scanner un cours'), 'camera', () => App.go('scan')], [N_('Nouvelle fiche'), 'plus', () => openEditor(null, App.route.v === 'deck' ? App.route.arg : S.decks[0]?.id)],
-    [N_('Nouveau paquet'), 'drawer', () => openNewDeck()], [N_('Importer (Anki, Quizlet, CSV, PDF)'), 'upload', () => openImport()], [N_('Jeu des paires'), 'grid', () => openGame('match')], [N_('Examen blanc'), 'timer', () => openGame('exam')],
+    [N_('Nouveau paquet'), 'drawer', () => openNewDeck()], [N_('Importer (Anki, Quizlet, CSV, PDF)'), 'upload', () => openImport()], [N_('Exporter vers Anki, Quizlet, Excel, Notion'), 'share', () => openExport(App.route.v === 'deck' ? App.route.arg : 'all')], [N_('Jeu des paires'), 'grid', () => openGame('match')], [N_('Examen blanc'), 'timer', () => openGame('exam')],
     [N_('Examen en vue'), 'cal', () => openExamPlan()], [N_('Ajouter mon programme à mon agenda'), 'cal', () => openCalendar()], [N_('Carnet et statistiques'), 'book', () => App.go('stats')], [N_('Partager ma progression'), 'share', () => shareProgress()],
     [N_('Apparence'), 'palette', () => App.go('settings', 'look')], [N_('Langue'), 'globe', () => openLangMenu()], [N_('Réglages'), 'settings', () => App.go('settings')], [N_('Engram Pro'), 'crown', () => openPro()], [N_('Les assistants'), 'layers', () => App.go('agents')], [N_('Le Correcteur : relire un paquet'), 'pen', () => Agents.run('proof')], [N_('L\'Examinateur : examen blanc sur mesure'), 'timer', () => Agents.run('examiner')]
   ];
@@ -4843,8 +4952,7 @@ Views.settings = arg => {
     <section class="sec" id="sData"><div class="sec-h"><div><h2 class="h2">${t('Données et intégrations')}</h2></div></div>
     <article class="panel rise"><div class="settings">
       ${setRow(t('Synchronisation'), Store.mode === 'cloud' ? t('Vos paquets sont enregistrés dans votre espace privé et suivent votre compte sur tous vos appareils.') : S.demo ? t("Les exemples restent sur cet appareil. Vos propres paquets seront synchronisés dès leur création, dans l'app Claude.") : t('Enregistré sur cet appareil.'), `<span class="pill ${Store.mode === 'cloud' ? 'on' : ''}"><i></i>${Store.mode === 'cloud' ? t('Synchronisé') : t('Local')}</span>`)}
-      ${setRow(t('Importer'), t('Paquets Anki (.apkg), exports Quizlet, Excel ou Notion, fichiers CSV / TSV / JSON, cours en PDF.'), `<button class="btn btn-sm" data-act="import">${icon('upload', 'i-sm')}${t('Importer')}</button>`)}
-      ${setRow(t('Agenda'), t('Ajoutez votre programme et vos examens à Google Agenda, Apple Calendrier ou Outlook (fichier .ics).'), `<button class="btn btn-sm" data-act="calendar">${icon('cal', 'i-sm')}${t('Ajouter à mon agenda')}</button>`)}
+      ${setRow(t('Intégrations'), t('Anki, Quizlet, Excel, Google Sheets, Notion, PDF, Google Agenda, Outlook et Apple Calendrier : importer, exporter, planifier.'), `<button class="btn btn-sm btn-brass" data-act="go" data-v="links">${icon('link', 'i-sm')}${t('Ouvrir')}</button>`)}
       ${setRow(t('Sauvegarde'), t('Tous vos paquets, notes, examens et profil dans un seul fichier.'), `<button class="btn btn-sm" data-act="backup">${icon('download', 'i-sm')}${t('Exporter (.json)')}</button>`)}
       ${setRow(t("Revoir l'accueil"), t('Relancer la présentation du premier démarrage.'), `<button class="btn btn-sm" data-act="onboard">${icon('eye', 'i-sm')}${t('Revoir')}</button>`)}
       ${setRow(t('Réinitialiser'), S.demo ? t("Retirer les paquets d'exemple et repartir de zéro.") : t('Supprimer définitivement tous vos paquets et votre historique.'), `<button class="btn btn-sm btn-danger" data-act="${S.demo ? 'clearDemo' : 'wipe'}">${icon('trash', 'i-sm')}${S.demo ? t('Effacer les exemples') : t('Tout effacer')}</button>`)}
@@ -6587,8 +6695,8 @@ ${JSON.stringify(this.snapshot())}`;
       { name: 'run_agent', description: 'Hand a task to one of Engram\'s specialised assistants. It opens its mission window; its proposals wait for the student\'s approval. agent: planner | proof | coach | librarian | examiner | chronicler. deck_id is used by proof, coach and librarian (and optionally examiner).',
         inputSchema: { type: 'object', properties: { agent: { type: 'string', enum: AGENTS.map(a => a.id) }, deck_id: { type: 'string' } }, required: ['agent'] },
         execute: i => { const a = AGENT[str(i.agent)]; if (!a) throw new Error('Unknown agent.'); const deckId = str(i.deck_id) && deckById(str(i.deck_id)) ? str(i.deck_id) : undefined; ctx.after.push(() => { this.close(); Agents.run(a.id, { deckId }); }); say(t('Mission confiée : {a}', { a: t(a.name) })); return 'The assistant\'s window opens when you finish your reply. Tell the student in one sentence.'; } },
-      { name: 'export_calendar', description: 'Offer the student a button to download the programme and exams as a calendar file (.ics) for Google Calendar, Apple Calendar or Outlook.', inputSchema: { type: 'object', properties: {} },
-        execute: () => { ctx.buttons.push({ label: t("Ajouter à mon agenda"), icon: 'cal', run: () => openCalendar() }); return 'A download button is shown under your message.'; } }
+      { name: 'export_calendar', description: 'Offer the student a button that opens the calendar page: one tap adds the daily study session to Google Calendar or Outlook, or saves the programme and exams as an .ics file for Apple Calendar.', inputSchema: { type: 'object', properties: {} },
+        execute: () => { ctx.buttons.push({ label: t("Ajouter à mon agenda"), icon: 'cal', run: () => openCalendar() }); return 'A button that opens the calendar page is shown under your message.'; } }
     ];
     const max = AI.limits?.tools?.maxCount || tools.length;
     return tools.slice(0, max);
@@ -6695,32 +6803,150 @@ function htmlToText(s) {
 }
 const imgSrcs = s => [...String(s || '').matchAll(/<img[^>]+src=["']?([^"'>\s]+)/gi)].map(m => { try { return decodeURIComponent(m[1]); } catch { return m[1]; } });
 
-/* ── Fenêtre d'import ──────────────────────────────────────────────── */
-function openImport() {
-  const tile = (act, ic, title, desc) => `<button class="imp-tile" data-imp="${act}"><span class="imp-ico">${icon(ic)}</span><b>${title}</b><small>${desc}</small></button>`;
-  const m = Modal.open(mh(t('Importer des fiches'), t('Anki, Quizlet, Excel, Notion, PDF…')) + `<div class="imp-grid">
-    ${tile('anki', 'layers', t('Paquet Anki'), t('Fichier .apkg ou .colpkg, avec images et progression.'))}
-    ${tile('paste', 'list', t('Coller une liste'), t('Depuis Quizlet, Excel, Google Sheets ou Notion.'))}
-    ${tile('file', 'file', t('Fichier'), t('CSV, TSV, TXT ou sauvegarde Engram (.json).'))}
-    ${tile('pdf', 'book', t('Cours en PDF'), t("L'IA en tire les fiches ; sans IA, le texte est extrait."))}
-  </div><p class="muted" style="font-size:13px;margin:16px 0 0">${t('Vous pouvez aussi glisser un fichier n\'importe où sur la page.')}</p>`, 'wide');
-  m.addEventListener('click', e => {
-    const b = e.target.closest('[data-imp]'); if (!b) return;
-    const k = b.dataset.imp;
-    if (k === 'paste') { Modal.close(); setTimeout(openPaste, 60); return; }
-    const inp = $('#fileImport');
-    inp.accept = k === 'anki' ? '.apkg,.colpkg' : k === 'pdf' ? 'application/pdf,.pdf' : '.csv,.tsv,.txt,.json';
-    Modal.close(); inp.click();
-  });
+/* ── La page Intégrations : importer, exporter, agenda, sauvegarde ─── */
+const LK_TABS = [['import', 'upload', N_('Importer')], ['export', 'share', N_('Exporter')], ['agenda', 'cal', N_('Agenda')], ['backup', 'cloud', N_('Sauvegarde')]];
+const Links = { tab: 'import', deck: 'all' };
+const LK_HOW = { file: N_('Par fichier'), paste: N_('Par copier-coller'), link: N_('Par lien'), ai: N_("Avec l'IA") };
+const closeModals = () => { while (Modal.stack.length) Modal.close(); };
+function openImport() { closeModals(); App.go('links', 'import'); }
+function openExport(deckId) { closeModals(); App.go('links', 'export:' + (deckId || 'all')); }
+function openCalendar() { closeModals(); App.go('links', 'agenda'); }
+Object.assign(Actions, { calendar: () => openCalendar() });
+
+const lkMono = (txt, color) => `<span class="mono ${/^[A-Za-z]{3}$/.test(txt) ? 's3' : ''}" style="--m:${color}" aria-hidden="true">${txt}</span>`;
+// Le champ fichier couvre tout le bouton : l'appui ouvre le sélecteur natif, même sur iPhone.
+const lkFile = (kind, label, accept = '', cls = 'btn') => `<label class="${cls} lk-file">${icon('upload', 'i-sm')}<span>${label}</span><input type="file" data-lkfile="${kind}" ${accept ? `accept="${accept}"` : ''} aria-label="${esc(label)}"></label>`;
+const lkBtn = (attr, ic, label, cls = 'btn') => `<button class="${cls}" ${attr}>${icon(ic, 'i-sm')}<span>${label}</span></button>`;
+function bridge({ m, c, name, desc, how = [], steps, note, acts }) {
+  return `<article class="bridge">${lkMono(m, c)}<div class="bd"><h3>${name}</h3><p>${desc}</p>
+    ${how.length ? `<div class="how">${how.map(h => `<span>${t(LK_HOW[h])}</span>`).join('')}</div>` : ''}
+    ${note ? `<p class="bnote">${icon('bulb', 'i-sm')}<span>${note}</span></p>` : ''}
+    ${steps ? `<details class="howto"><summary>${t('Comment faire')}</summary><ol class="lk-steps">${steps.map(s => `<li><span>${s}</span></li>`).join('')}</ol></details>` : ''}</div>
+    <div class="acts">${acts}</div></article>`;
 }
-async function importFile(f) {
+const PASTE_STEPS = {
+  quizlet: [N_('Dans Quizlet, ouvrez la liste, touchez « … » puis « Exporter ».'), N_('Gardez « Tabulation » et « Nouvelle ligne », puis copiez le texte.'), N_('Revenez ici, touchez « Coller » et collez le texte.')],
+  sheet: [N_('Dans le tableur, sélectionnez les colonnes recto et verso, puis copiez.'), N_('Touchez « Coller » et collez : l\'aperçu montre les fiches avant l\'import.'), N_('Ou enregistrez le tableau en CSV et choisissez le fichier.')],
+  notion: [N_('Dans Notion, sélectionnez les lignes du tableau (ou la liste) et copiez.'), N_('Touchez « Coller » et collez : tableaux, listes « terme – définition » et Markdown sont reconnus.')]
+};
+function lkImport() {
+  return `<section class="panel bridges">
+    ${bridge({ m: 'Ak', c: '#3A6FC4', name: 'Anki', desc: t('Paquets .apkg et collections .colpkg, avec les images et votre progression.'), how: ['file'], acts: lkFile('anki', t('Choisir le paquet'), '', 'btn btn-brass') })}
+    ${bridge({ m: 'Qz', c: '#4257B2', name: 'Quizlet', desc: t('Vos listes en un copier-coller : chaque terme devient une fiche.'), how: ['paste'], steps: PASTE_STEPS.quizlet.map(x => t(x)), acts: lkBtn('data-lkpaste="quizlet"', 'list', t('Coller'), 'btn btn-brass') })}
+    ${bridge({ m: 'Xl', c: '#1E7B4F', name: t('Excel, Numbers, Google Sheets'), desc: t('Deux colonnes : recto et verso. Une troisième colonne devient la note.'), how: ['paste', 'file'], steps: PASTE_STEPS.sheet.map(x => t(x)), acts: lkBtn('data-lkpaste="sheet"', 'list', t('Coller')) + lkFile('table', 'CSV') })}
+    ${bridge({ m: 'N', c: '#37352F', name: 'Notion', desc: t('Un tableau ou une base copiés, ou une liste « terme – définition ».'), how: ['paste'], steps: PASTE_STEPS.notion.map(x => t(x)), acts: lkBtn('data-lkpaste="notion"', 'list', t('Coller')) })}
+    ${bridge({ m: 'Pdf', c: '#C3342A', name: t('Cours en PDF'), desc: t("L'IA en tire les fiches ; sans IA, le texte est extrait."), how: ['file', 'ai'], acts: lkFile('pdf', t('Choisir le PDF'), 'application/pdf,.pdf') })}
+    ${bridge({ m: icon('camera'), c: '#C9A45C', name: t('Photo ou notes de cours'), desc: t("Photographiez une page ou collez vos notes : l'IA rédige les fiches."), how: ['ai'], acts: lkBtn('data-lkscan="photo"', 'camera', t('Photo')) + lkBtn('data-lkscan="text"', 'type', t('Texte')) })}
+  </section>
+  <p class="lk-fine">${icon('upload', 'i-sm')}<span>${t("Sur ordinateur, vous pouvez aussi glisser un fichier n'importe où sur la page.")}</span></p>`;
+}
+function lkDecks() { const d = Links.deck !== 'all' && deckById(Links.deck); return d ? [d] : S.decks; }
+function lkExport() {
+  if (!S.decks.length) return `<section class="panel lk-empty">${icon('drawer', 'i-lg')}<p>${t("Aucun paquet pour l'instant. Importez ou scannez un cours, puis revenez ici.")}</p>${lkBtn('data-lktab="import"', 'upload', t('Importer'), 'btn btn-brass')}</section>`;
+  const decks = lkDecks(), n = decks.reduce((a, d) => a + d.cards.length, 0);
+  return `<div class="lk-pick"><label for="lkDeck">${t('Paquet')}</label><select class="select" id="lkDeck"><option value="all">${t('Tous les paquets')}</option>${S.decks.map(d => `<option value="${d.id}" ${d.id === Links.deck ? 'selected' : ''}>${esc(d.name)}</option>`).join('')}</select><span class="tnum">${plural(n, 'fiche|fiches')}</span></div>
+  <section class="panel bridges">
+    ${bridge({ m: 'Ak', c: '#3A6FC4', name: 'Anki', desc: t("S'ouvre dans Anki, AnkiDroid et AnkiMobile, avec votre progression."), how: ['file'], note: Dl.live ? t("Dans l'app Claude, le paquet arrive en .zip : renommez-le en .apkg avant de l'ouvrir dans Anki.") : '', acts: lkBtn('data-lkexp="apkg"', 'download', t('Enregistrer'), 'btn btn-brass') })}
+    ${bridge({ m: 'Qz', c: '#4257B2', name: 'Quizlet', desc: t("Vos fiches, copiées au format d'import de Quizlet."), how: ['paste'], steps: [t('Touchez « Copier pour Quizlet ».'), t('Dans Quizlet, touchez « Créer », puis « Importer ».'), t("Collez : les fiches apparaissent, il ne reste qu'à enregistrer.")], acts: lkBtn('data-lkexp="quizlet"', 'check', t('Copier pour Quizlet'), 'btn btn-brass') })}
+    ${bridge({ m: 'Xl', c: '#1E7B4F', name: t('Excel, Numbers, Google Sheets'), desc: t('Collez dans une feuille : une fiche par ligne, recto et verso en colonnes.'), how: ['paste', 'file'], acts: lkBtn('data-lkexp="sheet"', 'check', t('Copier le tableau')) + lkBtn('data-lkexp="csv"', 'download', 'CSV') })}
+    ${bridge({ m: 'N', c: '#37352F', name: 'Notion', desc: t('Un tableau prêt à coller dans une page Notion.'), how: ['paste'], acts: lkBtn('data-lkexp="notion"', 'check', t('Copier le tableau')) })}
+    ${bridge({ m: 'Pdf', c: '#C3342A', name: t('Fiches à imprimer'), desc: t('Huit fiches par page, recto-verso, avec traits de coupe.'), how: ['file'], acts: lkBtn('data-lkexp="pdf"', 'printer', t('Créer le PDF')) })}
+    ${bridge({ m: 'E', c: '#C9A45C', name: 'Engram', desc: t('Tout le paquet, notes comprises, pour le réimporter ou le donner à un ami.'), how: ['file'], acts: lkBtn('data-lkexp="json"', 'download', t('Enregistrer')) })}
+  </section>`;
+}
+function lkAgenda() {
+  const L = calendarLinks(), when = t(STUDY_TIMES[S.profile.study.time] || STUDY_TIMES.evening).toLowerCase();
+  return `<p class="lk-sum">${icon('clock', 'i-sm')}<span>${t('Un rendez-vous quotidien de {m} min, {w}, calé sur votre programme.', { m: L.avg, w: esc(when) })}</span><button class="btn btn-sm btn-ghost" data-act="go" data-v="settings">${t('Changer')}</button></p>
+  <section class="panel bridges">
+    ${bridge({ m: 'G', c: '#3B78E7', name: 'Google Agenda', desc: t('Une séance chaque jour, pendant deux mois, en un clic.'), how: ['link'], acts: `<a class="btn btn-brass" href="${esc(L.google)}" target="_blank" rel="noopener">${icon('link', 'i-sm')}<span>${t('Ouvrir Google Agenda')}</span></a>` })}
+    ${bridge({ m: 'O', c: '#1F6FC5', name: 'Outlook', desc: t('Première séance, à répéter dans Outlook.'), how: ['link'], acts: `<a class="btn" href="${esc(L.outlook)}" target="_blank" rel="noopener">${icon('link', 'i-sm')}<span>${t('Ouvrir Outlook')}</span></a>` })}
+    ${bridge({ m: 'ics', c: '#E0443E', name: t('Apple Calendrier et les autres'), desc: t('Le programme détaillé des 4 semaines, séance par séance (fichier .ics).'), how: ['file'], note: Dl.live ? t("Dans l'app Claude, le fichier arrive en .txt : renommez-le en .ics, puis ouvrez-le.") : '', acts: lkBtn('data-act="ics"', 'download', t('Enregistrer')) })}
+  </section>
+  ${L.exams.length ? `<div class="lk-exams"><h3 class="h3">${t('Vos examens dans Google Agenda')}</h3><div class="chips">${L.exams.map(([n, u]) => `<a class="chip" href="${esc(u)}" target="_blank" rel="noopener">${icon('target', 'i-sm')}${esc(n)}</a>`).join('')}</div></div>` : ''}`;
+}
+function lkBackup() {
+  const nC = S.decks.reduce((a, d) => a + d.cards.length, 0), cloud = Store.mode === 'cloud';
+  return `<section class="panel bridges">
+    ${bridge({ m: icon('cloud'), c: cloud ? '#2C6A4D' : '#8A8474', name: t('Synchronisation'), desc: cloud ? t('Vos paquets sont enregistrés dans votre espace privé et suivent votre compte sur tous vos appareils.') : t('Enregistré sur cet appareil.'), acts: `<span class="pill ${cloud ? 'on' : ''}"><i></i>${cloud ? t('Synchronisé') : t('Local')}</span>` })}
+    ${bridge({ m: 'E', c: '#C9A45C', name: t('Sauvegarde complète'), desc: t('{a} et {b}, avec les notes, les examens et le profil, dans un seul fichier.', { a: plural(S.decks.length, 'paquet|paquets'), b: plural(nC, 'fiche|fiches') }), how: ['file'], acts: lkBtn('data-act="backup"', 'download', t('Enregistrer'), 'btn btn-brass') })}
+    ${bridge({ m: icon('undo'), c: '#6F8FE0', name: t('Restaurer une sauvegarde'), desc: t("Les paquets de la sauvegarde s'ajoutent aux vôtres : rien n'est effacé."), how: ['file', 'paste'], acts: lkFile('backup', t('Choisir le fichier'), 'application/json,.json') + lkBtn('data-lkpaste="backup"', 'list', t('Coller')) })}
+  </section>`;
+}
+const LK_PANES = { import: lkImport, export: lkExport, agenda: lkAgenda, backup: lkBackup };
+Views.links = arg => {
+  if (arg) { const [tab, deck] = String(arg).split(':'); if (LK_PANES[tab]) Links.tab = tab; if (deck) Links.deck = deck; }
+  if (Links.deck !== 'all' && !deckById(Links.deck)) Links.deck = 'all';
+  const tab = Links.tab;
+  return `
+    <header class="rise"><div class="kicker">${t('Données et intégrations')}</div><h1 class="display" style="margin-top:12px">${words(t('Vos fiches, <em>partout</em>.'))}</h1>
+      <p class="lede" style="margin-top:14px">${t('Faites entrer vos fiches depuis Anki, Quizlet ou un tableur, envoyez-les où vous voulez et posez vos séances dans votre agenda.')}</p></header>
+    ${Dl.copyOnly ? `<div class="demo-note rise">${icon('bulb', 'i-sm')}<span>${t("Dans cette fenêtre, les fichiers ne s'enregistrent pas directement : Engram vous propose de copier leur contenu à la place.")}</span></div>` : ''}
+    <nav class="lk-tabs rise" role="tablist" aria-label="${esc(t('Données et intégrations'))}">${LK_TABS.map(([k, ic, l]) => `<button role="tab" id="lkt-${k}" aria-controls="lkp-${k}" aria-selected="${k === tab}" class="${k === tab ? 'on' : ''}" data-lktab="${k}">${icon(ic, 'i-sm')}<span>${t(l)}</span></button>`).join('')}</nav>
+    ${Object.entries(LK_PANES).map(([k, fn]) => `<div class="lk-pane rise" role="tabpanel" id="lkp-${k}" aria-labelledby="lkt-${k}" ${k === tab ? '' : 'hidden'}>${fn()}</div>`).join('')}`;
+};
+Hooks.links = () => {
+  const root = $('#view > .view'); if (!root) return;
+  const show = k => {
+    Links.tab = k; App.route.arg = null;
+    $$('.lk-tabs [data-lktab]', root).forEach(b => { const on = b.dataset.lktab === k; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
+    $$('.lk-pane', root).forEach(p => { p.hidden = p.id !== 'lkp-' + k; });
+  };
+  root.addEventListener('click', e => {
+    const tb = e.target.closest('[data-lktab]'); if (tb) { show(tb.dataset.lktab); return; }
+    const p = e.target.closest('[data-lkpaste]'); if (p) { openPaste(p.dataset.lkpaste); return; }
+    const sc = e.target.closest('[data-lkscan]'); if (sc) { Scan.tab = sc.dataset.lkscan; App.go('scan'); return; }
+    const x = e.target.closest('[data-lkexp]'); if (x) lkDoExport(x.dataset.lkexp);
+  });
+  root.addEventListener('change', e => {
+    if (e.target.id === 'lkDeck') { Links.deck = e.target.value; App.route.arg = null; const pane = $('#lkp-export'); pane.innerHTML = lkExport(); $('#lkDeck')?.focus(); return; }
+    const inp = e.target.closest('[data-lkfile]'); if (!inp) return;
+    const f = inp.files?.[0], kind = inp.dataset.lkfile; inp.value = ''; if (f) importFile(f, kind);
+  });
+};
+
+/** Une ligne par fiche, en texte brut : question, réponse, note, paquet. */
+function flatCards(decks) {
+  const clean = s => plain(String(s ?? '')).replace(/\s*\n+\s*/g, ' / ').replace(/\t/g, ' ').trim();
+  const rows = [];
+  for (const d of decks) for (const c of d.cards) {
+    if (c.type === 'occlusion') continue;
+    let q = c.front;
+    if (c.type === 'cloze') q = renderCloze(c.text || '', c.n || 1).q;
+    else if (c.type === 'mcq') q = `${c.front} (${(c.options || []).map((o, i) => `${'ABCDEF'[i]}. ${o}`).join(' · ')})`;
+    else if (c.type === 'tf') q = `${c.front} (${trueLbl()} / ${falseLbl()})`;
+    const a = clean(cardAnswer(c)), extra = clean(c.type === 'basic' || c.type === 'cloze' ? c.extra : c.back);
+    if (clean(q) && a) rows.push([clean(q), a, extra, d.name]);
+  }
+  return rows;
+}
+const EXPORT_TEXT = {
+  quizlet: rows => rows.map(r => r[0] + '\t' + r[1]).join('\n'),
+  sheet: rows => [[t('Recto'), t('Verso'), t('Note'), t('Paquet')], ...rows].map(r => r.join('\t')).join('\n'),
+  notion: rows => { const e = s => String(s).replace(/\|/g, '\\|'); return [`| ${t('Recto')} | ${t('Verso')} | ${t('Note')} |`, '| --- | --- | --- |', ...rows.map(r => `| ${e(r[0])} | ${e(r[1])} | ${e(r[2])} |`)].join('\n'); }
+};
+function lkDoExport(k) {
+  const decks = lkDecks(); if (!decks.length) return;
+  const one = decks.length === 1 ? decks[0] : null, base = one ? slug(one.name) : 'engram';
+  if (k === 'apkg') return exportAnki(decks);
+  if (k === 'pdf') return printCards(one || { name: 'Engram', cards: decks.flatMap(d => d.cards) });
+  if (k === 'csv') return saveFile(base + '.csv', exportDeckCSV(decks));
+  if (k === 'json') return saveFile(base + '.json', JSON.stringify({ app: 'engram', v: 3, decks, images: Object.fromEntries(decks.flatMap(d => d.cards).flatMap(c => [c.img, c.fimg, c.bimg]).filter(k2 => k2 && S.images[k2]).map(k2 => [k2, S.images[k2]])) }, null, 1));
+  const rows = flatCards(decks);
+  if (!rows.length) { toast(t('Aucune fiche à copier.'), 'list'); return; }
+  const done = tp(rows.length, '{n} fiche copiée.|{n} fiches copiées.');
+  copyText(EXPORT_TEXT[k](rows), done + ' ' + { quizlet: t('Dans Quizlet : Créer, puis Importer, et collez.'), sheet: t('Collez-les dans une feuille de calcul.'), notion: t('Collez le tableau dans une page Notion.') }[k]);
+}
+
+async function importFile(f, kind = '') {
   const name = f.name.toLowerCase();
-  $('#fileImport').accept = '.json,.csv,.tsv,.txt,.apkg,.colpkg,.pdf';
   try {
-    if (/\.(apkg|colpkg)$/.test(name)) return await importAnki(f);
+    if (/\.(apkg|colpkg)(\.zip)?$/.test(name) || (kind === 'anki' && /\.zip$/.test(name))) return await importAnki(f);
+    if (kind === 'anki') { toast(t("Ce fichier n'est pas un paquet Anki : choisissez un fichier .apkg ou .colpkg."), 'layers'); return; }
     if (/\.pdf$/.test(name) || f.type === 'application/pdf') { Scan.tab = 'pdf'; App.go('scan'); return loadPdfForScan(f); }
-    const parsed = parseImport(f.name, await f.text());
-    addImported(parsed);
+    if (/^image\//.test(f.type)) { Scan.tab = 'photo'; Scan.files = [f]; Scan.urls = [URL.createObjectURL(f)]; App.go('scan'); return; }
+    const text = await f.text();
+    if (kind === 'backup' && !/^\s*[\[{]/.test(text)) { toast(t("Ce fichier n'est pas une sauvegarde Engram (.json)."), 'file'); return; }
+    addImported(parseImport(f.name, text));
   } catch (e) { console.warn(e); toast(t('Fichier illisible. Utilisez un paquet Anki, un JSON Engram, un CSV ou un TSV.'), 'file'); }
 }
 function addImported(parsed, opts = {}) {
@@ -6758,6 +6984,11 @@ function parseImport(name, text) {
 /** Découpe un texte délimité (guillemets CSV gérés) ; le séparateur est deviné s'il n'est pas donné. */
 function parseDelimited(text, sep) {
   const lines = text.split(/\r?\n/).filter(l => l.trim());
+  const pipe = lines.filter(l => /^\s*\|.*\|\s*$/.test(l));
+  if (!sep && pipe.length && pipe.length >= lines.length * 0.6) {
+    const cells = l => l.trim().replace(/^\||\|$/g, '').replace(/\\\|/g, '\u0001').split('|').map(x => x.replace(/\u0001/g, '|').trim());
+    return pipe.map(cells).filter(r => !r.every(x => /^:?-{2,}:?$/.test(x)));
+  }
   if (!sep) {
     // Le séparateur présent sur le plus de lignes l'emporte (dans cet ordre de préférence en cas d'égalité).
     const score = x => lines.slice(0, 30).filter(l => l.includes(x)).length;
@@ -6781,6 +7012,7 @@ function rowsToCards(rows, o = {}) {
   const cards = [];
   for (const r of rows) {
     let [a, b, extra] = r.map(x => htmlToText(x));
+    a = (a || '').replace(/^(?:[-*•–—]|\d{1,3}[.)])\s+/, '');
     if (!a || /^(front|recto|question|term|terme|pregunta|frage|pergunta|vorderseite)$/i.test(a)) continue;
     if (/\{\{c\d+::/.test(a)) { cards.push(...clozeCards(a, { src: 'import', extra: b || undefined })); continue; }
     if (!b) continue;
@@ -6798,33 +7030,56 @@ const PASTE_EX = {
   de: 'Mitochondrium\tKraftwerk der Zelle\nPhotosynthese - Aufbau organischer Stoffe mithilfe von Licht',
   pt: 'mitocôndria\tusina de energia da célula\nfotossíntese - produção de matéria orgânica graças à luz'
 };
-function openPaste() {
+function openPaste(src = '') {
   const st = { text: '', sep: 'auto', swap: false, both: false, dest: 'new', name: '' };
   const SEPS = [['auto', t('Automatique')], ['\t', t('Tabulation')], [' - ', t('Tiret')], [';', t('Point-virgule')], [',', t('Virgule')], [':', t('Deux-points')]];
-  const m = Modal.open(mh(t('Coller une liste'), t('Quizlet, Excel, Google Sheets, Notion')) + `<div class="form">
-    <p class="muted" style="margin:0;font-size:13.5px">${t('Une fiche par ligne, recto et verso séparés par une tabulation (copie depuis un tableur ou l\'export Quizlet), un tiret, un point-virgule ou deux-points.')}</p>
-    <textarea class="textarea" id="pText" style="min-height:180px;font:13px/1.5 var(--f-type)" placeholder="${esc(PASTE_EX[LANG] || PASTE_EX.en).replace(/\t/g, '&#9;').replace(/\n/g, '&#10;')}" autofocus></textarea>
-    <div class="two"><div class="field"><label for="pSep">${t('Séparateur')}</label><select class="select" id="pSep">${SEPS.map(([k, l]) => `<option value="${esc(k)}">${l}</option>`).join('')}</select></div>
-      <div class="field"><label for="pDest">${t('Ranger dans')}</label><select class="select" id="pDest"><option value="new">${t('Un nouveau paquet')}</option>${S.decks.map(d => `<option value="${d.id}">${esc(d.name)}</option>`).join('')}</select></div></div>
-    <div class="field" id="pNameF"><label for="pName">${t('Nom du paquet')}</label><input class="input" id="pName" placeholder="${esc(t('Ex. Vocabulaire espagnol'))}"></div>
-    <div style="display:flex;gap:18px;flex-wrap:wrap"><label class="tick"><input type="checkbox" id="pSwap"> ${t('Inverser recto et verso')}</label><label class="tick"><input type="checkbox" id="pBoth"> ${t('Créer aussi le sens inverse')}</label></div>
-    <div id="pPrev"></div>
-  </div><div class="modal-f"><button class="btn btn-ghost" data-act="close">${t('Annuler')}</button><button class="btn btn-brass" id="pGo" disabled>${icon('upload')}${t('Importer')}</button></div>`, 'wide');
+  const backup = src === 'backup';
+  const head = { quizlet: ['Quizlet', t('Coller une liste')], sheet: [t('Excel, Numbers, Google Sheets'), t('Coller une liste')], notion: ['Notion', t('Coller une liste')], backup: [t('Restaurer une sauvegarde'), t('Coller le contenu du fichier .json')] }[src] || [t('Coller une liste'), t('Quizlet, Excel, Google Sheets, Notion')];
+  const steps = PASTE_STEPS[src];
+  const m = Modal.open(mh(head[0], head[1]) + `<div class="form">
+    ${steps ? `<ol class="lk-steps paste-steps">${steps.slice(0, 2).map(x => `<li><span>${t(x)}</span></li>`).join('')}</ol>` : backup ? '' : `<p class="muted" style="margin:0;font-size:14px">${t('Une fiche par ligne, recto et verso séparés par une tabulation (copie depuis un tableur ou l\'export Quizlet), un tiret, un point-virgule ou deux-points.')}</p>`}
+    <textarea class="textarea paste-area" id="pText" placeholder="${backup ? '{ &quot;app&quot;: &quot;engram&quot;, &quot;decks&quot;: [ … ] }' : esc(PASTE_EX[LANG] || PASTE_EX.en).replace(/\t/g, '&#9;').replace(/\n/g, '&#10;')}" autofocus spellcheck="false" autocapitalize="off"></textarea>
+    <div id="pPrev" aria-live="polite"></div>
+    <div id="pOpts" ${backup ? 'hidden' : ''}>
+      <div class="two"><div class="field"><label for="pDest">${t('Ranger dans')}</label><select class="select" id="pDest"><option value="new">${t('Un nouveau paquet')}</option>${S.decks.map(d => `<option value="${d.id}">${esc(d.name)}</option>`).join('')}</select></div>
+        <div class="field" id="pNameF"><label for="pName">${t('Nom du paquet')}</label><input class="input" id="pName" placeholder="${esc(src === 'quizlet' ? 'Quizlet' : t('Ex. Vocabulaire espagnol'))}"></div></div>
+      <details class="howto p-more"><summary>${t("Plus d'options")}</summary>
+        <div class="field" style="margin-top:10px;max-width:320px"><label for="pSep">${t('Séparateur')}</label><select class="select" id="pSep">${SEPS.map(([k, l]) => `<option value="${esc(k)}">${l}</option>`).join('')}</select></div>
+        <div class="paste-ticks"><label class="tick"><input type="checkbox" id="pSwap"> ${t('Inverser recto et verso')}</label><label class="tick"><input type="checkbox" id="pBoth"> ${t('Créer aussi le sens inverse')}</label></div>
+      </details>
+    </div>
+  </div><div class="modal-f"><button class="btn btn-ghost" data-act="close">${t('Annuler')}</button><button class="btn btn-brass" id="pGo" disabled>${icon('upload')}${backup ? t('Restaurer') : t('Importer')}</button></div>`, 'wide sticky-f');
+  let json = null;
   const draw = () => {
     st.text = m.querySelector('#pText').value; st.sep = m.querySelector('#pSep').value; st.swap = m.querySelector('#pSwap').checked; st.both = m.querySelector('#pBoth').checked; st.dest = m.querySelector('#pDest').value;
+    // Une sauvegarde Engram (ou une liste JSON) collée telle quelle.
+    json = null;
+    if (/^\s*[\[{]/.test(st.text)) { try { json = parseImport('engram.json', st.text); } catch { json = null; } }
+    const go = m.querySelector('#pGo'), prev = m.querySelector('#pPrev');
+    m.querySelector('#pOpts').hidden = backup || !!json;
+    if (json) {
+      const decks = json.decks.filter(d => d.cards.length), n = decks.reduce((a, d) => a + d.cards.length, 0);
+      go.disabled = !n; go.innerHTML = icon('upload') + (backup || json.exams ? t('Restaurer') : t('Importer'));
+      prev.innerHTML = n ? `<div class="paste-json">${icon('check', 'i-sm')}<span>${t('Contenu reconnu : {a}, {b}.', { a: plural(decks.length, 'paquet|paquets'), b: plural(n, 'fiche|fiches') })}</span></div>` : '';
+      return [];
+    }
+    if (backup) { go.disabled = true; prev.innerHTML = st.text.trim() ? `<div class="paste-json bad">${icon('x', 'i-sm')}<span>${t("Ce texte n'est pas une sauvegarde Engram complète. Copiez tout le contenu du fichier .json.")}</span></div>` : ''; return []; }
     m.querySelector('#pNameF').hidden = st.dest !== 'new';
     const rows = st.text.trim() ? parseDelimited(st.text, st.sep === 'auto' ? null : st.sep) : [];
     const cards = rowsToCards(rows, st);
-    m.querySelector('#pGo').disabled = !cards.length;
-    m.querySelector('#pGo').innerHTML = icon('upload') + (cards.length ? t('Importer {x}', { x: plural(cards.length, 'fiche|fiches') }) : t('Importer'));
-    m.querySelector('#pPrev').innerHTML = cards.length ? `<div class="flabel" style="margin-bottom:8px">${t('Aperçu')}</div><div class="paste-prev">${cards.slice(0, 6).map(c => `<div><span>${esc(c.type === 'cloze' ? plain(c.text) : c.front)}</span><span>${esc(c.type === 'cloze' ? renderCloze(c.text, c.n).ans : c.back)}</span></div>`).join('')}${cards.length > 6 ? `<div class="muted"><span>… ${t('et {n} autres', { n: cards.length - 6 })}</span><span></span></div>` : ''}</div>` : '';
+    go.disabled = !cards.length;
+    go.innerHTML = icon('upload') + (cards.length ? t('Importer {x}', { x: plural(cards.length, 'fiche|fiches') }) : t('Importer'));
+    prev.innerHTML = cards.length ? `<div class="flabel" style="margin-bottom:8px">${t('Aperçu')}</div><div class="paste-prev">${cards.slice(0, 6).map(c => `<div><span>${esc(c.type === 'cloze' ? plain(c.text) : c.front)}</span><span>${esc(c.type === 'cloze' ? renderCloze(c.text, c.n).ans : c.back)}</span></div>`).join('')}${cards.length > 6 ? `<div class="muted"><span>… ${t('et {n} autres', { n: cards.length - 6 })}</span><span></span></div>` : ''}</div>`
+      : st.text.trim() ? `<div class="paste-json bad">${icon('x', 'i-sm')}<span>${t('Aucune fiche reconnue. Format attendu : recto;verso par ligne.')}</span></div>` : '';
     return cards;
   };
   m.addEventListener('input', draw); m.addEventListener('change', draw);
   m.querySelector('#pGo').onclick = () => {
-    const cards = draw(); if (!cards.length) return;
+    const cards = draw();
+    if (json) { Modal.close(); addImported(json); return; }
+    if (!cards.length) return;
     Modal.close();
-    addImported({ images: {}, decks: [{ name: m.querySelector('#pName').value.trim() || t('Liste importée'), cards }] }, { into: st.dest !== 'new' ? st.dest : null });
+    addImported({ images: {}, decks: [{ name: m.querySelector('#pName').value.trim() || (src === 'quizlet' ? 'Quizlet' : t('Liste importée')), cards }] }, { into: st.dest !== 'new' ? st.dest : null });
   };
 }
 
@@ -7019,28 +7274,11 @@ async function exportAnki(deckList) {
 
 /* ── Exports ───────────────────────────────────────────────────────── */
 const csvEscape = s => { s = String(s ?? ''); return /[";\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
-function exportDeckCSV(d) {
-  const rows = [[t('recto'), t('verso'), 'type', t('étiquettes')].join(';')];
-  for (const c of d.cards) { if (c.type === 'occlusion') continue; if (c.type === 'cloze' && d.cards.some(x => x.note === c.note && x.n < c.n)) continue; rows.push([c.type === 'cloze' ? c.text : c.front, cardAnswer(c), c.type, (c.tags || []).join(' ')].map(csvEscape).join(';')); }
+function exportDeckCSV(decks) {
+  decks = [].concat(decks); const many = decks.length > 1;
+  const rows = [[t('recto'), t('verso'), 'type', t('étiquettes'), ...(many ? [t('paquet')] : [])].join(';')];
+  for (const d of decks) for (const c of d.cards) { if (c.type === 'occlusion') continue; if (c.type === 'cloze' && d.cards.some(x => x.note === c.note && x.n < c.n)) continue; rows.push([c.type === 'cloze' ? c.text : c.front, cardAnswer(c), c.type, (c.tags || []).join(' '), ...(many ? [d.name] : [])].map(csvEscape).join(';')); }
   return rows.join('\n');
-}
-function openExport(deckId) {
-  const d = deckById(deckId); if (!d) return;
-  const tile = (act, ic, title, desc) => `<button class="imp-tile" data-exp="${act}"><span class="imp-ico">${icon(ic)}</span><b>${title}</b><small>${desc}</small></button>`;
-  const m = Modal.open(mh(t('Exporter'), esc(d.name)) + `<div class="imp-grid">
-    ${tile('apkg', 'layers', t('Paquet Anki (.apkg)'), t("S'ouvre dans Anki, AnkiDroid et AnkiMobile, avec votre progression."))}
-    ${tile('pdf', 'printer', t('Fiches à imprimer (PDF)'), t('Huit fiches par page, recto-verso, avec traits de coupe.'))}
-    ${tile('csv', 'grid', t('Tableur (CSV)'), t('Pour Excel, Google Sheets, Quizlet.'))}
-    ${tile('json', 'download', t('Engram (.json)'), t('Tout le paquet, notes comprises, pour le réimporter.'))}
-  </div>`, 'wide');
-  m.addEventListener('click', e => {
-    const b = e.target.closest('[data-exp]'); if (!b) return; Modal.close();
-    const k = b.dataset.exp;
-    if (k === 'apkg') exportAnki([d]);
-    else if (k === 'pdf') printCards(d);
-    else if (k === 'csv') saveFile(slug(d.name) + '.csv', exportDeckCSV(d));
-    else saveFile(slug(d.name) + '.json', JSON.stringify({ app: 'engram', v: 3, decks: [d], images: Object.fromEntries(d.cards.flatMap(c => [c.img, c.fimg, c.bimg]).filter(Boolean).map(k2 => [k2, S.images[k2]])) }, null, 1));
-  });
 }
 
 /* ── Fiches à imprimer (PDF recto-verso) ───────────────────────────── */
@@ -7140,20 +7378,6 @@ function calendarLinks() {
   const exams = upcomingExams().map(x => { const d = keyToDate(x.date), e = new Date(d.getTime() + DAY); const ds = z => `${z.getFullYear()}${String(z.getMonth() + 1).padStart(2, '0')}${String(z.getDate()).padStart(2, '0')}`; return [x.name, `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('📝 ' + x.name)}&dates=${ds(d)}/${ds(e)}`]; });
   return { google, outlook, exams, avg };
 }
-function openCalendar() {
-  const L = calendarLinks();
-  Modal.open(mh(t('Ajouter à mon agenda'), t('Google Agenda, Apple Calendrier, Outlook')) + `<div class="form">
-    <p class="muted" style="margin:0">${t('Un rendez-vous quotidien de {m} min à votre moment préféré, et vos examens.', { m: L.avg })}</p>
-    <div class="imp-grid">
-      <a class="imp-tile" href="${esc(L.google)}" target="_blank" rel="noopener"><span class="imp-ico">${icon('cal')}</span><b>Google Agenda</b><small>${t('Séance quotidienne récurrente.')}</small></a>
-      <a class="imp-tile" href="${esc(L.outlook)}" target="_blank" rel="noopener"><span class="imp-ico">${icon('cal')}</span><b>Outlook</b><small>${t('Première séance, à répéter dans Outlook.')}</small></a>
-      <button class="imp-tile" data-act="ics"><span class="imp-ico">${icon('download')}</span><b>${t('Fichier .ics')}</b><small>${t('Le programme détaillé des 4 semaines, pour Apple Calendrier et les autres.')}</small></button>
-    </div>
-    ${L.exams.length ? `<div class="chips">${L.exams.map(([n, u]) => `<a class="chip" href="${esc(u)}" target="_blank" rel="noopener">${icon('target', 'i-sm')}${esc(n)}</a>`).join('')}</div>` : ''}
-  </div>`, 'wide');
-}
-Object.assign(Actions, { calendar: () => openCalendar() });
-
 /* ── Glisser-déposer un fichier n'importe où ───────────────────────── */
 function bootDrop() {
   let depth = 0;
@@ -7340,9 +7564,6 @@ TR = {
   "Que cache le masque rouge ?": ["What does the red mask hide?","¿Qué oculta la máscara roja?","Was verbirgt die rote Maske?","O que a máscara vermelha esconde?"],
   "Fermer": ["Close","Cerrar","Schließen","Fechar"],
   "Fichier prêt : {f}": ["File ready: {f}","Archivo listo: {f}","Datei bereit: {f}","Arquivo pronto: {f}"],
-  "Le téléchargement n'est pas disponible ici.": ["Downloading isn't available here.","La descarga no está disponible aquí.","Herunterladen ist hier nicht möglich.","O download não está disponível aqui."],
-  "Copiez votre fichier": ["Copy your file","Copia tu archivo","Kopiere deine Datei","Copie seu arquivo"],
-  "Le téléchargement direct n'est pas disponible ici. Copiez ce contenu et enregistrez-le sous <b>{f}</b>.": ["Direct download isn't available here. Copy this content and save it as <b>{f}</b>.","La descarga directa no está disponible aquí. Copia este contenido y guárdalo como <b>{f}</b>.","Direkter Download ist hier nicht möglich. Kopiere diesen Inhalt und speichere ihn als <b>{f}</b>.","O download direto não está disponível aqui. Copie este conteúdo e salve como <b>{f}</b>."],
   "Copier": ["Copy","Copiar","Kopieren","Copiar"],
   "Aujourd'hui": ["Today","Hoy","Heute","Hoje"],
   "Programme": ["Programme","Programa","Programm","Programa"],
@@ -7777,9 +7998,7 @@ TR = {
   "Enregistré sur cet appareil.": ["Saved on this device.","Guardado en este dispositivo.","Auf diesem Gerät gespeichert.","Salvo neste aparelho."],
   "Synchronisé": ["Synced","Sincronizado","Synchronisiert","Sincronizado"],
   "Local": ["Local","Local","Lokal","Local"],
-  "Paquets Anki (.apkg), exports Quizlet, Excel ou Notion, fichiers CSV / TSV / JSON, cours en PDF.": ["Anki decks (.apkg), Quizlet, Excel or Notion exports, CSV / TSV / JSON files, PDF courses.","Mazos de Anki (.apkg), exportaciones de Quizlet, Excel o Notion, archivos CSV / TSV / JSON, cursos en PDF.","Anki-Stapel (.apkg), Exporte aus Quizlet, Excel oder Notion, CSV-/TSV-/JSON-Dateien, Kurse als PDF.","Baralhos do Anki (.apkg), exportações do Quizlet, Excel ou Notion, arquivos CSV / TSV / JSON, aulas em PDF."],
   "Agenda": ["Calendar","Calendario","Kalender","Agenda"],
-  "Ajoutez votre programme et vos examens à Google Agenda, Apple Calendrier ou Outlook (fichier .ics).": ["Add your programme and exams to Google Calendar, Apple Calendar or Outlook (.ics file).","Añade tu programa y tus exámenes a Google Calendar, Calendario de Apple u Outlook (archivo .ics).","Übernimm dein Programm und deine Prüfungen in Google Kalender, Apple Kalender oder Outlook (.ics-Datei).","Adicione seu programa e suas provas ao Google Agenda, Calendário da Apple ou Outlook (arquivo .ics)."],
   "Ajouter à mon agenda": ["Add to my calendar","Añadir a mi calendario","Zum Kalender hinzufügen","Adicionar à minha agenda"],
   "Sauvegarde": ["Backup","Copia de seguridad","Sicherung","Backup"],
   "Tous vos paquets, notes, examens et profil dans un seul fichier.": ["All your decks, notes, exams and profile in a single file.","Todos tus mazos, notas, exámenes y perfil en un solo archivo.","Alle Stapel, Notizen, Prüfungen und dein Profil in einer Datei.","Todos os seus baralhos, notas, provas e perfil em um único arquivo."],
@@ -8164,15 +8383,10 @@ TR = {
   "Annuler ces actions": ["Undo these actions","Deshacer estas acciones","Diese Aktionen rückgängig machen","Desfazer estas ações"],
   "Actions annulées": ["Actions undone","Acciones deshechas","Aktionen rückgängig gemacht","Ações desfeitas"],
   "Actions de Mentor annulées": ["Mentor's actions undone","Acciones de Mentor deshechas","Mentors Aktionen rückgängig gemacht","Ações do Mentor desfeitas"],
-  "Anki, Quizlet, Excel, Notion, PDF…": ["Anki, Quizlet, Excel, Notion, PDF…","Anki, Quizlet, Excel, Notion, PDF…","Anki, Quizlet, Excel, Notion, PDF…","Anki, Quizlet, Excel, Notion, PDF…"],
   "Paquet Anki": ["Anki deck","Mazo de Anki","Anki-Stapel","Baralho do Anki"],
-  "Fichier .apkg ou .colpkg, avec images et progression.": [".apkg or .colpkg file, with images and progress.","Archivo .apkg o .colpkg, con imágenes y progreso.",".apkg- oder .colpkg-Datei, mit Bildern und Fortschritt.","Arquivo .apkg ou .colpkg, com imagens e progresso."],
   "Coller une liste": ["Paste a list","Pegar una lista","Liste einfügen","Colar uma lista"],
-  "Depuis Quizlet, Excel, Google Sheets ou Notion.": ["From Quizlet, Excel, Google Sheets or Notion.","Desde Quizlet, Excel, Google Sheets o Notion.","Aus Quizlet, Excel, Google Sheets oder Notion.","Do Quizlet, Excel, Google Planilhas ou Notion."],
-  "CSV, TSV, TXT ou sauvegarde Engram (.json).": ["CSV, TSV, TXT or an Engram backup (.json).","CSV, TSV, TXT o copia de seguridad de Engram (.json).","CSV, TSV, TXT oder eine Engram-Sicherung (.json).","CSV, TSV, TXT ou backup do Engram (.json)."],
   "Cours en PDF": ["PDF course","Curso en PDF","Kurs als PDF","Aula em PDF"],
   "L'IA en tire les fiches ; sans IA, le texte est extrait.": ["The AI draws the cards from it; without AI, the text is extracted.","La IA saca las tarjetas; sin IA, se extrae el texto.","Die KI macht daraus Karten; ohne KI wird der Text extrahiert.","A IA tira os cartões dele; sem IA, o texto é extraído."],
-  "Vous pouvez aussi glisser un fichier n'importe où sur la page.": ["You can also drop a file anywhere on the page.","También puedes soltar un archivo en cualquier parte de la página.","Du kannst auch eine Datei irgendwo auf der Seite ablegen.","Você também pode soltar um arquivo em qualquer lugar da página."],
   "Fichier illisible. Utilisez un paquet Anki, un JSON Engram, un CSV ou un TSV.": ["Unreadable file. Use an Anki deck, an Engram JSON, a CSV or a TSV.","Archivo ilegible. Usa un mazo de Anki, un JSON de Engram, un CSV o un TSV.","Unlesbare Datei. Nimm einen Anki-Stapel, ein Engram-JSON, eine CSV oder eine TSV.","Arquivo ilegível. Use um baralho do Anki, um JSON do Engram, um CSV ou um TSV."],
   "Aucune fiche reconnue. Format attendu : recto;verso par ligne.": ["No cards recognised. Expected format: front;back per line.","No se reconoció ninguna tarjeta. Formato esperado: anverso;reverso por línea.","Keine Karten erkannt. Erwartetes Format: Vorderseite;Rückseite pro Zeile.","Nenhum cartão reconhecido. Formato esperado: frente;verso por linha."],
   "fiche importée|fiches importées": ["card imported|cards imported","tarjeta importada|tarjetas importadas","Karte importiert|Karten importiert","cartão importado|cartões importados"],
@@ -8212,14 +8426,8 @@ TR = {
   "recto": ["front","anverso","Vorderseite","frente"],
   "verso": ["back","reverso","Rückseite","verso"],
   "étiquettes": ["tags","etiquetas","Schlagwörter","etiquetas"],
-  "Paquet Anki (.apkg)": ["Anki deck (.apkg)","Mazo de Anki (.apkg)","Anki-Stapel (.apkg)","Baralho do Anki (.apkg)"],
   "S'ouvre dans Anki, AnkiDroid et AnkiMobile, avec votre progression.": ["Opens in Anki, AnkiDroid and AnkiMobile, with your progress.","Se abre en Anki, AnkiDroid y AnkiMobile, con tu progreso.","Öffnet sich in Anki, AnkiDroid und AnkiMobile, mit deinem Fortschritt.","Abre no Anki, AnkiDroid e AnkiMobile, com seu progresso."],
-  "Fiches à imprimer (PDF)": ["Printable cards (PDF)","Tarjetas para imprimir (PDF)","Karten zum Drucken (PDF)","Cartões para imprimir (PDF)"],
   "Huit fiches par page, recto-verso, avec traits de coupe.": ["Eight cards per page, double-sided, with cut marks.","Ocho tarjetas por página, a doble cara, con marcas de corte.","Acht Karten pro Seite, beidseitig, mit Schnittmarken.","Oito cartões por página, frente e verso, com marcas de corte."],
-  "Tableur (CSV)": ["Spreadsheet (CSV)","Hoja de cálculo (CSV)","Tabelle (CSV)","Planilha (CSV)"],
-  "Pour Excel, Google Sheets, Quizlet.": ["For Excel, Google Sheets, Quizlet.","Para Excel, Google Sheets, Quizlet.","Für Excel, Google Sheets, Quizlet.","Para Excel, Google Planilhas, Quizlet."],
-  "Engram (.json)": ["Engram (.json)","Engram (.json)","Engram (.json)","Engram (.json)"],
-  "Tout le paquet, notes comprises, pour le réimporter.": ["The whole deck, notes included, to re-import it.","Todo el mazo, notas incluidas, para volver a importarlo.","Der ganze Stapel samt Notizen, zum erneuten Import.","O baralho inteiro, com notas, para reimportar."],
   "Fiches à imprimer": ["Printable cards","Tarjetas para imprimir","Karten zum Drucken","Cartões para imprimir"],
   "Mise en page…": ["Laying out…","Maquetando…","Seiten werden gesetzt…","Diagramando…"],
   "Impossible de préparer le PDF (connexion requise la première fois pour charger l'outil).": ["Couldn't prepare the PDF (an internet connection is needed the first time to load the tool).","No se pudo preparar el PDF (hace falta conexión la primera vez para cargar la herramienta).","Das PDF konnte nicht erstellt werden (beim ersten Mal ist eine Verbindung nötig, um das Werkzeug zu laden).","Não foi possível preparar o PDF (é preciso conexão na primeira vez para carregar a ferramenta)."],
@@ -8229,12 +8437,7 @@ TR = {
   "Ce PDF ne contient pas de texte (pages scannées) : il faut l'IA pour le lire.": ["This PDF has no text (scanned pages): AI is needed to read it.","Este PDF no contiene texto (páginas escaneadas): hace falta la IA para leerlo.","Dieses PDF enthält keinen Text (gescannte Seiten): Zum Lesen braucht es die KI.","Este PDF não tem texto (páginas escaneadas): é preciso a IA para lê-lo."],
   "PDF illisible, ou lecteur PDF indisponible (connexion requise la première fois).": ["Unreadable PDF, or PDF reader unavailable (an internet connection is needed the first time).","PDF ilegible o lector de PDF no disponible (hace falta conexión la primera vez).","PDF unlesbar oder PDF-Leser nicht verfügbar (beim ersten Mal ist eine Verbindung nötig).","PDF ilegível ou leitor de PDF indisponível (é preciso conexão na primeira vez)."],
   "Engram · séance de révision": ["Engram · review session","Engram · sesión de repaso","Engram · Lernsitzung","Engram · sessão de revisão"],
-  "Google Agenda, Apple Calendrier, Outlook": ["Google Calendar, Apple Calendar, Outlook","Google Calendar, Calendario de Apple, Outlook","Google Kalender, Apple Kalender, Outlook","Google Agenda, Calendário da Apple, Outlook"],
-  "Un rendez-vous quotidien de {m} min à votre moment préféré, et vos examens.": ["A daily {m}-minute appointment at your preferred time, and your exams.","Una cita diaria de {m} min en tu momento preferido, y tus exámenes.","Ein täglicher Termin von {m} Min. zu deiner bevorzugten Zeit, dazu deine Prüfungen.","Um compromisso diário de {m} min no seu horário preferido, e suas provas."],
-  "Séance quotidienne récurrente.": ["Recurring daily session.","Sesión diaria recurrente.","Tägliche Serien-Sitzung.","Sessão diária recorrente."],
   "Première séance, à répéter dans Outlook.": ["First session, to repeat in Outlook.","Primera sesión, para repetir en Outlook.","Erste Sitzung, in Outlook wiederholen.","Primeira sessão, para repetir no Outlook."],
-  "Fichier .ics": [".ics file","Archivo .ics",".ics-Datei","Arquivo .ics"],
-  "Le programme détaillé des 4 semaines, pour Apple Calendrier et les autres.": ["The detailed 4-week programme, for Apple Calendar and the others.","El programa detallado de 4 semanas, para el Calendario de Apple y los demás.","Das detaillierte 4-Wochen-Programm, für Apple Kalender und andere.","O programa detalhado de 4 semanas, para o Calendário da Apple e os outros."],
   "Suit le mode clair ou sombre de l'appareil.": ["Follows your device's light or dark mode.","Sigue el modo claro u oscuro del dispositivo.","Folgt dem hellen oder dunklen Modus des Geräts.","Segue o modo claro ou escuro do aparelho."],
   "Salle de lecture": ["Reading room","Sala de lectura","Lesesaal","Sala de leitura"],
   "Vert bibliothèque et laiton, le soir.": ["Library green and brass, in the evening.","Verde biblioteca y latón, al anochecer.","Bibliotheksgrün und Messing, am Abend.","Verde biblioteca e latão, à noite."],
@@ -8570,7 +8773,89 @@ TR = {
   "« {exam} » dans {n} j": ["“{exam}” in {n} d","«{exam}» en {n} d","„{exam}“ in {n} T","“{exam}” em {n} d"],
   "« {exam} » dans {n} jours : prêt à {p} si vous suivez le programme.": ["“{exam}” in {n} days: {p} ready if you follow the programme.","«{exam}» dentro de {n} días: preparado al {p} si sigues el programa.","„{exam}“ in {n} Tagen: zu {p} bereit, wenn du dem Programm folgst.","“{exam}” daqui a {n} dias: {p} pronto se seguir o programa."],
   "À retirer": ["To remove","Para quitar","Zu entfernen","A remover"],
-  "à l'instant": ["just now","ahora mismo","gerade eben","agora mesmo"]
+  "à l'instant": ["just now","ahora mismo","gerade eben","agora mesmo"],
+  // Intégrations
+  "Plus d'options": ["More options","Más opciones","Weitere Optionen","Mais opções"],
+  "Intégrations": ["Integrations","Integraciones","Integrationen","Integrações"],
+  "Anki, Quizlet, Excel, Google Sheets, Notion, PDF, Google Agenda, Outlook et Apple Calendrier : importer, exporter, planifier.": ["Anki, Quizlet, Excel, Google Sheets, Notion, PDF, Google Calendar, Outlook and Apple Calendar: import, export, schedule.","Anki, Quizlet, Excel, Google Sheets, Notion, PDF, Google Calendar, Outlook y Apple Calendar: importar, exportar, planificar.","Anki, Quizlet, Excel, Google Sheets, Notion, PDF, Google Kalender, Outlook und Apple Kalender: importieren, exportieren, planen.","Anki, Quizlet, Excel, Google Sheets, Notion, PDF, Google Agenda, Outlook e Calendário da Apple: importar, exportar, planejar."],
+  "Ouvrir": ["Open","Abrir","Öffnen","Abrir"],
+  "Exporter vers Anki, Quizlet, Excel, Notion": ["Export to Anki, Quizlet, Excel, Notion","Exportar a Anki, Quizlet, Excel, Notion","Nach Anki, Quizlet, Excel, Notion exportieren","Exportar para Anki, Quizlet, Excel, Notion"],
+  "Vos fiches, <em>partout</em>.": ["Your cards, <em>everywhere</em>.","Tus tarjetas, <em>en todas partes</em>.","Deine Karten, <em>überall</em>.","Seus cartões, <em>em todo lugar</em>."],
+  "Faites entrer vos fiches depuis Anki, Quizlet ou un tableur, envoyez-les où vous voulez et posez vos séances dans votre agenda.": ["Bring your cards in from Anki, Quizlet or a spreadsheet, send them wherever you like and put your sessions in your calendar.","Trae tus tarjetas desde Anki, Quizlet o una hoja de cálculo, envíalas adonde quieras y pon tus sesiones en tu agenda.","Hol deine Karten aus Anki, Quizlet oder einer Tabelle, schick sie, wohin du willst, und trag deine Lerneinheiten in deinen Kalender ein.","Traga seus cartões do Anki, do Quizlet ou de uma planilha, envie-os para onde quiser e coloque suas sessões na sua agenda."],
+  "Dans cette fenêtre, les fichiers ne s'enregistrent pas directement : Engram vous propose de copier leur contenu à la place.": ["Files can't be saved directly in this window, so Engram offers to copy their contents instead.","En esta ventana los archivos no se guardan directamente: Engram te ofrece copiar su contenido en su lugar.","In diesem Fenster lassen sich Dateien nicht direkt speichern: Engram bietet dir stattdessen an, ihren Inhalt zu kopieren.","Nesta janela os arquivos não são salvos diretamente: o Engram oferece copiar o conteúdo deles no lugar."],
+  "Par fichier": ["By file","Por archivo","Per Datei","Por arquivo"],
+  "Par copier-coller": ["By copy and paste","Copiar y pegar","Per Kopieren und Einfügen","Copiar e colar"],
+  "Par lien": ["By link","Por enlace","Per Link","Por link"],
+  "Avec l'IA": ["With AI","Con IA","Mit KI","Com IA"],
+  "Comment faire": ["How to","Cómo hacerlo","So geht's","Como fazer"],
+  "Coller": ["Paste","Pegar","Einfügen","Colar"],
+  "Choisir le paquet": ["Choose the deck","Elegir el mazo","Stapel auswählen","Escolher o baralho"],
+  "Choisir le PDF": ["Choose the PDF","Elegir el PDF","PDF auswählen","Escolher o PDF"],
+  "Choisir le fichier": ["Choose the file","Elegir el archivo","Datei auswählen","Escolher o arquivo"],
+  "Paquets .apkg et collections .colpkg, avec les images et votre progression.": [".apkg decks and .colpkg collections, with images and your progress.","Mazos .apkg y colecciones .colpkg, con las imágenes y tu progreso.",".apkg-Stapel und .colpkg-Sammlungen, mit Bildern und deinem Lernfortschritt.","Baralhos .apkg e coleções .colpkg, com as imagens e o seu progresso."],
+  "Vos listes en un copier-coller : chaque terme devient une fiche.": ["Your sets in one copy and paste: each term becomes a card.","Tus listas en un copiar y pegar: cada término se convierte en una tarjeta.","Deine Lernsets mit einmal Kopieren und Einfügen: Jeder Begriff wird eine Karte.","Suas listas em um copiar e colar: cada termo vira um cartão."],
+  "Dans Quizlet, ouvrez la liste, touchez « … » puis « Exporter ».": ["In Quizlet, open the set, tap “…” then “Export”.","En Quizlet, abre la lista, toca «…» y luego «Exportar».","Öffne in Quizlet das Lernset, tippe auf „…“ und dann auf „Exportieren“.","No Quizlet, abra a lista, toque em “…” e depois em “Exportar”."],
+  "Gardez « Tabulation » et « Nouvelle ligne », puis copiez le texte.": ["Keep “Tab” and “New line”, then copy the text.","Deja «Tabulación» y «Nueva línea» y copia el texto.","Lass „Tabulator“ und „Neue Zeile“ ausgewählt und kopiere den Text.","Mantenha “Tabulação” e “Nova linha” e copie o texto."],
+  "Revenez ici, touchez « Coller » et collez le texte.": ["Come back here, tap “Paste” and paste the text.","Vuelve aquí, toca «Pegar» y pega el texto.","Komm hierher zurück, tippe auf „Einfügen“ und füge den Text ein.","Volte aqui, toque em “Colar” e cole o texto."],
+  "Excel, Numbers, Google Sheets": ["Excel, Numbers, Google Sheets","Excel, Numbers, Google Sheets","Excel, Numbers, Google Sheets","Excel, Numbers, Google Sheets"],
+  "Deux colonnes : recto et verso. Une troisième colonne devient la note.": ["Two columns: front and back. A third column becomes the note.","Dos columnas: anverso y reverso. Una tercera columna se convierte en la nota.","Zwei Spalten: Vorder- und Rückseite. Eine dritte Spalte wird zur Notiz.","Duas colunas: frente e verso. Uma terceira coluna vira a nota."],
+  "Dans le tableur, sélectionnez les colonnes recto et verso, puis copiez.": ["In the spreadsheet, select the front and back columns, then copy.","En la hoja de cálculo, selecciona las columnas de anverso y reverso y cópialas.","Markiere in der Tabelle die Spalten für Vorder- und Rückseite und kopiere sie.","Na planilha, selecione as colunas de frente e verso e copie."],
+  "Touchez « Coller » et collez : l'aperçu montre les fiches avant l'import.": ["Tap “Paste” and paste: the preview shows the cards before importing.","Toca «Pegar» y pega: la vista previa muestra las tarjetas antes de importarlas.","Tippe auf „Einfügen“ und füge ein: Die Vorschau zeigt die Karten vor dem Import.","Toque em “Colar” e cole: a prévia mostra os cartões antes da importação."],
+  "Ou enregistrez le tableau en CSV et choisissez le fichier.": ["Or save the sheet as CSV and choose the file.","O guarda la hoja como CSV y elige el archivo.","Oder speichere die Tabelle als CSV und wähle die Datei aus.","Ou salve a planilha em CSV e escolha o arquivo."],
+  "Un tableau ou une base copiés, ou une liste « terme – définition ».": ["A copied table or database, or a “term – definition” list.","Una tabla o base de datos copiada, o una lista «término – definición».","Eine kopierte Tabelle oder Datenbank oder eine Liste „Begriff – Definition“.","Uma tabela ou base copiada, ou uma lista “termo – definição”."],
+  "Dans Notion, sélectionnez les lignes du tableau (ou la liste) et copiez.": ["In Notion, select the table rows (or the list) and copy.","En Notion, selecciona las filas de la tabla (o la lista) y cópialas.","Markiere in Notion die Tabellenzeilen (oder die Liste) und kopiere sie.","No Notion, selecione as linhas da tabela (ou a lista) e copie."],
+  "Touchez « Coller » et collez : tableaux, listes « terme – définition » et Markdown sont reconnus.": ["Tap “Paste” and paste: tables, “term – definition” lists and Markdown are recognised.","Toca «Pegar» y pega: se reconocen tablas, listas «término – definición» y Markdown.","Tippe auf „Einfügen“ und füge ein: Tabellen, Listen „Begriff – Definition“ und Markdown werden erkannt.","Toque em “Colar” e cole: tabelas, listas “termo – definição” e Markdown são reconhecidos."],
+  "Photo ou notes de cours": ["Photo or class notes","Foto o apuntes","Foto oder Mitschrift","Foto ou anotações"],
+  "Photographiez une page ou collez vos notes : l'IA rédige les fiches.": ["Photograph a page or paste your notes: the AI writes the cards.","Fotografía una página o pega tus apuntes: la IA redacta las tarjetas.","Fotografiere eine Seite oder füge deine Notizen ein: Die KI schreibt die Karten.","Fotografe uma página ou cole suas anotações: a IA escreve os cartões."],
+  "Sur ordinateur, vous pouvez aussi glisser un fichier n'importe où sur la page.": ["On a computer, you can also drop a file anywhere on the page.","En el ordenador, también puedes arrastrar un archivo a cualquier parte de la página.","Am Computer kannst du eine Datei auch einfach irgendwo auf die Seite ziehen.","No computador, você também pode arrastar um arquivo para qualquer lugar da página."],
+  "Aucun paquet pour l'instant. Importez ou scannez un cours, puis revenez ici.": ["No decks yet. Import or scan a class, then come back here.","Aún no hay mazos. Importa o escanea una clase y vuelve aquí.","Noch keine Stapel. Importiere oder scanne einen Kurs und komm dann hierher zurück.","Ainda não há baralhos. Importe ou escaneie uma aula e volte aqui."],
+  "Dans l'app Claude, le paquet arrive en .zip : renommez-le en .apkg avant de l'ouvrir dans Anki.": ["In the Claude app, the deck arrives as a .zip: rename it to .apkg before opening it in Anki.","En la app de Claude, el mazo llega como .zip: cámbiale el nombre a .apkg antes de abrirlo en Anki.","In der Claude-App kommt der Stapel als .zip an: Benenne ihn in .apkg um, bevor du ihn in Anki öffnest.","No app do Claude, o baralho chega como .zip: renomeie-o para .apkg antes de abri-lo no Anki."],
+  "Vos fiches, copiées au format d'import de Quizlet.": ["Your cards, copied in Quizlet's import format.","Tus tarjetas, copiadas en el formato de importación de Quizlet.","Deine Karten, kopiert im Importformat von Quizlet.","Seus cartões, copiados no formato de importação do Quizlet."],
+  "Touchez « Copier pour Quizlet ».": ["Tap “Copy for Quizlet”.","Toca «Copiar para Quizlet».","Tippe auf „Für Quizlet kopieren“.","Toque em “Copiar para o Quizlet”."],
+  "Dans Quizlet, touchez « Créer », puis « Importer ».": ["In Quizlet, tap “Create”, then “Import”.","En Quizlet, toca «Crear» y luego «Importar».","Tippe in Quizlet auf „Erstellen“ und dann auf „Importieren“.","No Quizlet, toque em “Criar” e depois em “Importar”."],
+  "Collez : les fiches apparaissent, il ne reste qu'à enregistrer.": ["Paste: the cards appear, all that's left is to save.","Pega: aparecen las tarjetas y solo queda guardar.","Einfügen: Die Karten erscheinen, du musst nur noch speichern.","Cole: os cartões aparecem, é só salvar."],
+  "Copier pour Quizlet": ["Copy for Quizlet","Copiar para Quizlet","Für Quizlet kopieren","Copiar para o Quizlet"],
+  "Collez dans une feuille : une fiche par ligne, recto et verso en colonnes.": ["Paste into a sheet: one card per row, front and back in columns.","Pega en una hoja: una tarjeta por fila, anverso y reverso en columnas.","In eine Tabelle einfügen: eine Karte pro Zeile, Vorder- und Rückseite in Spalten.","Cole em uma planilha: um cartão por linha, frente e verso em colunas."],
+  "Copier le tableau": ["Copy the table","Copiar la tabla","Tabelle kopieren","Copiar a tabela"],
+  "Un tableau prêt à coller dans une page Notion.": ["A table ready to paste into a Notion page.","Una tabla lista para pegar en una página de Notion.","Eine Tabelle, bereit zum Einfügen in eine Notion-Seite.","Uma tabela pronta para colar em uma página do Notion."],
+  "Créer le PDF": ["Create the PDF","Crear el PDF","PDF erstellen","Criar o PDF"],
+  "Tout le paquet, notes comprises, pour le réimporter ou le donner à un ami.": ["The whole deck, notes included, to import again or give to a friend.","Todo el mazo, notas incluidas, para volver a importarlo o dárselo a un amigo.","Der ganze Stapel samt Notizen, zum erneuten Import oder für Freunde.","O baralho inteiro, com as notas, para importar de novo ou dar a um amigo."],
+  "Un rendez-vous quotidien de {m} min, {w}, calé sur votre programme.": ["A daily {m}-minute slot, {w}, matched to your plan.","Una cita diaria de {m} min, {w}, ajustada a tu programa.","Ein täglicher Termin von {m} Min., {w}, abgestimmt auf deinen Lernplan.","Um compromisso diário de {m} min, {w}, alinhado ao seu programa."],
+  "Changer": ["Change","Cambiar","Ändern","Alterar"],
+  "Une séance chaque jour, pendant deux mois, en un clic.": ["A session every day for two months, in one click.","Una sesión al día durante dos meses, en un clic.","Zwei Monate lang eine Einheit pro Tag, mit einem Klick.","Uma sessão por dia, durante dois meses, em um clique."],
+  "Ouvrir Google Agenda": ["Open Google Calendar","Abrir Google Calendar","Google Kalender öffnen","Abrir o Google Agenda"],
+  "Ouvrir Outlook": ["Open Outlook","Abrir Outlook","Outlook öffnen","Abrir o Outlook"],
+  "Apple Calendrier et les autres": ["Apple Calendar and others","Apple Calendar y los demás","Apple Kalender und andere","Calendário da Apple e outros"],
+  "Le programme détaillé des 4 semaines, séance par séance (fichier .ics).": ["The detailed 4-week plan, session by session (.ics file).","El programa detallado de las 4 semanas, sesión por sesión (archivo .ics).","Der ausführliche Plan für 4 Wochen, Einheit für Einheit (.ics-Datei).","O programa detalhado das 4 semanas, sessão por sessão (arquivo .ics)."],
+  "Dans l'app Claude, le fichier arrive en .txt : renommez-le en .ics, puis ouvrez-le.": ["In the Claude app, the file arrives as a .txt: rename it to .ics, then open it.","En la app de Claude, el archivo llega como .txt: cámbiale el nombre a .ics y ábrelo.","In der Claude-App kommt die Datei als .txt an: Benenne sie in .ics um und öffne sie dann.","No app do Claude, o arquivo chega como .txt: renomeie-o para .ics e depois abra-o."],
+  "Vos examens dans Google Agenda": ["Your exams in Google Calendar","Tus exámenes en Google Calendar","Deine Prüfungen im Google Kalender","Suas provas no Google Agenda"],
+  "Sauvegarde complète": ["Full backup","Copia de seguridad completa","Vollständige Sicherung","Backup completo"],
+  "{a} et {b}, avec les notes, les examens et le profil, dans un seul fichier.": ["{a} and {b}, with notes, exams and profile, in a single file.","{a} y {b}, con las notas, los exámenes y el perfil, en un solo archivo.","{a} und {b}, mit Notizen, Prüfungen und Profil, in einer einzigen Datei.","{a} e {b}, com as notas, as provas e o perfil, em um único arquivo."],
+  "Restaurer une sauvegarde": ["Restore a backup","Restaurar una copia de seguridad","Sicherung wiederherstellen","Restaurar um backup"],
+  "Les paquets de la sauvegarde s'ajoutent aux vôtres : rien n'est effacé.": ["The backup's decks are added to yours: nothing is deleted.","Los mazos de la copia se añaden a los tuyos: no se borra nada.","Die Stapel der Sicherung kommen zu deinen hinzu: Nichts wird gelöscht.","Os baralhos do backup se somam aos seus: nada é apagado."],
+  "Restaurer": ["Restore","Restaurar","Wiederherstellen","Restaurar"],
+  "Coller le contenu du fichier .json": ["Paste the contents of the .json file","Pega el contenido del archivo .json","Inhalt der .json-Datei einfügen","Cole o conteúdo do arquivo .json"],
+  "Contenu reconnu : {a}, {b}.": ["Recognised: {a}, {b}.","Contenido reconocido: {a}, {b}.","Erkannt: {a}, {b}.","Conteúdo reconhecido: {a}, {b}."],
+  "Ce texte n'est pas une sauvegarde Engram complète. Copiez tout le contenu du fichier .json.": ["This text isn't a complete Engram backup. Copy the whole contents of the .json file.","Este texto no es una copia de seguridad completa de Engram. Copia todo el contenido del archivo .json.","Dieser Text ist keine vollständige Engram-Sicherung. Kopiere den gesamten Inhalt der .json-Datei.","Este texto não é um backup completo do Engram. Copie todo o conteúdo do arquivo .json."],
+  "Ce fichier n'est pas un paquet Anki : choisissez un fichier .apkg ou .colpkg.": ["This file isn't an Anki deck: choose an .apkg or .colpkg file.","Este archivo no es un mazo de Anki: elige un archivo .apkg o .colpkg.","Diese Datei ist kein Anki-Stapel: Wähle eine .apkg- oder .colpkg-Datei.","Este arquivo não é um baralho do Anki: escolha um arquivo .apkg ou .colpkg."],
+  "Ce fichier n'est pas une sauvegarde Engram (.json).": ["This file isn't an Engram backup (.json).","Este archivo no es una copia de seguridad de Engram (.json).","Diese Datei ist keine Engram-Sicherung (.json).","Este arquivo não é um backup do Engram (.json)."],
+  "Aucune fiche à copier.": ["No cards to copy.","No hay tarjetas que copiar.","Keine Karten zum Kopieren.","Nenhum cartão para copiar."],
+  "{n} fiche copiée.|{n} fiches copiées.": ["{n} card copied.|{n} cards copied.","{n} tarjeta copiada.|{n} tarjetas copiadas.","{n} Karte kopiert.|{n} Karten kopiert.","{n} cartão copiado.|{n} cartões copiados."],
+  "Dans Quizlet : Créer, puis Importer, et collez.": ["In Quizlet: Create, then Import, and paste.","En Quizlet: Crear, luego Importar, y pega.","In Quizlet: Erstellen, dann Importieren, und einfügen.","No Quizlet: Criar, depois Importar, e cole."],
+  "Collez-les dans une feuille de calcul.": ["Paste them into a spreadsheet.","Pégalas en una hoja de cálculo.","Füge sie in eine Tabelle ein.","Cole-os em uma planilha."],
+  "Collez le tableau dans une page Notion.": ["Paste the table into a Notion page.","Pega la tabla en una página de Notion.","Füge die Tabelle in eine Notion-Seite ein.","Cole a tabela em uma página do Notion."],
+  "Note": ["Note","Nota","Notiz","Nota"],
+  "paquet": ["deck","mazo","Stapel","baralho"],
+  "Votre fichier est prêt": ["Your file is ready","Tu archivo está listo","Deine Datei ist fertig","Seu arquivo está pronto"],
+  "Cette fenêtre n'enregistre pas les fichiers directement. Copiez le contenu, puis collez-le où vous voulez ou enregistrez-le sous <b>{f}</b>.": ["This window can't save files directly. Copy the contents, then paste them wherever you like or save them as <b>{f}</b>.","Esta ventana no guarda archivos directamente. Copia el contenido y pégalo donde quieras o guárdalo como <b>{f}</b>.","Dieses Fenster kann Dateien nicht direkt speichern. Kopiere den Inhalt und füge ihn ein, wo du willst, oder speichere ihn als <b>{f}</b>.","Esta janela não salva arquivos diretamente. Copie o conteúdo e cole onde quiser ou salve-o como <b>{f}</b>."],
+  "Cette fenêtre n'enregistre pas les fichiers directement : envoyez-le vers Fichiers, un courriel ou une autre app.": ["This window can't save files directly: send it to Files, an email or another app.","Esta ventana no guarda archivos directamente: envíalo a Archivos, a un correo o a otra app.","Dieses Fenster kann Dateien nicht direkt speichern: Sende sie an Dateien, eine E-Mail oder eine andere App.","Esta janela não salva arquivos diretamente: envie-o para Arquivos, um e-mail ou outro app."],
+  "Cette fenêtre ne peut pas enregistrer ce fichier. Ouvrez Engram dans votre navigateur pour le récupérer.": ["This window can't save this file. Open Engram in your browser to get it.","Esta ventana no puede guardar este archivo. Abre Engram en tu navegador para obtenerlo.","Dieses Fenster kann diese Datei nicht speichern. Öffne Engram in deinem Browser, um sie zu erhalten.","Esta janela não consegue salvar este arquivo. Abra o Engram no seu navegador para obtê-lo."],
+  "Partager…": ["Share…","Compartir…","Teilen…","Compartilhar…"],
+  "Partage indisponible ici.": ["Sharing isn't available here.","Compartir no está disponible aquí.","Teilen ist hier nicht verfügbar.","O compartilhamento não está disponível aqui."],
+  "Copier le texte": ["Copy the text","Copiar el texto","Text kopieren","Copiar o texto"],
+  "La copie automatique est bloquée ici. Le texte est sélectionné : copiez-le (Ctrl+C, ou appui long puis Copier).": ["Automatic copying is blocked here. The text is selected: copy it (Ctrl+C, or long-press then Copy).","La copia automática está bloqueada aquí. El texto está seleccionado: cópialo (Ctrl+C, o mantén pulsado y luego Copiar).","Automatisches Kopieren ist hier blockiert. Der Text ist markiert: Kopiere ihn (Strg+C oder lange drücken und dann Kopieren).","A cópia automática está bloqueada aqui. O texto está selecionado: copie-o (Ctrl+C, ou toque e segure e depois Copiar)."],
+  "Une fenêtre d'enregistrement est déjà ouverte.": ["A save window is already open.","Ya hay una ventana de guardado abierta.","Ein Speicherfenster ist bereits geöffnet.","Já há uma janela de salvamento aberta."],
+  "Fichier trop lourd pour être enregistré ici.": ["File too large to save here.","Archivo demasiado grande para guardarlo aquí.","Die Datei ist zu groß, um sie hier zu speichern.","Arquivo grande demais para ser salvo aqui."]
 };
 
 /* ── Démarrage ─────────────────────────────────────────────────────── */
@@ -8583,6 +8868,7 @@ function boot() {
   if (!S.profile.onboarded) Onb.open();
   AI.init().then(() => setTimeout(() => Autopilot.check(), 1200));
   Store.connect();
+  Dl.ready().then(() => { if (App.route.v === 'links') App.render(); });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') Autopilot.check(); });
   // Les lignes des fiches dépendent des polices et de la taille de l'écran : on les recale quand l'une change.
   let relay = 0;

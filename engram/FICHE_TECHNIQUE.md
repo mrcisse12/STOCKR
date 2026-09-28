@@ -208,14 +208,19 @@ La séance du jour respecte ces quotas : ouvrir « Réviser » suffit, le progra
 
 ## 7. Intégrations
 
+Tout passe par une seule page, **Intégrations**, en quatre onglets : Importer, Exporter, Agenda, Sauvegarde. Elle s'ouvre depuis les Réglages, le Fichier, la page d'un paquet (Exporter), la palette de commandes et Mentor. Chaque passerelle indique comment elle fonctionne (par fichier, par copier-coller, par lien, avec l'IA) et donne les étapes.
+
 | Intégration | Sens | Détails |
 |---|---|---|
 | **Anki** `.apkg` / `.colpkg` | import | Anciens formats (`collection.anki2`, `.anki21`) et nouveau format compressé (`collection.anki21b`, zstd). Sous-paquets, étiquettes, textes à trous (une carte par trou), cartes inversées, **images**, cartes suspendues, **progression** (échéance, stabilité et difficulté FSRS quand elles existent). HTML nettoyé, sons retirés. |
 | **Anki** `.apkg` | export | Paquet lisible par Anki, AnkiDroid et AnkiMobile, avec modèles « Engram — Basic » et « Engram — Cloze », images, étiquettes et progression. Vérifié en le rouvrant avec la bibliothèque officielle d'Anki. |
 | Texte exporté d'Anki | import | En-têtes `#separator:`, `#html:`, guillemets. |
-| **Quizlet, Excel, Google Sheets, Notion** | import | Copier-coller : séparateur deviné (tabulation, tiret, point-virgule, virgule, deux-points), aperçu, inversion, création des deux sens, dans un paquet existant ou nouveau. |
+| **Quizlet, Excel, Google Sheets, Notion** | import | Copier-coller : séparateur deviné (tabulation, tiret, point-virgule, virgule, deux-points), **tableaux Markdown** (Notion, ChatGPT), puces et numéros retirés, aperçu, inversion, création des deux sens, dans un paquet existant ou nouveau. |
+| **Quizlet** | export | Copié au format d'import de Quizlet (terme, tabulation, définition), prêt à coller dans Créer, puis Importer. |
+| **Excel, Numbers, Google Sheets** | export | Tableau copié (colonnes recto, verso, note, paquet) à coller dans une feuille, ou fichier CSV. |
+| **Notion** | export | Tableau Markdown copié, qui devient un tableau en le collant dans une page. |
 | CSV / TSV / TXT | import, export | Détection du séparateur, guillemets CSV. |
-| Sauvegarde Engram (JSON) | import, export | Paquets, notes, images, examens, profil. |
+| Sauvegarde Engram (JSON) | import, export | Paquets, notes, images, examens, profil. Restauration par fichier ou en collant le contenu ; les paquets s'ajoutent, rien n'est effacé. |
 | **PDF de cours** | import | Texte extrait dans le navigateur (pdf.js, jusqu'à 80 pages), puis fiches par l'IA ou localement ; un PDF scanné est rendu en images pour l'IA. |
 | **Fiches à imprimer** | export | PDF A4, 8 fiches par page, recto-verso aligné pour l'impression bord long, traits de coupe. |
 | **Agenda** | export | Fichier `.ics` (créneaux quotidiens + examens, compatible Google, Apple, Outlook) et liens directs Google Agenda / Outlook pour chaque examen. |
@@ -223,7 +228,9 @@ La séance du jour respecte ces quotas : ouvrir « Réviser » suffit, le progra
 
 Les bibliothèques (JSZip, sql.js, fzstd, pdf.js, jsPDF) ne sont chargées qu'au premier usage, depuis jsDelivr.
 
-> Dans l'app Claude, seules certaines extensions de téléchargement sont permises : un `.apkg` y est enregistré en `.apkg.zip` et un `.ics` en `.ics.txt`, avec une notice pour les renommer. Hors de l'app Claude, les fichiers ont leur nom normal.
+> Dans l'app Claude, seules certaines extensions de téléchargement sont permises : un `.apkg` y est enregistré en `.apkg.zip` et un `.ics` en `.ics.txt`, avec une notice pour les renommer ; un `.apkg.zip` se réimporte tel quel. Hors de l'app Claude, les fichiers ont leur nom normal.
+>
+> Enregistrement des fichiers : la fenêtre de confirmation de Claude dans l'app Claude, le téléchargement habituel dans un navigateur. Dans une fenêtre intégrée qui ne sait pas télécharger, Engram le dit, propose de copier le texte ou de partager le fichier, et n'affiche jamais « Fichier prêt » à tort. Les champs de fichier n'imposent pas d'extension, car l'iPhone grise sinon les `.apkg` ; le contenu est vérifié après le choix.
 
 ---
 
@@ -498,6 +505,7 @@ Scripts automatisés (Chromium sans interface), tous au vert sur la version livr
 
 - **Langues** : parcours complet de l'app (accueil, 7 vues, 18 fenêtres, séance, jeux, scanner, Mentor, réglages) dans les 5 langues : 0 phrase manquante, 0 texte français restant ; pas de débordement horizontal en allemand sur ordinateur et sur mobile.
 - **Intégrations** (42 vérifications) : import des deux formats Anki et d'un vrai paquet ; export `.apkg` rouvert par la bibliothèque officielle d'Anki (6 notes, 7 cartes, trous rendus, image, étiquettes, échéance à ±1 jour, contrôle d'intégrité sans problème) ; CSV aller-retour ; texte Anki ; sauvegarde JSON aller-retour ; collage Quizlet ; PDF de cours (texte extrait, génération locale) et PDF scanné ; PDF à imprimer ; `.ics` (pliage des lignes à 75 octets, échappements, identifiants) ; liens Google / Outlook ; app Claude simulée (Mentor crée un paquet, programme un examen, change le thème ; annulation ; extensions de téléchargement remplacées).
+- **Page Intégrations** (41 vérifications, lot 2) : téléchargement réel dans un navigateur ; app Claude simulée (enregistrement confirmé, `.apkg` repris en `.apkg.zip`, refus sans faux succès, téléchargement indisponible : copie proposée et mode mémorisé) ; onglets ; collage Quizlet, tableau Markdown Notion, liste à puces ; CSV par le bouton ; mauvais fichier Anki expliqué ; copies Quizlet, tableur et Notion au format exact, presse-papiers bloqué ; CSV et JSON par paquet ; restauration collée et par fichier ; liens d'agenda et `.ics` ; `.apkg` exporté puis réimporté, aussi sous le nom `.apkg.zip` ; PDF à imprimer.
 - **Serveur** (29 vérifications, sur une fausse API Claude) : flux de texte, niveaux et modèles, effort, repli automatique et en-tête bêta, cache, mode JSON, refus, repli en cours de réponse (blocs retirés avant la frontière), dernier tour sans outil, validation, code d'accès, limite de débit ; puis l'app réelle branchée dessus : détection automatique, Mentor qui crée un paquet par un outil, blocs de réflexion renvoyés intacts, annulation, refus affiché proprement, correction IA d'une réponse.
 - **Stylet** (navigateur sans interface, tracés simulés avec pression) : feuille d'écriture en séance sur iPad (portrait et paysage), téléphone et ordinateur ; trois traits enregistrés, image envoyée à l'IA (PNG, une seule image), écriture lue affichée au verso, note suggérée ; écriture illisible signalée ; paume ignorée après le stylet ; annuler et rétablir ; brouillon ; schéma dessiné enregistré avec la fiche et affiché au verso ; page de notes manuscrites ajoutée au scanner ; les 5 langues sans phrase manquante ni débordement.
 - **Mise en ligne** (24 vérifications sur une fausse API Claude) : serveur Node (flux, modèles, effort, repli, en-tête bêta, cache, mode JSON, battement pendant la réflexion, refus, validation, code d'accès, limite de débit, coupure par la page, fichiers de l'app installable, aucun fichier du serveur exposé) et fonction Netlify appelée directement (santé et flux) ; fonction empaquetée avec esbuild ; dossier publié `_site` construit.
