@@ -1,10 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <defs>
-    <radialGradient id="bg" cx="50%" cy="38%" r="75%"><stop offset="0" stop-color="#22342B"/><stop offset=".62" stop-color="#15201B"/><stop offset="1" stop-color="#0B110E"/></radialGradient>
-    <linearGradient id="brass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F1DCA6"/><stop offset=".5" stop-color="#C9A45C"/><stop offset="1" stop-color="#8A6A30"/></linearGradient>
-  </defs>
-  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-  <circle cx="256" cy="256" r="178" fill="none" stroke="url(#brass)" stroke-width="7"/>
-  <circle cx="256" cy="256" r="150" fill="none" stroke="#C9A45C" stroke-width="3.5" stroke-dasharray="3 7" stroke-linecap="round" opacity=".85"/>
-  <text x="256" y="338" text-anchor="middle" font-family="Gloock, Didot, 'Bodoni 72', Georgia, serif" font-size="232" fill="url(#brass)">E</text>
+  <!-- Engram : le cercle des révisions. Le point rouge est aujourd'hui ; les points d'or s'écartent comme les révisions qui s'espacent. -->
+  <defs><radialGradient id="bg" cx="50%" cy="36%" r="78%"><stop offset="0" stop-color="#23362C"/><stop offset=".6" stop-color="#15201B"/><stop offset="1" stop-color="#0A100D"/></radialGradient><linearGradient id="gilt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F3E0AE"/><stop offset=".48" stop-color="#CFA95F"/><stop offset="1" stop-color="#8C6A2E"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <g transform="translate(256 256) scale(1)"><circle r="190" fill="none" stroke="url(#gilt)" stroke-width="6"/><circle cx="0" cy="-162" r="10" fill="#D8513F"/><circle cx="31.3" cy="-158.9" r="6.5" fill="url(#gilt)"/><circle cx="68.9" cy="-146.6" r="6.5" fill="url(#gilt)"/><circle cx="110.2" cy="-118.8" r="6.5" fill="url(#gilt)"/><circle cx="147" cy="-68.2" r="6.5" fill="url(#gilt)"/><circle cx="161.7" cy="9" r="6.5" fill="url(#gilt)"/><circle cx="126.7" cy="101" r="6.5" fill="url(#gilt)"/><circle cx="19.4" cy="160.8" r="6.5" fill="url(#gilt)"/><circle cx="-122.7" cy="105.7" r="6.5" fill="url(#gilt)"/><circle cx="-140.3" cy="-81" r="6.5" fill="url(#gilt)"/><path fill="url(#gilt)" transform="scale(2)" d="M-39 50 -38.87 48.67H-38.73Q-33.93 48.67 -31 46.13Q-28.07 43.6 -28.07 38.8V-38Q-28.07 -42.8 -31 -45.73Q-33.93 -48.67 -38.73 -48.67L-38.87 -50H32.6L36.6 -23.2H35.27Q31.27 -48.27 3.67 -48.27H-7.53V-9.73H4.47Q11.13 -9.73 15.13 -13.8Q19.13 -17.87 19.13 -24.53H20.47V8.27H19.13Q19 1.07 14.6 -3.47Q10.2 -8 3 -8H-7.53V38.8Q-7.53 48.27 1.8 48.27H7.4Q20.33 48.27 27.93 41.6Q35.53 34.93 37.67 20.67H39L35 50Z"/></g>
 </svg>

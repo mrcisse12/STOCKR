@@ -496,6 +496,8 @@ L'identité part d'un lieu : **la salle de lecture**. Tout vient du monde réel 
 
 Les sept thèmes déclinent ce lieu à différentes heures et dans différentes matières (laiton le soir, ivoire en plein jour, cuivre la nuit, terre cuite à l'atelier, or sur ébène). **Engram Pro** prolonge ce lieu : la formule payante est une **carte de lecteur** en cuir estampé à la feuille d'or, qui s'incline sous le doigt et que traverse un reflet ; les assistants sont des fiches d'index, chacun avec son cachet de cire et sa couleur ; leurs notes sont des lettres à la plume ; une proposition appliquée reçoit un tampon. Pas de dégradés violets ni d'icônes génériques : du cuir, du papier, de l'encre et du laiton.
 
+**Le logo : le cercle des révisions.** Un E dessiné d'après la capitale de Gloock, dans un anneau de laiton. Sur l'anneau, un point rouge (aujourd'hui), puis neuf points d'or de plus en plus espacés, comme les révisions qui s'espacent quand on retient. Dans l'en-tête, les points deviennent de fines graines ; dans l'onglet du navigateur (favicon), il ne reste que le E. Tout est tracé en chemins : le logo s'affiche sans la police, sur tous les systèmes. Couleurs : vert bibliothèque `#0D1411`, laiton `#C9A45C` à `#F3E0AE`, rouge tampon `#D8513F`. À chaque lancement (une fois par session), un écran d'ouverture d'environ 1,3 seconde trace l'anneau depuis midi ; chaque point apparaît quand le trait le rejoint, à un rythme qui ralentit. Un appui le passe, et il se réduit à un fondu si le système demande moins d'animations.
+
 Mouvements : un geste par moment clé (la pile qui se déploie, le tampon qui s'abat, la fiche qui s'envole vers son compartiment, le reçu de Mentor qui s'imprime), réglables et désactivés si le système demande moins d'animations.
 
 ---

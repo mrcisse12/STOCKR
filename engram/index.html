@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Engram">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -120,8 +120,10 @@ kbd{font:700 10px/1 var(--f-type);padding:3px 5px;border-radius:4px;border:1px s
 .hdr{display:flex;align-items:flex-end;gap:28px;padding-top:calc(18px + env(safe-area-inset-top,0px))}
 .brand{display:flex;align-items:center;gap:12px;padding-bottom:14px;text-decoration:none;color:var(--text);flex:none}
 .seal{width:38px;height:38px;flex:none}
-.seal .ring{fill:none;stroke:var(--brass);stroke-width:1.2}
-.seal text{font-family:var(--f-display);fill:var(--brass-text)}
+.seal .ring{fill:none;stroke:var(--brass);stroke-width:5.5}
+.seal .e{fill:var(--brass-text)}
+.seal .dot{fill:var(--brass);opacity:.85}
+.seal .today{fill:var(--stamp)}
 .wm{font:400 26px/1 var(--f-display);letter-spacing:-.01em}
 .tabs{display:flex;gap:2px;align-items:flex-end;flex:1;min-width:0}
 .ftab{position:relative;display:flex;align-items:center;gap:9px;height:46px;padding:0 18px;border-radius:12px 12px 0 0;color:var(--muted);font-weight:500;font-size:14.5px;
@@ -724,8 +726,7 @@ body.studying .shell,body.studying .dock{visibility:hidden}
   background:radial-gradient(70% 60% at 50% 25%,var(--lamp),transparent 70%),var(--desk);animation:fadeIn .6s both}
 .onb{width:min(780px,100%);margin:auto 0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:24px}
 .onb .display{font-size:clamp(46px,8vw,98px)}
-.onb-seal{width:170px;height:170px}
-.onb-seal .spin{transform-origin:100px 100px;animation:spin 40s linear infinite}
+.mark.onb{width:170px;height:170px;--mk-t:.2s}
 @keyframes spin{to{transform:rotate(360deg)}}
 .onb-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;width:100%}
 @media (max-width:640px){.onb-choices{grid-template-columns:1fr 1fr}}
@@ -1241,11 +1242,30 @@ button,a,label,select,.chip,.opt,.ochip{touch-action:manipulation}
 @property --ly{syntax:'<percentage>';inherits:true;initial-value:42%}
 #study{background:radial-gradient(70% 55% at var(--lx) var(--ly),var(--lamp),transparent 70%),var(--desk);transition:--lx 1.2s var(--ease),--ly 1.2s var(--ease)}
 /* Sceau de l'en-tête : il se trace à l'ouverture. */
-.seal .ring:first-of-type{stroke-dasharray:117;stroke-dashoffset:117;animation:sealDraw 1.6s .15s var(--ease) forwards}
-.seal text{animation:sealInk .9s .7s var(--ease) both}
+.seal .ring{stroke-dasharray:585;stroke-dashoffset:585;transform:rotate(-90deg);animation:sealDraw 1.6s .15s var(--ease) forwards}
+.seal .e{animation:sealInk .9s .7s var(--ease) both}
+.seal .dot,.seal .today{transform-box:fill-box;transform-origin:center;animation:markDot .5s calc(.2s + var(--d,0) * 1.3s) var(--spring) both}
 @keyframes sealDraw{to{stroke-dashoffset:0}}
 @keyframes sealInk{from{opacity:0;transform:translateY(3px)}}
-:root[data-motion="none"] .seal .ring:first-of-type{stroke-dashoffset:0;animation:none}
+/* ── Écran d'ouverture : le cercle des révisions ─────────────────────
+   L'anneau se trace depuis midi ; chaque point apparaît quand le trait le rejoint. Les points étant de plus en plus espacés,
+   ils arrivent à un rythme qui ralentit : celui des révisions qui s'espacent. Toujours sombre, comme l'icône. */
+/* Le même dessin sert à l'accueil de la première ouverture (couleurs du thème) et à l'écran d'ouverture (toujours sombre). */
+.mark{overflow:visible}
+.mk-ring{fill:none;stroke:var(--mk-line,var(--brass));stroke-width:5;stroke-dasharray:1194;stroke-dashoffset:1194;transform:rotate(-90deg);animation:sealDraw .9s var(--mk-t,.1s) cubic-bezier(.45,.05,.35,1) forwards}
+.mk-dots circle{fill:var(--mk-dot,var(--brass));transform-box:fill-box;transform-origin:center;transform:scale(0);animation:markDot .45s calc(var(--mk-t,.1s) + var(--d) * .9s) var(--spring) forwards}
+.mk-dots .today{fill:var(--mk-today,var(--stamp))}
+.mk-e{fill:var(--mk-e,var(--brass-text));opacity:0;animation:markInk .8s calc(var(--mk-t,.1s) + .25s) var(--ease) forwards}
+#splash{--mk-line:#C9A45C;--mk-dot:#CFA95F;--mk-today:#D8513F;--mk-e:url(#spGilt);position:fixed;inset:0;z-index:300;display:grid;place-content:center;justify-items:center;gap:22px;background:radial-gradient(60% 46% at 50% 44%,#1C2B23,#0D1411 72%) #0D1411;color:#EFE9DA;pointer-events:none;transition:opacity .55s var(--ease),visibility 0s .55s}
+#splash .sp-mark{width:min(48vw,208px);height:auto;transition:transform .7s var(--ease)}
+.sp-wm{font:400 clamp(30px,6.4vw,42px)/1 var(--f-display);letter-spacing:.02em;opacity:0;animation:markWord .9s .65s var(--ease) forwards}
+#splash.out{opacity:0;visibility:hidden}
+#splash.out .sp-mark{transform:scale(1.07)}
+@keyframes markDot{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes markInk{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+@keyframes markWord{from{opacity:0;letter-spacing:.32em}to{opacity:1;letter-spacing:.02em}}
+@media (prefers-reduced-motion:reduce){.mk-ring{animation:none;stroke-dashoffset:0}.mk-dots circle{animation:none;transform:none}.mk-e,.sp-wm{animation:none;opacity:1}#splash .sp-mark{transition:none}}
+:root[data-motion="none"] .seal .ring{stroke-dashoffset:0;animation:none}
 
 /* ── Engram Pro : carte de lecteur, formules, assistants ──────────── */
 /* Cuir vert bibliothèque, dorure à chaud. Les couleurs du cuir restent sombres dans les deux thèmes. */
@@ -1523,9 +1543,17 @@ button,a,label,select,.chip,.opt,.ochip{touch-action:manipulation}
 </head>
 <body>
 
+<div id="splash" aria-hidden="true">
+  <svg class="mark sp-mark" viewBox="-200 -200 400 400"><defs><linearGradient id="spGilt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F3E0AE"/><stop offset=".48" stop-color="#CFA95F"/><stop offset="1" stop-color="#8C6A2E"/></linearGradient></defs>
+    <circle class="mk-ring" r="190"/><g class="mk-dots"><circle class="today" cx="0" cy="-162" r="10" style="--d:0.0"/><circle cx="31.3" cy="-158.9" r="6.5" style="--d:0.031"/><circle cx="68.9" cy="-146.6" r="6.5" style="--d:0.07"/><circle cx="110.2" cy="-118.8" r="6.5" style="--d:0.119"/><circle cx="147" cy="-68.2" r="6.5" style="--d:0.181"/><circle cx="161.7" cy="9" r="6.5" style="--d:0.259"/><circle cx="126.7" cy="101" r="6.5" style="--d:0.357"/><circle cx="19.4" cy="160.8" r="6.5" style="--d:0.481"/><circle cx="-122.7" cy="105.7" r="6.5" style="--d:0.637"/><circle cx="-140.3" cy="-81" r="6.5" style="--d:0.833"/></g><g transform="scale(2)"><use class="mk-e" href="#mkE"/></g></svg>
+  <div class="sp-wm">Engram</div>
+</div>
+<script>try{if(sessionStorage.getItem('engram.splash'))document.getElementById('splash').remove()}catch(e){}</script>
 <div class="desk" aria-hidden="true"></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <defs>
+    <!-- Le E d'Engram, tracé d'après la capitale de Gloock : le logo s'affiche même sans la police. Hauteur 100, centré. -->
+    <g id="mkE"><path d="M-39 50 -38.87 48.67H-38.73Q-33.93 48.67 -31 46.13Q-28.07 43.6 -28.07 38.8V-38Q-28.07 -42.8 -31 -45.73Q-33.93 -48.67 -38.73 -48.67L-38.87 -50H32.6L36.6 -23.2H35.27Q31.27 -48.27 3.67 -48.27H-7.53V-9.73H4.47Q11.13 -9.73 15.13 -13.8Q19.13 -17.87 19.13 -24.53H20.47V8.27H19.13Q19 1.07 14.6 -3.47Q10.2 -8 3 -8H-7.53V38.8Q-7.53 48.27 1.8 48.27H7.4Q20.33 48.27 27.93 41.6Q35.53 34.93 37.67 20.67H39L35 50Z"/></g>
     <!-- Encre de tampon : grain + bords irréguliers -->
     <filter id="ink" x="-10%" y="-10%" width="120%" height="120%">
       <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="4" result="n"/>
@@ -1540,7 +1568,7 @@ button,a,label,select,.chip,.opt,.ochip{touch-action:manipulation}
 <div class="shell" id="shell">
   <header class="hdr">
     <a class="brand" href="#" data-act="go" data-v="today" data-i18n-aria="Engram — aujourd'hui">
-      <svg class="seal" viewBox="0 0 40 40" aria-hidden="true"><circle class="ring" cx="20" cy="20" r="18.6"/><circle class="ring" cx="20" cy="20" r="15.4" stroke-dasharray="1.2 2.1"/><text x="20" y="27.6" text-anchor="middle" font-size="21">E</text></svg>
+      <svg class="seal" viewBox="-100 -100 200 200" aria-hidden="true"><circle class="ring" r="93"/><circle class="today" cx="0.0" cy="-79.4" r="9" style="--d:0.0"/><circle class="dot" cx="15.3" cy="-77.9" r="4.2" style="--d:0.031"/><circle class="dot" cx="33.8" cy="-71.8" r="4.2" style="--d:0.07"/><circle class="dot" cx="54.0" cy="-58.2" r="4.2" style="--d:0.119"/><circle class="dot" cx="72.0" cy="-33.4" r="4.2" style="--d:0.181"/><circle class="dot" cx="79.2" cy="4.4" r="4.2" style="--d:0.259"/><circle class="dot" cx="62.1" cy="49.5" r="4.2" style="--d:0.357"/><circle class="dot" cx="9.5" cy="78.8" r="4.2" style="--d:0.481"/><circle class="dot" cx="-60.1" cy="51.8" r="4.2" style="--d:0.637"/><circle class="dot" cx="-68.7" cy="-39.7" r="4.2" style="--d:0.833"/><g transform="scale(1.06)"><use class="e" href="#mkE"/></g></svg>
       <span class="wm">Engram</span>
     </a>
     <nav class="tabs" id="tabs" data-i18n-aria="Sections"></nav>
@@ -5008,15 +5036,28 @@ Hooks.settings = arg => {
 };
 
 /* ── Premier lancement : langue, profil, rythme, examen, apparence ─── */
+/* ── Le cercle des révisions ─────────────────────────────────────────
+   Le logo d'Engram : l'anneau, le point rouge d'aujourd'hui, puis des points d'or de plus en plus espacés,
+   comme les révisions qui s'espacent quand on retient. --d place chaque point sur le tracé de l'anneau. */
+const MARK_DOTS = [[0,-162,0.0],[31.3,-158.9,0.031],[68.9,-146.6,0.07],[110.2,-118.8,0.119],[147,-68.2,0.181],[161.7,9,0.259],[126.7,101,0.357],[19.4,160.8,0.481],[-122.7,105.7,0.637],[-140.3,-81,0.833]];
+function markSVG(cls = '') {
+  return `<svg class="mark ${cls}" viewBox="-200 -200 400 400" aria-hidden="true"><circle class="mk-ring" r="190"/><g class="mk-dots">${MARK_DOTS.map(([x, y, d], i) => `<circle${i ? '' : ' class="today"'} cx="${x}" cy="${y}" r="${i ? 6.5 : 10}" style="--d:${d}"/>`).join('')}</g><g transform="scale(2)"><use class="mk-e" href="#mkE"/></g></svg>`;
+}
+/* Écran d'ouverture : une fois par session, le temps que l'app se prépare (environ 1,3 s en tout). Un appui ou une touche le passe. */
+const Splash = {
+  init() {
+    const el = document.getElementById('splash'); if (!el) return;
+    try { sessionStorage.setItem('engram.splash', '1'); } catch { }
+    const hide = () => { if (el.classList.contains('out')) return; el.classList.add('out'); setTimeout(() => el.remove(), 600); };
+    setTimeout(hide, Math.max(0, (REDUCED ? 450 : 1350) - performance.now()));
+    addEventListener('pointerdown', hide, { once: true, capture: true });
+    addEventListener('keydown', hide, { once: true, capture: true });
+  }
+};
 const Onb = {
   step: 0, st: null, N: 5,
   open() { this.step = 0; this.st = { ...S.profile.study, weekly: S.profile.study.weekly.slice(), rhythm: 25, exam: '', date: '', skin: S.profile.settings.skin, tone: S.profile.settings.tone }; const el = $('#onb'); el.hidden = false; this.render(); },
-  seal() {
-    return `<svg class="onb-seal" viewBox="0 0 200 200" aria-hidden="true"><defs><path id="ringP" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0"/></defs>
-      <circle cx="100" cy="100" r="96" fill="none" stroke="var(--brass)" stroke-width="1.5"/><circle cx="100" cy="100" r="62" fill="none" stroke="var(--brass)" stroke-width="1.2"/>
-      <g class="spin"><text font-family="Courier Prime, monospace" font-weight="700" font-size="12.5" fill="var(--brass-text)"><textPath href="#ringP" textLength="484" lengthAdjust="spacing">${esc(t('PHOTOGRAPHIEZ · RETENEZ · SALLE DE LECTURE · '))}</textPath></text></g>
-      <text x="100" y="126" text-anchor="middle" font-family="Gloock, Georgia, serif" font-size="76" fill="var(--text)">E</text></svg>`;
-  },
+  seal() { return markSVG('onb'); },
   render() {
     const el = $('#onb'), o = this.st; const dots = `<div class="dots">${Array.from({ length: this.N }, (_, i) => `<i class="${i === this.step ? 'on' : ''}"></i>`).join('')}</div>`;
     const nav = (next = t('Continuer'), back = true) => `<div class="hero-actions" style="justify-content:center">${back ? `<button class="btn btn-lg btn-ghost" data-onb="back">${t('Retour')}</button>` : ''}<button class="btn btn-brass btn-lg" data-onb="next">${next} ${icon('arrow')}</button></div>`;
@@ -8043,7 +8084,6 @@ TR = {
   "Settings → API keys → Create key. Copiez la clé (elle commence par sk-ant-) : elle ne s'affiche qu'une fois.": ["Settings → API keys → Create key. Copy the key (it starts with sk-ant-): it is shown only once.","Settings → API keys → Create key. Copie la clave (empieza por sk-ant-): solo se muestra una vez.","Settings → API keys → Create key. Kopieren Sie den Schlüssel (er beginnt mit sk-ant-): Er wird nur einmal angezeigt.","Settings → API keys → Create key. Copie a chave (começa com sk-ant-): ela só aparece uma vez."],
   "Sur Netlify, dans le site d'Engram : ajoutez ANTHROPIC_API_KEY et ENGRAM_ACCESS_CODE (Environment variables), puis redéployez.": ["On Netlify, in the Engram site: add ANTHROPIC_API_KEY and ENGRAM_ACCESS_CODE (Environment variables), then redeploy.","En Netlify, en el sitio de Engram: añada ANTHROPIC_API_KEY y ENGRAM_ACCESS_CODE (Environment variables) y vuelva a desplegar.","In Netlify, auf der Engram-Site: ANTHROPIC_API_KEY und ENGRAM_ACCESS_CODE hinzufügen (Environment variables), dann neu bereitstellen.","No Netlify, no site do Engram: adicione ANTHROPIC_API_KEY e ENGRAM_ACCESS_CODE (Environment variables) e publique de novo."],
   "Ici, saisissez le code d'accès et touchez « Se connecter ». La clé reste sur le serveur, jamais dans l'app.": ["Here, enter the access code and tap “Connect”. The key stays on the server, never in the app.","Aquí, escriba el código de acceso y toque «Conectar». La clave se queda en el servidor, nunca en la app.","Geben Sie hier den Zugangscode ein und tippen Sie auf „Verbinden“. Der Schlüssel bleibt auf dem Server, nie in der App.","Aqui, digite o código de acesso e toque em “Conectar”. A chave fica no servidor, nunca no app."],
-  "PHOTOGRAPHIEZ · RETENEZ · SALLE DE LECTURE · ": ["PHOTOGRAPH · REMEMBER · READING ROOM · ","FOTOGRAFÍA · RECUERDA · SALA DE LECTURA · ","FOTOGRAFIEREN · BEHALTEN · LESESAAL · ","FOTOGRAFE · LEMBRE · SALA DE LEITURA ·"],
   "Continuer": ["Continue","Continuar","Weiter","Continuar"],
   "Retour": ["Back","Atrás","Zurück","Voltar"],
   "Engram · la salle de lecture": ["Engram · the reading room","Engram · la sala de lectura","Engram · der Lesesaal","Engram · a sala de leitura"],
@@ -8881,7 +8921,7 @@ TR = {
 /* ── Démarrage ─────────────────────────────────────────────────────── */
 function boot() {
   Store.load();
-  Custom.apply(); applyStatic();
+  Custom.apply(); applyStatic(); Splash.init();
   Scan.level = S.profile.study.level || 'lycee';
   bootApp(); Mentor.mount(); bootDrop();
   App.render();

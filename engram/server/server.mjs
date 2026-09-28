@@ -64,6 +64,7 @@ const STATIC = {
   '/manifest.webmanifest': ['manifest.webmanifest', 'application/manifest+json'],
   '/sw.js': ['sw.js', 'text/javascript; charset=utf-8'],
   '/icons/icon.svg': ['icons/icon.svg', 'image/svg+xml'],
+  '/icons/favicon.svg': ['icons/favicon.svg', 'image/svg+xml'],
   '/icons/icon-192.png': ['icons/icon-192.png', 'image/png'],
   '/icons/icon-512.png': ['icons/icon-512.png', 'image/png'],
   '/icons/maskable-512.png': ['icons/maskable-512.png', 'image/png'],
