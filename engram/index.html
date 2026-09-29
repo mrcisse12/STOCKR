@@ -586,6 +586,28 @@ body.studying .shell,body.studying .dock{visibility:hidden}
 .tray-actions{position:sticky;bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;flex-wrap:wrap;z-index:3}
 .tray-actions .btn:not(.btn-brass){background:var(--folder-2)}
 @media (max-width:960px){.tray-actions{bottom:calc(96px + env(safe-area-inset-bottom,0px))}}
+/* Schémas masqués trouvés au scan, doublons */
+.gen-occ .occ-mini{position:relative;border-radius:3px;overflow:hidden;background:#fff;border:1px solid rgba(0,0,0,.12)}
+.gen-occ .occ-mini img{display:block;width:100%;max-height:260px;object-fit:contain}
+.gen-occ .occ-mini i{position:absolute;display:grid;place-items:center;border-radius:2px;background:rgba(195,52,42,.82);border:1px solid #8E231B;color:#fff;font:700 10px/1 var(--f-type);font-style:normal;overflow:hidden}
+.gen-occ .occ-mini.wait{display:flex;align-items:center;justify-content:center;gap:10px;min-height:120px;background:rgba(0,0,0,.04);font:400 12.5px var(--f-type);color:var(--p-muted)}
+.gen-dup{display:flex;align-items:center;gap:6px;align-self:flex-start;padding:4px 8px;border-radius:3px;background:rgba(196,130,30,.14);color:#7A4E14;font:700 10.5px/1.2 var(--f-type);letter-spacing:.02em}
+.gen.off .gen-dup{filter:none}
+.scan-status.dup{border-color:color-mix(in srgb,var(--hard) 45%,transparent)}
+.scan-status.dup>.i{color:var(--hard)}
+.oc-tools{display:flex;flex-wrap:wrap;gap:8px}
+/* Recherche par le sens */
+.seek-note{display:flex;align-items:center;flex-wrap:wrap;gap:10px 14px;margin:0 0 14px;padding:11px 14px;border:1px solid var(--hair-2);border-radius:12px;background:var(--folder-2);font-size:13.5px;line-height:1.4;color:var(--text-2)}
+.seek-note>span{flex:1 1 220px;min-width:0}
+.seek-note b{color:var(--text);font-weight:600}
+.seek-note small{display:block;margin-top:3px;font-size:12.5px;color:var(--muted)}
+.seek-note>.i{color:var(--muted);flex:none}
+.seek-note.on{border-color:color-mix(in srgb,var(--brass) 50%,transparent);background:linear-gradient(100deg,var(--brass-soft),transparent 70%),var(--folder-2)}
+.seek-note.on>.i{color:var(--brass)}
+.seek-note.busy{color:var(--text)}
+.crow mark{background:none;color:var(--brass-text);font-weight:700}
+.crow .why{display:flex;align-items:center;gap:5px;margin-top:4px;font:500 12px/1.3 var(--f-ui);color:var(--brass-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crow .why .i{flex:none}
 
 /* ── Carnet (statistiques) ───────────────────────────────────────── */
 .graph{position:relative;padding:22px;border-radius:5px;color:var(--p-ink);background-color:var(--paper);box-shadow:var(--sh-card);
@@ -898,7 +920,7 @@ kbd.sym{font:600 11px/1 system-ui,-apple-system,sans-serif;min-width:18px;text-a
 .mini-card{--rule:26px;--head:0px;--ml:30px;position:relative;border-radius:4px;min-height:170px;padding:12px 16px 14px 46px;color:var(--p-ink);display:flex;flex-direction:column;justify-content:center;gap:8px;
   box-shadow:0 1px 2px rgba(0,0,0,.2),0 12px 20px -14px rgba(0,0,0,.5)}
 .mini-card .q-text{font-size:17px}.mini-card .a-text{font-size:20px}
-.occ-edit{position:relative;user-select:none;touch-action:none;border-radius:4px;overflow:hidden;border:1px solid var(--hair-2);cursor:crosshair;background:#fff}
+.occ-edit{position:relative;align-self:start;user-select:none;touch-action:none;border-radius:4px;overflow:hidden;border:1px solid var(--hair-2);cursor:crosshair;background:#fff}
 .occ-edit img{display:block;width:100%;pointer-events:none}
 .occ-edit .m{position:absolute;border-radius:3px;background:rgba(195,52,42,.55);border:2px solid #8E231B;display:grid;place-items:center;color:#fff;font:700 13px var(--f-type)}
 .occ-edit .m.draft{background:rgba(195,52,42,.25);border-style:dashed}
@@ -3885,6 +3907,173 @@ Hooks.today = () => {
   $('.mentor-bar')?.addEventListener('click', e => { const q = e.target.closest('[data-mentor-q]'); if (q) { e.stopPropagation(); Mentor.open(q.dataset.mentorQ); } }, true);
 };
 
+/* ── Recherche : par les mots, puis par le sens ────────────────────────
+   Sans IA, Engram retrouve les mots dans n'importe quel ordre, sans les
+   accents, au singulier comme au pluriel, malgré une faute de frappe, et
+   range les fiches de la plus proche à la plus lointaine (BM25).
+   Avec l'IA, « par le sens » : la question devient une vingtaine de
+   notions proches (termes du cours, synonymes, traductions), cherchées
+   ensuite sur l'appareil. Seule la question part vers l'IA, jamais les
+   fiches. Le même index repère les doublons au scan (Seek.twin) et sert
+   à Mentor (outil search_cards). */
+const seekNorm = w => fold(w).replace(/ß/g, 'ss').replace(/œ/g, 'oe').replace(/æ/g, 'ae');
+const seekWords = s => seekNorm(plain(s)).split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+const seekToks = s => { const w = seekWords(s), k = w.filter(x => !STOP.has(x)); return (k.length ? k : w).map(stem); };
+const Seek = {
+  _ix: null, _sig: '', _ex: new Map(), memo: new Map(),
+  /** L'index des fiches, refait seulement quand un paquet a changé. */
+  index() {
+    const sig = S.decks.map(d => d.id + ':' + d.cards.length + ':' + (d.updatedAt || 0)).join('|');
+    if (this._ix && this._sig === sig) return this._ix;
+    const docs = [], df = new Map(); let tot = 0;
+    for (const d of S.decks) for (const c of d.cards) {
+      const q = c.type === 'cloze' ? c.text : cardTitle(c), a = c.type === 'cloze' ? '' : plain(cardAnswer(c) || '');
+      const qt = seekToks(q), at = seekToks(a), tf = new Map();
+      const add = (arr, w) => arr.forEach(k => tf.set(k, (tf.get(k) || 0) + w));
+      add(qt, 1); add(at, 1); add(seekToks(c.extra || ''), .5); add(seekToks((c.tags || []).join(' ')), .7);
+      tf.forEach((_, k) => df.set(k, (df.get(k) || 0) + 1));
+      const len = qt.length + at.length || 1; tot += len;
+      docs.push({ c, d, tf, len, qt: new Set(qt), at: new Set(at), txt: seekNorm(plain(q) + ' ' + a + ' ' + plain(c.extra || '')).replace(/\s+/g, ' ') });
+    }
+    this._ix = { docs, df, N: docs.length, avg: tot / (docs.length || 1) || 1, vocab: [...df.keys()] };
+    this._sig = sig; this._ex.clear(); return this._ix;
+  },
+  /** Les mots du fichier qui répondent à un mot cherché, avec leur poids. `strict` : pas de début de mot. */
+  expand(tm, strict) {
+    const key = (strict ? '=' : '') + tm; if (this._ex.has(key)) return this._ex.get(key);
+    const out = new Map(), numeric = /^\d+$/.test(tm);
+    for (const v of this.index().vocab) {
+      let w = 0;
+      if (v === tm) w = 1;
+      else if (numeric) continue;
+      else if (v.startsWith(tm) && tm.length >= 3 && (!strict || v.length - tm.length <= 3)) w = .85;
+      else if (tm.startsWith(v) && v.length >= 4 && tm.length - v.length <= 3) w = .8;
+      else if (!strict && tm.length >= 4 && v.includes(tm)) w = .6;
+      else if (tm.length > 3 && v.length > 3 && Math.abs(v.length - tm.length) <= 2 && near(v, tm)) w = .75;
+      if (w) out.set(v, w);
+    }
+    this._ex.set(key, out); return out;
+  },
+  /** Classe les fiches. groups : [{ terms, w, label, strict }] ; une notion compte quand tous ses mots y sont. */
+  rank(groups, o = {}) {
+    const ix = this.index(), k1 = 1.2, b = .75, need = o.need ?? groups.length;
+    const idf = v => { const n = ix.df.get(v) || 0; return Math.log(1 + (ix.N - n + .5) / (n + .5)); };
+    const G = groups.map(g => ({ ...g, ex: g.terms.map(tm => this.expand(tm, g.strict)) }));
+    const out = [];
+    for (const doc of ix.docs) {
+      if (o.deckId && doc.d.id !== o.deckId) continue;
+      const norm = k1 * (1 - b + b * doc.len / ix.avg);
+      let s = 0, own = 0, rel = 0; const hl = new Set(), why = [];
+      for (const g of G) {
+        let gs = 0; const got = [];
+        for (const ex of g.ex) {
+          let best = 0, bv = null;
+          const test = (v, w) => { const f = doc.tf.get(v); if (!f || w === undefined) return; const sc = w * idf(v) * f * (k1 + 1) / (f + norm); if (sc > best) { best = sc; bv = v; } };
+          if (ex.size > doc.tf.size) doc.tf.forEach((_, v) => test(v, ex.get(v))); else ex.forEach((w, v) => test(v, w));
+          if (!best) { gs = 0; break; }
+          gs += best; got.push(bv);
+        }
+        if (!gs) continue;
+        s += gs * (g.w ?? 1); got.forEach(v => hl.add(v));
+        if (g.label) { rel++; why.push(g.label); } else own++;
+      }
+      const ph = o.phrase && o.phrase.length >= 2 && doc.txt.includes(o.phrase);
+      if (ph) s += 2;
+      const ok = o.sense ? rel >= 1 || own >= Math.min(2, o.ownCount || 1) : own + rel >= need;
+      if (!s || (!ok && !ph)) continue;
+      out.push({ c: doc.c, d: doc.d, s, hl, why });
+    }
+    return out.sort((x, y) => y.s - x.s);
+  },
+  /** Recherche par les mots : tous les mots pour une ou deux, les trois cinquièmes au-delà. */
+  find(q, o = {}) {
+    const terms = [...new Set(seekToks(q))]; if (!terms.length) return [];
+    return this.rank(terms.map(x => ({ terms: [x] })), { ...o, need: terms.length <= 2 ? terms.length : Math.ceil(terms.length * .6), phrase: seekNorm(q).trim().replace(/\s+/g, ' ') });
+  },
+  /** Recherche par le sens, à partir de notions proches (données par l'IA, ou par Mentor qui connaît le sujet). */
+  concepts(q, related, o = {}) {
+    const own = [...new Set(seekToks(q).filter(x => x.length > 2 || /\d/.test(x)))].map(x => ({ terms: [x], w: .6 }));
+    const seen = new Set(), rel = [];
+    for (const x of related) {
+      const terms = [...new Set(seekToks(x))], k = terms.join(' ');
+      if (!terms.length || terms.length > 4 || seen.has(k)) continue;
+      seen.add(k); rel.push({ terms, w: 1, label: String(x).trim(), strict: true });
+    }
+    return this.rank([...own, ...rel], { ...o, sense: true, ownCount: own.length });
+  },
+  /** Demande à l'IA les notions proches d'une recherche (gardées en mémoire le temps de la visite). */
+  async sense(q, o = {}) {
+    const key = seekNorm(q).trim().replace(/\s+/g, ' ');
+    let ex = this.memo.get(key);
+    if (!ex) {
+      const langs = [...new Set([LANG, ...S.decks.map(d => d.lang)].filter(Boolean))].map(langNameEn).join(', ');
+      const r = await AI.json(`A student is searching their own flashcards by meaning, not by exact words.
+Search: "${q.slice(0, 300)}"
+The cards are written in: ${langs}.
+List the words and short expressions most likely to appear on the cards that answer this search: the precise technical terms, key names, synonyms, closely related notions, and their translations into the languages of the cards. Prefer single words or two-word expressions. No generic words (definition, course, lesson, example, question).
+Reply with only a JSON object: {"gist": "the search rephrased as a 2-to-5-word topic, in ${aiLang()}", "terms": ["...", "..."]} with 10 to 24 terms.`, { modelTier: 'quick', signal: o.signal });
+      ex = { gist: String(r?.gist || '').trim().slice(0, 80), terms: (Array.isArray(r?.terms) ? r.terms : []).map(x => String(x).trim()).filter(x => x && x.length < 60).slice(0, 24) };
+      if (!ex.terms.length) throw { code: 'empty_completion' };
+      this.memo.set(key, ex);
+    }
+    return { ...ex, res: this.concepts(q, ex.terms, o) };
+  },
+  /** Une fiche du fichier qui pose la même question (et donne la même réponse) : un doublon probable. */
+  twin(q, a) {
+    const Q = new Set(seekToks(q)), A = new Set(seekToks(a || ''));
+    if (!Q.size || (Q.size < 2 && !A.size)) return null;
+    const dice = (X, Y) => { if (!X.size || !Y.size) return 0; let n = 0; X.forEach(x => { if (Y.has(x)) n++; }); return 2 * n / (X.size + Y.size); };
+    let best = null, bs = 0;
+    for (const doc of this.index().docs) {
+      const qs = dice(Q, doc.qt); if (qs < .5) continue;
+      const sc = A.size && doc.at.size ? .6 * qs + .4 * dice(A, doc.at) : qs;
+      if (sc > bs) { bs = sc; best = doc; }
+    }
+    return bs >= .72 ? { c: best.c, d: best.d, s: bs } : null;
+  },
+  /** Les mots trouvés, repérés dans un texte (pour les surligner). */
+  ranges(s, hl) { const r = []; if (!hl?.size) return r; for (const m of String(s).matchAll(/[\p{L}\p{N}]+/gu)) if (hl.has(stem(seekNorm(m[0])))) r.push([m.index, m.index + m[0].length]); return r; },
+  mark(s, hl) { return Fz.mark(String(s || ''), this.ranges(s, hl)); }
+};
+/** Branche la recherche sur un champ : par les mots en direct ; par le sens sur demande
+    (bouton ou Entrée), ou d'elle-même quand aucun mot ne correspond. `show(items, head)` dessine. */
+function wireSeek(inp, box, o) {
+  let sense = null, timer = 0, ctl = null, declined = '';
+  const key = () => inp.value.trim();
+  const run = async () => {
+    const q = key(); if (!AI.on || q.length < 3) return;
+    ctl?.abort(); const my = ctl = new AbortController(); clearTimeout(timer);
+    sense = { q, busy: true }; draw();
+    try { const r = await Seek.sense(q, { deckId: o.deckId, signal: my.signal }); if (my.signal.aborted) return; sense = { q, ...r }; }
+    catch (e) { if (my.signal.aborted) return; sense = { q, err: AI.fail(e) || t("Connexion à l'IA interrompue. Réessayez.") }; }
+    if (key() === q && inp.isConnected) draw();
+  };
+  const draw = () => {
+    const q = key();
+    if (sense && sense.q !== q) { ctl?.abort(); sense = null; }
+    const lex = q.length >= 2 ? Seek.find(q, { deckId: o.deckId }) : null;
+    const items = sense?.res || lex;
+    o.show(items, items ? seekHead(q, items, sense) : '');
+    clearTimeout(timer);
+    if (AI.on && !sense && lex && !lex.length && q.length >= 4 && declined !== q) timer = setTimeout(run, 900);
+  };
+  inp.addEventListener('input', draw);
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing && AI.on && key().length >= 3 && !sense?.res && !sense?.busy) { e.preventDefault(); run(); } });
+  box.addEventListener('click', e => {
+    if (e.target.closest('[data-seek="sense"]')) run();
+    else if (e.target.closest('[data-seek="words"]')) { declined = key(); ctl?.abort(); sense = null; draw(); }
+  });
+  return { draw, run };
+}
+function seekHead(q, items, sense) {
+  const n = items.length;
+  if (sense?.busy) return `<div class="seek-note busy"><span class="thinking"><i></i><i></i><i></i></span><span>${t('Recherche par le sens : « {q} »…', { q: esc(q) })}</span></div>`;
+  if (sense?.res) return `<div class="seek-note on">${icon('sparkles', 'i-sm')}<span><b>${t('Par le sens')}${sense.gist ? ' · ' + esc(sense.gist) : ''}</b><small>${n ? '' : esc(t('Aucune fiche ne parle de cela.')) + ' '}${esc(t('Notions cherchées : {x}', { x: sense.terms.slice(0, 8).join(' · ') }))}</small></span><button class="btn btn-sm btn-ghost" data-seek="words">${t('Mots exacts')}</button></div>`;
+  const more = AI.on && q.length >= 3 ? `<button class="btn btn-sm" data-seek="sense">${icon('sparkles', 'i-sm')}${t('Chercher par le sens')}</button>` : '';
+  const txt = n ? plural(n, 'fiche trouvée|fiches trouvées') + (n > 1 ? ' · ' + t('les plus proches en premier') : '') : t('Aucune fiche avec ces mots.') + (!AI.on && AI.status !== 'checking' && q.length >= 3 ? ' ' + t("Avec l'IA, Engram cherche aussi par le sens.") : '');
+  return `<div class="seek-note">${sense?.err ? `${icon('x', 'i-sm')}<span>${esc(sense.err)}</span>` : `<span>${txt}</span>`}${more}</div>`;
+}
+
 Views.library = () => `
   <header class="rise"><div class="kicker">${plural(S.decks.length, 'paquet|paquets')} · ${plural(S.decks.reduce((a, d) => a + d.cards.length, 0), 'fiche|fiches')}</div><h1 class="display" style="margin-top:12px">${words(t('Le fichier.'))}</h1></header>
   <div class="toolbar rise">
@@ -3898,24 +4087,23 @@ Views.library = () => `
 let libFilter = null;
 Hooks.library = () => {
   const inp = $('#libSearch'); if (!inp) return;
-  const draw = () => {
-    const q = normTxt(inp.value); const out = $('#libResults'), grid = $('#libGrid');
-    if (q.length < 2 && !libFilter) { out.innerHTML = ''; grid.hidden = false; return; }
-    let hits = allCards();
-    if (libFilter) hits = hits.filter(c => compOf(c) === libFilter);
-    if (q.length >= 2) hits = hits.filter(c => normTxt(cardTitle(c) + ' ' + cardAnswer(c) + ' ' + (c.tags || []).join(' ')).includes(q));
+  const out = $('#libResults'), grid = $('#libGrid');
+  const seek = wireSeek(inp, out, { show: (items, head) => {
+    if (!items && !libFilter) { out.innerHTML = ''; grid.hidden = false; return; }
+    let hits = items || allCards().map(c => ({ c, d: c._deck }));
+    if (libFilter) hits = hits.filter(x => compOf(x.c) === libFilter);
     grid.hidden = true;
-    out.innerHTML = `${libFilter ? `<div class="chips" style="margin-bottom:12px"><button class="chip on" id="clrF">${t(ST_LABELS[libFilter])} · ${hits.length} ${icon('x', 'i-sm')}</button></div>` : ''}` + (hits.length ? `<div class="cat">${hits.slice(0, 120).map(c => cardRow(c, c._deck)).join('')}</div>` : `<div class="empty"><div class="t">${t('Aucune fiche trouvée')}</div><div>${t('Essayez un autre mot-clé.')}</div></div>`);
-    $('#clrF')?.addEventListener('click', () => { libFilter = null; draw(); });
-  };
-  inp.addEventListener('input', draw); draw();
+    out.innerHTML = `${libFilter ? `<div class="chips" style="margin-bottom:12px"><button class="chip on" id="clrF">${t(ST_LABELS[libFilter])} · ${hits.length} ${icon('x', 'i-sm')}</button></div>` : ''}${head}` + (hits.length ? `<div class="cat">${hits.slice(0, 120).map(x => cardRow(x.c, x.d, x)).join('')}</div>` : items && head ? '' : `<div class="empty"><div class="t">${t('Aucune fiche trouvée')}</div><div>${t('Essayez un autre mot-clé.')}</div></div>`);
+  } });
+  out.addEventListener('click', e => { if (e.target.closest('#clrF')) { libFilter = null; seek.draw(); } });
+  seek.draw();
 };
 const isLeech = c => (c.srs.lapses || 0) >= 4;
-function cardRow(c, d) {
+function cardRow(c, d, o = {}) {
   const r = FSRS.retrievability(c.srs);
   return `<button class="crow" data-act="editCard" data-id="${c.id}">
     <span class="no"><i style="background:${ST_COLORS[compOf(c)]}"></i>${cardNo(c)}</span>
-    <div style="min-width:0"><div class="q">${esc(cardTitle(c))}</div><div class="a">${esc(plain(cardAnswer(c)))}${d && App.route.v !== 'deck' ? ` · ${esc(d.name)}` : ''}</div></div>
+    <div style="min-width:0"><div class="q">${Seek.mark(cardTitle(c), o.hl)}</div><div class="a">${Seek.mark(plain(cardAnswer(c)), o.hl)}${d && App.route.v !== 'deck' ? ` · ${esc(d.name)}` : ''}</div>${o.why?.length ? `<div class="why">${icon('sparkles', 'i-sm')}${esc(t('Parle de {x}', { x: o.why.slice(0, 3).join(', ') }))}</div>` : ''}</div>
     <span class="tags">${isLeech(c) ? `<span class="tag red" data-tip="${esc(t('Fiche oubliée 4 fois ou plus'))}">${t('Sangsue')}</span>` : ''}<span class="tag">${typeLabel(c.type)}</span></span>
     <span><span class="due">${c.srs.state === 0 ? t('nouvelle') : fmtDue(c.srs.due)}</span>${c.srs.state === 2 ? `<span class="rbar" data-tip="${esc(t('Mémoire estimée : {p}', { p: pct(r) }))}"><i style="width:${r * 100}%;background:${r > .85 ? 'var(--good)' : r > .7 ? 'var(--hard)' : 'var(--again)'}"></i></span>` : ''}</span>
   </button>`;
@@ -3971,19 +4159,17 @@ Views.deck = id => {
 };
 Hooks.deck = id => {
   const d = deckById(id); if (!d) return;
-  const draw = () => {
-    const q = normTxt($('#deckSearch')?.value || '');
-    let list = d.cards.filter(c => !q || normTxt(cardTitle(c) + ' ' + cardAnswer(c)).includes(q));
-    if (deckFilter === 'due') list = list.filter(c => isDue(c));
-    else if (deckFilter === 'new') list = list.filter(c => c.srs.state === 0);
-    else if (deckFilter === 'leech') list = list.filter(isLeech);
-    else if (COMP.includes(deckFilter)) list = list.filter(c => compOf(c) === deckFilter);
-    $('#deckCards').innerHTML = list.length ? `<div class="cat">${list.map(c => cardRow(c, d)).join('')}</div>`
-      : `<div class="empty"><div class="t">${d.cards.length ? t('Aucune fiche ici') : t('Ce tiroir est vide')}</div><div>${d.cards.length ? t('Changez de filtre.') : t('Ajoutez une fiche, ou scannez un cours pour le remplir.')}</div></div>`;
-  };
-  $('#deckSearch')?.addEventListener('input', draw);
-  $('#deckFilter')?.addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (!b) return; deckFilter = b.dataset.f; $$('#deckFilter button').forEach(x => x.classList.toggle('on', x === b)); draw(); });
-  draw();
+  const box = $('#deckCards'); if (!box) return;
+  const seek = wireSeek($('#deckSearch'), box, { deckId: d.id, show: (items, head) => {
+    let list = items || d.cards.map(c => ({ c, d }));
+    const ok = deckFilter === 'due' ? c => isDue(c) : deckFilter === 'new' ? c => c.srs.state === 0 : deckFilter === 'leech' ? isLeech : COMP.includes(deckFilter) ? c => compOf(c) === deckFilter : null;
+    if (ok) list = list.filter(x => ok(x.c));
+    box.innerHTML = head + (list.length ? `<div class="cat">${list.map(x => cardRow(x.c, d, x)).join('')}</div>`
+      : items ? (ok && items.length ? `<div class="empty"><div class="t">${t('Aucune fiche ici')}</div><div>${t('Changez de filtre.')}</div></div>` : '')
+        : `<div class="empty"><div class="t">${d.cards.length ? t('Aucune fiche ici') : t('Ce tiroir est vide')}</div><div>${d.cards.length ? t('Changez de filtre.') : t('Ajoutez une fiche, ou scannez un cours pour le remplir.')}</div></div>`);
+  } });
+  $('#deckFilter')?.addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (!b) return; deckFilter = b.dataset.f; $$('#deckFilter button').forEach(x => x.classList.toggle('on', x === b)); seek.draw(); });
+  seek.draw();
 };
 function openNote(deckId, id) {
   const d = deckById(deckId); const n = d?.notes.find(x => x.id === id); if (!n) return;
@@ -4558,24 +4744,127 @@ async function compressImage(file, max = 1100) {
   } finally { URL.revokeObjectURL(url); }
 }
 function dataUrlToBlob(u) { const [h, b] = u.split(','); const mime = h.match(/:(.*?)[;,]/)[1]; if (!/base64/.test(h)) return new Blob([decodeURIComponent(b)], { type: mime }); const bin = atob(b); const arr = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i); return new Blob([arr], { type: mime }); }
-function openOcclusion(deckId, existing) {
-  const deck = deckById(deckId) || S.decks[0]; if (!deck) return openNewDeck(d => openOcclusion(d.id));
+const loadImg = src => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
+/** Cadre {x, y, w, h} en fractions de l'image, depuis [x, y, w, h] ou {x, y, w, h}, même donné en % ou en ‰. */
+function normBox(b) {
+  let v = Array.isArray(b) ? b.slice(0, 4).map(Number) : b && typeof b === 'object' ? [b.x, b.y, b.w ?? b.width, b.h ?? b.height].map(Number) : [];
+  if (v.length < 4 || v.some(x => !isFinite(x))) return { x: 0, y: 0, w: 0, h: 0 };
+  const mx = Math.max(...v); if (mx > 1.5) { const d = mx > 100 ? 1000 : 100; v = v.map(x => x / d); }
+  const x = clamp(v[0], 0, 1), y = clamp(v[1], 0, 1);
+  return { x, y, w: clamp(v[2], 0, 1 - x), h: clamp(v[3], 0, 1 - y) };
+}
+/** Recadre une image (cadre en fractions 0-1) en JPEG léger, comme compressImage. */
+function cropImage(img, box, max = 1100) {
+  const W = img.naturalWidth, H = img.naturalHeight;
+  const sx = Math.round(box.x * W), sy = Math.round(box.y * H), sw = Math.max(1, Math.round(box.w * W)), sh = Math.max(1, Math.round(box.h * H));
+  let scale = Math.min(1, max / Math.max(sw, sh)), q = 0.82, out = '';
+  for (let k = 0; k < 6; k++) {
+    const cv = document.createElement('canvas'); cv.width = Math.max(1, Math.round(sw * scale)); cv.height = Math.max(1, Math.round(sh * scale));
+    const cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height); cx.drawImage(img, sx, sy, sw, sh, 0, 0, cv.width, cv.height);
+    out = cv.toDataURL('image/jpeg', q);
+    if (out.length < 240000) break; q -= 0.1; scale *= 0.85;
+  }
+  return out;
+}
+/* Masques calés sur le texte. L'IA situe bien une légende, mais souvent à
+   quelques pixels près ; un masque tracé au doigt déborde ou coupe une
+   lettre. On cherche l'encre autour du cadre, on relie les lettres en mots,
+   on écarte les traits fins (flèches, traits de rappel) et on resserre le
+   cadre sur l'écriture. Sans écriture nette autour, le masque reste tel quel. */
+async function snapMasks(src, masks) {
+  if (!masks.length) return masks;
+  let img; try { img = await loadImg(src); } catch { return masks; }
+  const sc = Math.min(1, 1000 / Math.max(img.naturalWidth, img.naturalHeight));
+  const W = Math.max(1, Math.round(img.naturalWidth * sc)), H = Math.max(1, Math.round(img.naturalHeight * sc));
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const cx = cv.getContext('2d', { willReadFrequently: true }); cx.fillStyle = '#fff'; cx.fillRect(0, 0, W, H); cx.drawImage(img, 0, 0, W, H);
+  let px; try { px = cx.getImageData(0, 0, W, H).data; } catch { return masks; }
+  const L = new Uint8Array(W * H); for (let i = 0; i < L.length; i++) L[i] = (px[i * 4] * 77 + px[i * 4 + 1] * 150 + px[i * 4 + 2] * 29) >> 8;
+  return masks.map(m => snapOne(m, L, W, H));
+}
+function snapOne(m, L, W, H) {
+  const bx = m.x * W, by = m.y * H, bw = m.w * W, bh = m.h * H;
+  if (bw < 3 || bh < 3) return m;
+  const x0 = Math.max(0, Math.floor(bx - Math.max(bw * .4, 8))), x1 = Math.min(W, Math.ceil(bx + bw + Math.max(bw * .4, 8)));
+  const y0 = Math.max(0, Math.floor(by - Math.max(bh * .7, 6))), y1 = Math.min(H, Math.ceil(by + bh + Math.max(bh * .7, 6)));
+  const zw = x1 - x0, zh = y1 - y0; if (zw < 4 || zh < 4) return m;
+  // Fond = luminance médiane de la zone ; encre = nettement plus sombre (ou plus claire sur fond sombre).
+  const hist = new Uint32Array(256); for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) hist[L[y * W + x]]++;
+  let bg = 0; for (let acc = 0, half = zw * zh / 2; bg < 255; bg++) { acc += hist[bg]; if (acc >= half) break; }
+  const thr = Math.max(40, bg * .25), ink = new Uint8Array(zw * zh); let n = 0;
+  for (let y = 0; y < zh; y++) for (let x = 0; x < zw; x++) { const v = L[(y0 + y) * W + x0 + x]; if (bg - v > thr || (bg < 110 && v - bg > 70)) { ink[y * zw + x] = 1; n++; } }
+  if (n < 6) return m;
+  // Taches d'encre (8-connexité) avec leur cadre.
+  const lab = new Int32Array(zw * zh).fill(-1), comps = [], stack = [];
+  for (let i = 0; i < ink.length; i++) {
+    if (!ink[i] || lab[i] >= 0) continue;
+    const c = { a: zw, b: zh, r: -1, s: -1, n: 0 }, id = comps.length; comps.push(c); lab[i] = id; stack.push(i);
+    while (stack.length) {
+      const k = stack.pop(), x = k % zw, y = (k - x) / zw; c.n++;
+      if (x < c.a) c.a = x; if (x > c.r) c.r = x; if (y < c.b) c.b = y; if (y > c.s) c.s = y;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        const X = x + dx, Y = y + dy; if (X < 0 || Y < 0 || X >= zw || Y >= zh) continue;
+        const j = Y * zw + X; if (ink[j] && lab[j] < 0) { lab[j] = id; stack.push(j); }
+      }
+    }
+  }
+  // Hauteur des lettres : celle des petites taches touchées par le cadre proposé.
+  const ox = bx - x0, oy = by - y0, hit = c => c.r >= ox && c.a <= ox + bw && c.s >= oy && c.b <= oy + bh;
+  const hs = comps.filter(c => c.n >= 3 && hit(c)).map(c => c.s - c.b + 1).filter(h => h >= 3 && h <= bh * 1.2).sort((p, q) => p - q);
+  const lh = hs.length ? hs[Math.floor(hs.length * .75)] : bh * .7;
+  // On écarte les traits du dessin : trop grands, ou longs et fins (flèches, traits de rappel).
+  const line = c => { const w = c.r - c.a + 1, h = c.s - c.b + 1, L = Math.max(w, h); return L > lh * 1.8 && (c.n / (w * h) < .12 || Math.min(w, h) <= Math.max(2, lh * .2) || c.n / L < Math.max(3.2, lh * .17)); };
+  const keep = comps.filter(c => c.n >= 3 && c.s - c.b + 1 <= lh * 1.6 && !line(c));
+  let U = null;
+  const join = c => { U = U ? { a: Math.min(U.a, c.a), b: Math.min(U.b, c.b), r: Math.max(U.r, c.r), s: Math.max(U.s, c.s) } : { a: c.a, b: c.b, r: c.r, s: c.s }; };
+  keep.filter(hit).forEach(join);
+  if (!U) return m;
+  // Les lettres voisines sur la même ligne rejoignent le mot (écart de moins d'un espace).
+  const gap = Math.max(3, Math.round(lh * .8));
+  for (let grew = true; grew;) {
+    grew = false;
+    for (const c of keep) {
+      if (c.a >= U.a && c.r <= U.r && c.b >= U.b && c.s <= U.s) continue;
+      const ov = Math.min(c.s, U.s) - Math.max(c.b, U.b) + 1;
+      if (c.a <= U.r + gap && c.r >= U.a - gap && ov >= Math.min(c.s - c.b + 1, U.s - U.b + 1) * .5) { join(c); grew = true; }
+    }
+  }
+  // Une lettre soudée à un trait a été écartée avec lui : on la reprend, colonne par colonne, tant que l'encre est épaisse.
+  const band = x => { let k = 0; for (let y = U.b; y <= U.s; y++) k += ink[y * zw + x]; return k; }, thick = Math.max(3, lh * .25);
+  const reach = (k, step) => { for (let j = 1; j <= gap; j++) { const x = k + j * step; if (x < 0 || x >= zw) break; if (band(x) >= thick) { k = x; j = 0; } } return k; };
+  U.r = reach(U.r, 1); U.a = reach(U.a, -1);
+  // Les bords faits d'un trait fin qui aurait échappé au tri sont rognés.
+  const col = x => { let k = 0; for (let y = U.b; y <= U.s; y++) k += ink[y * zw + x]; return k; }, row = y => { let k = 0; for (let x = U.a; x <= U.r; x++) k += ink[y * zw + x]; return k; };
+  const trim = (from, to, step, f, th, run) => { let k = from; while (k !== to && f(k) <= th) k += step; return Math.abs(k - from) > run ? k : from; };
+  U.a = trim(U.a, U.r, 1, col, Math.max(2, lh * .16), gap * 1.5); U.r = trim(U.r, U.a, -1, col, Math.max(2, lh * .16), gap * 1.5);
+  U.b = trim(U.b, U.s, 1, row, Math.max(2, (U.r - U.a + 1) * .04), lh * .5); U.s = trim(U.s, U.b, -1, row, Math.max(2, (U.r - U.a + 1) * .04), lh * .5);
+  const pad = Math.max(2, lh * .22);
+  const nx = x0 + U.a - pad, ny = y0 + U.b - pad, nw = U.r - U.a + 1 + pad * 2, nh = U.s - U.b + 1 + pad * 2;
+  const ratio = nw * nh / (bw * bh);
+  if (ratio < .12 || ratio > 3.5) return m;
+  const x = clamp(nx / W, 0, 1), y = clamp(ny / H, 0, 1);
+  return { ...m, x, y, w: clamp(nw / W, 0, 1 - x), h: clamp(nh / H, 0, 1 - y), fit: 1 };
+}
+/** Éditeur de masques. `o.draft` : schéma venu du scan, pas encore rangé ; `o.draft.done` reçoit le résultat. */
+function openOcclusion(deckId, existing, o = {}) {
+  const deck = deckById(deckId) || S.decks[0]; if (!deck && !o.draft) return openNewDeck(d => openOcclusion(d.id));
   const sibs = existing ? deck.cards.filter(c => c.note && c.note === existing.note) : [];
-  const st = { src: existing ? S.images[existing.img] : null, imgId: existing?.img || null, masks: existing ? existing.masks.map(x => ({ ...x })) : [], title: existing?.front || t('Nommez la structure masquée') };
+  const st = o.draft ? { src: o.draft.src, imgId: null, masks: o.draft.masks.map(x => ({ ...x })), title: o.draft.title || t('Nommez la structure masquée') }
+    : { src: existing ? S.images[existing.img] : null, imgId: existing?.img || null, masks: existing ? existing.masks.map(x => ({ ...x })) : [], title: existing?.front || t('Nommez la structure masquée') };
   const m = Modal.open('<div id="ocRoot"></div>', 'wide');
   const readLabels = () => m.querySelectorAll('[data-lab]').forEach(i => { if (st.masks[+i.dataset.lab]) st.masks[+i.dataset.lab].label = i.value.trim(); });
   const draw = () => {
-    m.querySelector('#ocRoot').innerHTML = mh(t("Masquage d'image"), esc(deck.name)) + (st.src ? `
+    m.querySelector('#ocRoot').innerHTML = mh(t("Masquage d'image"), esc(o.draft ? t('Schéma trouvé dans le cours') : deck.name)) + (st.src ? `
       <p class="muted" style="margin-top:0">${t("Glissez sur l'image pour masquer une légende. Chaque masque devient une fiche ; les autres restent cachés pendant la question.")}</p>
       <div class="editor-grid">
         <div class="occ-edit" id="ocImg"><img src="${st.src}" alt="">${st.masks.map((k, i) => `<div class="m" style="left:${k.x * 100}%;top:${k.y * 100}%;width:${k.w * 100}%;height:${k.h * 100}%">${i + 1}</div>`).join('')}</div>
         <div class="form">
           <div class="field"><label for="ocTitle">${t('Consigne')}</label><input class="input" id="ocTitle" value="${esc(st.title)}"></div>
           <div class="field"><span class="flabel">${t('Masques · {n}', { n: st.masks.length })}</span><div class="mask-list">${st.masks.map((k, i) => `<div class="mask-row"><b>${i + 1}</b><input class="input" data-lab="${i}" value="${esc(k.label || '')}" placeholder="${esc(t('Réponse (ex. Noyau)'))}"><button class="icon-btn" data-rm="${i}" aria-label="${esc(t('Retirer'))}">${icon('x', 'i-sm')}</button></div>`).join('') || `<span class="muted" style="font-size:13px">${t("Aucun masque pour l'instant.")}</span>`}</div></div>
-          ${AI.images ? `<button class="btn" id="ocAI">${icon('sparkles')}${t("Détecter les légendes avec l'IA")} <span class="tag">${t('bêta')}</span></button><div class="muted" id="ocAIout" style="font-size:13px"></div>` : ''}
+          <div class="oc-tools">${AI.images ? `<button class="btn" id="ocAI">${icon('sparkles')}${t("Détecter les légendes avec l'IA")}</button>` : ''}${st.masks.length ? `<button class="btn btn-ghost" id="ocSnap" data-tip="${esc(t('Resserre chaque masque sur les mots qu\'il cache, sans IA'))}">${icon('target')}${t('Caler sur le texte')}</button>` : ''}</div><div class="muted" id="ocAIout" style="font-size:13px"></div>
         </div>
       </div>
-      <div class="modal-f"><button class="btn btn-ghost" data-act="close">${t('Annuler')}</button><button class="btn btn-brass" id="ocSave" ${st.masks.length ? '' : 'disabled'}>${icon('check')}${existing ? t('Enregistrer') : t('Créer {x}', { x: plural(st.masks.length, 'fiche|fiches') })}</button></div>`
+      <div class="modal-f"><button class="btn btn-ghost" data-act="close">${t('Annuler')}</button><button class="btn btn-brass" id="ocSave" ${st.masks.length ? '' : 'disabled'}>${icon('check')}${o.draft ? t('Valider') : existing ? t('Enregistrer') : t('Créer {x}', { x: plural(st.masks.length, 'fiche|fiches') })}</button></div>`
       : `<label class="drop" for="ocFile"><div class="ico">${icon('image')}</div><b>${t('Choisissez un schéma')}</b><span class="muted">${t('Un schéma légendé, une carte, une frise… (JPEG, PNG)')}</span></label><input type="file" id="ocFile" accept="image/*" hidden>`);
     const root = m.querySelector('#ocRoot');
     root.querySelector('#ocFile')?.addEventListener('change', async e => { const f = e.target.files[0]; if (!f) return; st.src = await compressImage(f); st.file = f; draw(); });
@@ -4592,14 +4881,22 @@ function openOcclusion(deckId, existing) {
       const btn = ev.currentTarget, out = root.querySelector('#ocAIout'); btn.disabled = true; out.innerHTML = `<span class="thinking"><i></i><i></i><i></i></span> ${t('Analyse du schéma…')}`;
       try {
         const blob = st.file || dataUrlToBlob(st.src);
-        const r = await AI.json('This is a labelled diagram. Find every text label (caption) visible on the image. For each one, give its exact text and the rectangle around it, in coordinates relative to the image (0 = left/top edge, 1 = right/bottom edge). Reply with only a JSON array: [{"label": "...", "x": 0.00, "y": 0.00, "w": 0.00, "h": 0.00}] (at most 20 items).', { images: blob, cache: false });
-        const add = (Array.isArray(r) ? r : r?.labels || []).map(o => ({ x: clamp(+o.x || 0, 0, 1), y: clamp(+o.y || 0, 0, 1), w: clamp(+o.w || 0, 0, 1), h: clamp(+o.h || 0, 0, 1), label: String(o.label || '') })).filter(o => o.w > .005 && o.h > .005);
+        const r = await AI.json('This is a labelled diagram. Find every text label (caption) that names a part of the diagram. For each one, give its exact text and the tight rectangle around its words only, in coordinates relative to the image (0 = left/top edge, 1 = right/bottom edge). Reply with only a JSON array: [{"label": "...", "x": 0.00, "y": 0.00, "w": 0.00, "h": 0.00}] (at most 20 items).', { images: blob, cache: false });
+        const got = (Array.isArray(r) ? r : r?.labels || []).map(k => ({ ...normBox(k), label: String(k.label || k.text || '').trim() })).filter(k => k.w > .005 && k.h > .005);
+        const add = await snapMasks(st.src, got);
         readLabels(); st.masks.push(...add); draw();
-        const o2 = m.querySelector('#ocAIout'); if (o2) o2.textContent = add.length ? t('✓ {x}. Ajustez si besoin.', { x: plural(add.length, 'légende détectée|légendes détectées') }) : t('Aucune légende détectée.');
+        const o2 = m.querySelector('#ocAIout'); if (o2) o2.textContent = add.length ? t('✓ {x}, calées sur le texte. Ajustez si besoin.', { x: plural(add.length, 'légende détectée|légendes détectées') }) : t('Aucune légende détectée.');
       } catch (e) { out.textContent = AI.fail(e); btn.disabled = false; }
+    });
+    root.querySelector('#ocSnap')?.addEventListener('click', async () => {
+      readLabels(); const before = JSON.stringify(st.masks.map(k => [k.x, k.y, k.w, k.h]));
+      const next = await snapMasks(st.src, st.masks); const moved = next.filter((k, i) => k !== st.masks[i]).length;
+      st.masks = next; draw();
+      const o2 = m.querySelector('#ocAIout'); if (o2) o2.textContent = moved && before !== JSON.stringify(next.map(k => [k.x, k.y, k.w, k.h])) ? t('✓ {x} sur le texte.', { x: plural(moved, 'masque calé|masques calés') }) : t("Aucun texte net sous les masques : rien n'a bougé.");
     });
     root.querySelector('#ocSave')?.addEventListener('click', () => {
       readLabels(); st.title = root.querySelector('#ocTitle').value.trim() || t('Nommez la zone masquée');
+      if (o.draft) { Modal.close(); o.draft.done({ masks: st.masks, title: st.title }); return; }
       if (!st.imgId) { st.imgId = uid('img'); S.images[st.imgId] = st.src; }
       const note = existing?.note || uid('n');
       if (existing) {
@@ -4771,8 +5068,12 @@ const Cmd = {
       if (decks.length) secs.push([N_('Paquets'), decks]);
     } else if (pre === '#') secs.push([N_('Paquets'), S.decks.slice(0, 12).map(d => ({ ...this.deckItem(d), s: 0 }))]);
     if (q.length > 1 && !pre) {
-      const cards = allCards().filter(c => fold(cardTitle(c) + ' ' + cardAnswer(c)).includes(q)).slice(0, 6).map(c => { const lb = plain(cardTitle(c)); const i = fold(lb).indexOf(q); return { id: 'card:' + c.id, ic: 'file', label: lb, hits: i >= 0 ? [[i, i + q.length]] : null, sub: c._deck.name, run: () => openEditor(c.id), noRecent: true, s: 1 }; });
-      if (cards.length) secs.push([N_('Fiches'), cards]);
+      const sn = this.sense?.q === body ? this.sense : null;
+      const cards = (sn?.res || Seek.find(body)).slice(0, sn?.res ? 8 : 6).map(x => { const lb = plain(cardTitle(x.c)); return { id: 'card:' + x.c.id, ic: sn?.res ? 'sparkles' : 'file', label: lb, hits: Seek.ranges(lb, x.hl), sub: x.d.name + (x.why.length ? ' · ' + t('parle de {x}', { x: x.why.slice(0, 2).join(', ') }) : ''), run: () => openEditor(x.c.id), noRecent: true, sense: !!sn?.res, s: sn?.res ? 98 : 1 }; });
+      if (AI.on && body.length >= 3 && !sn?.res) cards.push(sn?.busy ? { id: 'sense', ic: 'sparkles', label: t('Recherche par le sens…'), dead: true, noRecent: true }
+        : { id: 'sense', ic: 'sparkles', label: t('Chercher par le sens : « {q} »', { q: body }), sub: sn?.err || t("L'IA trouve les fiches qui en parlent, même sans ces mots"), run: () => this.seek(body), stay: true, noRecent: true });
+      if (sn?.res && !cards.length) cards.push({ id: 'sense', ic: 'sparkles', label: t('Aucune fiche ne parle de cela.'), sub: t('Notions cherchées : {x}', { x: sn.terms.slice(0, 6).join(' · ') }), dead: true, noRecent: true, s: 98 });
+      if (cards.length) secs.push([sn?.res ? N_('Fiches, par le sens') : N_('Fiches'), cards]);
     }
     secs.sort((a, b) => (b[1][0]?.s || 0) - (a[1][0]?.s || 0));
     const ask = pre === '?' ? body : !pre && body.length > 3 ? body : '';
@@ -4792,8 +5093,16 @@ const Cmd = {
     const r = S.decks.map(d => ({ d, r: Fz.score(q, d.name) })).filter(x => x.r && x.r.s >= 2.5).sort((a, b) => b.r.s - a.r.s)[0];
     return r?.d || null;
   },
+  /** Recherche par le sens depuis la palette : les résultats s'affichent sans la fermer. */
+  sense: null, redraw: null,
+  async seek(q) {
+    this.sense = { q, busy: true }; this.redraw?.();
+    try { this.sense = { q, ...(await Seek.sense(q)) }; } catch (e) { this.sense = { q, err: AI.fail(e) || t("Connexion à l'IA interrompue. Réessayez.") }; }
+    this.redraw?.(true);
+  },
   exec(it, alt = false) {
     if (!it || it.dead) return;
+    if (it.stay) { it.run(); return; }
     if (!it.noRecent) this.remember(it.id);
     closeModals();
     setTimeout(() => (alt && it.alt ? it.alt() : it.run()), 50);
@@ -4813,6 +5122,8 @@ function openPalette(initial = '') {
   const inp = m.querySelector('#palIn'), list = m.querySelector('#palList'), voice = m.querySelector('#palVoice');
   inp.value = initial;
   let items = [], sel = 0;
+  Cmd.sense = null;
+  Cmd.redraw = done => { if (!m.isConnected) return; draw(); const k = done ? items.findIndex(x => x.sense) : -1; if (k >= 0) { sel = k; move(0); } };
   const row = (it, i) => `<div class="pal-item${i === sel ? ' on' : ''}${it.dead ? ' dead' : ''}" role="option" id="pal-${i}" aria-selected="${i === sel}" data-i="${i}">
       ${it.sw ? `<span class="pal-ic pal-sw" style="--a:${it.sw[0]};--c:${it.sw[2]}"><i></i></span>` : `<span class="pal-ic">${icon(it.ic, 'i-sm')}</span>`}
       <span class="pal-t"><b>${Fz.mark(it.label, it.hits)}</b>${it.sub ? `<small>${esc(it.sub)}</small>` : ''}</span>
@@ -4883,7 +5194,7 @@ function openPalette(initial = '') {
       else if (m.classList.contains('listening')) setVoice('');
     });
   });
-  Modal.onClose(m, () => Dictation.stop());
+  Modal.onClose(m, () => { Dictation.stop(); Cmd.redraw = null; Cmd.sense = null; });
   draw();
 }
 
@@ -7059,7 +7370,7 @@ Cerca de 50 % do oxigênio da atmosfera vem do fitoplâncton oceânico.`
 };
 
 const Scan = {
-  tab: 'photo', files: [], urls: [], text: '', topic: '', n: 12, types: new Set(['basic', 'cloze', 'mcq', 'tf']), level: 'lycee', dest: 'new', outLang: 'auto',
+  tab: 'photo', files: [], urls: [], text: '', topic: '', n: 12, types: new Set(['basic', 'cloze', 'mcq', 'tf']), diagrams: true, level: 'lycee', dest: 'new', outLang: 'auto',
   phase: 'idle', results: [], meta: null, ctl: null, running: false, err: '', statusTimer: null, local: false, pdf: null,
   reset() { this.urls.forEach(u => URL.revokeObjectURL(u)); Object.assign(this, { files: [], urls: [], text: '', topic: '', phase: 'idle', results: [], meta: null, err: '', running: false, local: false, pdf: null }); }
 };
@@ -7097,7 +7408,7 @@ Views.scan = () => {
           <div class="field"><label for="scN">${t('Nombre de fiches')} · <b class="tnum" id="scNout" style="color:var(--text)">${Scan.n}</b></label><input type="range" id="scN" min="5" max="40" step="1" value="${Scan.n}"></div>
           <div class="field"><label for="scLevel">${t('Niveau')}</label><select class="select" id="scLevel">${Object.entries(SCHOOL_LEVELS).map(([k, l]) => `<option value="${k}" ${k === Scan.level ? 'selected' : ''}>${t(l)}</option>`).join('')}</select></div>
         </div>
-        <div class="field"><span class="flabel">${t('Types de fiches')}</span><div class="chips" id="scTypes">${GEN_TYPES.map(([k, l]) => `<button class="chip ${Scan.types.has(k) ? 'on' : ''}" data-type="${k}">${t(l)}</button>`).join('')}</div></div>
+        <div class="field"><span class="flabel">${t('Types de fiches')}</span><div class="chips" id="scTypes">${GEN_TYPES.map(([k, l]) => `<button class="chip ${Scan.types.has(k) ? 'on' : ''}" data-type="${k}">${t(l)}</button>`).join('')}${(Scan.tab === 'photo' || Scan.tab === 'pdf') && (AI.images || AI.status === 'checking') ? `<button class="chip ${Scan.diagrams ? 'on' : ''}" data-diag data-tip="${esc(t('Chaque schéma légendé devient des fiches à masques, une par légende'))}">${icon('image', 'i-sm')}${t('Schémas masqués')}</button>` : ''}</div></div>
         <div class="two">
           <div class="field"><label for="scDest">${t('Ranger dans')}</label><select class="select" id="scDest"><option value="new">${t("Un nouveau tiroir, nommé d'après le cours")}</option>${S.decks.map(d => `<option value="${d.id}" ${Scan.dest === d.id ? 'selected' : ''}>${esc(d.name)}</option>`).join('')}</select></div>
           ${AI.on ? `<div class="field"><label for="scOutLang">${t('Langue des fiches')}</label><select class="select" id="scOutLang"><option value="auto">${t('Celle du cours')}</option>${CARD_LANGS.map(k => `<option value="${k}" ${Scan.outLang === k ? 'selected' : ''}>${esc(langName(k))}</option>`).join('')}</select></div>` : ''}
@@ -7116,12 +7427,13 @@ function scanOutHTML() {
       <div class="t">${t('Le plateau est vide.')}</div>
       <ol class="steps"><li><span>${t('<b>Photographiez</b> une ou plusieurs pages, même manuscrites.')}</span></li><li><span>${t("<b>L'IA lit</b> la page et repère définitions, dates, formules et mots-clés.")}</span></li><li><span>${t('<b>Vous triez</b> les fiches posées ici, puis vous les rangez dans un tiroir.')}</span></li></ol>
       <p class="muted" style="margin:0;font-size:13px;max-width:44ch">${t('Les fiches suivent les règles de la répétition espacée : une idée par fiche, réponse courte, question sans ambiguïté.')}</p></div>`;
-  const on = Scan.results.filter(r => r.on).length;
+  const on = scanCards(), dups = Scan.results.filter(r => r.dup).length;
   return `${Scan.phase === 'running' ? scanPreviewHTML() : ''}
     ${Scan.meta ? `<div class="panel" style="padding:16px 18px"><div class="kicker">${esc(Scan.meta.subject || t('Cours'))}${Scan.local ? ' · ' + t('génération locale') : Scan.tab === 'topic' ? ' · ' + t("rédigé par l'IA, à vérifier") : ' · ' + t("lu par l'IA")}</div><div style="font:400 26px/1.15 var(--f-display);margin-top:8px">${esc(Scan.meta.title || t('Cours scanné'))}</div>${Scan.meta.summary ? `<p class="muted" style="margin:8px 0 0;font-size:14px">${esc(Scan.meta.summary)}</p>` : ''}</div>` : ''}
     ${Scan.phase === 'running' ? `<div class="scan-status"><span class="thinking"><i></i><i></i><i></i></span><span id="scStatus" style="flex:1">${t('Lecture de la page…')}</span><button class="btn btn-sm" id="scStop">${t('Arrêter')}</button></div>` : ''}
     ${Scan.err ? `<div class="scan-status" style="border-color:color-mix(in srgb,var(--again) 45%,transparent)">${icon('x')}<span style="flex:1">${esc(Scan.err)}</span></div>` : ''}
-    <div class="gen-list" id="genList">${Scan.results.map((r, i) => genHTML(r, i)).join('')}</div>
+    ${Scan.phase === 'review' && dups ? `<div class="scan-status dup">${icon('layers')}<span style="flex:1">${plural(dups, 'fiche ressemble à une fiche que vous avez déjà : elle est décochée, cochez-la pour la garder quand même.|fiches ressemblent à des fiches que vous avez déjà : elles sont décochées, cochez-les pour les garder quand même.')}</span></div>` : ''}
+    <div class="gen-list" id="genList">${Scan.results.map(genAny).join('')}</div>
     ${Scan.phase === 'review' ? `<div class="tray-actions"><button class="btn btn-brass btn-lg" id="scAdd" ${on ? '' : 'disabled'} style="flex:1">${icon('drawer')}${t('Ranger {x}', { x: plural(on, 'fiche|fiches') })}</button><button class="btn btn-lg" id="scAgain">${icon('flip')}${t('Recommencer')}</button></div>` : ''}`;
 }
 function genHTML(r, i) {
@@ -7131,12 +7443,31 @@ function genHTML(r, i) {
       : r.type === 'tf' ? (r.answer ? trueLbl() : falseLbl()) + (r.back ? ' — ' + esc(r.back) : '')
         : r.type === 'order' ? r.items.map((x, k) => `${k + 1}. ${esc(x)}`).join('  ') : md(r.back);
   const rot = ((hash(String(i) + (r.front || r.text)) % 7) - 3) * 0.35;
-  return `<div class="gen ${r.on ? '' : 'off'}" style="--r:${rot.toFixed(2)}deg;animation-delay:${Scan.phase === 'running' ? 0 : Math.min(i * 40, 600)}ms">
+  const dup = r.dup ? `<div class="gen-dup">${icon('layers', 'i-sm')}<span>${t('Déjà dans « {x} »', { x: esc(r.dup.d.name) })}</span></div>` : '';
+  return `<div class="gen ${r.on ? '' : 'off'}" data-gi="${i}" style="--r:${rot.toFixed(2)}deg;animation-delay:${Scan.phase === 'running' ? 0 : Math.min(i * 40, 600)}ms">
     <div class="gen-h"><span>${typeLabel(r.type)} · ${t('N°')} ${String(i + 1).padStart(3, '0')}</span><button class="check ${r.on ? 'on' : ''}" data-gen-toggle="${i}" aria-label="${esc(t('Garder cette fiche'))}">${icon('check')}</button></div>
-    <div class="q">${q}</div><div class="a">${a}</div>
+    <div class="q">${q}</div><div class="a">${a}</div>${dup}
     ${Scan.phase === 'review' ? `<div class="row"><span></span><button class="edit" data-gen-edit="${i}" aria-label="${esc(t('Modifier'))}">${icon('pen', 'i-sm')}</button></div>` : ''}
   </div>`;
 }
+/** Un schéma légendé trouvé dans les photos : l'image recadrée et ses masques numérotés. */
+function genOccHTML(r, i) {
+  const rot = ((hash(String(i) + r.title) % 7) - 3) * 0.35, ok = !r.pending && !r.bad;
+  return `<div class="gen gen-occ ${r.on && !r.bad ? '' : 'off'}" data-gi="${i}" style="--r:${rot.toFixed(2)}deg;animation-delay:${Scan.phase === 'running' ? 0 : Math.min(i * 40, 600)}ms">
+    <div class="gen-h"><span>${t('Schéma masqué')} · ${t('N°')} ${String(i + 1).padStart(3, '0')}</span>${r.bad ? '' : `<button class="check ${r.on ? 'on' : ''}" data-gen-toggle="${i}" aria-label="${esc(t('Garder ces fiches'))}">${icon('check')}</button>`}</div>
+    <div class="q">${esc(r.title || t('Nommez la structure masquée'))}</div>
+    ${r.pending ? `<div class="occ-mini wait"><span class="thinking"><i></i><i></i><i></i></span><span>${t('Découpage du schéma…')}</span></div>`
+      : r.bad ? `<div class="a">${t('Schéma illisible : il ne sera pas rangé.')}</div>`
+        : `<div class="occ-mini"><img src="${r.src}" alt="${esc(r.title)}">${r.masks.map((k, j) => `<i style="left:${(k.x * 100).toFixed(2)}%;top:${(k.y * 100).toFixed(2)}%;width:${(k.w * 100).toFixed(2)}%;height:${(k.h * 100).toFixed(2)}%">${j + 1}</i>`).join('')}</div>
+      <div class="a">${plural(r.masks.length, 'fiche|fiches')} · ${r.masks.map(k => esc(k.label)).join(' · ')}</div>`}
+    ${Scan.phase === 'review' && ok ? `<div class="row"><span class="muted" style="font-size:12.5px">${t('Une fiche par légende')}</span><button class="edit" data-gen-edit="${i}" aria-label="${esc(t('Modifier les masques'))}">${icon('pen', 'i-sm')}</button></div>` : ''}
+  </div>`;
+}
+const genAny = (r, i) => r.type === 'occlusion' ? genOccHTML(r, i) : genHTML(r, i);
+/** Ce que « Ranger » va créer : un schéma compte une fiche par masque. */
+const scanCards = () => Scan.results.filter(r => r.on && !r.bad).reduce((a, r) => a + (r.type === 'occlusion' ? r.masks.length : 1), 0);
+function scanCount() { const on = scanCards(), add = $('#scAdd'); if (add) { add.disabled = !on; add.innerHTML = icon('drawer') + t('Ranger {x}', { x: plural(on, 'fiche|fiches') }); } }
+function refreshGen(i) { const el = $(`#genList [data-gi="${i}"]`); if (el) el.outerHTML = genAny(Scan.results[i], i); }
 Hooks.scan = () => {
   const redraw = () => App.render();
   $('#scTab')?.addEventListener('click', e => { const b = e.target.closest('[data-tab]'); if (!b) return; Scan.tab = b.dataset.tab; redraw(); });
@@ -7171,7 +7502,7 @@ Hooks.scan = () => {
   $('#scLevel')?.addEventListener('change', e => Scan.level = e.target.value);
   $('#scDest')?.addEventListener('change', e => Scan.dest = e.target.value);
   $('#scOutLang')?.addEventListener('change', e => Scan.outLang = e.target.value);
-  $('#scTypes')?.addEventListener('click', e => { const b = e.target.closest('[data-type]'); if (!b) return; const ty = b.dataset.type; if (Scan.types.has(ty) && Scan.types.size > 1) Scan.types.delete(ty); else Scan.types.add(ty); b.classList.toggle('on', Scan.types.has(ty)); });
+  $('#scTypes')?.addEventListener('click', e => { const dg = e.target.closest('[data-diag]'); if (dg) { Scan.diagrams = !Scan.diagrams; dg.classList.toggle('on', Scan.diagrams); return; } const b = e.target.closest('[data-type]'); if (!b) return; const ty = b.dataset.type; if (Scan.types.has(ty) && Scan.types.size > 1) Scan.types.delete(ty); else Scan.types.add(ty); b.classList.toggle('on', Scan.types.has(ty)); });
   $('#scGo')?.addEventListener('click', runScan);
   bindScanOut();
 };
@@ -7179,15 +7510,16 @@ function bindScanOut() {
   const out = $('#scOut'); if (!out) return;
   out.onclick = e => {
     const tg = e.target.closest('[data-gen-toggle]');
-    if (tg) { const r = Scan.results[+tg.dataset.genToggle]; r.on = !r.on; tg.classList.toggle('on', r.on); tg.closest('.gen').classList.toggle('off', !r.on); const on = Scan.results.filter(x => x.on).length; const add = $('#scAdd'); if (add) { add.disabled = !on; add.innerHTML = icon('drawer') + t('Ranger {x}', { x: plural(on, 'fiche|fiches') }); } return; }
+    if (tg) { const r = Scan.results[+tg.dataset.genToggle]; r.on = !r.on; tg.classList.toggle('on', r.on); tg.closest('.gen').classList.toggle('off', !r.on); scanCount(); return; }
     const ed = e.target.closest('[data-gen-edit]'); if (ed) return editGen(+ed.dataset.genEdit);
     if (e.target.closest('#scStop')) { Scan.ctl?.abort(); return; }
-    if (e.target.closest('#scAdd')) return commitScan();
+    if (e.target.closest('#scAdd')) { commitScan(); return; }
     if (e.target.closest('#scAgain')) { Scan.phase = 'idle'; Scan.results = []; Scan.meta = null; Scan.err = ''; App.render(); }
   };
 }
 function editGen(i) {
   const r = Scan.results[i];
+  if (r.type === 'occlusion') return openOcclusion(null, null, { draft: { src: r.src, masks: r.masks, title: r.title, done: v => { r.masks = v.masks; r.title = v.title; if (!r.masks.length) r.on = false; refreshGen(i); scanCount(); } } });
   const m = Modal.open(mh(t('Modifier la fiche'), typeLabel(r.type)) + `<div class="form">${r.type === 'cloze'
     ? `<div class="field"><label for="gText">${t('Texte à trous')}</label><textarea class="textarea" id="gText">${esc(r.text)}</textarea></div>`
     : r.type === 'order' ? `<div class="field"><label for="gFront">${t('Consigne')}</label><input class="input" id="gFront" value="${esc(r.front)}"></div><div class="field"><label for="gItems">${t("Éléments dans l'ordre (un par ligne)")}</label><textarea class="textarea" id="gItems">${esc(r.items.join('\n'))}</textarea></div>`
@@ -7202,13 +7534,17 @@ function editGen(i) {
     if (r.type === 'cloze') r.text = m.querySelector('#gText').value;
     else if (r.type === 'order') { r.front = m.querySelector('#gFront').value; r.items = m.querySelector('#gItems').value.split('\n').map(x => x.trim()).filter(Boolean); }
     else { r.front = m.querySelector('#gFront').value; r.back = m.querySelector('#gBack').value; if (r.type === 'mcq') r.options = r.options.map((o, k) => m.querySelector('#gO' + k).value); if (r.type === 'tf') r.answer = tf; }
-    Modal.close(); $('#genList').innerHTML = Scan.results.map(genHTML).join('');
+    Modal.close(); $('#genList').innerHTML = Scan.results.map(genAny).join('');
   };
 }
 function normGen(o) {
   if (!o || typeof o !== 'object') return null;
   const ty = String(o.type || 'basic').toLowerCase();
   const str = v => v == null ? '' : String(v).trim();
+  if (ty === 'diagram') {
+    const labels = (Array.isArray(o.labels) ? o.labels : []).map(l => ({ ...normBox(l?.box ?? l), label: str(l?.text ?? l?.label) })).filter(l => l.label && l.w > .003 && l.h > .003).slice(0, 20);
+    return labels.length >= 2 ? { type: 'occlusion', page: clamp(parseInt(o.page, 10) || 1, 1, 20), title: str(o.title).slice(0, 140), box: o.box ? normBox(o.box) : null, masks: labels, pending: true } : null;
+  }
   if (ty === 'cloze') { const text = str(o.text || o.front); return /\{\{c\d+::.+?\}\}/.test(text) ? { type: 'cloze', text, extra: str(o.extra) } : null; }
   if (ty === 'mcq' || ty === 'qcm') {
     const opts = Array.isArray(o.options) ? o.options.map(str).filter(Boolean).slice(0, 6) : [];
@@ -7223,15 +7559,38 @@ function normGen(o) {
   return null;
 }
 function addGen(o) {
-  const r = normGen(o); if (!r || !Scan.types.has(r.type)) return;
-  if (Scan.results.some(x => normTxt(x.front || x.text) === normTxt(r.front || r.text))) return;
-  r.on = true; Scan.results.push(r);
-  $('#genList')?.insertAdjacentHTML('beforeend', genHTML(r, Scan.results.length - 1));
-  const st = $('#scStatus'); if (st) st.textContent = t('Rédaction des fiches… {a} / {b}', { a: Scan.results.length, b: Scan.n });
+  const r = normGen(o); if (!r || (r.type === 'occlusion' ? !Scan.diagrams : !Scan.types.has(r.type))) return;
+  if (r.type === 'occlusion') { if (Scan.results.some(x => x.type === 'occlusion' && normTxt(x.title) === normTxt(r.title) && x.page === r.page)) return; }
+  else if (Scan.results.some(x => normTxt(x.front || x.text) === normTxt(r.front || r.text))) return;
+  // Déjà dans le fichier ? La fiche est décochée, la personne garde la main.
+  if (r.type !== 'occlusion') { const tw = Seek.twin(r.type === 'cloze' ? r.text : r.front, r.type === 'mcq' ? r.options[r.answer] : r.type === 'order' ? r.items.join(' ') : r.type === 'tf' ? '' : r.back); if (tw) r.dup = tw; }
+  r.on = !r.dup; Scan.results.push(r);
+  const i = Scan.results.length - 1;
+  $('#genList')?.insertAdjacentHTML('beforeend', genAny(r, i));
+  if (r.type === 'occlusion') r.prep = prepDiagram(r).then(() => { refreshGen(i); scanCount(); });
+  const st = $('#scStatus'); if (st) st.textContent = t('Rédaction des fiches… {a} / {b}', { a: Scan.results.filter(x => x.type !== 'occlusion').length, b: Scan.n });
   Sound.play('flip');
 }
+/** Recadre le schéma dans sa page, ramène les légendes au cadre, puis cale chaque masque sur son texte. */
+async function prepDiagram(r) {
+  const src = Scan.tab === 'pdf' ? Scan.pdf?.images || [] : Scan.files, file = src[r.page - 1] || src[0];
+  try {
+    if (!file) throw 0;
+    const url = URL.createObjectURL(file); let img;
+    try { img = await loadImg(url); } finally { URL.revokeObjectURL(url); }
+    // Le cadre du schéma, élargi pour contenir toutes les légendes, avec une petite marge.
+    const all = [r.box && r.box.w > .05 && r.box.h > .05 ? r.box : null, ...r.masks].filter(Boolean), m = .03;
+    const x1 = Math.max(0, Math.min(...all.map(k => k.x)) - m), y1 = Math.max(0, Math.min(...all.map(k => k.y)) - m);
+    const box = { x: x1, y: y1, w: Math.min(1, Math.max(...all.map(k => k.x + k.w)) + m) - x1, h: Math.min(1, Math.max(...all.map(k => k.y + k.h)) + m) - y1 };
+    if (box.w < .05 || box.h < .05) throw 0;
+    r.src = cropImage(img, box);
+    const rel = r.masks.map(k => ({ label: k.label, x: clamp((k.x - box.x) / box.w, 0, 1), y: clamp((k.y - box.y) / box.h, 0, 1), w: clamp(k.w / box.w, 0, 1), h: clamp(k.h / box.h, 0, 1) }));
+    r.masks = await snapMasks(r.src, rel);
+  } catch { r.bad = true; r.on = false; }
+  r.pending = false;
+}
 /** Consigne de génération (en anglais, pour la qualité) ; les fiches sortent dans la langue du cours ou celle demandée. */
-function buildGenPrompt({ n, types, level, source, text, outLang }) {
+function buildGenPrompt({ n, types, level, source, text, outLang, diagrams }) {
   const ex = {
     basic: '{"type":"basic","front":"Precise question?","back":"Short answer","extra":"useful context (optional)"}',
     cloze: '{"type":"cloze","text":"The {{c1::mitochondrion}} produces {{c2::ATP}}."}',
@@ -7262,7 +7621,11 @@ Rules:
 OUTPUT FORMAT — JSON Lines only: no sentence, no code block.
 Line 1: {"title":"short chapter title","subject":"subject","summary":"2-sentence summary of the course"} (in the language of the cards)
 Then exactly one card per line, following these models:
-${types.map(x => ex[x]).join('\n')}${source === 'text' ? `\n\nCOURSE TEXT:\n"""\n${String(text).slice(0, 45000)}\n"""` : ''}`;
+${types.map(x => ex[x]).join('\n')}${diagrams ? `
+
+LABELLED DIAGRAMS: when a page contains a labelled diagram (a drawing, schema, map or figure whose parts are named by text labels, often with leader lines), ALSO write one extra line per diagram, on top of the ${n} cards:
+{"type":"diagram","page":1,"title":"instruction for the student, e.g. Name the parts of the plant cell","box":[0.10,0.40,0.60,0.35],"labels":[{"text":"Nucleus","box":[0.52,0.48,0.09,0.03]}]}
+"page" is the number of the photo (1 = first). Every box is [left, top, width, height] as fractions of that whole page image (0 = left or top edge, 1 = right or bottom edge). "box" frames the whole diagram with its labels; each label box frames only the words of that label, tightly. Keep only labels that name a part of the diagram (not titles, captions or legends of the page), 2 to 20 per diagram, text exactly as written. No diagram line if the page has no labelled diagram.` : ''}${source === 'text' ? `\n\nCOURSE TEXT:\n"""\n${String(text).slice(0, 45000)}\n"""` : ''}`;
 }
 async function runScan() {
   if (Scan.running) return;
@@ -7299,7 +7662,7 @@ async function runScan() {
   };
   try {
     const source = photo ? 'photo' : pdfImgs ? 'pdf-images' : Scan.tab === 'topic' ? 'topic' : 'text';
-    const prompt = buildGenPrompt({ n: Scan.n, types: [...Scan.types], level: Scan.level, source, text: source === 'topic' ? Scan.topic.trim() : srcText, outLang: Scan.outLang });
+    const prompt = buildGenPrompt({ n: Scan.n, types: [...Scan.types], level: Scan.level, source, text: source === 'topic' ? Scan.topic.trim() : srcText, outLang: Scan.outLang, diagrams: !!(photo || pdfImgs) && Scan.diagrams && AI.images });
     const opts = { signal: Scan.ctl.signal, cache: false, onText: ({ delta }) => { const lines = (pending + delta).split('\n'); pending = lines.pop(); lines.forEach(eat); } };
     if (photo) opts.images = Scan.files.slice();
     if (pdfImgs) opts.images = Scan.pdf.images.slice(0, AI.limits?.images?.maxCount || 5);
@@ -7315,13 +7678,19 @@ async function runScan() {
     if (Scan.results.length) Sound.play('done');
   }
 }
-function commitScan() {
-  const chosen = Scan.results.filter(r => r.on); if (!chosen.length) return;
+/** Un schéma du scan devient une fiche par masque, comme dans l'éditeur de masquage. */
+function occCards(r, tags, src) {
+  const img = uid('img'), note = uid('n'); S.images[img] = r.src; Store.touch('img:' + img);
+  return r.masks.map((k, i) => mkCard('occlusion', { img, masks: r.masks, maskIdx: i, note, front: r.title || t('Nommez la structure masquée'), tags, src }));
+}
+async function commitScan() {
+  const busy = Scan.results.filter(r => r.pending && r.prep); if (busy.length) { const add = $('#scAdd'); if (add) add.disabled = true; await Promise.all(busy.map(r => r.prep)); }
+  const chosen = Scan.results.filter(r => r.on && !r.bad && (r.type !== 'occlusion' || r.masks.length)); if (!chosen.length) return;
   const title = Scan.meta?.title?.trim() || (Scan.tab === 'topic' ? cap(Scan.topic.trim()) : Scan.tab === 'pdf' ? Scan.pdf?.name.replace(/\.pdf$/i, '') : '');
   const deck = Scan.dest !== 'new' && deckById(Scan.dest) ? deckById(Scan.dest) : createDeck({ name: title || t('Cours scanné du {date}', { date: fmtDate(new Date(), { day: 'numeric', month: 'short', year: 'numeric' }) }), desc: Scan.meta?.summary || '', lang: Scan.outLang !== 'auto' ? Scan.outLang : LANG });
   const tag = Scan.meta?.subject ? [normTxt(Scan.meta.subject).replace(/\s+/g, '-')] : [];
   const src = Scan.local ? 'local' : 'ia';
-  const cards = chosen.flatMap(r => r.type === 'cloze' ? clozeCards(r.text, { extra: r.extra || undefined, tags: tag, src })
+  const cards = chosen.flatMap(r => r.type === 'occlusion' ? occCards(r, tag, src) : r.type === 'cloze' ? clozeCards(r.text, { extra: r.extra || undefined, tags: tag, src })
     : [mkCard(r.type, { front: r.front, back: r.back || '', extra: r.extra || undefined, ...(r.type === 'mcq' ? { options: r.options, answer: r.answer } : {}), ...(r.type === 'tf' ? { answer: r.answer } : {}), ...(r.type === 'order' ? { items: r.items } : {}), tags: tag, src })]);
   deck.cards.push(...cards);
   if (!S.demo) S.profile.flags.scan = 1;
@@ -8004,8 +8373,15 @@ ${JSON.stringify(this.snapshot())}`;
           const f = str(i.filter) || 'all';
           if (f === 'due') list = list.filter(c => isDue(c)); else if (f === 'new') list = list.filter(c => c.srs.state === 0); else if (f === 'leech') list = list.filter(isLeech);
           else if (f === 'weak') list = list.filter(c => c.srs.state > 0).sort((a, b) => FSRS.retrievability(a.srs) - FSRS.retrievability(b.srs) || b.srs.lapses - a.srs.lapses);
-          const q = normTxt(i.query || ''); if (q) list = list.filter(c => normTxt(cardTitle(c) + ' ' + cardAnswer(c)).includes(q));
+          const q = str(i.query); if (q) { const keep = new Set(list); list = Seek.find(q, { deckId: d.id }).map(x => x.c).filter(c => keep.has(c)); }
           return { deck: d.name, total: d.cards.length, cards: list.slice(0, clamp(+i.limit || 40, 1, 80)).map(c => ({ id: c.id, type: c.type, q: plain(cardTitle(c)).slice(0, 180), a: plain(cardAnswer(c) || '').slice(0, 160), tags: c.tags, state: FSRS.STATE[c.srs.state], lapses: c.srs.lapses, memory: c.srs.state === 2 ? Math.round(FSRS.retrievability(c.srs) * 100) + '%' : null })) };
+        } },
+      { name: 'search_cards', description: 'Find the student\'s cards about a topic, by meaning, across all decks (or one deck). Put the student\'s words in query and, in related_terms, 5 to 20 precise terms, key names, synonyms and translations likely to be written on the cards: the search runs on the device over every card and ranks them. Use it before quizzing, explaining or reviewing a topic the student names.',
+        inputSchema: { type: 'object', properties: { query: { type: 'string' }, related_terms: { type: 'array', items: { type: 'string' } }, deck_id: { type: 'string' }, limit: { type: 'number' } }, required: ['query'] },
+        execute: i => {
+          const d = i.deck_id ? deckOf(i.deck_id) : null, rel = (Array.isArray(i.related_terms) ? i.related_terms : []).map(str).filter(Boolean).slice(0, 30);
+          const res = rel.length ? Seek.concepts(str(i.query), rel, { deckId: d?.id }) : Seek.find(str(i.query), { deckId: d?.id });
+          return { matches: res.length, cards: res.slice(0, clamp(+i.limit || 20, 1, 50)).map(x => ({ id: x.c.id, deck_id: x.d.id, deck: x.d.name, type: x.c.type, q: plain(cardTitle(x.c)).slice(0, 180), a: plain(cardAnswer(x.c) || '').slice(0, 160), matched_terms: x.why.length ? x.why.slice(0, 4) : undefined, state: FSRS.STATE[x.c.srs.state], lapses: x.c.srs.lapses, memory: x.c.srs.state === 2 ? Math.round(FSRS.retrievability(x.c.srs) * 100) + '%' : null })) };
         } },
       { name: 'create_deck', description: 'Create a new empty deck and return its id. Then fill it with add_cards.',
         inputSchema: { type: 'object', properties: { name: { type: 'string' }, description: { type: 'string' }, language: { type: 'string', description: 'ISO 639-1 code of the card language, e.g. fr, en, es' }, color: { type: 'string', enum: Object.keys(DECK_COLORS) } }, required: ['name'] },
@@ -10697,6 +11073,41 @@ TR = {
   "1 à 3 semaines": ["1 to 3 weeks","1 a 3 semanas","1 bis 3 Wochen","1 a 3 semanas"],
   "3 semaines à 3 mois": ["3 weeks to 3 months","3 semanas a 3 meses","3 Wochen bis 3 Monate","3 semanas a 3 meses"],
   "Plus de 3 mois": ["Over 3 months","Más de 3 meses","Über 3 Monate","Mais de 3 meses"],
+  // IA plus intelligente (lot 8)
+  "Aucun texte net sous les masques : rien n'a bougé.": ["No clear text under the masks: nothing moved.","No hay texto nítido bajo las máscaras: nada se ha movido.","Kein klarer Text unter den Masken: nichts wurde verschoben.","Nenhum texto nítido sob as máscaras: nada mudou."],
+  "Aucune fiche avec ces mots.": ["No card with these words.","Ninguna tarjeta con estas palabras.","Keine Karte mit diesen Wörtern.","Nenhum cartão com estas palavras."],
+  "Aucune fiche ne parle de cela.": ["No card is about this.","Ninguna tarjeta trata de esto.","Keine Karte handelt davon.","Nenhum cartão fala disso."],
+  "Avec l'IA, Engram cherche aussi par le sens.": ["With AI, Engram also searches by meaning.","Con la IA, Engram también busca por el sentido.","Mit KI sucht Engram auch nach Bedeutung.","Com a IA, o Engram também busca pelo sentido."],
+  "Caler sur le texte": ["Fit to the text","Ajustar al texto","An den Text anpassen","Ajustar ao texto"],
+  "Chaque schéma légendé devient des fiches à masques, une par légende": ["Each labelled diagram becomes masked cards, one per label","Cada esquema con leyendas se convierte en tarjetas con máscaras, una por leyenda","Jedes beschriftete Schema wird zu Maskenkarten, eine pro Beschriftung","Cada esquema legendado vira cartões com máscaras, um por legenda"],
+  "Chercher par le sens": ["Search by meaning","Buscar por el sentido","Nach Bedeutung suchen","Buscar pelo sentido"],
+  "Chercher par le sens : « {q} »": ["Search by meaning: “{q}”","Buscar por el sentido: «{q}»","Nach Bedeutung suchen: „{q}“","Buscar pelo sentido: “{q}”"],
+  "Découpage du schéma…": ["Cropping the diagram…","Recortando el esquema…","Schema wird zugeschnitten…","Recortando o esquema…"],
+  "Déjà dans « {x} »": ["Already in “{x}”","Ya en «{x}»","Schon in „{x}“","Já em “{x}”"],
+  "Fiches, par le sens": ["Cards, by meaning","Tarjetas, por el sentido","Karten, nach Bedeutung","Cartões, pelo sentido"],
+  "Garder ces fiches": ["Keep these cards","Conservar estas tarjetas","Diese Karten behalten","Manter estes cartões"],
+  "L'IA trouve les fiches qui en parlent, même sans ces mots": ["AI finds the cards about it, even without these words","La IA encuentra las tarjetas que tratan de ello, incluso sin estas palabras","Die KI findet die Karten dazu, auch ohne diese Wörter","A IA encontra os cartões que falam disso, mesmo sem estas palavras"],
+  "Modifier les masques": ["Edit the masks","Editar las máscaras","Masken bearbeiten","Editar as máscaras"],
+  "Mots exacts": ["Exact words","Palabras exactas","Genaue Wörter","Palavras exatas"],
+  "Notions cherchées : {x}": ["Concepts searched: {x}","Nociones buscadas: {x}","Gesuchte Begriffe: {x}","Noções buscadas: {x}"],
+  "Par le sens": ["By meaning","Por el sentido","Nach Bedeutung","Pelo sentido"],
+  "Parle de {x}": ["About {x}","Trata de {x}","Handelt von {x}","Fala de {x}"],
+  "Recherche par le sens : « {q} »…": ["Searching by meaning: “{q}”…","Buscando por el sentido: «{q}»…","Suche nach Bedeutung: „{q}“…","Buscando pelo sentido: “{q}”…"],
+  "Recherche par le sens…": ["Searching by meaning…","Buscando por el sentido…","Suche nach Bedeutung…","Buscando pelo sentido…"],
+  "Resserre chaque masque sur les mots qu'il cache, sans IA": ["Tightens each mask around the words it hides, without AI","Ajusta cada máscara a las palabras que oculta, sin IA","Passt jede Maske eng an die Wörter an, die sie verdeckt, ohne KI","Ajusta cada máscara às palavras que esconde, sem IA"],
+  "Schéma illisible : il ne sera pas rangé.": ["Unreadable diagram: it will not be filed.","Esquema ilegible: no se guardará.","Schema unleserlich: es wird nicht abgelegt.","Esquema ilegível: não será guardado."],
+  "Schéma masqué": ["Masked diagram","Esquema con máscaras","Maskiertes Schema","Esquema com máscaras"],
+  "Schéma trouvé dans le cours": ["Diagram found in the course","Esquema encontrado en el curso","Im Kurs gefundenes Schema","Esquema encontrado na aula"],
+  "Schémas masqués": ["Masked diagrams","Esquemas con máscaras","Maskierte Schemas","Esquemas com máscaras"],
+  "Une fiche par légende": ["One card per label","Una tarjeta por leyenda","Eine Karte pro Beschriftung","Um cartão por legenda"],
+  "Valider": ["Confirm","Validar","Bestätigen","Confirmar"],
+  "fiche ressemble à une fiche que vous avez déjà : elle est décochée, cochez-la pour la garder quand même.|fiches ressemblent à des fiches que vous avez déjà : elles sont décochées, cochez-les pour les garder quand même.": ["card looks like a card you already have: it is unticked, tick it to keep it anyway.|cards look like cards you already have: they are unticked, tick them to keep them anyway.","tarjeta se parece a una que ya tienes: está desmarcada, márcala para conservarla de todos modos.|tarjetas se parecen a otras que ya tienes: están desmarcadas, márcalas para conservarlas de todos modos.","Karte ähnelt einer Karte, die du schon hast: Sie ist abgewählt, wähle sie an, um sie trotzdem zu behalten.|Karten ähneln Karten, die du schon hast: Sie sind abgewählt, wähle sie an, um sie trotzdem zu behalten.","cartão parece um que você já tem: está desmarcado, marque-o para mantê-lo mesmo assim.|cartões parecem outros que você já tem: estão desmarcados, marque-os para mantê-los mesmo assim."],
+  "fiche trouvée|fiches trouvées": ["card found|cards found","tarjeta encontrada|tarjetas encontradas","Karte gefunden|Karten gefunden","cartão encontrado|cartões encontrados"],
+  "les plus proches en premier": ["closest first","las más cercanas primero","die passendsten zuerst","os mais próximos primeiro"],
+  "masque calé|masques calés": ["mask fitted|masks fitted","máscara ajustada|máscaras ajustadas","Maske|Masken","máscara ajustada|máscaras ajustadas"],
+  "parle de {x}": ["about {x}","trata de {x}","handelt von {x}","fala de {x}"],
+  "✓ {x} sur le texte.": ["✓ {x} to the text.","✓ {x} al texto.","✓ {x} an den Text angepasst.","✓ {x} ao texto."],
+  "✓ {x}, calées sur le texte. Ajustez si besoin.": ["✓ {x}, fitted to the text. Adjust if needed.","✓ {x}, ajustadas al texto. Corrige si hace falta.","✓ {x}, an den Text angepasst. Bei Bedarf korrigieren.","✓ {x}, ajustadas ao texto. Corrija se precisar."],
 };
 
 /* ── Démarrage ─────────────────────────────────────────────────────── */
