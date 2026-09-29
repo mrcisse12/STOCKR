@@ -801,6 +801,9 @@ body.studying .shell,body.studying .dock{visibility:hidden}
 .toast .i{color:var(--brass-text)}
 .toast .wax{width:40px;height:40px;flex:none}
 .toast.out{animation:toastOut .35s var(--ease) forwards}
+.toast-btn{display:inline-flex;align-items:center;gap:6px;margin:-4px -6px -4px 6px;padding:6px 10px;border-radius:8px;border:1px solid var(--hair-2);background:transparent;color:var(--brass-text);font:inherit;font-weight:600;cursor:pointer}
+.toast-btn:hover{background:var(--folder-2)}
+.more-rows{height:1px}
 @keyframes toastIn{from{opacity:0;transform:translateY(16px) scale(.95)}}
 @keyframes toastOut{to{opacity:0;transform:translateY(8px)}}
 @media (max-width:960px){.toasts{bottom:calc(100px + env(safe-area-inset-bottom,0px))}}
@@ -2110,11 +2113,12 @@ function setLang(l) {
 }
 const locale = () => UI_LANG_META[LANG].locale;
 
+/** Une clé peut porter un sens après « @@ » quand le même mot français se traduit autrement (« Annuler@@défaire » : Undo, pas Cancel). */
 function tr(key) {
-  if (LANG === 'fr') return key;
+  if (LANG === 'fr') return key.includes('@@') ? key.split('@@')[0] : key;
   const row = TR[key];
   const v = row?.[UI_LANGS.indexOf(LANG) - 1];
-  if (v == null || v === '') { MISSING.add(key); return key; }
+  if (v == null || v === '') { MISSING.add(key); return key.split('@@')[0]; }
   return v;
 }
 function fill(s, vars) {
@@ -2136,16 +2140,26 @@ function plural(n, key) { const s = tp(n, key); return /\{n\}/.test(tr(key)) ? s
 
 const _nf = new Map();
 function num(n, dec = 0) {
-  const k = dec;
+  const k = locale() + dec;
   if (!_nf.has(k)) _nf.set(k, new Intl.NumberFormat(locale(), { minimumFractionDigits: dec, maximumFractionDigits: dec }));
   return _nf.get(k).format(n);
 }
-function fmtDate(d, opts = { day: 'numeric', month: 'long' }) { return new Intl.DateTimeFormat(locale(), opts).format(d instanceof Date ? d : new Date(d)); }
+const _df = new Map();
+/** Taille lisible : « 12,4 Mo ». */
+function fmtSize(b) { const u = LANG === 'fr' ? ['Ko', 'Mo', 'Go'] : ['KB', 'MB', 'GB']; let i = 0, v = b / 1024; while (v >= 1000 && i < 2) { v /= 1024; i++; } return num(v, v < 10 ? 1 : 0) + '\u00a0' + u[i]; }
+function fmtDate(d, opts = { day: 'numeric', month: 'long' }) {
+  const k = locale() + JSON.stringify(opts); let f = _df.get(k);
+  if (!f) _df.set(k, f = new Intl.DateTimeFormat(locale(), opts));
+  return f.format(d instanceof Date ? d : new Date(d));
+}
 const dayName = (d, style = 'long') => fmtDate(d, { weekday: style });
 const monthName = (d, style = 'long') => fmtDate(d, { month: style });
 /** Nom d'une langue (des fiches) dans la langue de l'interface. */
+const _ln = new Map();
 function langName(code) {
-  try { return cap(new Intl.DisplayNames([locale()], { type: 'language' }).of(code)); } catch { return code; }
+  const k = locale() + '|' + code;
+  if (!_ln.has(k)) { let v; try { v = cap(new Intl.DisplayNames([locale()], { type: 'language' }).of(code)); } catch { v = code; } _ln.set(k, v); }
+  return _ln.get(k);
 }
 /** Nom d'une langue, en anglais, pour les consignes données à l'IA. */
 function langNameEn(code) {
@@ -2156,7 +2170,8 @@ function quote(s) { return ({ fr: '« ' + s + ' »', es: '«' + s + '»', de: '�
 /** Deux-points : espace insécable avant en français seulement. */
 const colon = () => LANG === 'fr' ? '\u00a0: ' : ': ';
 /** Pourcentage « 92 % » (espace insécable en français et en allemand). */
-function pct(v) { return new Intl.NumberFormat(locale(), { style: 'percent', maximumFractionDigits: 0 }).format(v); }
+const _pf = new Map();
+function pct(v) { const k = locale(); if (!_pf.has(k)) _pf.set(k, new Intl.NumberFormat(k, { style: 'percent', maximumFractionDigits: 0 })); return _pf.get(k).format(v); }
 /** Traduit les attributs statiques du HTML (data-i18n, data-i18n-aria, data-i18n-tip). */
 function applyStatic(root = document) {
   root.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
@@ -2183,8 +2198,15 @@ function dayKey(ts = Date.now()) {
   const d = new Date(ts - 4 * HOUR);
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
-function dayStart(ts = Date.now()) { const d = new Date(ts - 4 * HOUR); d.setHours(0, 0, 0, 0); return d.getTime() + 4 * HOUR; }
-const endOfToday = () => dayStart() + DAY;
+let _ds = -Infinity;
+function dayStart(ts = Date.now()) {
+  // Un jour d'étude dure au moins 23 h : dans les 20 h qui suivent le dernier début calculé, c'est le même jour.
+  if (ts >= _ds && ts < _ds + 20 * HOUR) return _ds;
+  const d = new Date(ts - 4 * HOUR); d.setHours(0, 0, 0, 0); return (_ds = d.getTime() + 4 * HOUR);
+}
+let _e0 = -Infinity, _e1 = 0;
+/** Fin du jour d'étude, demandée pour chaque fiche : calculée une fois par jour. */
+const endOfToday = (n = Date.now()) => { if (n < _e0 || n >= _e0 + 20 * HOUR) { _e0 = dayStart(n); _e1 = _e0 + DAY; } return _e1; };
 function keyToDate(k) { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); }
 /** Nombre de jours entre aujourd'hui (jour d'étude) et une date AAAA-MM-JJ. */
 function daysUntil(k) { const today = new Date(dayStart() - 4 * HOUR); today.setHours(0, 0, 0, 0); return Math.round((keyToDate(k) - today) / DAY); }
@@ -2413,19 +2435,132 @@ const allCards = () => S.decks.flatMap(d => d.cards.map(c => (Object.definePrope
 const deckById = id => S.decks.find(d => d.id === id);
 function findCard(id) { for (const d of S.decks) { const c = d.cards.find(x => x.id === id); if (c) return [c, d]; } return [null, null]; }
 
+/* ── Mémoire de l'appareil ─────────────────────────────────────────────
+   localStorage plafonne vers 5 Mo : au-delà (une grosse collection, des
+   photos de cours), plus rien ne s'enregistrait. IndexedDB garde tout :
+   le texte en une seule chaîne JSON (rapide à écrire) et chaque image à part.
+   localStorage garde une copie du texte tant qu'elle y tient, sinon un repère. */
+const IDB = {
+  db: null, ok: false, p: null,
+  open() {
+    return this.p || (this.p = new Promise(res => {
+      let fin = false;
+      const done = db => {
+        if (fin) { try { db?.close(); } catch { } return; }
+        fin = true;
+        if (db) { this.db = db; this.ok = true; db.onversionchange = () => { db.close(); this.ok = false; }; }
+        res(db);
+      };
+      try {
+        const r = indexedDB.open('engram', 1);
+        r.onupgradeneeded = () => r.result.createObjectStore('kv');
+        r.onsuccess = () => done(r.result); r.onerror = r.onblocked = () => done(null);
+      } catch { done(null); }
+      setTimeout(() => done(null), 2500);
+    }));
+  },
+  /** Tout le contenu (clé → valeur), ou null si IndexedDB est indisponible. */
+  async all() {
+    if (!await this.open()) return null;
+    return new Promise(res => {
+      setTimeout(() => res(null), 8000);
+      try {
+        const st = this.db.transaction('kv').objectStore('kv'), kr = st.getAllKeys(), vr = st.getAll();
+        vr.onsuccess = () => res(new Map(kr.result.map((k, i) => [k, vr.result[i]])));
+        vr.onerror = kr.onerror = () => res(null);
+      } catch { res(null); }
+    });
+  },
+  write(puts, dels = []) {
+    if (!this.ok) return Promise.resolve(false);
+    return new Promise(res => {
+      try {
+        const tx = this.db.transaction('kv', 'readwrite'), st = tx.objectStore('kv');
+        puts.forEach(([k, v]) => st.put(v, k)); dels.forEach(k => st.delete(k));
+        tx.oncomplete = () => res(true); tx.onerror = tx.onabort = () => res(false);
+        tx.commit?.();
+      } catch { res(false); }
+    });
+  }
+};
 const Store = {
   KEY: 'engram.v1', db: null, col: null, uid: null, mode: 'local', dirty: new Set(), timer: null, busy: false, parts: {},
+  ready: false, fromLS: false, stub: false, pend: false, frozen: false, saveT: 0, lsMax: Infinity, lsFat: false, imgs: new Map(), warned: false,
   load() {
-    const saved = LS.get(this.KEY);
-    const lang = saved?.profile?.settings?.lang || detectLang();
+    const saved = LS.get(this.KEY); IDB.open();
+    const real = saved && !saved.stub ? saved : null;
+    this.stub = !!saved?.stub; this.fromLS = !!real;
+    const lang = real?.profile?.settings?.lang || saved?.lang || detectLang();
     setLang(lang);
-    S = normalizeState(saved || seedDemo(lang));
+    S = normalizeState(real || seedDemo(lang));
     S.profile.settings.lang = LANG;
   },
-  saveLocal() { S.updatedAt = Date.now(); if (!LS.set(this.KEY, S)) LS.set(this.KEY, { ...S, images: {} }); },
+  /** Au démarrage : la copie d'IndexedDB l'emporte si elle est plus récente, ou si localStorage n'en garde qu'un repère. Les images y sont toutes. */
+  async hydrate() {
+    const kv = await IDB.all();
+    if (kv) {
+      let st = kv.get('state'); try { if (typeof st === 'string') st = JSON.parse(st); } catch { st = null; }
+      if (st?.decks && (!this.fromLS || (st.updatedAt || 0) > (S.updatedAt || 0))) {
+        S = normalizeState(st);
+        if (S.profile.settings.lang && S.profile.settings.lang !== LANG) setLang(S.profile.settings.lang);
+        S.profile.settings.lang = LANG;
+      }
+      for (const [k, v] of kv) if (typeof k === 'string' && k.startsWith('img:')) { const id = k.slice(4); this.imgs.set(id, v); if (!S.images[id]) S.images[id] = v; }
+      // Première fois, ou des photos encore dans localStorage : tout passe dans IndexedDB.
+      if (!kv.has('state') || Object.keys(S.images).some(k => this.imgs.get(k) !== S.images[k])) this.pend = true;
+    } else if (this.stub) {
+      // La collection est dans IndexedDB mais illisible pour l'instant : on n'écrit rien par-dessus.
+      this.frozen = true; this.pend = false;
+      setTimeout(() => toast(t('Vos fiches n\'ont pas pu être lues : rechargez la page. Rien n\'a été effacé.'), 'undo'), 800);
+    }
+    this.ready = true;
+    if (this.pend) { this.pend = false; this.saveLocal(); }
+    // Demande au navigateur de ne pas effacer ces données pour faire de la place.
+    if (!S.demo) navigator.storage?.persist?.().catch(() => { });
+  },
+  /** Enregistre tout de suite. */
+  saveLocal() {
+    clearTimeout(this.saveT); this.saveT = 0;
+    // La vraie collection est encore dans IndexedDB : on attend de l'avoir lue pour ne pas l'écraser.
+    if (this.frozen) return;
+    if (!this.ready && this.stub) { this.pend = true; return; }
+    S.updatedAt = Date.now();
+    const json = JSON.stringify({ ...S, images: {} });
+    this.writeIDB(json); this.writeLS(json);
+  },
+  /** Enregistrement groupé, au calme : noter une fiche ou taper un mot ne fige plus l'écran. */
+  soon() {
+    if (this.saveT) return;
+    this.saveT = setTimeout(() => { const run = () => { if (this.saveT) this.saveLocal(); }; window.requestIdleCallback ? requestIdleCallback(run, { timeout: 1200 }) : run(); }, 300);
+  },
+  /** Avant de quitter la page ou de passer en arrière-plan. */
+  flushLocal() { if (this.saveT) this.saveLocal(); },
+  writeIDB(json) {
+    if (!IDB.ok || !this.ready) return;
+    const puts = [['state', json]], added = [];
+    for (const [k, v] of Object.entries(S.images)) if (this.imgs.get(k) !== v) { puts.push(['img:' + k, v]); added.push([k, v]); }
+    const gone = [...this.imgs.keys()].filter(k => !(k in S.images));
+    IDB.write(puts, gone.map(k => 'img:' + k)).then(ok => {
+      if (!ok) return;
+      added.forEach(([k, v]) => this.imgs.set(k, v)); gone.forEach(k => this.imgs.delete(k));
+      // localStorage gardait ces photos en attendant : on l'allège. Une image revenue entre-temps (Annuler) est réécrite.
+      if (this.lsFat || gone.some(k => k in S.images)) this.soon();
+    });
+  },
+  writeLS(json) {
+    // Des photos pas encore dans IndexedDB : localStorage les garde en attendant, comme avant.
+    const fat = Object.keys(S.images).some(k => this.imgs.get(k) !== S.images[k]);
+    this.lsFat = false;
+    if (fat && LS.set(this.KEY, S)) { this.lsFat = IDB.ok; this.stub = false; return; }
+    if (json.length < this.lsMax) { try { localStorage.setItem(this.KEY, json); this.stub = false; return; } catch { this.lsMax = json.length; } }
+    if (IDB.ok && this.ready) { try { localStorage.setItem(this.KEY, JSON.stringify({ stub: 1, updatedAt: S.updatedAt, lang: LANG })); this.stub = true; } catch { } return; }
+    if (!this.ready) { this.pend = true; return; }
+    // Ni l'un ni l'autre : on prévient une fois, avec la solution.
+    if (!this.warned) { this.warned = true; toast(t('La mémoire de cet appareil est pleine : exportez une sauvegarde (Réglages, Données).'), 'download'); }
+  },
   touch(...keys) {
     if (typeof Plan !== 'undefined') Plan.invalidate();
-    this.saveLocal();
+    S.updatedAt = Date.now(); this.soon();
     if (S.demo) return;
     keys.forEach(k => this.dirty.add(k));
     this.schedule();
@@ -3252,7 +3387,7 @@ const Ink = {
       ${o.marker === false ? '' : `<button type="button" class="ink-tool" data-ink-tool="marker" aria-label="${esc(t('Surligneur'))}" data-tip="${esc(t('Surligneur'))}">${icon('marker')}</button>`}
       <button type="button" class="ink-tool" data-ink-tool="eraser" aria-label="${esc(t('Gomme'))}" data-tip="${esc(t('Gomme'))}">${icon('eraser')}</button>
       ${colors}<span class="ink-sep"></span>
-      <button type="button" class="ink-tool" data-ink="undo" aria-label="${esc(t('Annuler'))}" data-tip="${esc(t('Annuler'))}">${icon('undo')}</button>
+      <button type="button" class="ink-tool" data-ink="undo" aria-label="${esc(t('Annuler@@défaire'))}" data-tip="${esc(t('Annuler@@défaire'))}">${icon('undo')}</button>
       <button type="button" class="ink-tool" data-ink="redo" aria-label="${esc(t('Rétablir'))}" data-tip="${esc(t('Rétablir'))}">${icon('redo')}</button>
       <button type="button" class="ink-tool" data-ink="clear" aria-label="${esc(t('Tout effacer'))}" data-tip="${esc(t('Tout effacer'))}">${icon('trash')}</button>
       ${o.extra || ''}</div>`;
@@ -3800,6 +3935,18 @@ const Ruling = {
 };
 
 /* ── Toasts, modales ───────────────────────────────────────────────── */
+/** Suppression annulable : le bouton « Annuler » (ou Ctrl+Z) remet tout en place pendant quelques secondes. */
+const Undo = { fn: null };
+function toastUndo(msg, undo) {
+  const el = document.createElement('div'); el.className = 'toast toast-undo'; el.setAttribute('role', 'status');
+  el.innerHTML = icon('trash') + `<span>${esc(msg)}</span><button type="button" class="toast-btn">${icon('undo', 'i-sm')}${t('Annuler@@défaire')}</button>`;
+  let done = false;
+  const bye = () => { if (Undo.fn === run) Undo.fn = null; el.classList.add('out'); setTimeout(() => el.remove(), 400); };
+  const run = () => { if (done) return; done = true; bye(); undo(); toast(t('Suppression annulée'), 'undo'); };
+  el.querySelector('button').onclick = run; Undo.fn = run;
+  $('#toasts').append(el);
+  setTimeout(() => { if (!done) { done = true; bye(); } }, 7000);
+}
 function toast(msg, ic = 'check', lead = '') {
   const el = document.createElement('div'); el.className = 'toast';
   el.innerHTML = (lead || (ic ? icon(ic) : '')) + `<span>${esc(msg)}</span>`;
@@ -3843,7 +3990,7 @@ const Motion = {
   },
   seen(el) { if (!el) return false; const r = el.getBoundingClientRect(); return r.width > 0 && r.bottom > 0 && r.top < innerHeight; },
   plate(id) { return id ? $(`#view .drawer[data-id="${CSS.escape(id)}"] .holder`) : null; },
-  nav(from, to, draw, scroll = true) {
+  nav(from, to, draw) {
     const root = document.documentElement, kind = this.kind(from, to), tok = ++this.tok;
     const id = to.v === 'deck' ? to.arg : from?.v === 'deck' ? from.arg : null;
     const lock = el => { el.style.viewTransitionName = 'vt-plate'; el.classList.add('vt-lock'); el.closest('.rise')?.classList.add('vt-lock'); };
@@ -3854,11 +4001,11 @@ const Motion = {
     let vt;
     try {
       vt = document.startViewTransition(() => {
-        if (scroll) scrollTo(0, 0); draw();
+        draw();
         const nu = old && (kind === 'in' ? $('#view .deck-head .holder') : this.plate(id));
         if (nu && this.seen(nu)) lock(nu);
       });
-    } catch { if (scroll) scrollTo(0, 0); draw(); delete root.dataset.vt; return; }
+    } catch { draw(); delete root.dataset.vt; return; }
     vt.finished.finally(() => {
       if (tok !== this.tok) return;
       delete root.dataset.vt;
@@ -4006,14 +4153,18 @@ const App = {
   go(v, arg = null) {
     if (Study.active) Study.close(true);
     const same = this.route.v === v && this.route.arg === arg, from = this.route;
+    // Ouvrir un paquet retient la hauteur de la page d'où l'on vient ; y revenir la rend, pour retrouver son tiroir.
+    let y = same ? null : 0;
+    if (!same && v === 'deck') { if (from.v !== 'deck') this.back = { v: from.v, arg: from.arg, y: scrollY }; }
+    else if (!same && from.v === 'deck' && this.back?.v === v && this.back.arg === arg) y = this.back.y;
     this.route = { v, arg };
-    if (!this.render(!same, from) && !same) scrollTo({ top: 0, behavior: 'auto' });
+    this.render(!same, same ? null : from, y);
   },
-  /** Redessine la page ; avec `from`, c'est un changement de page (voir Motion). Renvoie vrai si une transition s'en charge. */
-  render(anim = false, from = null) {
+  /** Redessine la page, puis la place à la hauteur `y` s'il y en a une ; avec `from`, c'est un changement de page (voir Motion). */
+  render(anim = false, from = null, y = null) {
     const view = Views[this.route.v] || Views.today;
-    const draw = () => { $('#view').innerHTML = `<div class="view">${view(this.route.arg)}</div>`; this.chrome(); this.after(); };
-    if (anim && document.startViewTransition && Motion.full) { Motion.nav(from || this.route, this.route, draw, !!from); return true; }
+    const draw = () => { $('#view').innerHTML = `<div class="view">${view(this.route.arg)}</div>`; if (y != null) scrollTo({ top: y, behavior: 'instant' }); this.chrome(); this.after(); };
+    if (anim && document.startViewTransition && Motion.full) { Motion.nav(from || this.route, this.route, draw); return true; }
     draw(); return false;
   },
   refreshAI() { if (['scan', 'settings', 'deck', 'plan'].includes(this.route.v) && !Scan.running && !Study.active) this.render(); Mentor.refresh(); },
@@ -4422,9 +4573,21 @@ Hooks.deck = id => {
     let list = items || d.cards.map(c => ({ c, d }));
     const ok = deckFilter === 'due' ? c => isDue(c) : deckFilter === 'new' ? c => c.srs.state === 0 : deckFilter === 'leech' ? isLeech : COMP.includes(deckFilter) ? c => compOf(c) === deckFilter : null;
     if (ok) list = list.filter(x => ok(x.c));
-    box.innerHTML = head + (list.length ? `<div class="cat">${list.map(x => cardRow(x.c, d, x)).join('')}</div>`
+    // Par tranches de 150 : les suivantes arrivent en descendant, un paquet de 5 000 fiches s'ouvre aussi vite qu'un petit.
+    const PAGE = 150; box._io?.disconnect(); box._io = null;
+    box.innerHTML = head + (list.length ? `<div class="cat">${list.slice(0, PAGE).map(x => cardRow(x.c, d, x)).join('')}</div>${list.length > PAGE ? '<div class="more-rows" aria-hidden="true"></div>' : ''}`
       : items ? (ok && items.length ? `<div class="empty"><div class="t">${t('Aucune fiche ici')}</div><div>${t('Changez de filtre.')}</div></div>` : '')
         : `<div class="empty"><div class="t">${d.cards.length ? t('Aucune fiche ici') : t('Ce tiroir est vide')}</div><div>${d.cards.length ? t('Changez de filtre.') : t('Ajoutez une fiche, ou scannez un cours pour le remplir.')}</div></div>`);
+    const more = box.querySelector('.more-rows');
+    if (more) {
+      let k = PAGE; const cat = box.querySelector('.cat');
+      box._io = new IntersectionObserver(es => {
+        if (!es.some(e => e.isIntersecting)) return;
+        cat.insertAdjacentHTML('beforeend', list.slice(k, k + PAGE).map(x => cardRow(x.c, d, x)).join('')); k += PAGE;
+        if (k >= list.length) { box._io.disconnect(); box._io = null; more.remove(); }
+      }, { rootMargin: '900px 0px' });
+      box._io.observe(more);
+    }
   } });
   $('#deckFilter')?.addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (!b) return; deckFilter = b.dataset.f; $$('#deckFilter button').forEach(x => x.classList.toggle('on', x === b)); seek.draw(); });
   seek.draw();
@@ -4433,7 +4596,10 @@ function openNote(deckId, id) {
   const d = deckById(deckId); const n = d?.notes.find(x => x.id === id); if (!n) return;
   const m = Modal.open(mh(esc(n.title), esc(d.name)) + `<div class="sheet">${sheetHTML(n.md)}</div><div class="modal-f" style="justify-content:space-between"><button class="btn btn-sm btn-danger" id="nDel">${icon('trash', 'i-sm')}${t('Supprimer')}</button><button class="btn btn-brass" id="nSave">${icon('download')}${t('Exporter (.md)')}</button></div>`, 'wide');
   m.querySelector('#nSave').onclick = () => saveFile(slug(n.title) + '.md', n.md);
-  m.querySelector('#nDel').onclick = () => { d.notes = d.notes.filter(x => x !== n); Store.touchDeck(d); Modal.close(); App.render(); toast(t('Note supprimée'), 'trash'); };
+  m.querySelector('#nDel').onclick = () => {
+    const at = d.notes.indexOf(n); d.notes = d.notes.filter(x => x !== n); Store.touchDeck(d); Modal.close(); App.render();
+    toastUndo(t('Note supprimée'), () => { if (!d.notes.includes(n)) d.notes.splice(Math.min(at, d.notes.length), 0, n); Store.touchDeck(d); App.render(); });
+  };
 }
 
 /* ── Carnet : période, paquet, tendances ───────────────────────────── */
@@ -4774,11 +4940,24 @@ function openNewDeck(after) {
   const save = () => { const o = readDeckForm(m); if (!o.name) { m.querySelector('#dName').focus(); return; } const d = createDeck(o); Modal.close(); toast(t('Paquet créé')); after ? after(d) : App.go('deck', d.id); };
   m.querySelector('#dSave').onclick = save; m.querySelector('#dName').addEventListener('keydown', e => e.key === 'Enter' && save());
 }
+/** Supprime un paquet (et ses images) ; renvoie de quoi l'annuler. */
 function deleteDeck(d) {
-  for (const c of d.cards) if (c.img && !S.decks.some(x => x !== d && x.cards.some(y => y.img === c.img))) { delete S.images[c.img]; Store.dirty.add('img:' + c.img); }
+  const at = S.decks.indexOf(d), imgs = {}, exams = S.profile.exams.map(x => [x, (x.deckIds || []).slice()]);
+  const uses = (c, id) => c.img === id || c.fimg === id || c.bimg === id;
+  for (const c of d.cards) for (const f of ['img', 'fimg', 'bimg']) {
+    const id = c[f]; if (!id || !(id in S.images) || S.decks.some(x => x !== d && x.cards.some(y => uses(y, id)))) continue;
+    imgs[id] = S.images[id]; delete S.images[id]; Store.dirty.add('img:' + id);
+  }
   S.decks = S.decks.filter(x => x !== d);
   for (const x of S.profile.exams) x.deckIds = (x.deckIds || []).filter(id => id !== d.id);
   Store.touch('deck:' + d.id, 'profile');
+  return () => {
+    if (S.decks.includes(d)) return;
+    S.decks.splice(Math.min(at, S.decks.length), 0, d); Object.assign(S.images, imgs);
+    for (const [x, ids] of exams) if (S.profile.exams.includes(x)) x.deckIds = ids;
+    Object.keys(imgs).forEach(k => Store.dirty.add('img:' + k));
+    Store.touchDeck(d); Store.touch('profile');
+  };
 }
 function openDeckSettings(id) {
   const d = deckById(id); if (!d) return;
@@ -4792,7 +4971,8 @@ function openDeckSettings(id) {
   const del = m.querySelector('#dDel');
   del.onclick = () => {
     if (!del.dataset.sure) { del.dataset.sure = 1; del.innerHTML = icon('trash', 'i-sm') + t('Confirmer : supprimer {x}', { x: plural(d.cards.length, 'fiche|fiches') }); return; }
-    deleteDeck(d); Modal.close(); App.go('library'); toast(t('Paquet supprimé'), 'trash');
+    const undo = deleteDeck(d); Modal.close(); App.go('library');
+    toastUndo(t('Paquet supprimé'), () => { undo(); App.render(); });
   };
 }
 /* Examens : plusieurs dates possibles, chacune liée à un ou plusieurs paquets. */
@@ -4910,8 +5090,11 @@ function openEditor(cardId, deckId, preset) {
     const del = root.querySelector('#eDel');
     if (del) del.onclick = () => {
       if (!del.dataset.sure) { del.dataset.sure = 1; del.innerHTML = icon('trash', 'i-sm') + t('Confirmer la suppression'); return; }
-      deck.cards = deck.cards.filter(x => card.type === 'cloze' && card.note ? x.note !== card.note : x !== card);
-      Store.touchDeck(deck); Modal.close(); App.render(); toast(t('Fiche supprimée'), 'trash');
+      const gone = x => card.type === 'cloze' && card.note ? x.note === card.note : x === card;
+      const was = deck.cards.map((x, i) => [x, i]).filter(([x]) => gone(x));
+      deck.cards = deck.cards.filter(x => !gone(x));
+      Store.touchDeck(deck); Modal.close(); App.render();
+      toastUndo(t('Fiche supprimée'), () => { for (const [x, i] of was) if (!deck.cards.includes(x)) deck.cards.splice(Math.min(i, deck.cards.length), 0, x); Store.touchDeck(deck); App.render(); });
     };
     root.querySelector('#eSave').onclick = save;
   };
@@ -5466,7 +5649,7 @@ function openShortcuts() {
   const grp = (title, rows) => `<section class="keys-g"><h3 class="kicker">${title}</h3><dl>${rows.map(([k, l]) => `<div><dt>${k.split(' ').map(kbd).join('')}</dt><dd>${l}</dd></div>`).join('')}</dl></section>`;
   Modal.open(mh(t('Raccourcis clavier'), t('Au clavier, sur ordinateur et iPad')) + `<div class="keys">
     ${grp(t('Partout'), [[MOD + ' K', t('Commandes et recherche')], ['/', t('Parler à Mentor')], [MOD + ' J', t('Ouvrir ou fermer Mentor')], ['?', t('Cette liste')], [t('Espace'), t("Réviser, depuis l'accueil")], [t('Échap'), t('Fermer')]])}
-    ${grp(t('En révision'), [[t('Espace'), t('Retourner / valider')], ['1 2 3 4', t('Noter la fiche')], ['A B C D', t('Répondre à un QCM')], [trueLbl()[0] + ' ' + falseLbl()[0], t('Vrai ou faux')], ['M', t('Mains libres : lire et répondre à la voix')], ['T', t('Lire à voix haute')], ['E', t('Modifier')], ['Z', t('Annuler')]])}
+    ${grp(t('En révision'), [[t('Espace'), t('Retourner / valider')], ['1 2 3 4', t('Noter la fiche')], ['A B C D', t('Répondre à un QCM')], [trueLbl()[0] + ' ' + falseLbl()[0], t('Vrai ou faux')], ['M', t('Mains libres : lire et répondre à la voix')], ['T', t('Lire à voix haute')], ['E', t('Modifier')], ['Z', t('Annuler@@défaire')]])}
     ${grp(t('Dans la palette'), [['↑ ↓', t('Choisir')], ['↵', t('Ouvrir')], ['⇧ ↵', t('Réviser le paquet choisi')], ['#', t('Chercher seulement les paquets')], ['?', t('Poser la question à Mentor')], ['=', t('« question = réponse » crée une fiche')]])}
   </div>`, 'keys-modal');
 }
@@ -7145,6 +7328,7 @@ function bootApp() {
     if (e.key === 'Enter' && e.target.matches?.('[role="link"][data-act]')) { e.target.click(); return; }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); if (!Modal.stack.length) openPalette(); return; }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'j') { e.preventDefault(); Mentor.toggle(); return; }
+    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'z' && Undo.fn && !/input|textarea|select/i.test(e.target.tagName) && !e.target.isContentEditable) { e.preventDefault(); Undo.fn(); return; }
     if (e.key === 'Escape' && Modal.stack.length) { Modal.close(); e.preventDefault(); return; }
     if (e.key === 'Escape' && Mentor.isOpen) { Mentor.close(); e.preventDefault(); return; }
     if (Modal.stack.length) return;
@@ -7266,17 +7450,26 @@ Views.settings = arg => {
     <article class="panel rise"><div class="settings">
       ${setRow(t('Synchronisation'), Store.mode === 'cloud' ? t('Vos paquets sont enregistrés dans votre espace privé et suivent votre compte sur tous vos appareils.') : S.demo ? t("Les exemples restent sur cet appareil. Vos propres paquets seront synchronisés dès leur création, dans l'app Claude.") : t('Enregistré sur cet appareil.'), `<span class="pill ${Store.mode === 'cloud' ? 'on' : ''}"><i></i>${Store.mode === 'cloud' ? t('Synchronisé') : t('Local')}</span>`)}
       ${setRow(t('Intégrations'), t('Anki, Quizlet, Excel, Google Sheets, Notion, PDF, Google Agenda, Outlook et Apple Calendrier : importer, exporter, planifier.'), `<button class="btn btn-sm btn-brass" data-act="go" data-v="links">${icon('link', 'i-sm')}${t('Ouvrir')}</button>`)}
+      ${setRow(t('Mémoire de cet appareil'), `<span id="storeUse">${t('Paquets et photos restent sur cet appareil, même une très grande collection.')}</span>`, `<span class="pill on" id="storePill" hidden data-tip="${esc(t('Le navigateur ne l\'effacera pas pour faire de la place.'))}">${icon('check', 'i-sm')}${t('Protégée')}</span>`)}
       ${setRow(t('Sauvegarde'), t('Tous vos paquets, notes, examens et profil dans un seul fichier.'), `<button class="btn btn-sm" data-act="backup">${icon('download', 'i-sm')}${t('Exporter (.json)')}</button>`)}
       ${setRow(t("Revoir l'accueil"), t('Relancer la présentation du premier démarrage.'), `<button class="btn btn-sm" data-act="onboard">${icon('eye', 'i-sm')}${t('Revoir')}</button>`)}
       ${setRow(t('Réinitialiser'), S.demo ? t("Retirer les paquets d'exemple et repartir de zéro.") : t('Supprimer définitivement tous vos paquets et votre historique.'), `<button class="btn btn-sm btn-danger" data-act="${S.demo ? 'clearDemo' : 'wipe'}">${icon('trash', 'i-sm')}${S.demo ? t('Effacer les exemples') : t('Tout effacer')}</button>`)}
     </div></article></section>
 
     <article class="panel rise"><div class="panel-h"><h3 class="h3">${t('Raccourcis clavier')}</h3>${icon('keyboard')}</div>
-      <div class="legend" style="gap:10px 22px">${[[t('Espace'), t('Retourner / valider')], ['1 2 3 4', t('Noter la fiche')], [t('A–D · V/F'), t('QCM, vrai/faux')], ['M', t('Mains libres')], ['/', t('Parler à Mentor')], [MOD + ' K', t('Commandes et recherche')], ['?', t('Tous les raccourcis')], ['E', t('Modifier')], ['T', t('Lire à voix haute')], ['Z', t('Annuler')], [t('Échap'), t('Quitter')]].map(([k, l]) => `<span><kbd>${k}</kbd>${l}</span>`).join('')}</div>
+      <div class="legend" style="gap:10px 22px">${[[t('Espace'), t('Retourner / valider')], ['1 2 3 4', t('Noter la fiche')], [t('A–D · V/F'), t('QCM, vrai/faux')], ['M', t('Mains libres')], ['/', t('Parler à Mentor')], [MOD + ' K', t('Commandes et recherche')], ['?', t('Tous les raccourcis')], ['E', t('Modifier')], ['T', t('Lire à voix haute')], ['Z', t('Annuler@@défaire')], [t('Échap'), t('Quitter')]].map(([k, l]) => `<span><kbd>${k}</kbd>${l}</span>`).join('')}</div>
     </article>`;
 };
 Hooks.settings = arg => {
   const s = S.profile.settings, st = S.profile.study;
+  // La mémoire de l'appareil : ce qu'Engram occupe, et si le navigateur s'engage à ne pas l'effacer.
+  const use = $('#storeUse');
+  if (use && navigator.storage?.estimate) navigator.storage.estimate().then(({ usage }) => {
+    if (!use.isConnected || !usage) return;
+    const n = S.decks.reduce((a, d) => a + d.cards.length, 0), p = Object.keys(S.images).length;
+    use.textContent = t('{s} utilisés sur cet appareil : {n} et {p}.', { s: fmtSize(usage), n: plural(n, 'fiche|fiches'), p: plural(p, 'image|images') });
+  }).catch(() => { });
+  navigator.storage?.persisted?.().then(on => { const pl = $('#storePill'); if (pl && on) pl.hidden = false; }).catch(() => { });
   const bind = (id, key, outId, fmt) => { const el = $('#' + id); el?.addEventListener('input', () => { s[key] = +el.value; $('#' + outId).textContent = fmt(+el.value); Store.touch('profile'); }); };
   bind('setRet', 'retention', 'retOut', v => pct(v));
   bind('setNew', 'newPerDay', 'newOut', v => v);
@@ -11800,11 +11993,23 @@ TR = {
   "{x} vous offre un mois de Pro : scans illimités, les six assistants, Mentor sans limite et l'autopilote. Aucun paiement n'est demandé.": ["{x} is giving you a month of Pro: unlimited scans, the six assistants, unlimited Mentor and the autopilot. No payment required.","{x} te regala un mes de Pro: escaneos ilimitados, los seis asistentes, Mentor sin límite y el piloto automático. No se pide ningún pago.","{x} schenkt dir einen Monat Pro: unbegrenzte Scans, die sechs Assistenten, Mentor unbegrenzt und der Autopilot. Keine Zahlung nötig.","{x} lhe dá um mês de Pro: escaneamentos ilimitados, os seis assistentes, Mentor sem limite e o piloto automático. Nenhum pagamento é pedido."],
   "Cadeau · encore {n}": ["Gift · {n} left","Regalo · quedan {n}","Geschenk · noch {n}","Presente · faltam {n}"],
   "Offert jusqu'au {d} · tout est inclus": ["Free until {d} · everything included","Regalado hasta el {d} · todo incluido","Geschenkt bis {d} · alles inklusive","De presente até {d} · tudo incluído"],
+  "La mémoire de cet appareil est pleine : exportez une sauvegarde (Réglages, Données).": ["This device's storage is full: export a backup (Settings, Data).","La memoria de este dispositivo está llena: exporta una copia de seguridad (Ajustes, Datos).","Der Speicher dieses Geräts ist voll: Exportiere eine Sicherung (Einstellungen, Daten).","A memória deste aparelho está cheia: exporte um backup (Ajustes, Dados)."],
+  "Suppression annulée": ["Deletion undone","Eliminación deshecha","Löschen rückgängig gemacht","Exclusão desfeita"],
+  "Mémoire de cet appareil": ["This device's storage","Memoria de este dispositivo","Speicher dieses Geräts","Memória deste aparelho"],
+  "Paquets et photos restent sur cet appareil, même une très grande collection.": ["Decks and photos stay on this device, even a very large collection.","Los mazos y las fotos se quedan en este dispositivo, incluso una colección muy grande.","Stapel und Fotos bleiben auf diesem Gerät, auch eine sehr große Sammlung.","Baralhos e fotos ficam neste aparelho, mesmo uma coleção muito grande."],
+  "Le navigateur ne l'effacera pas pour faire de la place.": ["The browser won't erase it to free up space.","El navegador no la borrará para liberar espacio.","Der Browser löscht ihn nicht, um Platz zu schaffen.","O navegador não vai apagá-la para liberar espaço."],
+  "Protégée": ["Protected","Protegida","Geschützt","Protegida"],
+  "{s} utilisés sur cet appareil : {n} et {p}.": ["{s} used on this device: {n} and {p}.","{s} usados en este dispositivo: {n} y {p}.","{s} auf diesem Gerät belegt: {n} und {p}.","{s} usados neste aparelho: {n} e {p}."],
+  "Vos fiches n'ont pas pu être lues : rechargez la page. Rien n'a été effacé.": ["Your cards couldn't be read: reload the page. Nothing has been erased.","No se pudieron leer tus tarjetas: recarga la página. No se ha borrado nada.","Deine Karten konnten nicht gelesen werden: Lade die Seite neu. Nichts wurde gelöscht.","Não foi possível ler seus cartões: recarregue a página. Nada foi apagado."],
+  "Annuler@@défaire": ["Undo","Deshacer","Rückgängig","Desfazer"],
 };
 
 /* ── Démarrage ─────────────────────────────────────────────────────── */
-function boot() {
+async function boot() {
   Store.load();
+  addEventListener('pagehide', () => Store.flushLocal());
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') Store.flushLocal(); });
+  await Store.hydrate();
   Custom.apply(); applyStatic(); Splash.init();
   Scan.level = S.profile.study.level || 'lycee';
   bootApp(); Mentor.mount(); bootDrop();
