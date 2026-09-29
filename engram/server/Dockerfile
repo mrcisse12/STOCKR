@@ -5,8 +5,10 @@ FROM node:22-alpine
 WORKDIR /app
 COPY server/package.json server/package-lock.json ./server/
 RUN cd server && npm ci --omit=dev
-COPY index.html dossier.html ./
-COPY server/server.mjs ./server/
+COPY index.html dossier.html manifest.webmanifest sw.js ./
+COPY icons ./icons
+COPY decouvrir ./decouvrir
+COPY server/server.mjs server/core.mjs ./server/
 ENV PORT=8787 NODE_ENV=production
 EXPOSE 8787
 USER node

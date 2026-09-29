@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Engram : le cercle des révisions. Le point rouge est aujourd'hui ; les points d'or s'écartent comme les révisions qui s'espacent. -->
+  <defs><radialGradient id="bg" cx="50%" cy="36%" r="78%"><stop offset="0" stop-color="#23362C"/><stop offset=".6" stop-color="#15201B"/><stop offset="1" stop-color="#0A100D"/></radialGradient><linearGradient id="gilt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F3E0AE"/><stop offset=".48" stop-color="#CFA95F"/><stop offset="1" stop-color="#8C6A2E"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <g transform="translate(256 256) scale(1)"><path fill="url(#gilt)" transform="scale(3.1)" d="M-39 50 -38.87 48.67H-38.73Q-33.93 48.67 -31 46.13Q-28.07 43.6 -28.07 38.8V-38Q-28.07 -42.8 -31 -45.73Q-33.93 -48.67 -38.73 -48.67L-38.87 -50H32.6L36.6 -23.2H35.27Q31.27 -48.27 3.67 -48.27H-7.53V-9.73H4.47Q11.13 -9.73 15.13 -13.8Q19.13 -17.87 19.13 -24.53H20.47V8.27H19.13Q19 1.07 14.6 -3.47Q10.2 -8 3 -8H-7.53V38.8Q-7.53 48.27 1.8 48.27H7.4Q20.33 48.27 27.93 41.6Q35.53 34.93 37.67 20.67H39L35 50Z"/></g>
+</svg>
