@@ -679,14 +679,115 @@ body.studying .shell,body.studying .dock{visibility:hidden}
 @keyframes toastIn{from{opacity:0;transform:translateY(16px) scale(.95)}}
 @keyframes toastOut{to{opacity:0;transform:translateY(8px)}}
 @media (max-width:960px){.toasts{bottom:calc(100px + env(safe-area-inset-bottom,0px))}}
-.palette{padding:0;overflow:hidden;width:min(600px,100%)}
-.palette .search .i{left:16px}
-.palette .input{border:0;border-bottom:1px solid var(--hair);border-radius:0;height:58px;background:transparent;font-size:16px;box-shadow:none!important;padding-left:44px}
-.pal-list{max-height:52vh;overflow:auto;padding:8px}
-.pal-item{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border-radius:8px;text-align:left;color:var(--text-2)}
-.pal-item.on,.pal-item:hover{background:var(--brass-soft);color:var(--text)}
-.pal-item small{margin-left:auto;font:400 11px var(--f-type);color:var(--muted);white-space:nowrap}
-.pal-sec{font:700 10px/1 var(--f-type);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:12px 12px 6px}
+/* Palette de commandes : posée haut, comme une barre de recherche, jamais au milieu de la page. */
+.modal-back:has(>.palette){place-items:start center;padding-top:min(13vh,120px)}
+.palette{padding:0;overflow:hidden;width:min(700px,100%);display:flex;flex-direction:column;max-height:min(620px,calc(100vh - min(13vh,120px) - 24px));animation:palIn .32s var(--snap) both}
+@keyframes palIn{from{opacity:0;transform:translateY(-10px) scale(.985)}}
+.pal-top{display:flex;align-items:center;gap:8px;padding:0 12px 0 20px;border-bottom:1px solid var(--hair);flex:none}
+.pal-top>.i{flex:none;color:var(--brass-text);width:20px;height:20px}
+.pal-top .input{flex:1;min-width:0;border:0;background:transparent;height:64px;font:400 18px var(--f-ui);padding:0 6px;box-shadow:none!important;border-radius:0}
+.pal-top .input::placeholder{color:var(--muted)}
+.pal-mic{flex:none;position:relative;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--text-2);border:1px solid var(--hair-2);background:var(--folder-2);transition:all .25s var(--ease)}
+.pal-mic:hover{color:var(--text);border-color:var(--hair-3)}
+.pal-mic.on{color:var(--on-brass);background:linear-gradient(180deg,var(--brass-hi) -30%,var(--brass-btn) 50%,var(--brass-lo) 140%);border-color:transparent}
+.pal-mic.on::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--brass);opacity:0;animation:micRing 1.4s var(--ease) infinite}
+@keyframes micRing{0%{opacity:.7;transform:scale(.9)}100%{opacity:0;transform:scale(1.35)}}
+.pal-esc{flex:none;display:flex;align-items:center;color:var(--muted);padding:6px;border-radius:8px}
+.pal-esc:hover{color:var(--text)}
+.pal-esc .i{display:none}
+.pal-voice{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--hair);background:color-mix(in srgb,var(--brass) 7%,transparent);flex:none;animation:fadeIn .25s both}
+.pal-voice>span:last-child{display:grid;gap:2px;min-width:0}
+.pal-voice b{font-weight:600;font-size:14px}
+.pal-voice small{font-size:12.5px;color:var(--muted)}
+.pal-voice>.i{color:var(--brass-text);flex:none}
+.pal-voice.miss>.i,.pal-voice.deny>.i{color:var(--hard)}
+.wave{display:flex;align-items:center;gap:3px;height:22px;flex:none}
+.wave i{width:3px;height:100%;border-radius:3px;background:var(--brass);animation:wave 1s var(--ease) infinite;transform-origin:center}
+.wave i:nth-child(2){animation-delay:.12s}.wave i:nth-child(3){animation-delay:.24s}.wave i:nth-child(4){animation-delay:.36s}.wave i:nth-child(5){animation-delay:.48s}
+@keyframes wave{0%,100%{transform:scaleY(.25)}50%{transform:scaleY(1)}}
+.pal-list{flex:1;min-height:0;max-height:none;overflow:auto;padding:4px 8px 10px;overscroll-behavior:contain;scroll-padding:36px 0 8px}
+.pal-sec{position:sticky;top:0;z-index:1;font:700 10px/1 var(--f-type);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:14px 12px 7px;background:linear-gradient(var(--folder) 75%,transparent)}
+.pal-item{display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;gap:12px;width:100%;min-height:50px;padding:7px 10px;border-radius:10px;text-align:left;color:var(--text-2);cursor:pointer;position:relative;transition:background .15s}
+.pal-item.on{background:var(--brass-soft);color:var(--text)}
+.pal-item.on::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:3px;background:var(--brass)}
+@media (hover:hover){.pal-item:hover:not(.on){background:color-mix(in srgb,var(--text) 4%,transparent)}}
+.pal-item.dead{cursor:default;opacity:.75}
+.pal-ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--folder-2);border:1px solid var(--hair);color:var(--brass-text);transition:all .2s var(--ease)}
+.pal-item.on .pal-ic{background:color-mix(in srgb,var(--brass) 18%,var(--folder-2));border-color:color-mix(in srgb,var(--brass) 45%,transparent)}
+.pal-t{display:grid;gap:2px;min-width:0}
+.pal-t b{font-weight:500;font-size:14.5px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pal-t small{font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pal-t mark{background:none;color:var(--brass-text);font-weight:700}
+.pal-r{display:flex;align-items:center;gap:8px;color:var(--muted)}
+.pal-r>.i{color:var(--good)}
+.pal-r kbd{font-size:10px}
+.pal-go{display:inline-flex;align-items:center;gap:5px;height:28px;padding:0 10px;border-radius:7px;border:1px solid var(--hair-2);font:600 12px var(--f-ui);color:var(--text-2);opacity:0;transition:opacity .15s}
+.pal-item.on .pal-go,.pal-item:hover .pal-go{opacity:1}
+.pal-go:hover{border-color:var(--brass);color:var(--text)}
+.pal-empty{display:grid;justify-items:center;gap:6px;padding:40px 20px;text-align:center;color:var(--muted)}
+.pal-empty .i{width:26px;height:26px;opacity:.6}
+.pal-empty b{color:var(--text);font-weight:600;font-size:15px}
+.pal-empty span{font-size:13.5px}
+.pal-hint{display:none;align-items:flex-start;gap:8px;margin:10px 12px 4px;font-size:12.5px;line-height:1.45;color:var(--muted)}
+.pal-hint .i{flex:none;color:var(--brass-text);margin-top:1px}
+.pal-foot{display:flex;align-items:center;gap:18px;padding:11px 20px;border-top:1px solid var(--hair);font:400 12px var(--f-ui);color:var(--muted);flex:none}
+.pal-foot>span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.pal-foot kbd{font-size:9.5px;padding:3px 5px}
+kbd.sym{font:600 11px/1 system-ui,-apple-system,sans-serif;min-width:18px;text-align:center;padding:2px 4px}
+.pal-sw{background:var(--a)!important;border-color:var(--hair-2)!important}
+.pal-sw i{width:12px;height:12px;border-radius:50%;background:var(--c);box-shadow:0 0 0 2px rgba(0,0,0,.18)}
+.pal-foot kbd+kbd{margin-left:-2px}
+.pal-tip{margin-left:auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.pal-tip .i{color:var(--brass-text);flex:none}
+@media (max-width:820px){.pal-foot>span:nth-child(3){display:none}}
+@media (max-width:620px){
+  .modal-back:has(>.palette){padding:0;place-items:start stretch}
+  .palette{width:100%;max-height:calc(100dvh - 40px);border-radius:0 0 20px 20px;border-top:0;padding:env(safe-area-inset-top,0) 0 0;animation:palDrop .4s var(--ease) both}
+  @keyframes palDrop{from{transform:translateY(-100%)}}
+  .pal-top{padding:0 8px 0 16px}
+  .pal-top .input{height:60px;font-size:17px}
+  .pal-esc kbd{display:none}.pal-esc .i{display:block;width:20px;height:20px}
+  .pal-esc{width:40px;height:40px;justify-content:center}
+  .pal-mic{width:44px;height:44px}
+  .pal-item{min-height:56px}
+  .pal-go{opacity:1}
+  .pal-r kbd{display:none}
+  .pal-foot{display:none}
+  .pal-hint{display:flex}
+  .pal-voice{padding:12px 16px}
+}
+
+/* Feuille des raccourcis */
+.keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px 26px}
+.keys-g .kicker{margin:0 0 10px}
+.keys-g dl{margin:0;display:grid;gap:2px}
+.keys-g dl>div{display:grid;grid-template-columns:88px minmax(0,1fr);gap:12px;align-items:center;padding:7px 0;border-top:1px solid var(--hair)}
+.keys-g dt{display:flex;gap:4px;flex-wrap:wrap}
+.keys-g dd{margin:0;font-size:13.5px;color:var(--text-2)}
+.keys-modal kbd{opacity:.85}
+
+/* Révision mains libres : une bulle entre la fiche et les notes */
+.hf-slot{display:flex;justify-content:center;width:100%;max-width:720px;margin:0 auto;padding:0 0 10px}
+.hf-slot:empty{display:none}
+.hf{display:flex;align-items:center;gap:4px;padding:4px 4px 4px 6px;border-radius:999px;background:var(--folder-3);border:1px solid var(--hair-2);box-shadow:var(--sh-pop);max-width:100%;animation:toastIn .45s var(--snap) both}
+.hf-main{display:flex;align-items:center;gap:12px;min-width:0;padding:4px 10px 4px 4px;border-radius:999px;text-align:left;color:inherit;cursor:default}
+.hf.pause .hf-main{cursor:pointer}
+.hf-orb{flex:none;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;gap:2.5px;background:color-mix(in srgb,var(--brass) 16%,transparent);color:var(--brass-text)}
+.hf-orb i{width:3px;height:16px;border-radius:3px;background:var(--brass);transform:scaleY(.3)}
+.hf.listen .hf-orb{background:linear-gradient(180deg,var(--brass-hi) -30%,var(--brass-btn) 50%,var(--brass-lo) 140%)}
+.hf.listen .hf-orb i{background:var(--on-brass);animation:wave 1s var(--ease) infinite}
+.hf.listen .hf-orb i:nth-child(2){animation-delay:.12s}.hf.listen .hf-orb i:nth-child(3){animation-delay:.24s}.hf.listen .hf-orb i:nth-child(4){animation-delay:.36s}.hf.listen .hf-orb i:nth-child(5){animation-delay:.48s}
+.hf.speak .hf-orb{animation:hfPulse 1.6s var(--ease) infinite}
+@keyframes hfPulse{50%{box-shadow:0 0 0 7px color-mix(in srgb,var(--brass) 14%,transparent)}}
+.hf.ok .hf-orb{background:color-mix(in srgb,var(--good) 20%,transparent);color:var(--good)}
+.hf.pause .hf-orb{background:var(--folder-2);border:1px solid var(--hair-2)}
+.hf-t{display:grid;gap:1px;min-width:0}
+.hf-t b{font-weight:600;font-size:13.5px;white-space:nowrap}
+.hf-t small{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hf-x{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:var(--muted)}
+.hf-x:hover{color:var(--text);background:color-mix(in srgb,var(--text) 6%,transparent)}
+@media (max-width:620px){.hf-t small{max-width:62vw;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}}
+@media (prefers-reduced-motion:reduce){.wave i,.hf-orb i,.hf.speak .hf-orb,.pal-mic.on::after{animation:none!important}.wave i,.hf.listen .hf-orb i{transform:scaleY(.7)}}
 .tip{position:fixed;z-index:400;pointer-events:none;padding:7px 9px;border-radius:6px;background:var(--folder-4);border:1px solid var(--hair-2);font:700 11.5px/1.35 var(--f-type);color:var(--text);box-shadow:var(--sh-pop);transform:translate(-50%,calc(-100% - 10px));white-space:nowrap}
 
 /* Éditeur, masquage, aperçus */
@@ -1167,6 +1268,9 @@ body.dropping::after{content:attr(data-drop);position:fixed;inset:14px;z-index:5
 .ink-row > .btn{flex:1 0 auto;height:auto;min-height:48px}
 @media (max-width:620px){.ink-tool{width:38px;height:38px}}
 @media (max-width:430px){.st-tools [data-act="st-amb"]{display:none}}
+/* Petit téléphone : avec le micro des mains libres, la barre se resserre pour tenir sur une ligne. */
+@media (max-width:414px){.st-tools:has([data-act="st-voice"]){gap:4px}.st-tools:has([data-act="st-voice"]) .icon-btn{width:33px!important;height:33px!important}.st-tools:has([data-act="st-voice"]) .seg button{padding:6px 8px}}
+@media (max-width:370px){.st-tools:has([data-act="st-voice"]){gap:2px}.st-tools:has([data-act="st-voice"]) .icon-btn{width:31px!important;height:31px!important}.st-tools:has([data-act="st-voice"]) .seg button{padding:6px 6px}}
 /* Répondre à la main pendant la séance */
 .inkpad{--ink-c:#1D1C18;display:flex;flex-direction:column;gap:10px;width:min(640px,100%);animation:rise .5s var(--ease) both}
 .inkpad .ink-paper{height:clamp(150px,27vh,320px)}
@@ -2016,7 +2120,8 @@ function normalizeState(st) {
   if (!Array.isArray(p.agents.runs)) p.agents.runs = [];
   // v2 → v3 : un seul examen devient une liste d'examens.
   if (!Array.isArray(p.exams)) p.exams = [];
-  if (!Array.isArray(p.classes)) p.classes = []; // kits de classe ou d'équipe créés sur cet appareil
+  if (!Array.isArray(p.classes)) p.classes = [];
+  if (!p.cmd || !Array.isArray(p.cmd.recent)) p.cmd = { recent: [] }; // kits de classe ou d'équipe créés sur cet appareil
   if (p.exam && p.exam.date) { p.exams.push({ id: uid('x'), name: p.exam.name, date: p.exam.date, deckIds: p.exam.deckId ? [p.exam.deckId] : [], example: p.exam.example }); }
   delete p.exam;
   for (const d of st.decks) {
@@ -2577,6 +2682,144 @@ const Dictation = {
 /** Code de synthèse / reconnaissance vocale pour une langue de fiches. */
 const SPEECH = { fr: 'fr-FR', en: 'en-US', es: 'es-ES', de: 'de-DE', pt: 'pt-BR', it: 'it-IT', nl: 'nl-NL', ar: 'ar-SA', zh: 'zh-CN', ja: 'ja-JP', ko: 'ko-KR', ru: 'ru-RU', tr: 'tr-TR', pl: 'pl-PL', sw: 'sw-KE' };
 const speechLang = code => SPEECH[code] || UI_LANG_META[LANG].speech;
+
+/* ── Révision mains libres ────────────────────────────────────────────
+   Engram lit la question, écoute la réponse, lit la bonne réponse, puis
+   écoute la note (« à revoir », « difficile », « acquis », « facile »).
+   Pour cuisiner, marcher, conduire les yeux sur la route. Le micro se
+   coupe pendant qu'Engram parle, pour ne pas s'entendre lui-même ; après
+   trois silences de suite, il se met en pause et attend un toucher. */
+function sayAloud(text, lang) {
+  return new Promise(res => {
+    const x = plain(text); if (!x || !('speechSynthesis' in window)) return res();
+    let done = false, tm = 0; const fin = () => { if (!done) { done = true; clearTimeout(tm); res(); } };
+    try {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(x); u.lang = lang; u.onend = fin; u.onerror = fin;
+      tm = setTimeout(fin, Math.min(15000, 1400 + x.length * 95)); // certains navigateurs n'appellent jamais onend
+      speechSynthesis.speak(u);
+    } catch { fin(); }
+  });
+}
+const HandsFree = {
+  on: false, tok: 0, misses: 0, st: '', hint: '', taught: false,
+  toggle() { this.on ? this.stop() : this.start(); },
+  start() { if (this.arm()) { this.paint(); this.cycle(); } },
+  stop(silent) {
+    const was = this.on; this.on = false; this.tok++; this.st = '';
+    Dictation.stop(); try { speechSynthesis.cancel(); } catch { }
+    $('#hfSlot')?.replaceChildren(); $('.st-tools [data-act="st-voice"]')?.classList.remove('on');
+    if (was && !silent) toast(t('Mains libres arrêté'), 'mic');
+  },
+  /** Lit ce qu'il faut lire, puis écoute. Appelé à chaque nouvelle fiche et quand la fiche se retourne. */
+  async cycle() {
+    if (!this.on || !Study.active || !Study.cur || Study.summaryOn) return;
+    const tok = ++this.tok; Dictation.stop();
+    const [c, d] = Study.cur, f = cardFaces(c), [lq, la] = cardLangs(c, d), v = Study.verdict;
+    this.set('speak', Study.flipped ? t('Engram lit la réponse') : t('Engram lit la question'), '');
+    if (!Study.flipped) {
+      let q = f.question;
+      if (c.type === 'mcq') q = plain(c.front) + '. ' + (c.options || []).map((o, i) => 'ABCDEF'[i] + ' : ' + plain(o)).join('. ');
+      if (c.type === 'tf') q = plain(c.front) + '. ' + t('Vrai ou faux ?');
+      await sayAloud(q, lq);
+    } else {
+      const lead = v?.verdict === 'correct' ? t('Juste !') : v?.verdict === 'partiel' ? t('Presque.') : v?.verdict === 'incorrect' ? t('Pas tout à fait.') : '';
+      if (lead) await sayAloud(lead, UI_LANG_META[LANG].speech);
+      if (tok !== this.tok) return;
+      await sayAloud(f.expected, la);
+      if (tok !== this.tok) return;
+      if (!this.taught) { this.taught = true; await sayAloud(t('Notez : à revoir, difficile, acquis ou facile.'), UI_LANG_META[LANG].speech); }
+    }
+    if (tok !== this.tok || !this.on) return;
+    this.listen(tok);
+  },
+  listen(tok) {
+    if (!Study.cur) return;
+    const [c, d] = Study.cur, flipped = Study.flipped;
+    // Avant le retournement, on écoute dans la langue de la réponse ; ensuite, dans celle de l'app.
+    const lang = !flipped && ['basic', 'cloze', 'occlusion'].includes(c.type) ? cardLangs(c, d)[1] : UI_LANG_META[LANG].speech;
+    this.set('listen', flipped ? t('Notez la fiche') : t('À vous'), this.hintFor(c, flipped));
+    let got = '', ended = false;
+    Dictation.start(lang, (x, fin) => {
+      if (tok !== this.tok) return;
+      got = x; this.set('listen', this.stLabel(), `« ${x} »`);
+      if (fin) { Dictation.stop(); this.misses = 0; this.handle(x); }
+    }, err => {
+      if (ended || tok !== this.tok) return; // « no-speech » puis « end » : une seule fin par écoute
+      ended = true; Dictation.rec = null;
+      if (err && !Dictation.supported) { this.stop(true); toast(t("Le micro n'est pas accessible ici : la révision mains libres a besoin du micro."), 'mic'); return; }
+      if (got) return;
+      if (++this.misses >= 3) { this.set('pause', t('En pause'), t('Touchez ici pour reprendre')); return; }
+      setTimeout(() => tok === this.tok && this.on && this.listen(tok), 300);
+    });
+  },
+  stLabel() { return Study.flipped ? t('Notez la fiche') : t('À vous'); },
+  hintFor(c, flipped) {
+    if (flipped) return [1, 2, 3, 4].map(g => t(GRADE_LABEL[g]).toLowerCase()).join(' · ');
+    if (c.type === 'mcq') return t('Dites la lettre : A, B, C ou D');
+    if (c.type === 'tf') return t('Dites « {a} » ou « {b} »', { a: trueLbl().toLowerCase(), b: falseLbl().toLowerCase() });
+    if (c.type === 'order') return t('Dites « {w} » pour voir l\'ordre', { w: vWords('flip').slice(-1)[0] || '' });
+    return t('Dites la réponse, ou « {w} »', { w: (VOICE.flip[LANG] || VOICE.flip.fr).split('|')[0] });
+  },
+  /** Une phrase entendue : une commande courte, sinon une réponse. */
+  handle(raw) {
+    const St = Study; if (!St.cur || !this.on) return;
+    const [c] = St.cur, F = vF(raw), short = F.trim().split(/\s+/).length <= 4, has = k => short && vRe(k).test(F);
+    if (has('stop')) { this.stop(); return; }
+    if (has('undo') && St.history.length) { St.undo(); return; }
+    if (has('repeat')) { this.cycle(); return; }
+    if (St.flipped) {
+      const G = [1, 2, 3, 4].flatMap(g => [...vWords('g' + g), vF(t(GRADE_LABEL[g])).trim()].map(p => [p, g])).sort((a, b) => b[0].length - a[0].length);
+      const hit = short && G.find(([p]) => new RegExp('(?:^|\\s)' + p.split(/\s+/).map(reEsc).join('\\s+') + '(?=\\s|$)', 'u').test(F));
+      if (hit) { this.set('ok', t('Noté : {x}', { x: t(GRADE_LABEL[hit[1]]) }), ''); St.grade(hit[1]); return; }
+      if (has('confirm')) { St.grade(St.verdict?.grade || 3); return; }
+      return this.retry(t("Je n'ai pas compris la note."));
+    }
+    if (has('flip')) { St.act('st-flip'); return; }
+    if (c.type === 'tf') {
+      const tv = vF(trueLbl()).trim(), fv = vF(falseLbl()).trim();
+      if (new RegExp('(?:^|\\s)' + reEsc(tv) + '(?=\\s|$)', 'u').test(F)) return St.choose(1);
+      if (new RegExp('(?:^|\\s)' + reEsc(fv) + '(?=\\s|$)', 'u').test(F)) return St.choose(0);
+      return this.retry(t('Dites « {a} » ou « {b} »', { a: trueLbl().toLowerCase(), b: falseLbl().toLowerCase() }));
+    }
+    if (c.type === 'mcq') {
+      const L = /(?:^|\s)([abcdef])\s*$/u.exec(F.trim()), n = (c.options || []).length;
+      if (L && 'abcdef'.indexOf(L[1]) < n) return St.choose('abcdef'.indexOf(L[1]));
+      const best = (c.options || []).map((o, i) => [localGrade(raw, plain(o), 'souple').score, i]).sort((a, b) => b[0] - a[0])[0];
+      if (best && best[0] >= 70) return St.choose(best[1]);
+      return this.retry(t('Dites la lettre : A, B, C ou D'));
+    }
+    if (c.type === 'order' || !St.typeable(c, cardFaces(c))) { St.act('st-flip'); return; }
+    St.check(raw);
+  },
+  async retry(msg) {
+    const tok = ++this.tok;
+    this.set('speak', msg, '');
+    await sayAloud(msg, UI_LANG_META[LANG].speech);
+    if (tok === this.tok && this.on) this.listen(tok);
+  },
+  /** Coupe le micro pendant l'envol de la fiche notée. */
+  hush() { if (this.on) { this.tok++; Dictation.stop(); try { speechSynthesis.cancel(); } catch { } } },
+  set(st, label, hint) { this.st = st; this.label = label; this.hint = hint; this.paint(); },
+  html() {
+    if (!this.on) return '';
+    const orb = this.st === 'speak' ? icon('volume', 'i-sm') : this.st === 'pause' ? icon('play', 'i-sm') : this.st === 'ok' ? icon('check', 'i-sm') : '<i></i><i></i><i></i><i></i><i></i>';
+    return `<div class="hf ${this.st}" id="hf" aria-live="polite"><button type="button" class="hf-main" data-act="st-hf" ${this.st === 'pause' ? '' : 'tabindex="-1"'}>
+      <span class="hf-orb" aria-hidden="true">${orb}</span>
+      <span class="hf-t"><b>${esc(this.label || '')}</b>${this.hint ? `<small>${esc(this.hint)}</small>` : ''}</span></button>
+      <button type="button" class="hf-x" data-act="st-voice" aria-label="${esc(t('Arrêter les mains libres'))}" data-tip="${esc(t('Arrêter les mains libres'))}">${icon('x', 'i-sm')}</button></div>`;
+  },
+  /** Toucher la bulle : reprendre après une pause. */
+  resume() { if (!this.on) return; if (this.st === 'pause') { this.misses = 0; this.listen(++this.tok); } },
+  arm() {
+    if (!Dictation.supported) { toast(t("Le micro n'est pas accessible ici : la révision mains libres a besoin du micro."), 'mic'); return false; }
+    this.on = true; this.misses = 0; this.taught = false; return true;
+  },
+  paint() {
+    const slot = $('#hfSlot'); if (slot) slot.innerHTML = this.html();
+    $('.st-tools [data-act="st-voice"]')?.classList.toggle('on', this.on);
+  }
+};
 
 /* ── 9 bis. Encre : écrire au stylet (Apple Pencil, S Pen, stylet Surface), au doigt ou à la souris ──
    La pression du stylet règle l'épaisseur du trait ; au doigt ou à la souris, la vitesse la
@@ -3999,32 +4242,356 @@ function openOcclusion(deckId, existing) {
   draw();
 }
 
-/* ── Palette de commandes (Ctrl/⌘ K) ───────────────────────────────── */
-function openPalette() {
-  const m = Modal.open(`<div class="search">${icon('search')}<input class="input" id="palIn" placeholder="${esc(t('Chercher une fiche, un paquet, une action…'))}" autocomplete="off" autofocus></div><div class="pal-list" id="palList"></div>`, 'palette');
-  const actions = [
-    [N_('Réviser maintenant'), 'play', () => Study.start()], [N_('Programme du jour'), 'route', () => App.go('plan')], [N_('Demander à Mentor'), 'sparkles', () => Mentor.open()],
-    [N_('Scanner un cours'), 'camera', () => App.go('scan')], [N_('Nouvelle fiche'), 'plus', () => openEditor(null, App.route.v === 'deck' ? App.route.arg : S.decks[0]?.id)],
-    [N_('Nouveau paquet'), 'drawer', () => openNewDeck()], [N_('Importer (Anki, Quizlet, CSV, PDF)'), 'upload', () => openImport()], [N_('Exporter vers Anki, Quizlet, Excel, Notion'), 'share', () => openExport(App.route.v === 'deck' ? App.route.arg : 'all')], [N_('Jeu des paires'), 'grid', () => openGame('match')], [N_('Examen blanc'), 'timer', () => openGame('exam')],
-    [N_('Examen en vue'), 'cal', () => openExamPlan()], [N_('Ajouter mon programme à mon agenda'), 'cal', () => openCalendar()], [N_('Carnet et statistiques'), 'book', () => App.go('stats')], [N_('Partager ma progression'), 'share', () => shareProgress()],
-    [N_('Apparence'), 'palette', () => App.go('settings', 'look')], [N_('Langue'), 'globe', () => openLangMenu()], [N_('Réglages'), 'settings', () => App.go('settings')], [N_('Engram Pro'), 'crown', () => openPro()], [N_('Les assistants'), 'layers', () => App.go('agents')], [N_('Le Correcteur : relire un paquet'), 'pen', () => Agents.run('proof')], [N_('L\'Examinateur : examen blanc sur mesure'), 'timer', () => Agents.run('examiner')]
-  ];
+/* ── Palette de commandes (Ctrl/⌘ K) ──────────────────────────────────
+   Une seule entrée pour tout : actions, paquets, fiches, réglages, Mentor.
+   Vide, elle propose ce qui compte maintenant (la révision du jour,
+   l'examen qui approche, le dernier paquet ouvert) puis ce que vous avez
+   utilisé récemment. La recherche tolère les accents, l'ordre des mots,
+   les lettres oubliées et les cinq langues. « question = réponse » crée
+   une fiche sans ouvrir l'éditeur. Le micro transforme une phrase en
+   commande (voir Voice, plus bas). */
+const IS_MAC = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent || '');
+const MOD = IS_MAC ? '⌘' : 'Ctrl';
+/** Minuscules sans accents, caractère par caractère : la longueur ne change pas, les surlignages tombent juste. */
+const fold = s => [...String(s || '')].map(ch => { const x = ch.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); return x.length === ch.length ? x : ch; }).join('');
+const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/** Guillemets français insécables : « et » ne restent jamais seuls en bout de ligne. */
+const nbq = s => String(s).replace(/« /g, '«\u00a0').replace(/ »/g, '\u00a0»');
+const Fz = {
+  /** Score d'une recherche sur un libellé (et ses mots-clés cachés), ou null si un mot manque. */
+  score(q, label, kw = '') {
+    const L = fold(label), toks = q.split(/\s+/).filter(Boolean); if (!toks.length) return null;
+    const K = kw ? ' ' + fold(kw) : '';
+    let s = 0; const hits = [];
+    for (const tk of toks) {
+      const at = Fz.word(L, tk);
+      if (at >= 0) { s += at === 0 ? 4 : 3; hits.push([at, at + tk.length]); continue; }
+      const i = tk.length > 1 ? L.indexOf(tk) : -1;
+      if (i >= 0) { s += 2; hits.push([i, i + tk.length]); continue; }
+      if (K.includes(' ' + tk)) { s += tk.length > 2 ? 2.2 : 1.2; continue; }
+      const sub = tk.length > 2 && Fz.subseq(L, tk);
+      if (sub) { s += .8; hits.push(...sub); continue; }
+      return null;
+    }
+    const qq = toks.join(' ');
+    return { s: s / toks.length + (L.startsWith(qq) ? 1.5 : 0) + (L === qq ? 2 : 0), hits };
+  },
+  word(L, tk) { let i = L.indexOf(tk); while (i >= 0) { if (i === 0 || !/[\p{L}\p{N}]/u.test(L[i - 1])) return i; i = L.indexOf(tk, i + 1); } return -1; },
+  /** Les lettres dans l'ordre, sur une courte distance : « rvsr » trouve « réviser ». */
+  subseq(L, tk) {
+    for (let st = L.indexOf(tk[0]); st >= 0; st = L.indexOf(tk[0], st + 1)) {
+      const hits = [[st, st + 1]]; let j = st + 1, ok = true;
+      for (let k = 1; k < tk.length; k++) { const n = L.indexOf(tk[k], j); if (n < 0 || n - st > tk.length * 2.2) { ok = false; break; } hits.push([n, n + 1]); j = n + 1; }
+      if (ok) return hits;
+    }
+    return null;
+  },
+  mark(label, hits) {
+    if (!hits?.length) return esc(label);
+    const on = new Array(label.length).fill(false); hits.forEach(([a, b]) => { for (let i = a; i < b; i++) on[i] = true; });
+    let out = '', i = 0;
+    while (i < label.length) { const st = on[i]; let j = i; while (j < label.length && on[j] === st) j++; const part = esc(label.slice(i, j)); out += st ? `<mark>${part}</mark>` : part; i = j; }
+    return out;
+  }
+};
+const SKIN_DARK = { library: 1, midnight: 1, ebony: 1 };
+const LANG_KW = { fr: 'francais french frances franzosisch frances', en: 'anglais english ingles englisch ingles', es: 'espagnol spanish espanol spanisch espanhol', de: 'allemand german aleman deutsch alemao', pt: 'portugais portuguese portugues portugiesisch portugues' };
+const Cmd = {
+  /** Toutes les commandes. `hide` : réglages rapides, montrés seulement à la recherche. */
+  list() {
+    const s = S.profile.settings, here = App.route.v === 'deck' ? App.route.arg : '';
+    const tc = todayCounts(), go = (v, a) => () => App.go(v, a);
+    const C = (id, g, ic, label, run, o = {}) => ({ id: 'cmd:' + id, g, ic, label, run, ...o });
+    const G = { st: N_('Réviser'), mk: N_('Créer'), go: N_('Aller à'), gm: N_('Jeux et examens'), io: N_('Importer et exporter'), ai: N_('Assistants'), set: N_('Réglages'), qk: N_('Réglages rapides') };
+    return [
+      C('study', G.st, 'play', t('Réviser maintenant'), () => tc.total ? Study.start() : Study.start({ cram: true }), { sub: tc.total ? plural(tc.total, "fiche prévue aujourd'hui|fiches prévues aujourd'hui") : t('Rien de prévu : révision en avance'), key: App.route.v === 'today' && tc.total ? t('Espace') : '', kw: 'reviser revision seance commencer review study session start repasar estudiar lernen wiederholen revisar estudar' }),
+      Dictation.supported && C('handsfree', G.st, 'mic', t('Réviser mains libres'), () => Study.start({ handsFree: true }), { sub: t('Engram lit la fiche, vous répondez à voix haute'), kw: 'voix vocal oral micro audio parler voice speak hands free manos libres voz hablar stimme sprechen freihandig maos livres falar' }),
+      C('cram', G.st, 'zap', t('Réviser en avance'), () => Study.start({ cram: true }), { kw: 'avance cram ahead extra adelantar vorziehen adiantar' }),
+      C('weak', G.st, 'target', t('Atelier des points faibles'), () => Study.start({ weak: true }), { kw: 'faibles oubliees sangsues weak leeches debiles schwach fracos' }),
+      C('listen', G.st, 'headphones', t('Écouter mes fiches'), () => openListen(here || Cmd.deck()?.id || S.decks[0]?.id), { kw: 'ecouter audio podcast lire listen escuchar horen ouvir' }),
+      C('newcard', G.mk, 'plus', t('Nouvelle fiche'), () => openEditor(null, here || Cmd.deck()?.id), { sub: t('Astuce : tapez « question = réponse » ici'), kw: 'fiche carte ajouter creer card add new create tarjeta nueva karte neue cartao novo' }),
+      C('newdeck', G.mk, 'drawer', t('Nouveau paquet'), () => openNewDeck(), { kw: 'paquet tiroir deck new mazo stapel baralho' }),
+      C('scan', G.mk, 'camera', t('Scanner un cours'), go('scan'), { kw: 'photo scanner cours image picture foto escanear fotografieren' }),
+      C('kit', G.mk, 'users', t('Créer un kit de classe'), () => openKit(), { kw: 'classe equipe partager professeur class team share teacher clase equipo klasse lehrer turma professor' }),
+      C('v-today', G.go, 'home', t("Aujourd'hui"), go('today'), { kw: 'accueil home today hoy heute hoje inicio start' }),
+      C('v-plan', G.go, 'route', t('Programme'), go('plan'), { kw: 'programme plan planning calendrier semaine schedule week programa plan' }),
+      C('v-library', G.go, 'drawer', t('Le fichier'), go('library'), { kw: 'fichier paquets bibliotheque tiroirs library decks biblioteca mazos kartei stapel' }),
+      C('v-games', G.go, 'grid', t('Jeux'), go('games'), { kw: 'jeux jouer games play juegos spiele jogos' }),
+      C('v-stats', G.go, 'chart', t('Carnet et statistiques'), go('stats'), { kw: 'carnet statistiques progres stats progress estadisticas statistik estatisticas' }),
+      C('v-links', G.go, 'link', t('Intégrations'), go('links'), { kw: 'integrations anki quizlet notion excel sheets agenda integraciones integrationen integracoes' }),
+      C('v-teams', G.go, 'school', t('Écoles et entreprises'), go('teams'), { kw: 'ecoles entreprises classe equipe schools business team escuelas empresas schulen unternehmen escolas' }),
+      C('v-pro', G.go, 'crown', t('Engram Pro'), () => openPro(), { kw: 'pro abonnement premium prix tarif subscription price suscripcion abo preis assinatura' }),
+      C('v-agents', G.go, 'layers', t('Les assistants'), go('agents'), { kw: 'assistants agents ia ai asistentes assistenten assistentes' }),
+      C('match', G.gm, 'grid', t('Jeu des paires'), () => openGame('match', here), { kw: 'paires memory jeu match game parejas juego paare spiel pares jogo' }),
+      C('exam', G.gm, 'timer', t('Examen blanc'), () => openGame('exam', here), { kw: 'examen blanc test quiz chrono mock exam simulacro probe prufung simulado' }),
+      C('examplan', G.gm, 'cal', t('Examen en vue'), () => openExamPlan(here || undefined), { kw: 'examen date controle bac partiel exam date fecha prufung prova' }),
+      C('import', G.io, 'upload', t('Importer (Anki, Quizlet, CSV, PDF)'), () => openImport(), { kw: 'importer anki apkg quizlet csv excel pdf notion import importar importieren' }),
+      C('export', G.io, 'share', t('Exporter vers Anki, Quizlet, Excel, Notion'), () => openExport(here || 'all'), { kw: 'exporter anki apkg csv excel pdf imprimer export print exportar imprimir exportieren drucken' }),
+      C('calendar', G.io, 'cal', t('Ajouter mon programme à mon agenda'), () => openCalendar(), { kw: 'agenda calendrier google outlook apple ics calendar calendario kalender' }),
+      C('backup', G.io, 'download', t('Sauvegarder mes données'), () => Actions.backup(), { kw: 'sauvegarde json backup save copia seguridad sicherung' }),
+      C('shareprog', G.io, 'share', t('Partager ma progression'), () => shareProgress(), { kw: 'partager progression share progress compartir teilen compartilhar' }),
+      C('mentor', G.ai, 'sparkles', t('Demander à Mentor'), () => Mentor.open(), { key: '/', kw: 'mentor ia ai chat question aide help ayuda hilfe ajuda' }),
+      C('proof', G.ai, 'pen', t('Le Correcteur : relire un paquet'), () => Agents.run('proof', here ? { deckId: here } : undefined), { kw: 'correcteur relire fautes proofread corrector korrektor revisor' }),
+      C('examiner', G.ai, 'timer', t("L'Examinateur : examen blanc sur mesure"), () => Agents.run('examiner', here ? { deckId: here } : undefined), { kw: 'examinateur examiner examinador prufer' }),
+      C('look', G.set, 'palette', t('Apparence'), () => App.go('settings', 'look'), { kw: 'apparence theme couleurs police look appearance colors apariencia aussehen aparencia' }),
+      C('lang', G.set, 'globe', t('Langue'), () => openLangMenu(), { kw: 'langue language idioma sprache lingua' }),
+      C('settings', G.set, 'settings', t('Réglages'), go('settings'), { kw: 'reglages parametres preferences settings ajustes einstellungen configuracoes' }),
+      C('keys', G.set, 'keyboard', t('Raccourcis clavier'), () => openShortcuts(), { key: '?', kw: 'raccourcis clavier touches aide shortcuts keyboard keys atajos teclado tastenkurzel tastatur atalhos' }),
+      ...Object.entries(SKINS).map(([k, v]) => C('skin-' + k, G.qk, 'palette', t('Thème : {x}', { x: t(v.name) }), () => { s.skin = k; Store.touch('profile'); Custom.apply(); toast(t('Thème : {x}', { x: t(v.name) }), 'palette'); }, { hide: true, on: s.skin === k, sw: v.sw, kw: 'theme mode couleur theme skin tema thema ' + (k === 'auto' ? 'automatique auto systeme system' : SKIN_DARK[k] ? 'sombre nuit noir dark night black oscuro noche dunkel nacht escuro noite' : 'clair jour blanc light day white claro dia hell tag') })),
+      C('sound', G.qk, 'volume', s.sound ? t('Couper les sons') : t('Activer les sons'), () => { s.sound = !s.sound; Store.touch('profile'); toast(s.sound ? t('Sons activés') : t('Sons coupés'), 'volume'); }, { hide: true, kw: 'sons son bruit silence sound mute audio sonido silencio ton stumm som' }),
+      C('tts', G.qk, 'volume', s.tts ? t('Ne plus lire les fiches à voix haute') : t('Lire les fiches à voix haute'), () => { s.tts = !s.tts; Store.touch('profile'); toast(s.tts ? t('Les fiches seront lues à voix haute') : t('Lecture à voix haute coupée'), 'volume'); }, { hide: true, kw: 'voix lecture lire tts read aloud voice voz leer vorlesen stimme ler' }),
+      ...Object.keys(AMBIENT_LABEL).map(k => C('amb-' + k, G.qk, 'music', t('Ambiance : {x}', { x: t(AMBIENT_LABEL[k]) }), () => { s.ambient = k; Store.touch('profile'); if (Study.active) Ambient.set(k); toast(t('Ambiance : {x}', { x: t(AMBIENT_LABEL[k]) }), 'music'); }, { hide: true, on: s.ambient === k, kw: 'ambiance musique fond pluie bibliotheque silence ambient music rain library ambiente musica lluvia musik regen chuva' })),
+      ...UI_LANGS.filter(l => l !== LANG).map(l => C('lang-' + l, G.qk, 'globe', UI_LANG_META[l].name, () => changeLang(l), { hide: true, sub: t("Langue de l'interface"), kw: 'langue language idioma sprache lingua ' + l + ' ' + LANG_KW[l] }))
+    ].filter(Boolean);
+  },
+  deckItem(d, hits) {
+    const n = todayCounts(d.id).total;
+    return { id: 'deck:' + d.id, g: N_('Paquets'), ic: 'drawer', label: d.name, hits, sub: plural(d.cards.length, 'fiche|fiches') + (n ? ' · ' + t('{n} à réviser', { n: num(n) }) : ''), run: () => App.go('deck', d.id), alt: n ? () => Study.start({ deckId: d.id }) : null };
+  },
+  /** Le paquet où l'on travaille : celui ouvert, sinon le dernier utilisé, sinon le premier. */
+  deck() {
+    if (App.route.v === 'deck' && deckById(App.route.arg)) return deckById(App.route.arg);
+    for (const id of S.profile.cmd.recent) if (id.startsWith('deck:') && deckById(id.slice(5))) return deckById(id.slice(5));
+    return S.decks.find(d => !d.example) || S.decks[0] || null;
+  },
+  remember(id) { const r = S.profile.cmd.recent; S.profile.cmd.recent = [id, ...r.filter(x => x !== id)].slice(0, 8); Store.touch('profile'); },
+  recent() {
+    const all = this.list();
+    return S.profile.cmd.recent.map(id => id.startsWith('deck:') ? (deckById(id.slice(5)) && this.deckItem(deckById(id.slice(5)))) : all.find(c => c.id === id)).filter(Boolean);
+  },
+  /** Ce qui compte maintenant, en trois lignes au plus. */
+  suggest() {
+    const out = [], tc = todayCounts(), ex = upcomingExams()[0], all = this.list();
+    if (tc.total) out.push({ ...all.find(c => c.id === 'cmd:study'), label: t('Réviser les fiches du jour') });
+    if (ex && daysUntil(ex.date) <= 45) { const n = daysUntil(ex.date); out.push({ id: 'cmd:v-plan', ic: 'cal', label: t('Préparer « {x} »', { x: ex.name }), sub: n ? t('Dans {n} jours', { n }) : t("C'est aujourd'hui"), run: () => App.go('plan') }); }
+    const last = S.profile.cmd.recent.find(id => id.startsWith('deck:') && deckById(id.slice(5)) && id.slice(5) !== App.route.arg);
+    if (last) { const it = this.deckItem(deckById(last.slice(5))); out.push({ ...it, label: t('Reprendre « {x} »', { x: it.label }) }); }
+    if (out.length < 3 && (S.demo || !S.decks.some(d => !d.example))) out.push(all.find(c => c.id === 'cmd:scan'));
+    return out.filter(Boolean).slice(0, 3);
+  },
+  /** « question = réponse », « question :: réponse » ou « question → réponse ». */
+  parseQuick(raw) { const m = /^\+?\s*(.+?)\s*(?:=|::|→|->)\s*(.+)$/.exec(raw.trim()); return m && m[1].trim() && m[2].trim() ? [m[1].trim(), m[2].trim()] : null; },
+  quickCard(front, back, d = this.deck()) {
+    if (!d) { openNewDeck(nd => this.quickCard(front, back, nd)); return; }
+    const c = mkCard('basic', { front, back, tags: [], src: 'manuel' });
+    if (S.demo && d.example) Store.leaveDemo(false);
+    d.cards.push(c); Store.touchDeck(d); this.remember('deck:' + d.id);
+    if (['deck', 'today', 'library'].includes(App.route.v)) App.render();
+    toast(t('Fiche ajoutée à « {x} »', { x: d.name }), 'plus');
+  },
+  /** Les résultats d'une recherche, rangés par section. */
+  search(raw) {
+    const s0 = raw.trim(), pre = /^[>#?+]/.test(s0) ? s0[0] : '', body = pre ? s0.slice(1).trim() : s0;
+    const q = fold(body).replace(/\s+/g, ' ').trim(), rec = S.profile.cmd.recent;
+    const boost = id => { const i = rec.indexOf(id); return i < 0 ? 0 : .6 - i * .05; };
+    const secs = [];
+    const quick = this.parseQuick(pre === '+' ? body : s0);
+    if (quick && (!pre || pre === '+')) { const d = this.deck(); secs.push([N_('Créer'), [{ id: 'new', ic: 'plus', label: t('Créer la fiche « {a} » → « {b} »', { a: quick[0], b: quick[1] }), sub: d ? t('Dans « {x} »', { x: d.name }) : t('Dans un nouveau paquet'), run: () => this.quickCard(quick[0], quick[1]), noRecent: true, s: 99 }]]); }
+    else if (pre === '+') secs.push([N_('Créer'), [{ id: 'new', ic: 'plus', label: t('Écrivez « question = réponse »'), sub: t('La fiche est créée sans ouvrir l\'éditeur'), run: () => { }, noRecent: true, dead: true, s: 99 }]]);
+    if (q && (!pre || pre === '>')) {
+      const cmds = this.list().map(c => { const r = Fz.score(q, c.label, c.kw); return r && { ...c, hits: r.hits, s: r.s + boost(c.id) }; }).filter(Boolean).sort((a, b) => b.s - a.s).slice(0, 8);
+      if (cmds.length) secs.push([N_('Commandes'), cmds]);
+    }
+    if (q && (!pre || pre === '#')) {
+      const decks = S.decks.map(d => { const r = Fz.score(q, d.name, d.desc || ''); return r && { ...this.deckItem(d, r.hits), s: r.s + boost('deck:' + d.id) }; }).filter(Boolean).sort((a, b) => b.s - a.s).slice(0, 6);
+      if (decks.length) secs.push([N_('Paquets'), decks]);
+    } else if (pre === '#') secs.push([N_('Paquets'), S.decks.slice(0, 12).map(d => ({ ...this.deckItem(d), s: 0 }))]);
+    if (q.length > 1 && !pre) {
+      const cards = allCards().filter(c => fold(cardTitle(c) + ' ' + cardAnswer(c)).includes(q)).slice(0, 6).map(c => { const lb = plain(cardTitle(c)); const i = fold(lb).indexOf(q); return { id: 'card:' + c.id, ic: 'file', label: lb, hits: i >= 0 ? [[i, i + q.length]] : null, sub: c._deck.name, run: () => openEditor(c.id), noRecent: true, s: 1 }; });
+      if (cards.length) secs.push([N_('Fiches'), cards]);
+    }
+    secs.sort((a, b) => (b[1][0]?.s || 0) - (a[1][0]?.s || 0));
+    const ask = pre === '?' ? body : !pre && body.length > 3 ? body : '';
+    if (ask) secs.push(['Mentor', [{ id: 'ask', ic: 'sparkles', label: t('Demander à Mentor : « {q} »', { q: ask }), run: () => Mentor.open(ask, true), noRecent: true }]]);
+    else if (pre === '?') secs.push(['Mentor', [{ id: 'ask', ic: 'sparkles', label: t('Demander à Mentor'), sub: t('Écrivez votre question après le « ? »'), run: () => Mentor.open(), noRecent: true }]]);
+    return secs;
+  },
+  /** La meilleure commande ou le meilleur paquet pour une phrase (commandes vocales). */
+  best(text) {
+    const q = fold(text).replace(/[^\p{L}\p{N}\s]/gu, ' ').replace(/\s+/g, ' ').trim(); if (!q) return null;
+    const cmds = this.list().map(c => { const r = Fz.score(q, c.label, c.kw); return r && { ...c, s: r.s }; });
+    const decks = S.decks.map(d => { const r = Fz.score(q, d.name); return r && { ...this.deckItem(d), s: r.s + .3 }; });
+    return [...cmds, ...decks].filter(Boolean).sort((a, b) => b.s - a.s)[0] || null;
+  },
+  bestDeck(text) {
+    const q = fold(text).replace(/[^\p{L}\p{N}\s]/gu, ' ').replace(/\s+/g, ' ').trim(); if (!q) return null;
+    const r = S.decks.map(d => ({ d, r: Fz.score(q, d.name) })).filter(x => x.r && x.r.s >= 2.5).sort((a, b) => b.r.s - a.r.s)[0];
+    return r?.d || null;
+  },
+  exec(it, alt = false) {
+    if (!it || it.dead) return;
+    if (!it.noRecent) this.remember(it.id);
+    closeModals();
+    setTimeout(() => (alt && it.alt ? it.alt() : it.run()), 50);
+  }
+};
+
+function openPalette(initial = '') {
+  const tips = [t('Tapez « question = réponse » pour créer une fiche'), t('Commencez par # pour ne chercher que les paquets'), t('Commencez par ? pour poser la question à Mentor')];
+  if (Dictation.supported) tips.push(t('Touchez le micro et dites « réviser » suivi du nom d\'un paquet'));
+  const tip = nbq(tips[Math.floor(Math.random() * tips.length)]);
+  const m = Modal.open(`<div class="pal-top">${icon('search')}<input class="input" id="palIn" role="combobox" aria-expanded="true" aria-controls="palList" aria-autocomplete="list" placeholder="${esc(t('Que voulez-vous faire ?'))}" autocomplete="off" autocapitalize="off" spellcheck="false" autofocus>
+      ${Dictation.supported ? `<button type="button" class="pal-mic" id="palMic" aria-label="${esc(t('Dire une commande'))}" data-tip="${esc(t('Dire une commande'))}">${icon('mic')}</button>` : ''}
+      <button type="button" class="pal-esc" data-act="close" aria-label="${esc(t('Fermer'))}"><kbd>${t('Échap')}</kbd>${icon('x', 'i-sm')}</button></div>
+    <div class="pal-voice" id="palVoice" hidden></div>
+    <div class="pal-list" id="palList" role="listbox" aria-label="${esc(t('Résultats'))}"></div>
+    <div class="pal-foot"><span>${kbd('↑')}${kbd('↓')}${t('choisir')}</span><span>${kbd('↵')}${t('ouvrir')}</span><span>${kbd('⇧')}${kbd('↵')}${t('réviser le paquet')}</span><span class="pal-tip">${icon('bulb', 'i-sm')}${esc(tip)}</span></div>`, 'palette');
+  const inp = m.querySelector('#palIn'), list = m.querySelector('#palList'), voice = m.querySelector('#palVoice');
+  inp.value = initial;
   let items = [], sel = 0;
+  const row = (it, i) => `<div class="pal-item${i === sel ? ' on' : ''}${it.dead ? ' dead' : ''}" role="option" id="pal-${i}" aria-selected="${i === sel}" data-i="${i}">
+      ${it.sw ? `<span class="pal-ic pal-sw" style="--a:${it.sw[0]};--c:${it.sw[2]}"><i></i></span>` : `<span class="pal-ic">${icon(it.ic, 'i-sm')}</span>`}
+      <span class="pal-t"><b>${Fz.mark(it.label, it.hits)}</b>${it.sub ? `<small>${esc(it.sub)}</small>` : ''}</span>
+      <span class="pal-r">${it.on ? icon('check', 'i-sm') : ''}${it.alt ? `<button type="button" class="pal-go" data-alt="${i}" tabindex="-1">${icon('play', 'i-sm')}${t('Réviser')}</button>` : ''}${it.key ? `<kbd>${esc(it.key)}</kbd>` : ''}</span></div>`;
   const draw = () => {
-    const q = normTxt(m.querySelector('#palIn').value);
-    const acts = actions.filter(a => !q || normTxt(t(a[0])).includes(q)).map(a => ({ label: t(a[0]), ic: a[1], run: a[2], sec: t('Actions') }));
-    const decks = S.decks.filter(d => !q || normTxt(d.name).includes(q)).slice(0, 6).map(d => ({ label: d.name, ic: 'drawer', run: () => App.go('deck', d.id), sec: t('Paquets'), meta: plural(d.cards.length, 'fiche|fiches') }));
-    const cards = q.length > 1 ? allCards().filter(c => normTxt(cardTitle(c) + ' ' + cardAnswer(c)).includes(q)).slice(0, 8).map(c => ({ label: cardTitle(c), ic: 'file', run: () => openEditor(c.id), sec: t('Fiches'), meta: c._deck.name })) : [];
-    const ask = q.length > 3 ? [{ label: t('Demander à Mentor : « {q} »', { q: m.querySelector('#palIn').value.trim() }), ic: 'sparkles', run: () => Mentor.open(m.querySelector('#palIn').value.trim(), true), sec: 'Mentor' }] : [];
-    items = [...acts, ...decks, ...cards, ...ask]; sel = clamp(sel, 0, Math.max(0, items.length - 1));
-    let last = ''; m.querySelector('#palList').innerHTML = items.map((it, i) => { const h = it.sec !== last ? `<div class="pal-sec">${it.sec}</div>` : ''; last = it.sec; return h + `<button class="pal-item ${i === sel ? 'on' : ''}" data-i="${i}">${icon(it.ic, 'i-sm')}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(it.label)}</span>${it.meta ? `<small>${esc(it.meta)}</small>` : ''}</button>`; }).join('') || `<div class="empty" style="padding:28px">${t('Rien trouvé.')}</div>`;
+    const raw = inp.value;
+    let secs;
+    if (!raw.trim()) {
+      const sug = Cmd.suggest(), seen = new Set(sug.map(x => x.id));
+      const rec = Cmd.recent().filter(x => !seen.has(x.id)).slice(0, 4); rec.forEach(x => seen.add(x.id));
+      const groups = new Map(); Cmd.list().filter(c => !c.hide && !seen.has(c.id)).forEach(c => { if (!groups.has(c.g)) groups.set(c.g, []); groups.get(c.g).push(c); });
+      secs = [[N_('Suggestions'), sug], [N_('Récents'), rec], ...groups];
+    } else secs = Cmd.search(raw);
+    secs = secs.filter(([, arr]) => arr.length);
+    items = secs.flatMap(([, arr]) => arr);
+    sel = clamp(sel, 0, Math.max(0, items.length - 1));
+    let html = '', i = 0;
+    for (const [name, arr] of secs) { html += `<div class="pal-sec" role="presentation">${esc(t(name))}</div>`; for (const it of arr) html += row(it, i++); }
+    list.innerHTML = items.length ? html + (raw.trim() ? '' : `<p class="pal-hint">${icon('bulb', 'i-sm')}${esc(tip)}</p>`)
+      : `<div class="pal-empty">${icon('search')}<b>${t('Rien trouvé.')}</b><span>${t('Essayez un autre mot, ou demandez à Mentor.')}</span></div>`;
+    inp.setAttribute('aria-activedescendant', items.length ? 'pal-' + sel : '');
   };
-  const run = i => { const it = items[i]; if (!it) return; const q = m.querySelector('#palIn').value; Modal.close(); setTimeout(() => it.run(q), 50); };
-  m.querySelector('#palIn').addEventListener('input', () => { sel = 0; draw(); });
-  m.querySelector('#palIn').addEventListener('keydown', e => { if (e.key === 'ArrowDown') { sel = Math.min(items.length - 1, sel + 1); draw(); e.preventDefault(); } if (e.key === 'ArrowUp') { sel = Math.max(0, sel - 1); draw(); e.preventDefault(); } if (e.key === 'Enter') run(sel); });
-  m.querySelector('#palList').addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (b) run(+b.dataset.i); });
+  const move = d => {
+    if (!items.length) return;
+    sel = (sel + d + items.length) % items.length;
+    list.querySelectorAll('.pal-item').forEach(el => { const on = +el.dataset.i === sel; el.classList.toggle('on', on); el.setAttribute('aria-selected', on); });
+    list.querySelector(`#pal-${sel}`)?.scrollIntoView({ block: 'nearest' });
+    inp.setAttribute('aria-activedescendant', 'pal-' + sel);
+  };
+  inp.addEventListener('input', () => { sel = 0; draw(); list.scrollTop = 0; if (!Dictation.rec) setVoice(''); });
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); move(1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); move(-1); }
+    else if (e.key === 'PageDown') { e.preventDefault(); move(Math.min(5, items.length - 1 - sel) || 0); }
+    else if (e.key === 'PageUp') { e.preventDefault(); move(-Math.min(5, sel)); }
+    else if (e.key === 'Enter') { e.preventDefault(); Cmd.exec(items[sel], e.shiftKey); }
+  });
+  list.addEventListener('click', e => {
+    const a = e.target.closest('[data-alt]'); if (a) { Cmd.exec(items[+a.dataset.alt], true); return; }
+    const b = e.target.closest('[data-i]'); if (b) Cmd.exec(items[+b.dataset.i]);
+  });
+  list.addEventListener('pointermove', e => { const b = e.target.closest('[data-i]'); if (b && +b.dataset.i !== sel && e.pointerType === 'mouse') { sel = +b.dataset.i; move(0); } });
+  // Commandes vocales : on parle, la recherche se remplit en direct, puis la commande part.
+  const mic = m.querySelector('#palMic');
+  const setVoice = (st, x = '') => {
+    mic?.classList.toggle('on', st === 'listen');
+    m.classList.toggle('listening', st === 'listen');
+    if (!st) { voice.hidden = true; voice.innerHTML = ''; return; }
+    voice.hidden = false;
+    voice.className = 'pal-voice ' + st;
+    voice.innerHTML = st === 'listen' ? `<span class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span><b>${t('Je vous écoute…')}</b><small>${nbq(t('Par exemple : « réviser biologie », « nouvelle fiche », « thème sombre »'))}</small></span>`
+      : st === 'miss' ? `${icon('mic', 'i-sm')}<span><b>${t('Pas de commande pour « {x} »', { x: esc(x) })}</b><small>${t('Choisissez ci-dessous, ou demandez à Mentor.')}</small></span>`
+      : st === 'silence' ? `${icon('mic', 'i-sm')}<span><b>${t("Je n'ai rien entendu.")}</b><small>${t('Touchez le micro et parlez après le signal.')}</small></span>`
+      : `${icon('mic', 'i-sm')}<span><b>${t("Le micro n'est pas accessible ici.")}</b><small>${t('Autorisez-le dans les réglages du navigateur, ou tapez votre commande.')}</small></span>`;
+  };
+  mic?.addEventListener('click', () => {
+    if (Dictation.rec) { Dictation.stop(); setVoice(''); return; }
+    inp.value = ''; sel = 0; draw(); setVoice('listen'); Sound.play('flip');
+    let got = '', ended = false;
+    Dictation.start(UI_LANG_META[LANG].speech, (x, fin) => {
+      got = x; inp.value = x; sel = 0; draw();
+      if (fin) { Dictation.stop(); setVoice(''); if (!Voice.run(x)) { setVoice('miss', x); inp.focus(); } }
+    }, err => {
+      if (ended) return; ended = true;
+      Dictation.rec = null;
+      if (!m.isConnected) return;
+      if (!got) setVoice(err && !Dictation.supported ? 'deny' : err === 'no-speech' || !err ? 'silence' : 'deny');
+      else if (m.classList.contains('listening')) setVoice('');
+    });
+  });
+  Modal.onClose(m, () => Dictation.stop());
   draw();
 }
+
+/** Une touche ; les flèches et symboles prennent la police système, où ils existent tous. */
+const kbd = k => `<kbd${/^[↑↓↵⇧⌘]/.test(k) ? ' class="sym"' : ''}>${esc(k)}</kbd>`;
+/** La feuille des raccourcis : touche « ? », ou depuis la palette. */
+function openShortcuts() {
+  const grp = (title, rows) => `<section class="keys-g"><h3 class="kicker">${title}</h3><dl>${rows.map(([k, l]) => `<div><dt>${k.split(' ').map(kbd).join('')}</dt><dd>${l}</dd></div>`).join('')}</dl></section>`;
+  Modal.open(mh(t('Raccourcis clavier'), t('Au clavier, sur ordinateur et iPad')) + `<div class="keys">
+    ${grp(t('Partout'), [[MOD + ' K', t('Commandes et recherche')], ['/', t('Parler à Mentor')], [MOD + ' J', t('Ouvrir ou fermer Mentor')], ['?', t('Cette liste')], [t('Espace'), t("Réviser, depuis l'accueil")], [t('Échap'), t('Fermer')]])}
+    ${grp(t('En révision'), [[t('Espace'), t('Retourner / valider')], ['1 2 3 4', t('Noter la fiche')], ['A B C D', t('Répondre à un QCM')], [trueLbl()[0] + ' ' + falseLbl()[0], t('Vrai ou faux')], ['M', t('Mains libres : lire et répondre à la voix')], ['T', t('Lire à voix haute')], ['E', t('Modifier')], ['Z', t('Annuler')]])}
+    ${grp(t('Dans la palette'), [['↑ ↓', t('Choisir')], ['↵', t('Ouvrir')], ['⇧ ↵', t('Réviser le paquet choisi')], ['#', t('Chercher seulement les paquets')], ['?', t('Poser la question à Mentor')], ['=', t('« question = réponse » crée une fiche')]])}
+  </div>`, 'keys-modal');
+}
+
+/* ── Commandes vocales ────────────────────────────────────────────────
+   Une phrase dite dans la palette devient une action : « réviser
+   biologie », « ouvre le programme », « nouvelle fiche capitale de
+   l'Italie réponse Rome », « thème sombre », « demande à Mentor… ».
+   Les mêmes mots servent à la révision mains libres (HandsFree). */
+const VOICE = {
+  study: { fr: 'réviser|révise|révision|on révise|réviser mes fiches|commencer la révision|lance la révision|commencer', en: 'review|study|revise|start review|start studying|let s study', es: 'repasar|repasa|estudiar|estudia|revisar|empezar a estudiar', de: 'lernen|lerne|wiederholen|wiederhole|üben|abfragen|lass uns lernen', pt: 'revisar|revise|revisa|estudar|estude|começar a estudar' },
+  open: { fr: 'ouvrir|ouvre|va à|aller à|va sur|va dans|affiche|montre moi|montre', en: 'open|go to|show me|show|take me to', es: 'abrir|abre|ir a|ve a|muéstrame|muestra|mostrar', de: 'öffne|öffnen|geh zu|gehe zu|zeig mir|zeige|zeig', pt: 'abrir|abra|abre|ir para|vá para|vai para|mostre|mostra|mostrar' },
+  create: { fr: 'nouvelle fiche|ajoute une fiche|ajouter une fiche|crée une fiche|créer une fiche|nouvelle carte', en: 'new card|add a card|add card|create a card|create card', es: 'nueva tarjeta|añade una tarjeta|añadir una tarjeta|crea una tarjeta|crear una tarjeta', de: 'neue karte|neue lernkarte|karte hinzufügen|füge eine karte hinzu|erstelle eine karte', pt: 'novo cartão|adicionar um cartão|adicione um cartão|crie um cartão|criar um cartão' },
+  answer: { fr: 'réponse|la réponse est|et la réponse', en: 'answer|the answer is|and the answer', es: 'respuesta|la respuesta es|y la respuesta', de: 'antwort|die antwort ist|und die antwort', pt: 'resposta|a resposta é|e a resposta' },
+  askTo: { fr: 'demande à mentor|demander à mentor|mentor', en: 'ask mentor|mentor', es: 'pregunta a mentor|pregúntale a mentor|mentor', de: 'frag mentor|frage mentor|mentor', pt: 'pergunte ao mentor|pergunta ao mentor|mentor' },
+  askQ: { fr: 'pourquoi|comment|explique moi|explique|c est quoi|qu est ce que|qui est|quel est|quelle est', en: 'why|how|explain|what is|what s|who is', es: 'por qué|cómo|explícame|explica|qué es|quién es|cuál es', de: 'warum|wie|erkläre mir|erkläre|was ist|wer ist', pt: 'por que|porque|como|explique|explica|o que é|quem é|qual é' },
+  please: { fr: 's il te plaît|s il vous plaît|stp|svp|merci', en: 'please|thanks|thank you', es: 'por favor|gracias', de: 'bitte|danke', pt: 'por favor|obrigado|obrigada' },
+  filler: { fr: 'le|la|les|l|mes|mon|ma|du|de|des|d|paquet|tiroir|page|fiches|sur|en|un|une', en: 'the|my|a|deck|page|cards|of|on', es: 'el|la|los|las|mi|mis|del|de|un|una|mazo|página|tarjetas', de: 'den|die|das|der|dem|meine|mein|ein|eine|stapel|seite|karten|von', pt: 'o|a|os|as|meu|minha|meus|minhas|do|da|de|um|uma|baralho|página|cartões' },
+  flip: { fr: 'retourne|retourner|retourne la fiche|montre|montre la réponse|la réponse|je ne sais pas|je sais pas|sais pas|aucune idée|voir', en: 'flip|turn|show|show answer|show me|reveal|i don t know|don t know|no idea', es: 'voltea|voltear|gira|girar|muestra|muéstrame|la respuesta|no lo sé|no sé|ni idea', de: 'umdrehen|dreh um|umdrehen bitte|zeigen|zeig|zeig mir|die antwort|weiß nicht|ich weiß es nicht|keine ahnung', pt: 'vira|virar|mostra|mostrar|mostre|a resposta|não sei|eu não sei|não faço ideia' },
+  g1: { fr: 'à revoir|revoir|raté|oublié|j ai oublié|encore|faux|un|1', en: 'again|forgot|i forgot|wrong|missed|one|1', es: 'otra vez|de nuevo|olvidé|lo olvidé|mal|uno|1', de: 'nochmal|noch mal|vergessen|falsch|eins|1', pt: 'de novo|outra vez|esqueci|errei|um|1' },
+  g2: { fr: 'difficile|dur|pas facile|moyen|deux|2', en: 'hard|difficult|tough|two|2', es: 'difícil|duro|dos|2', de: 'schwer|schwierig|zwei|2', pt: 'difícil|duro|dois|2' },
+  g3: { fr: 'acquis|bien|bon|juste|correct|je sais|trois|3', en: 'good|got it|right|correct|i know|three|3', es: 'bien|bueno|correcto|lo sé|tres|3', de: 'gut|richtig|gewusst|weiß ich|drei|3', pt: 'bom|bem|certo|acertei|eu sei|três|3' },
+  g4: { fr: 'facile|très facile|trop facile|quatre|4', en: 'easy|too easy|very easy|four|4', es: 'fácil|muy fácil|cuatro|4', de: 'leicht|einfach|sehr leicht|vier|4', pt: 'fácil|muito fácil|quatro|4' },
+  confirm: { fr: 'valide|valider|ok|d accord|suivante', en: 'ok|okay|confirm|next', es: 'vale|ok|confirmar|siguiente', de: 'okay|ok|bestätigen|weiter|nächste', pt: 'ok|confirmar|próxima|próximo' },
+  repeat: { fr: 'répète|répéter|relis|encore une fois|redis', en: 'repeat|again please|say again|read again', es: 'repite|repetir|otra vez por favor|léelo otra vez', de: 'wiederhole bitte|noch einmal lesen|sag es nochmal|lies nochmal', pt: 'repete|repetir|repita|leia de novo' },
+  undo: { fr: 'annule|annuler|reviens|retour', en: 'undo|go back', es: 'deshacer|deshaz|atrás', de: 'rückgängig|zurück', pt: 'desfazer|desfaz|voltar' },
+  stop: { fr: 'stop|arrête|arrêter|pause|terminé|fin|silence', en: 'stop|pause|quit|end|finish', es: 'para|parar|detente|pausa|terminar|basta', de: 'stopp|stop|pause|aufhören|beenden|ende', pt: 'pare|parar|pausa|terminar|chega' }
+};
+/** Texte sans accents ni ponctuation, de même longueur que l'original (pour découper la phrase dite). */
+const vF = s => fold(s).replace(/[^\p{L}\p{N}]/gu, m => ' '.repeat(m.length));
+const vWords = k => (VOICE[k][LANG] || VOICE[k].fr).split('|').map(p => vF(p).trim().replace(/\s+/g, ' ')).filter(Boolean).sort((a, b) => b.length - a.length);
+const vRe = (k, start = false, extra = []) => new RegExp((start ? '^\\s*' : '(?:^|\\s)') + '(' + [...vWords(k), ...extra.map(x => vF(x).trim())].filter(Boolean).map(p => p.split(/\s+/).map(reEsc).join('\\s+')).join('|') + ')(?=\\s|$)', 'u');
+const Voice = {
+  /** Retire les politesses et les petits mots en tête (« le paquet », « mes fiches »…). */
+  strip(raw) {
+    let x = raw; const pl = vRe('please'); let m;
+    while ((m = pl.exec(vF(x)))) x = (x.slice(0, m.index) + ' ' + x.slice(m.index + m[0].length)).trim();
+    const fl = vRe('filler', true);
+    while ((m = fl.exec(vF(x))) && x.slice(m.index + m[0].length).trim()) x = x.slice(m.index + m[0].length).trim();
+    return x.replace(/^[\s,.:;!?-]+|[\s,.:;!?-]+$/g, '');
+  },
+  /** Exécute une phrase. Renvoie false quand rien ne correspond assez bien : la palette montre alors les résultats. */
+  run(raw) {
+    raw = String(raw || '').trim(); if (!raw) return false;
+    const F = vF(raw), after = m => raw.slice(m.index + m[0].length).trim();
+    const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+    let m;
+    if ((m = vRe('create', true).exec(F))) {
+      const rest = after(m), a = vRe('answer').exec(vF(rest));
+      if (a && a.index > 0) {
+        const front = rest.slice(0, a.index).replace(/[\s,.:;-]+$/, '').trim(), back = rest.slice(a.index + a[0].length).replace(/^[\s,.:;-]+/, '').trim();
+        if (front && back) { closeModals(); Cmd.quickCard(cap(front), cap(back)); return true; }
+      }
+      Cmd.exec(Cmd.list().find(c => c.id === 'cmd:newcard')); return true;
+    }
+    if ((m = vRe('study', true).exec(F))) {
+      const rest = this.strip(after(m));
+      if (!rest) { Cmd.exec(Cmd.list().find(c => c.id === 'cmd:study')); return true; }
+      const d = Cmd.bestDeck(rest);
+      if (d) { Cmd.remember('deck:' + d.id); closeModals(); setTimeout(() => Study.start({ deckId: d.id }), 50); return true; }
+      const c = Cmd.best(raw); if (c && c.s >= 2.5) { Cmd.exec(c); return true; }
+      return false;
+    }
+    if ((m = vRe('askTo', true).exec(F))) { const q = this.strip(after(m)); closeModals(); setTimeout(() => Mentor.open(q, !!q), 50); return true; }
+    if (vRe('askQ', true).test(F)) { closeModals(); setTimeout(() => Mentor.open(raw, true), 50); return true; }
+    const opened = vRe('open', true).exec(F), target = opened ? this.strip(after(opened)) : this.strip(raw);
+    const best = Cmd.best(target);
+    if (best && best.s >= (opened ? 2 : 3)) { Cmd.exec(best); return true; }
+    return false;
+  }
+};
 function openLangMenu() {
   const m = Modal.open(mh(t("Langue de l'interface"), 'Language · Idioma · Sprache · Idioma') + `<div class="lang-list">${UI_LANGS.map(l => `<button class="lang-opt ${l === LANG ? 'on' : ''}" data-l="${l}"><b>${UI_LANG_META[l].name}</b><span class="kicker">${UI_LANG_META[l].flag}</span></button>`).join('')}</div>
     <p class="muted" style="font-size:13px;margin:14px 0 0">${t("Les fiches gardent leur propre langue ; l'IA vous répond dans la langue choisie ici.")}</p>`);
@@ -5284,7 +5851,7 @@ const Actions = {
   wipe: el => {
     if (!el.dataset.sure) { el.dataset.sure = 1; el.innerHTML = icon('trash', 'i-sm') + t('Confirmer : tout supprimer'); return; }
     const ids = S.decks.map(d => d.id), imgs = Object.keys(S.images);
-    S.decks = []; S.images = {}; Object.assign(S.profile, { log: {}, xp: 0, bestStreak: 0, badges: {}, flags: {}, exams: [], memory: [], classes: [] });
+    S.decks = []; S.images = {}; Object.assign(S.profile, { log: {}, xp: 0, bestStreak: 0, badges: {}, flags: {}, exams: [], memory: [], classes: [], cmd: { recent: [] } });
     ids.forEach(id => Store.dirty.add('deck:' + id)); imgs.forEach(k => Store.dirty.add('img:' + k)); Store.touch('profile');
     App.go('today'); toast(t('Tout a été effacé'), 'trash');
   }
@@ -5307,6 +5874,7 @@ function bootApp() {
     if (Modal.stack.length) return;
     const typing = /input|textarea|select/i.test(e.target.tagName) || e.target.isContentEditable;
     if (Study.active) { Study.key(e, typing); return; }
+    if (!typing && e.key === '?' && !Mentor.isOpen) { e.preventDefault(); openShortcuts(); return; }
     if (!typing && e.key === '/' && !Mentor.isOpen) { e.preventDefault(); Mentor.open(); return; }
     if (Game.key(e, typing)) return;
     if (!typing && e.key === ' ' && App.route.v === 'today' && todayCounts().total) { e.preventDefault(); Study.start(); }
@@ -5428,7 +5996,7 @@ Views.settings = arg => {
     </div></article></section>
 
     <article class="panel rise"><div class="panel-h"><h3 class="h3">${t('Raccourcis clavier')}</h3>${icon('keyboard')}</div>
-      <div class="legend" style="gap:10px 22px">${[[t('Espace'), t('Retourner / valider')], ['1 2 3 4', t('Noter la fiche')], [t('A–D · V/F'), t('QCM, vrai/faux')], ['/', t('Parler à Mentor')], ['Ctrl K', t('Recherche')], ['E', t('Modifier')], ['T', t('Lire à voix haute')], ['Z', t('Annuler')], [t('Échap'), t('Quitter')]].map(([k, l]) => `<span><kbd>${k}</kbd>${l}</span>`).join('')}</div>
+      <div class="legend" style="gap:10px 22px">${[[t('Espace'), t('Retourner / valider')], ['1 2 3 4', t('Noter la fiche')], [t('A–D · V/F'), t('QCM, vrai/faux')], ['M', t('Mains libres')], ['/', t('Parler à Mentor')], [MOD + ' K', t('Commandes et recherche')], ['?', t('Tous les raccourcis')], ['E', t('Modifier')], ['T', t('Lire à voix haute')], ['Z', t('Annuler')], [t('Échap'), t('Quitter')]].map(([k, l]) => `<span><kbd>${k}</kbd>${l}</span>`).join('')}</div>
     </article>`;
 };
 Hooks.settings = arg => {
@@ -5602,11 +6170,12 @@ const Study = {
     }
     if (S.profile.settings.ambient !== 'off') Ambient.set(S.profile.settings.ambient);
     try { navigator.wakeLock?.request('screen').then(w => this.wake = w).catch(() => { }); } catch { }
+    if (o.handsFree) HandsFree.arm();
     this.next();
   },
   close(silent) {
     this.active = false; this.summaryOn = false; this.cur = null; this.busy = false; this.tok++;
-    this.ctl?.abort(); this.tutorCtl?.abort(); Dictation.stop(); Ambient.stop();
+    this.ctl?.abort(); this.tutorCtl?.abort(); HandsFree.stop(true); Dictation.stop(); Ambient.stop();
     this.pad?.destroy(); this.scratchPad?.destroy(); this.pad = this.scratchPad = null;
     try { speechSynthesis.cancel(); } catch { }
     try { this.wake?.release(); } catch { } this.wake = null;
@@ -5632,7 +6201,7 @@ const Study = {
     this.cur = item; this.flipped = false; this.choice = null; this.verdict = null; this.typed = ''; this.inkURL = ''; this.t0 = Date.now();
     this.order = []; this.pool = item[0].type === 'order' ? shuffle((item[0].items || []).map((_, i) => i)) : [];
     this.render(true);
-    if (S.profile.settings.tts) this.speakCur();
+    if (HandsFree.on) HandsFree.cycle(); else if (S.profile.settings.tts) this.speakCur();
   },
   typeable(c, f) { return ['basic', 'cloze', 'occlusion'].includes(c.type) && !!f.expected; },
   miniBox() {
@@ -5659,6 +6228,7 @@ const Study = {
           <button class="icon-btn" data-act="st-scratch" data-tip="${esc(t('Brouillon : annoter au stylet'))}">${icon('scribble')}</button>
           <button class="icon-btn ${amb !== 'off' ? 'on' : ''}" data-act="st-amb" data-tip="${esc(t('Ambiance : {x}', { x: t(AMBIENT_LABEL[amb]) }))}">${icon('music')}</button>
           <button class="icon-btn" data-act="st-speak" data-tip="${esc(t('Lire à voix haute (T)'))}">${icon('volume')}</button>
+          ${Dictation.supported ? `<button class="icon-btn ${HandsFree.on ? 'on' : ''}" data-act="st-voice" data-tip="${esc(t('Mains libres : lire et répondre à la voix (M)'))}" aria-pressed="${HandsFree.on}">${icon('mic')}</button>` : ''}
           <button class="icon-btn" data-act="st-undo" data-tip="${esc(t('Annuler la dernière note (Z)'))}" ${this.history.length ? '' : 'disabled'}>${icon('undo')}</button>
           <button class="icon-btn" data-act="st-edit" data-tip="${esc(t('Modifier la fiche (E)'))}">${icon('pen')}</button>
         </div>
@@ -5680,6 +6250,7 @@ const Study = {
         <div id="verdictBox" style="display:contents">${this.verdictHTML() + this.tutorOfferHTML()}</div>
         <div id="tutorBox" style="display:contents"></div>
       </div>
+      <div class="hf-slot" id="hfSlot">${HandsFree.html()}</div>
       <div class="st-bottom">${this.bottomHTML(showInput || showInk)}</div>
       ${this.miniBox()}`;
     this.bindCard();
@@ -5792,6 +6363,7 @@ const Study = {
     this.flipped = true; Sound.play('flip'); haptic(8); Dictation.stop();
     $('#card3d')?.classList.add('flipped');
     this.patch();
+    if (HandsFree.on) HandsFree.cycle();
   },
   choose(i) {
     const [c] = this.cur; if (this.flipped) return;
@@ -5826,9 +6398,10 @@ const Study = {
       if (err && !Dictation.supported) { btn.remove(); toast(t("Le micro n'est pas accessible ici : écrivez votre réponse."), 'mic'); }
     });
   },
-  async check() {
-    const inp = $('#ans'); if (!inp || this.flipped) return;
-    const ans = inp.value.trim(); if (!ans) { this.flip(); return; }
+  /** Vérifie la réponse écrite, ou dite (mains libres) quand `spoken` est donné. */
+  async check(spoken) {
+    const inp = $('#ans'); if ((!inp && spoken == null) || this.flipped) return;
+    const ans = String(spoken ?? inp.value).trim(); if (!ans) { this.flip(); return; }
     Dictation.stop();
     const [c] = this.cur; const f = cardFaces(c); this.typed = ans;
     const strict = S.profile.settings.strict;
@@ -5836,7 +6409,7 @@ const Study = {
     if (!AI.on || local.score >= 97) { this.verdict = { ...local, note: local.note || (AI.on ? t('correspondance exacte') : '') }; return this.afterCheck(); }
     if (!Pro.use('grade')) { this.verdict = { ...local, note: t('corrections IA du jour épuisées : correction locale') }; return this.afterCheck(); }
     this.verdict = { pending: true };
-    $('#verdictBox').innerHTML = this.verdictHTML(); inp.disabled = true;
+    $('#verdictBox').innerHTML = this.verdictHTML(); if (inp) inp.disabled = true;
     const card = this.cur; this.ctl?.abort(); this.ctl = new AbortController();
     try {
       const r = await aiGrade(plain(f.question), plain(f.expected), ans, strict);
@@ -5878,7 +6451,7 @@ const Study = {
   },
   grade(g) {
     if (!this.cur || !this.flipped || this.busy) return;
-    this.busy = true;
+    this.busy = true; HandsFree.hush();
     const [c, d] = this.cur; const now = Date.now();
     const before = JSON.parse(JSON.stringify(c.srs)); const wasNew = c.srs.state === 0;
     const logBefore = JSON.parse(JSON.stringify(S.profile.log[dayKey()] || null)); const xpBefore = S.profile.xp, flagsBefore = { ...S.profile.flags };
@@ -5968,6 +6541,8 @@ Explain the idea differently, in 4 sentences at most, with a concrete everyday a
     else if (name === 'st-mode') { this.mode = el.dataset.m; S.profile.settings.answerMode = this.mode; Store.touch('profile'); if (!this.flipped) this.render(); }
     else if (name === 'st-amb') { const s = S.profile.settings; s.ambient = { off: 'library', library: 'rain', rain: 'off' }[s.ambient]; Ambient.set(s.ambient); Store.touch('profile'); el.classList.toggle('on', s.ambient !== 'off'); el.dataset.tip = t('Ambiance : {x}', { x: t(AMBIENT_LABEL[s.ambient]) }); toast(t('Ambiance : {x}', { x: t(AMBIENT_LABEL[s.ambient]) }), 'music'); }
     else if (name === 'st-speak') this.speakCur();
+    else if (name === 'st-voice') HandsFree.toggle();
+    else if (name === 'st-hf') HandsFree.resume();
     else if (name === 'st-undo') this.undo();
     else if (name === 'st-edit') openEditor(this.cur[0].id);
     else if (name === 'st-tutor') this.tutor();
@@ -5992,6 +6567,7 @@ Explain the idea differently, in 4 sentences at most, with a concrete everyday a
     if (!this.flipped && c.type === 'mcq' && k.length === 1 && 'abcd'.includes(k)) { this.choose('abcd'.indexOf(k)); return; }
     if (!this.flipped && c.type === 'tf' && k.length === 1) { const tk = trueLbl()[0].toLowerCase(), fk = falseLbl()[0].toLowerCase(); if (k === tk || k === fk) { this.choose(k === tk ? 1 : 0); return; } }
     if (k === 'z') { e.preventDefault(); this.undo(); return; }
+    if (k === 'm') { e.preventDefault(); HandsFree.toggle(); return; }
     if (k === 'e') { e.preventDefault(); openEditor(c.id); return; }
     if (k === 't') { this.speakCur(); return; }
   },
@@ -7160,12 +7736,12 @@ ${JSON.stringify(this.snapshot())}`;
         } },
       { name: 'get_plan', description: 'The computed daily programme for the next days (minutes planned vs available, reviews, new cards per deck) and the app\'s own advice.', inputSchema: { type: 'object', properties: { days: { type: 'number' } } },
         execute: i => { const P = Plan.compute(clamp(+i.days || 14, 1, 28)); return { days: P.days.map(d => ({ date: d.key, minutes: d.min, available: d.avail, reviews: d.rev, new_by_deck: Object.fromEntries(Object.entries(d.quota).map(([id, n]) => [deckById(id)?.name || id, n])), overloaded: d.over, exams: d.exams.map(x => x.name) })), advice: Plan.advice().map(a => a[1]) }; } },
-      { name: 'start_session', description: 'Offer the student a button to start a review session now (due cards, ahead-of-time review of fragile cards, weak spots, or specific cards).',
-        inputSchema: { type: 'object', properties: { deck_id: { type: 'string' }, mode: { type: 'string', enum: ['due', 'ahead', 'weak', 'cards'] }, card_ids: { type: 'array', items: { type: 'string' } }, label: { type: 'string' } } },
+      { name: 'start_session', description: 'Offer the student a button to start a review session now (due cards, ahead-of-time review of fragile cards, weak spots, or specific cards). hands_free: Engram reads each card aloud and the student answers and rates by voice (for cooking, walking, commuting).',
+        inputSchema: { type: 'object', properties: { deck_id: { type: 'string' }, mode: { type: 'string', enum: ['due', 'ahead', 'weak', 'cards'] }, card_ids: { type: 'array', items: { type: 'string' } }, label: { type: 'string' }, hands_free: { type: 'boolean' } } },
         execute: i => {
           const mode = str(i.mode) || 'due', deckId = str(i.deck_id) && deckById(str(i.deck_id)) ? str(i.deck_id) : undefined;
           const items = mode === 'cards' ? (i.card_ids || []).map(id => findCard(str(id))).filter(x => x[0]) : null;
-          ctx.buttons.push({ label: str(i.label) || t('Lancer la séance'), icon: 'play', run: () => { this.close(); items ? Study.start({ items, title: 'Mentor' }) : Study.start({ deckId, cram: mode === 'ahead', weak: mode === 'weak' }); } });
+          ctx.buttons.push({ label: str(i.label) || t('Lancer la séance'), icon: 'play', run: () => { this.close(); const handsFree = !!i.hands_free; items ? Study.start({ items, title: 'Mentor', handsFree }) : Study.start({ deckId, cram: mode === 'ahead', weak: mode === 'weak', handsFree }); } });
           return 'A start button is shown under your message.';
         } },
       { name: 'open_view', description: 'Navigate the app behind the chat: today, plan, scan, library, deck (needs deck_id), games, stats, settings, pro (plans), agents (the six assistants), links (import, export, calendar), teams (schools and companies: class kits, group pricing).',
@@ -9542,7 +10118,103 @@ TR = {
   "Équipe": ["Team","Equipo","Team","Equipe"],
   "Équipe {c}": ["Team {c}","Equipo {c}","Team {c}","Equipe {c}"],
   "Établissement": ["Institution","Centro","Einrichtung","Instituição"],
-  "élèves actifs cette semaine": ["students active this week","alumnos activos esta semana","Schüler diese Woche aktiv","alunos ativos nesta semana"]
+  "élèves actifs cette semaine": ["students active this week","alumnos activos esta semana","Schüler diese Woche aktiv","alunos ativos nesta semana"],
+  // Commandes et voix
+  "Activer les sons": ["Turn sounds on","Activar los sonidos","Töne einschalten","Ativar os sons"],
+  "Aller à": ["Go to","Ir a","Gehe zu","Ir para"],
+  "Arrêter les mains libres": ["Stop hands-free","Detener manos libres","Freihändig beenden","Parar mãos livres"],
+  "Assistants": ["Assistants","Asistentes","Assistenten","Assistentes"],
+  "Astuce : tapez « question = réponse » ici": ["Tip: type “question = answer” here","Consejo: escribe «pregunta = respuesta» aquí","Tipp: Tippe hier „Frage = Antwort“","Dica: digite “pergunta = resposta” aqui"],
+  "Au clavier, sur ordinateur et iPad": ["With a keyboard, on computer and iPad","Con teclado, en ordenador y iPad","Mit Tastatur, am Computer und iPad","Com teclado, no computador e no iPad"],
+  "Autorisez-le dans les réglages du navigateur, ou tapez votre commande.": ["Allow it in your browser settings, or type your command.","Permítelo en los ajustes del navegador o escribe tu orden.","Erlaube es in den Browser-Einstellungen oder tippe deinen Befehl.","Permita nos ajustes do navegador ou digite seu comando."],
+  "C'est aujourd'hui": ["It's today","Es hoy","Es ist heute","É hoje"],
+  "Cette liste": ["This list","Esta lista","Diese Liste","Esta lista"],
+  "Chercher seulement les paquets": ["Search decks only","Buscar solo mazos","Nur Stapel suchen","Buscar só baralhos"],
+  "Choisir": ["Choose","Elegir","Auswählen","Escolher"],
+  "Choisissez ci-dessous, ou demandez à Mentor.": ["Pick one below, or ask Mentor.","Elige abajo o pregunta a Mentor.","Wähle unten aus oder frag Mentor.","Escolha abaixo ou pergunte ao Mentor."],
+  "Commandes": ["Commands","Órdenes","Befehle","Comandos"],
+  "Commandes et recherche": ["Commands and search","Órdenes y búsqueda","Befehle und Suche","Comandos e busca"],
+  "Commencez par # pour ne chercher que les paquets": ["Start with # to search decks only","Empieza por # para buscar solo mazos","Beginne mit #, um nur Stapel zu suchen","Comece com # para buscar só baralhos"],
+  "Commencez par ? pour poser la question à Mentor": ["Start with ? to ask Mentor","Empieza por ? para preguntar a Mentor","Beginne mit ?, um Mentor zu fragen","Comece com ? para perguntar ao Mentor"],
+  "Couper les sons": ["Mute sounds","Silenciar los sonidos","Töne ausschalten","Silenciar os sons"],
+  "Créer la fiche « {a} » → « {b} »": ["Create card “{a}” → “{b}”","Crear la tarjeta «{a}» → «{b}»","Karte „{a}“ → „{b}“ anlegen","Criar o cartão “{a}” → “{b}”"],
+  "Dans la palette": ["In the palette","En la paleta","In der Palette","Na paleta"],
+  "Dans un nouveau paquet": ["In a new deck","En un mazo nuevo","In einem neuen Stapel","Em um novo baralho"],
+  "Dans {n} jours": ["In {n} days","En {n} días","In {n} Tagen","Em {n} dias"],
+  "Dans « {x} »": ["In “{x}”","En «{x}»","In „{x}“","Em “{x}”"],
+  "Dire une commande": ["Say a command","Decir una orden","Befehl sprechen","Falar um comando"],
+  "Dites la lettre : A, B, C ou D": ["Say the letter: A, B, C or D","Di la letra: A, B, C o D","Sag den Buchstaben: A, B, C oder D","Diga a letra: A, B, C ou D"],
+  "Dites la réponse, ou « {w} »": ["Say the answer, or “{w}”","Di la respuesta, o «{w}»","Sag die Antwort oder „{w}“","Diga a resposta, ou “{w}”"],
+  "Dites « {a} » ou « {b} »": ["Say “{a}” or “{b}”","Di «{a}» o «{b}»","Sag „{a}“ oder „{b}“","Diga “{a}” ou “{b}”"],
+  "Dites « {w} » pour voir l'ordre": ["Say “{w}” to see the order","Di «{w}» para ver el orden","Sag „{w}“, um die Reihenfolge zu sehen","Diga “{w}” para ver a ordem"],
+  "En pause": ["Paused","En pausa","Pausiert","Em pausa"],
+  "En révision": ["While reviewing","Durante el repaso","Beim Lernen","Durante a revisão"],
+  "Engram lit la fiche, vous répondez à voix haute": ["Engram reads the card, you answer out loud","Engram lee la tarjeta y tú respondes en voz alta","Engram liest die Karte vor, du antwortest laut","O Engram lê o cartão e você responde em voz alta"],
+  "Engram lit la question": ["Engram is reading the question","Engram lee la pregunta","Engram liest die Frage","O Engram está lendo a pergunta"],
+  "Engram lit la réponse": ["Engram is reading the answer","Engram lee la respuesta","Engram liest die Antwort","O Engram está lendo a resposta"],
+  "Essayez un autre mot, ou demandez à Mentor.": ["Try another word, or ask Mentor.","Prueba otra palabra o pregunta a Mentor.","Versuch ein anderes Wort oder frag Mentor.","Tente outra palavra ou pergunte ao Mentor."],
+  "Fiche ajoutée à « {x} »": ["Card added to “{x}”","Tarjeta añadida a «{x}»","Karte zu „{x}“ hinzugefügt","Cartão adicionado a “{x}”"],
+  "Importer et exporter": ["Import and export","Importar y exportar","Importieren und exportieren","Importar e exportar"],
+  "Je n'ai pas compris la note.": ["I didn't catch the rating.","No he entendido la nota.","Die Bewertung habe ich nicht verstanden.","Não entendi a nota."],
+  "Je n'ai rien entendu.": ["I didn't hear anything.","No he oído nada.","Ich habe nichts gehört.","Não ouvi nada."],
+  "Je vous écoute…": ["Listening…","Te escucho…","Ich höre zu…","Estou ouvindo…"],
+  "Jeux et examens": ["Games and exams","Juegos y exámenes","Spiele und Prüfungen","Jogos e provas"],
+  "Juste !": ["Correct!","¡Correcto!","Richtig!","Certo!"],
+  "La fiche est créée sans ouvrir l'éditeur": ["The card is created without opening the editor","La tarjeta se crea sin abrir el editor","Die Karte wird angelegt, ohne den Editor zu öffnen","O cartão é criado sem abrir o editor"],
+  "Le micro n'est pas accessible ici : la révision mains libres a besoin du micro.": ["The microphone isn't available here: hands-free review needs it.","El micrófono no está disponible aquí: el repaso manos libres lo necesita.","Das Mikrofon ist hier nicht verfügbar: Freihändiges Lernen braucht es.","O microfone não está disponível aqui: a revisão mãos livres precisa dele."],
+  "Le micro n'est pas accessible ici.": ["The microphone isn't available here.","El micrófono no está disponible aquí.","Das Mikrofon ist hier nicht verfügbar.","O microfone não está disponível aqui."],
+  "Lecture à voix haute coupée": ["Reading aloud turned off","Lectura en voz alta desactivada","Vorlesen ausgeschaltet","Leitura em voz alta desativada"],
+  "Les fiches seront lues à voix haute": ["Cards will be read aloud","Las tarjetas se leerán en voz alta","Karten werden vorgelesen","Os cartões serão lidos em voz alta"],
+  "Lire les fiches à voix haute": ["Read cards aloud","Leer las tarjetas en voz alta","Karten vorlesen","Ler os cartões em voz alta"],
+  "Mains libres": ["Hands-free","Manos libres","Freihändig","Mãos livres"],
+  "Mains libres : lire et répondre à la voix": ["Hands-free: read and answer by voice","Manos libres: leer y responder con la voz","Freihändig: vorlesen und per Stimme antworten","Mãos livres: ler e responder com a voz"],
+  "Mains libres : lire et répondre à la voix (M)": ["Hands-free: read and answer by voice (M)","Manos libres: leer y responder con la voz (M)","Freihändig: vorlesen und per Stimme antworten (M)","Mãos livres: ler e responder com a voz (M)"],
+  "Mains libres arrêté": ["Hands-free stopped","Manos libres detenido","Freihändig beendet","Mãos livres parado"],
+  "Ne plus lire les fiches à voix haute": ["Stop reading cards aloud","Dejar de leer las tarjetas en voz alta","Karten nicht mehr vorlesen","Parar de ler os cartões em voz alta"],
+  "Notez : à revoir, difficile, acquis ou facile.": ["Rate it: again, hard, good or easy.","Califica: otra vez, difícil, bien o fácil.","Bewerte: nochmal, schwer, gut oder leicht.","Avalie: de novo, difícil, bom ou fácil."],
+  "Notez la fiche": ["Rate the card","Califica la tarjeta","Bewerte die Karte","Avalie o cartão"],
+  "Noté : {x}": ["Rated: {x}","Calificada: {x}","Bewertet: {x}","Avaliado: {x}"],
+  "Ouvrir ou fermer Mentor": ["Open or close Mentor","Abrir o cerrar Mentor","Mentor öffnen oder schließen","Abrir ou fechar o Mentor"],
+  "Par exemple : « réviser biologie », « nouvelle fiche », « thème sombre »": ["For example: “review biology”, “new card”, “dark theme”","Por ejemplo: «repasar biología», «nueva tarjeta», «tema oscuro»","Zum Beispiel: „Biologie lernen“, „neue Karte“, „dunkles Thema“","Por exemplo: “revisar biologia”, “novo cartão”, “tema escuro”"],
+  "Partout": ["Everywhere","En todas partes","Überall","Em todo lugar"],
+  "Pas de commande pour « {x} »": ["No command for “{x}”","Ninguna orden para «{x}»","Kein Befehl für „{x}“","Nenhum comando para “{x}”"],
+  "Pas tout à fait.": ["Not quite.","No del todo.","Nicht ganz.","Não exatamente."],
+  "Poser la question à Mentor": ["Ask Mentor","Preguntar a Mentor","Mentor fragen","Perguntar ao Mentor"],
+  "Presque.": ["Almost.","Casi.","Fast.","Quase."],
+  "Préparer « {x} »": ["Prepare “{x}”","Preparar «{x}»","„{x}“ vorbereiten","Preparar “{x}”"],
+  "Reprendre « {x} »": ["Resume “{x}”","Retomar «{x}»","„{x}“ fortsetzen","Retomar “{x}”"],
+  "Rien de prévu : révision en avance": ["Nothing due: review ahead","Nada pendiente: repaso por adelantado","Nichts fällig: vorlernen","Nada previsto: revisão adiantada"],
+  "Récents": ["Recent","Recientes","Zuletzt","Recentes"],
+  "Réglages rapides": ["Quick settings","Ajustes rápidos","Schnelleinstellungen","Ajustes rápidos"],
+  "Répondre à un QCM": ["Answer a multiple choice","Responder un test","Multiple Choice beantworten","Responder a um teste"],
+  "Résultats": ["Results","Resultados","Ergebnisse","Resultados"],
+  "Réviser le paquet choisi": ["Review the selected deck","Repasar el mazo elegido","Ausgewählten Stapel lernen","Revisar o baralho escolhido"],
+  "Réviser les fiches du jour": ["Review today's cards","Repasar las tarjetas de hoy","Heutige Karten lernen","Revisar os cartões de hoje"],
+  "Réviser mains libres": ["Hands-free review","Repasar manos libres","Freihändig lernen","Revisar com mãos livres"],
+  "Réviser, depuis l'accueil": ["Review, from the home screen","Repasar, desde el inicio","Lernen, vom Startbildschirm","Revisar, a partir do início"],
+  "Sauvegarder mes données": ["Back up my data","Guardar una copia de mis datos","Meine Daten sichern","Fazer backup dos meus dados"],
+  "Sons activés": ["Sounds on","Sonidos activados","Töne an","Sons ativados"],
+  "Sons coupés": ["Sounds off","Sonidos silenciados","Töne aus","Sons desativados"],
+  "Suggestions": ["Suggestions","Sugerencias","Vorschläge","Sugestões"],
+  "Tapez « question = réponse » pour créer une fiche": ["Type “question = answer” to create a card","Escribe «pregunta = respuesta» para crear una tarjeta","Tippe „Frage = Antwort“, um eine Karte anzulegen","Digite “pergunta = resposta” para criar um cartão"],
+  "Thème : {x}": ["Theme: {x}","Tema: {x}","Thema: {x}","Tema: {x}"],
+  "Touchez ici pour reprendre": ["Tap here to resume","Toca aquí para seguir","Hier tippen, um fortzufahren","Toque aqui para continuar"],
+  "Touchez le micro et dites « réviser » suivi du nom d'un paquet": ["Tap the mic and say “review” followed by a deck name","Toca el micro y di «repasar» seguido del nombre de un mazo","Tippe aufs Mikro und sag „lernen“ und den Namen eines Stapels","Toque no microfone e diga “revisar” seguido do nome de um baralho"],
+  "Touchez le micro et parlez après le signal.": ["Tap the mic and speak after the tone.","Toca el micro y habla después de la señal.","Tippe aufs Mikro und sprich nach dem Signal.","Toque no microfone e fale depois do sinal."],
+  "Tous les raccourcis": ["All shortcuts","Todos los atajos","Alle Tastenkürzel","Todos os atalhos"],
+  "Que voulez-vous faire ?": ["What would you like to do?","¿Qué quieres hacer?","Was möchtest du tun?","O que você quer fazer?"],
+  "Vrai ou faux": ["True or false","Verdadero o falso","Wahr oder falsch","Verdadeiro ou falso"],
+  "Vrai ou faux ?": ["True or false?","¿Verdadero o falso?","Wahr oder falsch?","Verdadeiro ou falso?"],
+  "choisir": ["choose","elegir","auswählen","escolher"],
+  "fiche prévue aujourd'hui|fiches prévues aujourd'hui": ["card due today|cards due today","tarjeta para hoy|tarjetas para hoy","Karte heute fällig|Karten heute fällig","cartão para hoje|cartões para hoje"],
+  "ouvrir": ["open","abrir","öffnen","abrir"],
+  "réviser le paquet": ["review the deck","repasar el mazo","Stapel lernen","revisar o baralho"],
+  "{n} à réviser": ["{n} to review","{n} por repasar","{n} zu lernen","{n} para revisar"],
+  "« question = réponse » crée une fiche": ["“question = answer” creates a card","«pregunta = respuesta» crea una tarjeta","„Frage = Antwort“ legt eine Karte an","“pergunta = resposta” cria um cartão"],
+  "À vous": ["Your turn","Te toca","Du bist dran","Sua vez"],
+  "Écouter mes fiches": ["Listen to my cards","Escuchar mis tarjetas","Meine Karten anhören","Ouvir meus cartões"],
+  "Écrivez votre question après le « ? »": ["Type your question after the “?”","Escribe tu pregunta después del «?»","Schreib deine Frage nach dem „?“","Escreva sua pergunta depois do “?”"],
+  "Écrivez « question = réponse »": ["Type “question = answer”","Escribe «pregunta = respuesta»","Schreib „Frage = Antwort“","Escreva “pergunta = resposta”"],
 };
 
 /* ── Démarrage ─────────────────────────────────────────────────────── */
