@@ -21,6 +21,9 @@ self.addEventListener('fetch', e => {
   const libs = /(cdnjs\.cloudflare\.com|cdn\.jsdelivr\.net)$/.test(url.hostname);
   if (!same && !fonts && !libs) return;
   if (req.mode === 'navigate') {
+    // Seule l'app passe par le cache : la page de présentation et le dossier ne remplacent jamais sa copie.
+    const app = new URL('./', self.registration.scope).pathname;
+    if (!same || (url.pathname !== app && url.pathname !== app + 'index.html')) return;
     e.respondWith(fetch(req).then(res => { const copy = res.clone(); caches.open(VERSION).then(c => c.put('index.html', copy)); return res; })
       .catch(() => caches.match('index.html').then(r => r || caches.match('./'))));
     return;

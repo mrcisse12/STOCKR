@@ -1860,6 +1860,94 @@ button,a,label,select,.chip,.opt,.ochip{touch-action:manipulation}
 :root[data-motion="none"] .flake{display:none}
 :root[data-motion="none"] .lcard .lc-sheen{animation:none}
 
+/* ── Partage et parrainage (lot 9) ────────────────────────────────── */
+/* Le bon pour un mois de Pro : un vrai ticket, papier crème, perforé, tamponné. */
+.tk-w{container-type:inline-size;width:min(340px,100%);filter:drop-shadow(0 16px 22px rgba(0,0,0,.38)) drop-shadow(0 2px 2px rgba(0,0,0,.22))}
+.tk-w.sm{width:150px;filter:drop-shadow(0 8px 12px rgba(0,0,0,.35))}
+.ticket{--stub:21%;position:relative;display:grid;grid-template-columns:var(--stub) minmax(0,1fr);aspect-ratio:2.05;border-radius:3.2cqw;color:#1D1C18;overflow:hidden;
+  background:repeating-linear-gradient(0deg,transparent 0 4.4cqw,rgba(46,78,158,.08) 4.4cqw calc(4.4cqw + 1px)),radial-gradient(120% 90% at 85% 0%,rgba(255,255,255,.6),transparent 60%),linear-gradient(170deg,#F7F0DE,#EADFC4);
+  -webkit-mask:radial-gradient(circle at var(--stub) 0,#0000 2.8cqw,#000 calc(2.8cqw + .5px)) top/100% 51% no-repeat,radial-gradient(circle at var(--stub) 100%,#0000 2.8cqw,#000 calc(2.8cqw + .5px)) bottom/100% 51% no-repeat;
+  mask:radial-gradient(circle at var(--stub) 0,#0000 2.8cqw,#000 calc(2.8cqw + .5px)) top/100% 51% no-repeat,radial-gradient(circle at var(--stub) 100%,#0000 2.8cqw,#000 calc(2.8cqw + .5px)) bottom/100% 51% no-repeat;
+  transform:rotate(-3deg);transition:transform .7s var(--spring)}
+.tk-w:hover .ticket{transform:rotate(-1deg) translateY(-2px)}
+.tk-stub{display:grid;place-items:center;background:linear-gradient(90deg,rgba(184,53,42,.1),rgba(184,53,42,.04));border-right:max(1.5px,.5cqw) dashed rgba(29,28,24,.28)}
+.tk-stub span{writing-mode:vertical-rl;transform:rotate(180deg);font:700 3.3cqw/1 var(--f-type);letter-spacing:.3em;text-transform:uppercase;color:#8E2A22;white-space:nowrap}
+.tk-main{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:1.2cqw;padding:3cqw 5cqw 3cqw 6cqw;min-width:0}
+.tk-k{font:700 3cqw/1 var(--f-type);letter-spacing:.24em;text-transform:uppercase;color:#6E695C}
+.tk-big{font:400 13.5cqw/.9 var(--f-display);letter-spacing:-.02em;color:#1D1C18}
+.tk-o{font:700 6cqw/1 Caveat,var(--f-display);color:#B8352A;margin-top:-.4cqw}
+.tk-code{margin-top:1.4cqw;padding:1.4cqw 2.6cqw;border:max(1px,.45cqw) dashed rgba(29,28,24,.45);border-radius:1.6cqw;font:700 4.6cqw/1 var(--f-type);letter-spacing:.2em;color:#1D1C18;background:rgba(255,255,255,.4)}
+.tk-stamp{position:absolute;right:6%;top:13%;padding:1.2cqw 2.6cqw;border:max(1.5px,.75cqw) solid currentColor;border-radius:1.4cqw;color:#B8352A;font:700 4.2cqw/1 var(--f-type);letter-spacing:.14em;text-transform:uppercase;opacity:.82;mix-blend-mode:multiply;transform:rotate(-13deg);
+  box-shadow:inset 0 0 0 max(1px,.35cqw) rgba(255,255,255,.5);animation:tkStamp .7s .35s var(--snap) both}
+@keyframes tkStamp{0%{opacity:0;transform:scale(2.2) rotate(-24deg)}60%{opacity:.9;transform:scale(.94) rotate(-11deg)}100%{transform:scale(1) rotate(-13deg)}}
+.tk-w.sm .tk-code{display:none}
+:root[data-motion="none"] .tk-stamp{animation:none}
+
+/* La page Pro : « Offrez un mois de Pro » */
+.refer{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(22px,4vw,52px);align-items:center;padding:clamp(24px,4vw,44px);border-radius:18px;position:relative;overflow:hidden}
+.refer::before{content:"";position:absolute;left:-10%;top:-30%;width:60%;height:160%;background:radial-gradient(closest-side,rgba(227,196,126,.16),transparent);pointer-events:none}
+.rf-stage{position:relative;display:grid;place-items:center;padding:10px 0}
+.refer .kicker{color:var(--gilt)}
+.refer .h2{color:var(--on-leather);margin-top:10px}
+.refer .rf-body > p{color:var(--on-leather-2);line-height:1.6;margin:12px 0 0;max-width:54ch}
+.rf-acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.rf-sec{background:rgba(255,255,255,.05);border-color:rgba(227,196,126,.34);color:var(--on-leather)}
+.rf-sec:hover{background:rgba(255,255,255,.1);border-color:rgba(227,196,126,.6)}
+.refer .rf-fine{margin:18px 0 0;font-size:13px;line-height:1.55;color:var(--on-leather-2);max-width:56ch}
+.refer .rf-fine b{color:var(--gilt);font-weight:600}
+a.btn{text-decoration:none}
+@media (max-width:760px){.refer{grid-template-columns:1fr}.rf-stage{padding:4px 0 8px}}
+
+/* Fenêtres : partager, inviter, recevoir */
+.shr,.inv,.rcv{display:flex;flex-direction:column;gap:16px}
+.shr-busy{display:flex;align-items:center;gap:12px;color:var(--muted);padding:22px 0;font-size:14px}
+.shr-dot{width:10px;height:10px;border-radius:50%;background:var(--brass);animation:shrDot .8s var(--ease) infinite alternate}
+@keyframes shrDot{from{opacity:.3;transform:scale(.7)}}
+.shr-env{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:14px;background:var(--folder-2);border:1px solid var(--hair)}
+.shr-gift{align-self:flex-start;display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border-radius:99px;background:var(--brass-soft);border:1px solid color-mix(in srgb,var(--brass) 35%,transparent);color:var(--brass-text);font:700 11px/1 var(--f-type);letter-spacing:.07em;text-transform:uppercase;animation:rise .45s var(--ease) both}
+.shr-gift .i{width:14px;height:14px}
+.shr-link{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.shr-link .input{font:13px/1.2 var(--f-type);color:var(--text-2);text-overflow:ellipsis}
+@media (max-width:520px){.shr-link{grid-template-columns:1fr}}
+.shr-acts{display:flex;flex-wrap:wrap;gap:8px}
+.shr-acts .btn{flex:1 1 auto;text-decoration:none}
+.shr-acts .mono{width:22px;height:22px;border-radius:5px;font-size:10.5px;box-shadow:none}
+.shr-acts .mono::before{height:3px}.shr-acts .mono::after{display:none}
+.shr-note{display:flex;gap:10px;align-items:flex-start;margin:0;padding:12px 14px;border-radius:12px;border:1px dashed var(--hair-3);color:var(--text-2);font-size:13.5px;line-height:1.55}
+.shr-note .i{color:var(--brass-text);flex:none;margin-top:2px}
+.shr-fine{display:flex;gap:8px;align-items:flex-start;margin:0;color:var(--muted);font-size:12.5px;line-height:1.5}
+.shr-fine .i{flex:none;width:14px;height:14px;margin-top:2px}
+.shr-alt{align-self:flex-start;margin-top:-6px}
+.rcv-deck{position:relative;padding:16px 18px 16px 24px;border-radius:12px;background:var(--paper);color:var(--p-ink);box-shadow:0 1px 2px rgba(0,0,0,.18),0 14px 28px -18px rgba(0,0,0,.55);overflow:hidden}
+.rcv-deck::before{content:"";position:absolute;left:0;top:0;bottom:0;width:7px;background:var(--c)}
+.rcv-deck::after{content:"";position:absolute;left:24px;right:18px;bottom:12px;height:1px;background:var(--p-rule,rgba(46,78,158,.18))}
+.rcv-deck b{display:block;font:400 26px/1.1 var(--f-display);overflow-wrap:anywhere}
+.rcv-deck small{display:block;margin-top:7px;font:700 11px/1.3 var(--f-type);letter-spacing:.08em;text-transform:uppercase;color:var(--p-muted)}
+.rcv-deck p{margin:10px 0 6px;font-size:14px;line-height:1.5;color:var(--p-muted)}
+.rcv-deck.sm{padding:13px 16px 15px 22px}.rcv-deck.sm b{font-size:21px}
+.rcv-list{display:grid;border:1px solid var(--hair);border-radius:12px;overflow:hidden;background:var(--folder-2)}
+.rcv-list > div{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:14px;padding:11px 14px;border-top:1px solid var(--hair);font-size:14px}
+.rcv-list > div:first-child{border-top:0}
+.rcv-list span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rcv-list span + span{color:var(--muted)}
+.rcv-list .more{grid-template-columns:1fr;color:var(--muted);font-size:13px}
+.rcv-gift{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:center;padding:16px 18px;border-radius:14px}
+.rcv-gift > div > b{display:block;font:400 21px/1.15 var(--f-display);color:var(--on-leather)}
+.rcv-gift > div > small{display:block;margin-top:6px;color:var(--on-leather-2);font-size:13px;line-height:1.45}
+@media (max-width:520px){.rcv-gift{grid-template-columns:1fr;justify-items:start}}
+.inv-stage,.gift-stage{display:grid;place-items:center;padding:14px 0 6px;position:relative;align-self:stretch}
+.inv-stage::before,.gift-stage::before{content:"";position:absolute;inset:0 18%;border-radius:50%;background:radial-gradient(closest-side,var(--brass-glow),transparent);filter:blur(18px);opacity:.6;pointer-events:none}
+.inv-steps{list-style:none;margin:0;padding:0;display:grid;gap:9px;counter-reset:st}
+.inv-steps li{counter-increment:st;display:grid;grid-template-columns:24px 1fr;gap:10px;align-items:start;font-size:14.5px;line-height:1.5;color:var(--text-2)}
+.inv-steps li::before{content:counter(st);display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--brass-soft);border:1px solid var(--hair-2);color:var(--brass-text);font:700 11.5px/1 var(--f-type)}
+.gift{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding-top:6px}
+.gift .h2{margin-top:2px}
+.gift p{margin:0;color:var(--text-2);line-height:1.6;max-width:46ch}
+.modal.gift-modal .modal-f{justify-content:center}
+.rd-code{font:700 26px/1 var(--f-type);letter-spacing:.3em;text-transform:uppercase;text-align:center;height:58px}
+.pro-welcome .pw-later{color:rgba(243,232,204,.72);margin-top:-12px}
+.pro-welcome .pw-later:hover{color:#F3E8CC;background:rgba(255,255,255,.06)}
+
 /* ── Divers ───────────────────────────────────────────────────────── */
 .c-img{display:block;max-width:100%;max-height:180px;margin:0 auto;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.25)}
 .onb-langs{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
@@ -2240,6 +2328,9 @@ function normalizeState(st) {
   p.badges = p.badges || {}; p.flags = p.flags || {}; p.matchBest = p.matchBest || {};
   p.memory = Array.isArray(p.memory) ? p.memory : [];
   p.pro = p.pro && typeof p.pro === 'object' ? p.pro : { plan: 'free' };
+  // Parrainage : le code de la personne (six caractères faciles à dicter), l'ami qui l'a invitée, les invitations envoyées.
+  p.ref = p.ref && typeof p.ref === 'object' ? p.ref : {};
+  if (!/^[2-9A-HJKMNP-Z]{6}$/.test(p.ref.code || '')) { const A = '23456789ABCDEFGHJKMNPQRSTUVWXYZ'; p.ref.code = Array.from(crypto.getRandomValues(new Uint8Array(6)), x => A[x % A.length]).join(''); }
   p.usage = p.usage && typeof p.usage === 'object' ? p.usage : {};
   p.agents = { autopilot: false, brief: null, report: null, ...(p.agents || {}) };
   if (!Array.isArray(p.agents.runs)) p.agents.runs = [];
@@ -3772,7 +3863,7 @@ const App = {
     $('#langBtn').textContent = UI_LANG_META[LANG].flag;
     const pb = $('#proBtn'); pb.classList.toggle('on', Pro.on);
     pb.innerHTML = Pro.on ? `${icon('crown')}${Pro.expert ? 'Expert' : 'Pro'}` : 'Pro';
-    pb.dataset.tip = Pro.on ? (Pro.trial ? t('Essai · encore {n}', { n: tp(Pro.daysLeft(), '{n} jour|{n} jours') }) : Pro.name()) : t('Découvrir Engram Pro');
+    pb.dataset.tip = Pro.on ? (Pro.trial ? t(Pro.gift ? 'Cadeau · encore {n}' : 'Essai · encore {n}', { n: tp(Pro.daysLeft(), '{n} jour|{n} jours') }) : Pro.name()) : t('Découvrir Engram Pro');
     applyStatic($('#shell'));
   },
   after() {
@@ -4141,6 +4232,7 @@ Views.deck = id => {
       <button class="btn btn-sm" data-act="addCard" data-deck="${d.id}">${icon('plus', 'i-sm')}${t('Fiche')}</button>
       <button class="btn btn-sm" data-act="occlusion" data-deck="${d.id}">${icon('image', 'i-sm')}${t("Masquage d'image")}</button>
       <button class="btn btn-sm" data-act="examPlan" data-deck="${d.id}">${icon('cal', 'i-sm')}${t('Examen en vue')}</button>
+      <button class="btn btn-sm" data-act="shareDeck" data-deck="${d.id}">${icon('link', 'i-sm')}${t('Partager')}</button>
       <button class="btn btn-sm" data-act="exportMenu" data-deck="${d.id}">${icon('share', 'i-sm')}${t('Exporter')}</button>
       <button class="btn btn-sm btn-ghost" data-act="deckSettings" data-deck="${d.id}">${icon('settings', 'i-sm')}${t('Paquet')}</button>
     </div>
@@ -5002,6 +5094,9 @@ const Cmd = {
       C('backup', G.io, 'download', t('Sauvegarder mes données'), () => Actions.backup(), { kw: 'sauvegarde json backup save copia seguridad sicherung' }),
       C('journal', G.io, 'chart', t('Exporter mon journal de révision (CSV)'), () => Carnet.csv(), { kw: 'journal statistiques csv excel historique stats history log historial verlauf historico' }),
       C('shareprog', G.io, 'share', t('Partager ma progression'), () => shareProgress(), { kw: 'partager progression share progress compartir teilen compartilhar' }),
+      S.decks.length && C('sharedeck', G.io, 'link', t('Partager un paquet par un lien'), () => openShareDeck(here || Cmd.deck()?.id), { sub: t('Le lien offre aussi un mois de Pro'), kw: 'partager lien paquet envoyer ami share link deck send friend compartir enlace mazo teilen stapel compartilhar link baralho whatsapp' }),
+      C('invite', G.io, 'send', t('Inviter un ami'), () => openInvite(), { sub: t('Un mois de Pro offert à chaque ami'), kw: 'inviter ami parrainage parrain cadeau offrir invite friend referral gift invitar amigo regalo einladen freund geschenk convidar amigo presente' }),
+      !S.profile.ref.by && C('redeem', G.io, 'sparkles', t('J\'ai un code d\'ami'), () => openRedeem(), { kw: 'code ami parrainage cadeau promo friend code referral promo codigo amigo freundescode gutschein codigo amigo' }),
       C('mentor', G.ai, 'sparkles', t('Demander à Mentor'), () => Mentor.open(), { key: '/', kw: 'mentor ia ai chat question aide help ayuda hilfe ajuda' }),
       C('proof', G.ai, 'pen', t('Le Correcteur : relire un paquet'), () => Agents.run('proof', here ? { deckId: here } : undefined), { kw: 'correcteur relire fautes proofread corrector korrektor revisor' }),
       C('examiner', G.ai, 'timer', t("L'Examinateur : examen blanc sur mesure"), () => Agents.run('examiner', here ? { deckId: here } : undefined), { kw: 'examinateur examiner examinador prufer' }),
@@ -5324,6 +5419,7 @@ const Pro = {
   get on() { return this.plan !== 'free'; },
   get expert() { return this.plan === 'expert'; },
   get trial() { return this.on && !!S.profile.pro.trial; },
+  get gift() { return this.trial && !!S.profile.pro.gift; },
   get canTrial() { return !S.profile.flags.proTrial; },
   daysLeft() { const u = S.profile.pro?.until; return u ? Math.max(1, Math.ceil((u - Date.now()) / DAY)) : 0; },
   name(k = this.plan) { return t(PLANS[k].name); },
@@ -5340,20 +5436,25 @@ const Pro = {
     const u = this.usage(); if ((u[kind] || 0) >= QUOTA[kind]) return false;
     u[kind] = (u[kind] || 0) + 1; Store.touch('profile'); return true;
   },
+  /** o.trial : essai (14 jours, ou o.days) ; o.gift : le mois offert par un ami (son prénom, ou true). */
   start(plan, o = {}) {
-    const prev = S.profile.pro || {};
-    S.profile.pro = { plan, trial: !!o.trial, since: prev.plan && prev.plan !== 'free' && prev.since ? prev.since : Date.now(), until: o.trial ? Date.now() + 14 * DAY : null, billing: o.trial ? null : this.bill };
+    const prev = S.profile.pro || {}, now = Date.now();
+    const until = o.trial ? Math.max(now + (o.days || 14) * DAY, prev.trial && prev.until > now ? prev.until : 0) : null;
+    S.profile.pro = { plan, trial: !!o.trial, gift: o.gift ? { from: typeof o.gift === 'string' ? o.gift : '' } : null, since: prev.plan && prev.plan !== 'free' && prev.since ? prev.since : now, until, billing: o.trial ? null : this.bill };
     if (o.trial) S.profile.flags.proTrial = 1;
     Store.touch('profile');
-    this.welcome(!!o.trial);
+    this.welcome(o.gift ? 'gift' : !!o.trial);
   },
   stop() {
     S.profile.pro = { plan: 'free' }; S.profile.agents.autopilot = false;
     Store.touch('profile'); App.render(); toast(t('Vous êtes revenu à la formule Découverte. Rien n\'est perdu.'), 'check');
   },
   welcome(trial) {
-    const el = document.createElement('div'); el.className = 'pro-welcome';
-    el.innerHTML = `<div class="pw-in">${proCard()}<h2>${t('Bienvenue dans Engram Pro')}</h2><p>${trial ? t('Quatorze jours pour tout essayer : scans illimités, les six assistants, l\'autopilote et le mode Expert. Aucun paiement n\'est demandé.') : t('Votre formule est active. Les six assistants sont à votre service.')}</p><button class="btn btn-gilt btn-lg">${icon('sparkles')}${t('Rencontrer les assistants')}</button></div>`;
+    const el = document.createElement('div'), gift = trial === 'gift', from = S.profile.pro.gift?.from; el.className = 'pro-welcome';
+    const txt = gift ? (from ? t('{x} vous offre un mois de Pro : scans illimités, les six assistants, Mentor sans limite et l\'autopilote. Aucun paiement n\'est demandé.', { x: esc(from) }) : t('Un ami vous offre un mois de Pro : scans illimités, les six assistants, Mentor sans limite et l\'autopilote. Aucun paiement n\'est demandé.'))
+      : trial ? t('Quatorze jours pour tout essayer : scans illimités, les six assistants, l\'autopilote et le mode Expert. Aucun paiement n\'est demandé.') : t('Votre formule est active. Les six assistants sont à votre service.');
+    el.innerHTML = `<div class="pw-in">${proCard()}<h2>${gift ? t('Un mois de Pro, offert') : t('Bienvenue dans Engram Pro')}</h2><p>${txt}</p><button class="btn btn-gilt btn-lg">${icon('sparkles')}${t('Rencontrer les assistants')}</button>${gift ? `<button class="btn btn-ghost pw-later">${t('Plus tard')}</button>` : ''}</div>`;
+    $$('#toasts .toast').forEach(x => x.remove()); // la carte dit tout : pas de bulles par-dessus
     document.body.append(el);
     Sound.play('seal'); haptic(30); App.chrome();
     if (!REDUCED && S.profile.settings.anim !== 'none') {
@@ -5366,6 +5467,7 @@ const Pro = {
     bindCardTilt(el);
     const done = go => { el.style.transition = 'opacity .3s'; el.style.opacity = 0; setTimeout(() => el.remove(), 300); if (go) App.go('agents'); else App.render(); };
     el.querySelector('.btn').onclick = () => done(true);
+    el.querySelector('.pw-later')?.addEventListener('click', () => done(false));
     el.addEventListener('click', e => { if (e.target === el) done(false); });
   },
   upsell(kind) {
@@ -5388,7 +5490,7 @@ const Pro = {
 function proCard(o = {}) {
   const p = S.profile.pro || {}, name = S.profile.study.name;
   const no = String(hash('engram' + (p.since || S.profile.study.name || 'reader')) % 900000 + 100000);
-  const line = Pro.on ? (Pro.trial ? t('Essai · encore {n}', { n: tp(Pro.daysLeft(), '{n} jour|{n} jours') }) : t('Membre depuis {d}', { d: fmtDate(p.since || Date.now(), { month: 'long', year: 'numeric' }) })) : t('Réserve · accès illimité');
+  const line = Pro.on ? (Pro.trial ? t(Pro.gift ? 'Cadeau · encore {n}' : 'Essai · encore {n}', { n: tp(Pro.daysLeft(), '{n} jour|{n} jours') }) : t('Membre depuis {d}', { d: fmtDate(p.since || Date.now(), { month: 'long', year: 'numeric' }) })) : t('Réserve · accès illimité');
   return `<div class="lcard leather ${o.sm ? 'sm' : ''} ${Pro.on ? 'on' : ''}" role="img" aria-label="${esc(t('Carte Engram Pro'))}">
     <span class="lc-sheen"></span><span class="lc-frame"></span>
     <div class="lc-top"><span class="foil lc-brand">Engram</span><span class="lc-no">${t('N°')} ${no}</span></div>
@@ -5438,6 +5540,7 @@ const PRO_FAQ = [
   [N_('Les assistants modifient-ils mes fiches sans me demander ?'), N_('Jamais. Ils lisent, analysent et proposent. Chaque changement attend votre accord, et un seul bouton annule tout ce qui a été appliqué.')],
   [N_('Que se passe-t-il à la fin de l\'essai ?'), N_('Vous revenez à Découverte sans rien perdre : paquets, historique et notes restent à vous. Aucun paiement n\'est demandé pour l\'essai.')],
   [N_('Puis-je arrêter à tout moment ?'), N_('Oui, en un clic depuis cette page. Sans engagement.')],
+  [N_('Comment offrir un mois de Pro à un ami ?'), N_('Partagez votre lien d\'invitation, ou un paquet : le lien porte votre code. Votre ami reçoit un mois de Pro sans carte bancaire, une fois. Il peut aussi entrer votre code à six caractères sur cette page.')],
   [N_('Quelle IA fait tourner Engram ?'), N_('Claude, d\'Anthropic : par votre compte Claude dans l\'app Claude, ou par le serveur Engram ailleurs. Sans IA, Engram continue de fonctionner avec ses méthodes locales.')]
 ];
 function tierHTML(k) {
@@ -5465,14 +5568,14 @@ Views.pro = () => {
   return `
     <section class="pro-hero">
       <div>
-        <div class="kicker rise"><b>Engram Pro</b>${Pro.on ? ' · ' + esc(Pro.trial ? t('essai en cours') : Pro.name()) : ''}</div>
+        <div class="kicker rise"><b>Engram Pro</b>${Pro.on ? ' · ' + esc(Pro.gift ? t('mois offert') : Pro.trial ? t('essai en cours') : Pro.name()) : ''}</div>
         <h1 class="display" style="margin-top:12px">${words(t('Une équipe qui <em>travaille</em> pour vous.'))}</h1>
         <p class="lede rise" style="animation-delay:.2s">${t('Six assistants lisent vos fiches, les corrigent, les complètent, préparent vos séances et vos examens blancs. Ils proposent, vous décidez.')}</p>
         <div class="hero-actions rise" style="animation-delay:.3s">
           ${Pro.on ? `<button class="btn btn-gilt btn-lg" data-act="go" data-v="agents">${icon('sparkles')}${t('Ouvrir les assistants')}</button>` : `<button class="btn btn-gilt btn-lg" data-act="proTrial">${icon('sparkles')}${Pro.canTrial ? t('Essayer 14 jours gratuitement') : t('Passer à Pro')}</button>`}
           <button class="btn btn-lg" data-jump="tiers">${t('Voir les formules')}</button>
         </div>
-        <div class="pro-fine rise" style="animation-delay:.4s">${Pro.on && Pro.trial ? t('Essai jusqu\'au {d} · tout est inclus', { d: fmtDate(p.until) }) : t('Sans engagement · prototype : aucun paiement demandé')}</div>
+        <div class="pro-fine rise" style="animation-delay:.4s">${Pro.on && Pro.trial ? t(Pro.gift ? 'Offert jusqu\'au {d} · tout est inclus' : 'Essai jusqu\'au {d} · tout est inclus', { d: fmtDate(p.until) }) : t('Sans engagement · prototype : aucun paiement demandé')}</div>
       </div>
       <div class="pro-stage rise" style="animation-delay:.15s">${proCard()}</div>
     </section>
@@ -5483,6 +5586,7 @@ Views.pro = () => {
       <div class="tiers">${['free', 'pro', 'expert'].map(tierHTML).join('')}</div>
       <article class="autopilot tm-ad leather gilt-rule rise"><span class="ap-dial">${icon('users')}</span><div><b>${t('Pour une classe ou une équipe')}</b><span>${t('Des paquets partagés, la date du contrôle dans le programme de chacun et un tableau de bord pour suivre la classe. Le professeur est offert.')}</span></div><button class="btn btn-gilt" data-act="go" data-v="teams">${t('Écoles et entreprises')}${icon('arrow', 'i-sm')}</button></article>
     </section>
+    ${referHTML()}
     <section class="sec">
       <div class="sec-h"><div><h2 class="h2">${t('L\'équipe Pro')}</h2><p>${t('Chacun son métier. Lancez-les quand vous voulez, ou laissez l\'autopilote les réveiller.')}</p></div><button class="btn btn-sm" data-act="go" data-v="agents">${t('Voir les assistants')}${icon('arrow', 'i-sm')}</button></div>
       <div class="team">${AGENTS.map(agentCard).join('')}</div>
@@ -5497,7 +5601,7 @@ Views.pro = () => {
       <div class="sec-h"><div><h2 class="h2">${t('Questions fréquentes')}</h2></div></div>
       <article class="panel faq rise">${PRO_FAQ.map(([q, a]) => `<details><summary>${t(q)}${icon('plus')}</summary><p>${t(a)}</p></details>`).join('')}</article>
     </section>
-    ${Pro.on ? `<section class="sec"><div class="sec-h"><div><h2 class="h2">${t('Votre abonnement')}</h2><p>${esc(Pro.trial ? t('Essai de Pro Expert jusqu\'au {d}.', { d: fmtDate(p.until, { day: 'numeric', month: 'long', year: 'numeric' }) }) : t('{p} depuis le {d}.', { p: Pro.name(), d: fmtDate(p.since, { day: 'numeric', month: 'long', year: 'numeric' }) }))}</p></div><button class="btn btn-sm btn-danger" data-act="proPick" data-plan="free">${t('Revenir à Découverte')}</button></div></section>` : ''}
+    ${Pro.on ? `<section class="sec"><div class="sec-h"><div><h2 class="h2">${t('Votre abonnement')}</h2><p>${esc(Pro.gift ? t('Mois de {p} offert, jusqu\'au {d}.', { p: Pro.name(), d: fmtDate(p.until, { day: 'numeric', month: 'long', year: 'numeric' }) }) : Pro.trial ? t('Essai de Pro Expert jusqu\'au {d}.', { d: fmtDate(p.until, { day: 'numeric', month: 'long', year: 'numeric' }) }) : t('{p} depuis le {d}.', { p: Pro.name(), d: fmtDate(p.since, { day: 'numeric', month: 'long', year: 'numeric' }) }))}</p></div><button class="btn btn-sm btn-danger" data-act="proPick" data-plan="free">${t('Revenir à Découverte')}</button></div></section>` : ''}
     <div class="pro-note rise">${icon('eye')}<span>${t('Prototype : les paiements ne sont pas branchés. Choisir une formule l\'active tout de suite sur cet appareil. À la mise en ligne, le paiement passera par Stripe sur le Web, et par l\'App Store et Google Play dans les applications.')}</span></div>`;
 };
 Hooks.pro = () => {
@@ -6492,9 +6596,323 @@ async function shareProgress() {
   x.fillStyle = '#8A8474'; x.font = '700 24px "Courier Prime", monospace'; x.textAlign = 'center'; x.fillText(t('PHOTOGRAPHIEZ. RETENEZ.'), W / 2, 1290);
   const blob = await new Promise(r => cv.toBlob(r, 'image/png')); if (!blob) return;
   const url = URL.createObjectURL(blob);
-  const md_ = Modal.open(mh(t('Partager ma progression'), t('Image 1080 × 1350')) + `<img src="${url}" alt="${esc(t('Fiche de progression'))}" style="display:block;width:min(360px,100%);margin:0 auto;border-radius:8px;box-shadow:var(--sh-card)"><p class="muted" style="text-align:center;font-size:13px">${t("Sur mobile, un appui long sur l'image permet aussi de l'enregistrer.")}</p><div class="modal-f"><button class="btn btn-brass" id="shDl">${icon('download')}${t("Enregistrer l'image")}</button></div>`);
+  const md_ = Modal.open(mh(t('Partager ma progression'), t('Image 1080 × 1350')) + `<img src="${url}" alt="${esc(t('Fiche de progression'))}" style="display:block;width:min(360px,100%);margin:0 auto;border-radius:8px;box-shadow:var(--sh-card)"><p class="muted" style="text-align:center;font-size:13px">${t("Sur mobile, un appui long sur l'image permet aussi de l'enregistrer.")}</p><div class="modal-f"><button class="btn" data-act="invite">${icon('send')}${t('Inviter un ami')}</button><button class="btn btn-brass" id="shDl">${icon('download')}${t("Enregistrer l'image")}</button></div>`);
   md_.querySelector('#shDl').onclick = () => saveFile('engram-progress.png', blob);
   Modal.onClose(md_, () => setTimeout(() => URL.revokeObjectURL(url), 1000));
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   PARTAGE ET PARRAINAGE
+   · Un paquet se partage par un lien : les fiches voyagent dans le lien
+     lui-même, compressées après le « # », sans compte ni serveur. Le lien
+     porte aussi le code de parrainage de la personne qui partage.
+   · Parrainage : l'ami qui ouvre le lien reçoit un mois de Pro, une fois.
+     La récompense du parrain (un mois par ami abonné) demande des comptes
+     et le paiement : elle viendra avec eux, et l'app le dit tel quel.
+     Prototype : un code bien formé suffit, le serveur les vérifiera.
+   · Trop lourd pour un lien (images) : on envoie le fichier.
+   · Dans l'aperçu Claude, la page n'a pas d'adresse publique : le paquet
+     part en fichier, ou en texte à coller dans Importer.
+   ════════════════════════════════════════════════════════════════════ */
+const SITE = '__SITE__'; // l'adresse du site, écrite au déploiement par netlify/build.mjs
+const LINK_MAX = 16000; // caractères : au-delà, des messageries coupent les liens
+const REF_RE = /^[2-9A-HJKMNP-Z]{6}$/; // sans 0, O, 1, I ni L : un code se dicte sans erreur
+const REF_WHY = {
+  bad: N_('Ce code ne ressemble pas à un code Engram : six lettres et chiffres, comme K7Q 2MZ.'),
+  self: N_('C\'est votre propre code : offrez-le à un ami.'),
+  used: N_('Vous avez déjà reçu un mois offert par un ami.'),
+  paid: N_('Vous êtes déjà abonné à Pro : gardez ce cadeau pour quelqu\'un d\'autre.')
+};
+const b64u = {
+  enc(u8) { let s = ''; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); },
+  dec(s) { const b = atob(s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - s.length % 4) % 4)); const u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+};
+/** Texte → code court : « z » + deflate en base64url, ou « j » + le texte brut si le navigateur ne compresse pas. */
+async function packText(str) {
+  const u = new TextEncoder().encode(str);
+  try { return 'z' + b64u.enc(new Uint8Array(await new Response(new Blob([u]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer())); }
+  catch { return 'j' + b64u.enc(u); }
+}
+async function unpackText(code) {
+  if (!/^[zj][A-Za-z0-9_-]+$/.test(code) || code.length > 3e6) throw new Error('code');
+  const u = b64u.dec(code.slice(1));
+  if (code[0] === 'j') return new TextDecoder().decode(u);
+  // Lecture plafonnée : un lien piégé ne peut pas faire gonfler la mémoire.
+  const rd = new Blob([u]).stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader(), parts = []; let n = 0;
+  for (;;) { const { done, value } = await rd.read(); if (done) break; n += value.length; if (n > 12e6) { rd.cancel(); throw new Error('size'); } parts.push(value); }
+  return new TextDecoder().decode(await new Blob(parts).arrayBuffer());
+}
+
+const Ref = {
+  get me() { return S.profile.ref.code; },
+  clean: s => String(s || '').toUpperCase().replace(/[^0-9A-Z]/g, ''),
+  pretty: c => c.slice(0, 3) + ' ' + c.slice(3),
+  /** Pourquoi ce code ne peut pas servir ici ('' : il peut). */
+  why(c) {
+    if (!REF_RE.test(c)) return 'bad';
+    if (c === this.me) return 'self';
+    if (S.profile.ref.by) return 'used';
+    if (Pro.on && !Pro.trial) return 'paid';
+    return '';
+  },
+  redeem(c, from = '') {
+    const w = this.why(c); if (w) { toast(t(REF_WHY[w]), 'sparkles'); return false; }
+    if (S.demo) Store.leaveDemo(false);
+    Object.assign(S.profile.ref, { by: c, byName: from, at: Date.now() });
+    Pro.start(Pro.trial ? Pro.plan : 'pro', { trial: true, days: 30, gift: from || true });
+    return true;
+  },
+  /** Une invitation envoyée (une par fenêtre ouverte, pour ne pas gonfler le compte). */
+  sent(m) { if (m._sent) return; m._sent = 1; S.profile.ref.sent = (S.profile.ref.sent || 0) + 1; Store.touch('profile'); },
+  message(url) {
+    return url ? t('Je révise avec Engram : une photo du cours devient des fiches, et l\'app me dit quoi revoir chaque jour. Je t\'offre un mois de Pro : {u}', { u: url })
+      : t('Je révise avec Engram : une photo du cours devient des fiches, et l\'app me dit quoi revoir chaque jour. Je t\'offre un mois de Pro avec mon code {c} : dans Engram, page Pro, « J\'ai un code d\'ami ».', { c: this.pretty(this.me) });
+  }
+};
+
+const Share = {
+  pending: null,
+  /** Adresse publique de l'app, ou null (aperçu dans Claude, fichier local). */
+  base() {
+    let top = false; try { top = window.top === window; } catch { }
+    if (top && !window.claude && /^https?:$/.test(location.protocol)) return location.origin + location.pathname.replace(/index\.html$/, '');
+    return /^https:\/\/[^\s'"<>]+$/.test(SITE) ? SITE.replace(/\/?$/, '/') : null;
+  },
+  params(o = {}) {
+    const q = new URLSearchParams();
+    if (o.deck) q.set('deck', o.deck);
+    if (o.ref !== false) { q.set('ref', Ref.me); const n = (S.profile.study.name || '').trim(); if (n) q.set('n', n.slice(0, 30)); }
+    return q.toString();
+  },
+  /** Un paquet s'ouvre dans l'app ; une invitation seule passe par la page de présentation, qui montre le cadeau. */
+  url(o = {}) { const b = this.base(); return b ? b + (o.deck ? '' : 'decouvrir/') + '#' + this.params(o) : null; },
+  /** Le paquet sans la progression de la personne ; les images seulement si on les garde. */
+  payload(d, withImg) {
+    const images = {}, cards = [];
+    for (const c of d.cards) {
+      const { id, srs, suspended, created, ref, ...rest } = c;
+      const imgs = ['img', 'fimg', 'bimg'].filter(f => c[f]);
+      if (!withImg && (c.type === 'occlusion' || imgs.length)) {
+        if (c.type === 'occlusion') continue;
+        imgs.forEach(f => delete rest[f]);
+        if (!plain(rest.front || rest.text || '').trim()) continue;
+      }
+      if (withImg) for (const f of imgs) if (S.images[c[f]]) images[c[f]] = S.images[c[f]];
+      cards.push(rest);
+    }
+    return { app: 'engram', v: 3, kind: 'share', deck: { name: d.name, desc: d.desc || '', color: d.color, lang: d.lang || LANG, notes: withImg ? d.notes || [] : [] }, cards, images };
+  },
+  /** Le code du paquet : complet s'il tient dans un lien, sinon sans les images, sinon trop lourd. */
+  async pack(d) {
+    let last = null;
+    for (const img of [true, false]) {
+      const p = this.payload(d, img), code = await packText(JSON.stringify(p));
+      last = { code, n: p.cards.length, dropped: d.cards.length - p.cards.length, img };
+      if (code.length <= LINK_MAX) return last;
+    }
+    return { ...last, big: true };
+  },
+  /** Relit un paquet reçu : seulement des champs connus, des tailles raisonnables. */
+  read(j) {
+    if (!j || j.app !== 'engram' || j.kind !== 'share' || !Array.isArray(j.cards)) throw new Error('share');
+    const d = j.deck || {}, str = (v, n) => String(v ?? '').slice(0, n);
+    const cards = j.cards.filter(c => c && typeof c === 'object' && !Array.isArray(c)).slice(0, 5000).map(c => {
+      const { id, srs, suspended, created, ...rest } = c;
+      return { ...rest, type: TYPE_LABEL[c.type] ? c.type : 'basic', id: uid('c'), srs: FSRS.blank(), tags: Array.isArray(c.tags) ? c.tags.slice(0, 20).map(x => str(x, 40)) : [] };
+    });
+    const images = {}; for (const [k, v] of Object.entries(j.images || {})) if (typeof v === 'string' && v.startsWith('data:image/')) images[str(k, 60)] = v;
+    return {
+      deck: { name: str(d.name, 80).trim() || t('Paquet partagé'), desc: str(d.desc, 400), color: DECK_COLORS[d.color] ? d.color : 'brass', lang: CARD_LANGS.includes(d.lang) ? d.lang : LANG, notes: Array.isArray(d.notes) ? d.notes.slice(0, 50) : [] },
+      cards, images
+    };
+  },
+  /** Un lien ou un texte collé qui contient un partage Engram. */
+  find(text) {
+    const m = String(text || '').match(/(?:^|[#?&\s])((?:deck|ref)=\S*)/); if (!m) return null;
+    const q = new URLSearchParams(m[1]), deck = q.get('deck') || '', ref = Ref.clean(q.get('ref'));
+    if (!/^[zj][A-Za-z0-9_-]{8,}$/.test(deck) && !REF_RE.test(ref)) return null;
+    return { deck: deck || null, ref: REF_RE.test(ref) ? ref : '', n: (q.get('n') || '').trim().slice(0, 30) };
+  },
+  /** Arrivée par un lien : on attend la fin de l'accueil pour montrer le paquet ou le cadeau. */
+  land(h) {
+    const p = this.find('#' + h); if (!p) return false;
+    this.pending = p;
+    if (S.profile.onboarded) setTimeout(() => this.resume(), 450);
+    return true;
+  },
+  resume() {
+    const p = this.pending; this.pending = null; if (!p) return;
+    if (p.deck) openReceived(p.deck, p); else if (p.ref) openGift(p.ref, p.n);
+  }
+};
+
+/* Le bon pour un mois de Pro : papier, perforation, tampon. */
+function ticketHTML(o = {}) {
+  const code = o.code || Ref.me;
+  return `<div class="tk-w ${o.sm ? 'sm' : ''}"><div class="ticket" role="img" aria-label="${esc(t('Bon pour un mois de Pro, code {c}', { c: code }))}">
+    <span class="tk-stub"><span>${t('Bon pour')}</span></span>
+    <span class="tk-main"><span class="tk-k">Engram Pro</span><b class="tk-big">${t('1 mois')}</b><span class="tk-o">${t('offert à un ami')}</span><span class="tk-code">${Ref.pretty(code)}</span></span>
+    <span class="tk-stamp">${t('Offert')}</span>
+  </div></div>`;
+}
+function referHTML() {
+  const r = S.profile.ref, sent = r.sent || 0, b = Share.base();
+  return `<section class="sec" id="refer"><article class="refer leather gilt-rule rise">
+    <div class="rf-stage">${ticketHTML()}</div>
+    <div class="rf-body">
+      <div class="kicker">${t('Parrainage')}</div>
+      <h2 class="h2">${t('Offrez un mois de Pro.')}</h2>
+      <p>${t('Chaque ami qui ouvre votre lien reçoit un mois de Pro, sans carte bancaire. Le lien part seul, ou avec un paquet que vous partagez.')}</p>
+      <div class="rf-acts"><button class="btn btn-gilt" data-act="invite">${icon('send')}${t('Inviter un ami')}</button>${r.by ? '' : `<button class="btn rf-sec" data-act="redeem">${t('J\'ai un code d\'ami')}</button>`}${b ? `<a class="btn rf-sec" href="${esc(b)}decouvrir/" target="_blank" rel="noopener">${t('Présenter Engram')}${icon('arrow', 'i-sm')}</a>` : ''}</div>
+      <p class="rf-fine">${sent ? `<b>${tp(sent, '{n} invitation envoyée|{n} invitations envoyées')}</b> · ` : ''}${t('Votre récompense, un mois offert pour chaque ami qui s\'abonne, arrivera avec les comptes Engram.')}</p>
+    </div>
+  </article></section>`;
+}
+/* Les boutons d'envoi : WhatsApp, e-mail, feuille de partage du téléphone. */
+function sendBtns(msg, subject) {
+  const canShare = !!navigator.share;
+  return `<div class="shr-acts">
+    <a class="btn" href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener" data-sent>${lkMono('Wa', '#1F8F4E')}<span>WhatsApp</span></a>
+    <a class="btn" href="mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(msg)}" data-sent>${icon('send', 'i-sm')}<span>${t('E-mail')}</span></a>
+    ${canShare ? `<button class="btn" data-share>${icon('share', 'i-sm')}<span>${t('Partager…')}</span></button>` : ''}
+    <button class="btn btn-ghost" data-copymsg>${icon('check', 'i-sm')}<span>${t('Copier le message')}</span></button>
+  </div>`;
+}
+function bindSend(m, msg, subject) {
+  m.addEventListener('click', async e => {
+    if (e.target.closest('[data-sent]')) { Ref.sent(m); return; }
+    if (e.target.closest('[data-copymsg]')) { if (await copyText(msg, t('Message copié : collez-le dans une conversation.'))) Ref.sent(m); return; }
+    if (e.target.closest('[data-share]')) {
+      try { await navigator.share({ title: subject, text: msg }); Ref.sent(m); }
+      catch (er) { if (er?.name !== 'AbortError') toast(t('Partage indisponible ici.'), 'share'); }
+    }
+  });
+}
+
+function openInvite() {
+  closeModals();
+  const url = Share.url({}), msg = Ref.message(url), subject = t('Un mois d\'Engram Pro pour toi');
+  const m = Modal.open(mh(t('Inviter un ami'), t('Parrainage')) + `<div class="inv">
+    <div class="inv-stage">${ticketHTML()}</div>
+    <ol class="inv-steps">
+      <li><span>${url ? t('Votre ami ouvre le lien.') : t('Votre ami entre votre code dans Engram, page Pro.')}</span></li>
+      <li><span>${t('Engram s\'ouvre avec un mois de Pro, sans carte bancaire.')}</span></li>
+      <li><span>${t('Votre code reste le même : il sert pour tous vos amis.')}</span></li>
+    </ol>
+    ${url ? `<div class="shr-link"><input class="input" id="invLink" readonly value="${esc(url)}" aria-label="${esc(t('Lien d\'invitation'))}"><button class="btn btn-brass" id="invCopy">${icon('link', 'i-sm')}${t('Copier le lien')}</button></div>`
+      : `<p class="shr-note">${icon('eye', 'i-sm')}<span>${t('Dans l\'aperçu Claude, Engram n\'a pas encore d\'adresse à partager. Donnez votre code : il marche partout où Engram est installé.')}</span></p>`}
+    ${sendBtns(msg, subject)}
+  </div>`);
+  bindSend(m, msg, subject);
+  m.querySelector('#invCopy')?.addEventListener('click', async () => { if (await copyText(url, t('Lien copié : collez-le dans une conversation.'))) Ref.sent(m); });
+  m.querySelector('#invLink')?.addEventListener('focus', e => e.target.select());
+}
+
+function openRedeem(pre = '') {
+  closeModals();
+  const m = Modal.open(mh(t('J\'ai un code d\'ami'), t('Parrainage')) + `<div class="form">
+    <p class="muted" style="margin:0;line-height:1.55">${t('Un ami vous a donné son code ? Entrez-le : vous recevez un mois de Pro, sans carte bancaire. Une seule fois par personne.')}</p>
+    <div class="field"><label for="rdCode">${t('Code à six caractères')}</label><input class="input rd-code" id="rdCode" maxlength="9" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="K7Q 2MZ" value="${esc(pre)}" autofocus></div>
+    <div id="rdMsg" aria-live="polite"></div>
+  </div><div class="modal-f"><button class="btn btn-ghost" data-act="close">${t('Annuler')}</button><button class="btn btn-gilt" id="rdGo" disabled>${icon('sparkles')}${t('Recevoir mon mois')}</button></div>`);
+  const inp = m.querySelector('#rdCode'), go = m.querySelector('#rdGo'), out = m.querySelector('#rdMsg');
+  const check = () => {
+    const c = Ref.clean(inp.value), w = c.length < 6 ? null : c.length > 6 ? 'bad' : Ref.why(c);
+    go.disabled = w !== '';
+    out.innerHTML = w === '' ? `<div class="paste-json">${icon('check', 'i-sm')}<span>${t('Code valable : un mois de Pro vous attend.')}</span></div>`
+      : w ? `<div class="paste-json bad">${icon('x', 'i-sm')}<span>${t(REF_WHY[w])}</span></div>` : '';
+    return c;
+  };
+  inp.addEventListener('input', check);
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !go.disabled) go.click(); });
+  go.onclick = () => { const c = check(); if (go.disabled) return; Modal.close(); Ref.redeem(c); };
+  check();
+}
+
+/* Arrivée par un lien d'invitation, sans paquet. */
+function openGift(code, from = '') {
+  const w = Ref.why(code);
+  if (w) { if (w !== 'self') toast(t(REF_WHY[w]), 'sparkles'); return; }
+  const m = Modal.open(`<div class="gift">
+    <div class="gift-stage">${ticketHTML({ code })}</div>
+    <div class="kicker">${t('Un cadeau pour vous')}</div>
+    <h2 class="h2">${from ? t('{x} vous offre un mois de Pro', { x: esc(from) }) : t('Un ami vous offre un mois de Pro')}</h2>
+    <p>${t('Scans de cours illimités, les six assistants, Mentor sans limite et l\'autopilote. Sans carte bancaire : à la fin du mois, vous revenez à Découverte sans rien perdre.')}</p>
+  </div><div class="modal-f"><button class="btn btn-ghost" data-act="close">${t('Plus tard')}</button><button class="btn btn-gilt" id="gfOk">${icon('sparkles')}${t('Accepter le cadeau')}</button></div>`, 'gift-modal');
+  m.querySelector('#gfOk').onclick = () => { Modal.close(); Ref.redeem(code, from); };
+}
+
+const shareQ = c => plain(c.type === 'cloze' ? renderCloze(c.text || '', c.n || 1).q : c.type === 'occlusion' ? c.title || t('Masquage d\'image') : c.front || '');
+const shareA = c => { try { return plain(String(cardAnswer({ n: 1, ...c }) ?? '')); } catch { return ''; } };
+
+/* Un paquet reçu par un lien : aperçu, puis ajout au fichier (et le cadeau, s'il y en a un). */
+async function openReceived(code, o = {}) {
+  let P;
+  try { P = Share.read(JSON.parse(await unpackText(code))); }
+  catch (e) { console.warn(e); toast(typeof DecompressionStream === 'undefined' && code[0] === 'z' ? t('Ce navigateur est trop ancien pour ouvrir ce lien. Mettez-le à jour, ou demandez le fichier du paquet.') : t('Ce lien de partage est incomplet ou abîmé. Demandez à votre ami de le renvoyer.'), 'link'); return; }
+  const d = P.deck, n = P.cards.length, key = String(hash(code)), from = o.n || '';
+  if (!n) { toast(t('Ce paquet partagé ne contient aucune fiche.'), 'link'); return; }
+  const had = S.decks.find(x => x.shared?.key === key), gift = o.ref && !Ref.why(o.ref);
+  const m = Modal.open(mh(t('Un paquet pour vous'), from ? t('Envoyé par {x}', { x: esc(from) }) : t('Partagé avec Engram')) + `<div class="rcv">
+    <div class="rcv-deck" style="--c:${DECK_COLORS[d.color] || DECK_COLORS.brass}"><b>${esc(d.name)}</b><small>${plural(n, 'fiche|fiches')} · ${esc(langName(d.lang))}</small>${d.desc ? `<p>${esc(d.desc)}</p>` : ''}</div>
+    <div class="rcv-list">${P.cards.slice(0, 4).map(c => `<div><span>${esc(shareQ(c))}</span><span>${esc(shareA(c))}</span></div>`).join('')}${n > 4 ? `<div class="more"><span>… ${t('et {n} autres', { n: n - 4 })}</span></div>` : ''}</div>
+    ${gift ? `<div class="rcv-gift leather gilt-rule">${ticketHTML({ code: o.ref, sm: true })}<div><b>${from ? t('{x} vous offre aussi un mois de Pro', { x: esc(from) }) : t('Ce lien vous offre aussi un mois de Pro')}</b><small>${t('Il s\'active quand vous ajoutez le paquet. Sans carte bancaire.')}</small></div></div>` : ''}
+    ${had ? `<p class="shr-note">${icon('check', 'i-sm')}<span>${t('Ce paquet est déjà dans votre fichier : {x}.', { x: quote(esc(had.name)) })}</span></p>` : ''}
+  </div><div class="modal-f"><button class="btn btn-ghost" data-act="close">${t('Plus tard')}</button>${had ? `<button class="btn" id="rcvOpen">${t('Ouvrir le paquet')}</button>` : ''}<button class="btn btn-brass" id="rcvAdd">${icon('plus')}${had ? t('Ajouter une copie') : t('Ajouter à mon fichier')}</button></div>`, 'sticky-f');
+  m.querySelector('#rcvOpen')?.addEventListener('click', () => { Modal.close(); App.go('deck', had.id); if (gift) setTimeout(() => Ref.redeem(o.ref, from), 500); });
+  m.querySelector('#rcvAdd').onclick = () => {
+    Modal.close();
+    const made = addImported({ images: P.images, decks: [{ ...d, cards: P.cards }] });
+    if (made?.[0]) { made[0].shared = { key, from, at: Date.now() }; Store.touchDeck(made[0]); }
+    if (gift) setTimeout(() => Ref.redeem(o.ref, from), 700);
+  };
+}
+
+/* Partager un paquet : le lien (avec le parrainage), ou le fichier. */
+async function openShareDeck(id) {
+  const d = deckById(id) || deckById(Cmd.deck?.()?.id) || S.decks[0];
+  if (!d) { toast(t('Créez ou importez d\'abord un paquet.'), 'drawer'); return; }
+  if (!d.cards.length) { toast(t('Ce paquet est vide : ajoutez des fiches avant de le partager.'), 'link'); return; }
+  closeModals();
+  const m = Modal.open(mh(t('Partager ce paquet'), esc(d.name)) + `<div class="shr" id="shrBody"><div class="shr-busy"><span class="shr-dot"></span>${t('Préparation du lien…')}</div></div>`);
+  const pk = await Share.pack(d), base = Share.base(), name = (S.profile.study.name || '').trim();
+  let ref = true;
+  const file = () => saveFile(`${slug(d.name)}.engram.json`, JSON.stringify(Share.payload(d, true)));
+  const draw = () => {
+    const url = !pk.big && base ? Share.url({ deck: pk.code, ref }) : null;
+    const msg = url ? t('Je te partage mon paquet {d} ({n}) sur Engram : {u}', { d: quote(d.name), n: plural(pk.n, 'fiche|fiches'), u: url }) + (ref ? '\n' + t('Le lien t\'offre aussi un mois de Pro.') : '') : '';
+    const subject = t('Mon paquet {d} sur Engram', { d: quote(d.name) });
+    const note = pk.big ? t('Ce paquet est trop lourd pour tenir dans un lien, surtout à cause des images. Envoyez le fichier : votre ami l\'ouvre dans Engram, Importer.')
+      : !base ? t('Dans l\'aperçu Claude, le lien ne s\'ouvrirait pas chez votre ami. Envoyez le fichier, ou copiez le paquet en texte : votre ami le colle dans Engram, Importer, Coller.')
+      : pk.dropped ? tp(pk.dropped, 'Les images ne tiennent pas dans un lien : {n} fiche à image reste dans le fichier.|Les images ne tiennent pas dans un lien : {n} fiches à image restent dans le fichier.') : '';
+    $('#shrBody', m).innerHTML = `
+      <div class="shr-env">
+        <span class="kicker">${t('Votre ami reçoit')}</span>
+        <div class="rcv-deck sm" style="--c:${DECK_COLORS[d.color] || DECK_COLORS.brass}"><b>${esc(d.name)}</b><small>${plural(pk.n, 'fiche|fiches')}${name ? ' · ' + t('de {x}', { x: esc(name) }) : ''}</small></div>
+        ${ref ? `<span class="shr-gift">${icon('sparkles', 'i-sm')}${t('et un mois de Pro offert')}</span>` : ''}
+      </div>
+      <label class="tick"><input type="checkbox" id="shRef" ${ref ? 'checked' : ''}> ${t('Offrir un mois de Pro avec ce lien (parrainage)')}</label>
+      ${url ? `<div class="shr-link"><input class="input" id="shLink" readonly value="${esc(url)}" aria-label="${esc(t('Lien du paquet'))}"><button class="btn btn-brass" id="shCopy">${icon('link', 'i-sm')}${t('Copier le lien')}</button></div>` : ''}
+      ${note ? `<p class="shr-note">${icon(pk.big || !base ? 'eye' : 'image', 'i-sm')}<span>${note}</span></p>` : ''}
+      ${url ? sendBtns(msg, subject) : `<div class="shr-acts"><button class="btn btn-brass" id="shFile">${icon('download', 'i-sm')}<span>${t('Enregistrer le fichier')}</span></button>${!pk.big ? `<button class="btn" id="shText">${icon('check', 'i-sm')}<span>${t('Copier en texte')}</span></button>` : ''}</div>`}
+      ${url && pk.dropped ? `<button class="btn btn-sm btn-ghost shr-alt" id="shFile">${icon('download', 'i-sm')}${t('Fichier complet, avec les images')}</button>` : ''}
+      <p class="shr-fine">${icon('eye', 'i-sm')}<span>${t('Votre ami reçoit les fiches, pas votre progression. Rien ne passe par un serveur : le paquet voyage dans le lien.')}</span></p>`;
+    if (m._msg !== msg) { m._msg = msg; m._subject = subject; }
+    $('#shRef', m).onchange = e => { ref = e.target.checked; draw(); };
+    $('#shCopy', m)?.addEventListener('click', async () => { if (await copyText(url, t('Lien copié : collez-le dans une conversation.'))) Ref.sent(m); });
+    $('#shLink', m)?.addEventListener('focus', e => e.target.select());
+    $('#shFile', m)?.addEventListener('click', file);
+    $('#shText', m)?.addEventListener('click', () => copyText('engram:#' + Share.params({ deck: pk.code, ref }), t('Paquet copié en texte : votre ami le colle dans Engram, Importer, Coller.')));
+  };
+  m.addEventListener('click', async e => {
+    if (e.target.closest('[data-sent]')) { Ref.sent(m); return; }
+    if (e.target.closest('[data-copymsg]')) { if (await copyText(m._msg, t('Message copié : collez-le dans une conversation.'))) Ref.sent(m); return; }
+    if (e.target.closest('[data-share]')) {
+      try { await navigator.share({ title: m._subject, text: m._msg }); Ref.sent(m); }
+      catch (er) { if (er?.name !== 'AbortError') toast(t('Partage indisponible ici.'), 'share'); }
+    }
+  });
+  draw();
 }
 
 /* ── Actions (délégation de clics) ─────────────────────────────────── */
@@ -6532,6 +6950,9 @@ const Actions = {
   lang: () => openLangMenu(),
   settings: () => App.go('settings'),
   share: () => shareProgress(),
+  shareDeck: el => openShareDeck(el.dataset.deck),
+  invite: () => openInvite(),
+  redeem: () => openRedeem(),
   onboard: () => Onb.open(),
   import: () => openImport(),
   exportMenu: el => openExport(el.dataset.deck),
@@ -6800,6 +7221,7 @@ const Onb = {
     Store.touch('profile'); Custom.apply();
     const el = $('#onb'); el.style.transition = 'opacity .5s'; el.style.opacity = 0; setTimeout(() => { el.hidden = true; el.style.opacity = ''; el.innerHTML = ''; }, 500);
     App.render(true);
+    if (Share.pending) setTimeout(() => Share.resume(), 700);
   }
 };
 
@@ -8674,6 +9096,7 @@ function lkExport() {
   const decks = lkDecks(), n = decks.reduce((a, d) => a + d.cards.length, 0);
   return `<div class="lk-pick"><label for="lkDeck">${t('Paquet')}</label><select class="select" id="lkDeck"><option value="all">${t('Tous les paquets')}</option>${S.decks.map(d => `<option value="${d.id}" ${d.id === Links.deck ? 'selected' : ''}>${esc(d.name)}</option>`).join('')}</select><span class="tnum">${plural(n, 'fiche|fiches')}</span></div>
   <section class="panel bridges">
+    ${bridge({ m: icon('link'), c: '#A57B2E', name: t('Un lien à envoyer'), desc: t('Le paquet tient dans un lien : votre ami l\'ouvre dans Engram, sans compte. Le lien lui offre aussi un mois de Pro.'), how: ['link'], note: decks.length > 1 ? t('Choisissez un paquet ci-dessus pour le partager par un lien.') : '', acts: decks.length === 1 ? lkBtn(`data-act="shareDeck" data-deck="${decks[0].id}"`, 'link', t('Partager'), 'btn btn-brass') : '' })}
     ${bridge({ m: 'Ak', c: '#3A6FC4', name: 'Anki', desc: t("S'ouvre dans Anki, AnkiDroid et AnkiMobile, avec votre progression."), how: ['file'], note: Dl.live ? t("Dans l'app Claude, le paquet arrive en .zip : renommez-le en .apkg avant de l'ouvrir dans Anki.") : '', acts: lkBtn('data-lkexp="apkg"', 'download', t('Enregistrer'), 'btn btn-brass') })}
     ${bridge({ m: 'Qz', c: '#4257B2', name: 'Quizlet', desc: t("Vos fiches, copiées au format d'import de Quizlet."), how: ['paste'], steps: [t('Touchez « Copier pour Quizlet ».'), t('Dans Quizlet, touchez « Créer », puis « Importer ».'), t("Collez : les fiches apparaissent, il ne reste qu'à enregistrer.")], acts: lkBtn('data-lkexp="quizlet"', 'check', t('Copier pour Quizlet'), 'btn btn-brass') })}
     ${bridge({ m: 'Xl', c: '#1E7B4F', name: t('Excel, Numbers, Google Sheets'), desc: t('Collez dans une feuille : une fiche par ligne, recto et verso en colonnes.'), how: ['paste', 'file'], acts: lkBtn('data-lkexp="sheet"', 'check', t('Copier le tableau')) + lkBtn('data-lkexp="csv"', 'download', 'CSV') })}
@@ -8809,6 +9232,8 @@ function parseImport(name, text) {
       images: j.images || {},
       decks: j.decks.map(d => ({ ...d, ref: String(d.ref || uid('r')), cards: (d.cards || []).map(c => ({ ...c, ref: String(c.ref || uid('r')), id: uid('c'), srs: FSRS.blank(), tags: Array.isArray(c.tags) ? c.tags : [] })) }))
     };
+    // Paquet partagé (fichier du bouton « Partager ») : les fiches, sans progression.
+    if (j && j.kind === 'share') { const P = Share.read(j); return { images: P.images, decks: [{ ...P.deck, cards: P.cards }] }; }
     if (j && Array.isArray(j.decks)) return { images: j.images || {}, exams: j.profile?.exams, decks: j.decks.map(d => ({ ...d, id: uid('d'), example: false, cards: (d.cards || []).map(c => ({ ...c, id: uid('c'), srs: c.srs || FSRS.blank(), tags: c.tags || [] })) })) };
     const arr = Array.isArray(j) ? j : j.cards || [];
     return { images: {}, decks: [{ name: base, cards: arr.map(o => mkCard('basic', { front: htmlToText(o.front ?? o.question ?? o.q ?? o.term), back: htmlToText(o.back ?? o.answer ?? o.a ?? o.definition), src: 'import' })).filter(c => c.front && c.back) }] };
@@ -8886,9 +9311,17 @@ function openPaste(src = '') {
       </details>
     </div>
   </div><div class="modal-f"><button class="btn btn-ghost" data-act="close">${t('Annuler')}</button><button class="btn btn-brass" id="pGo" disabled>${icon('upload')}${kit ? t('Rejoindre') : backup ? t('Restaurer') : t('Importer')}</button></div>`, 'wide sticky-f');
-  let json = null;
+  let json = null, shared = null;
   const draw = () => {
     st.text = m.querySelector('#pText').value; st.sep = m.querySelector('#pSep').value; st.swap = m.querySelector('#pSwap').checked; st.both = m.querySelector('#pBoth').checked; st.dest = m.querySelector('#pDest').value;
+    // Un lien de partage Engram (ou le paquet copié en texte) : on l'ouvre comme le lien.
+    shared = st.text.length < 3e6 ? Share.find(st.text) : null;
+    if (shared) {
+      const go = m.querySelector('#pGo'); m.querySelector('#pOpts').hidden = true; go.disabled = false;
+      go.innerHTML = icon('link') + (shared.deck ? t('Ouvrir le paquet') : t('Voir le cadeau'));
+      m.querySelector('#pPrev').innerHTML = `<div class="paste-json">${icon('link', 'i-sm')}<span>${shared.deck ? t('Lien de partage Engram reconnu.') : t('Lien d\'invitation Engram reconnu.')}</span></div>`;
+      return [];
+    }
     // Une sauvegarde Engram (ou une liste JSON) collée telle quelle.
     json = null;
     if (/^\s*[\[{]/.test(st.text)) { try { json = parseImport('engram.json', st.text); } catch { json = null; } }
@@ -8914,6 +9347,7 @@ function openPaste(src = '') {
   m.addEventListener('input', draw); m.addEventListener('change', draw);
   m.querySelector('#pGo').onclick = () => {
     const cards = draw();
+    if (shared) { Modal.close(); Share.pending = shared; Share.resume(); return; }
     if (json) { Modal.close(); addImported(json); return; }
     if (!cards.length) return;
     Modal.close();
@@ -11109,6 +11543,98 @@ TR = {
   "parle de {x}": ["about {x}","trata de {x}","handelt von {x}","fala de {x}"],
   "✓ {x} sur le texte.": ["✓ {x} to the text.","✓ {x} al texto.","✓ {x} an den Text angepasst.","✓ {x} ao texto."],
   "✓ {x}, calées sur le texte. Ajustez si besoin.": ["✓ {x}, fitted to the text. Adjust if needed.","✓ {x}, ajustadas al texto. Corrige si hace falta.","✓ {x}, an den Text angepasst. Bei Bedarf korrigieren.","✓ {x}, ajustadas ao texto. Corrija se precisar."],
+  // Partage et parrainage (lot 9)
+  "1 mois": ["1 month","1 mes","1 Monat","1 mês"],
+  "Accepter le cadeau": ["Accept the gift","Aceptar el regalo","Geschenk annehmen","Aceitar o presente"],
+  "Ajouter une copie": ["Add a copy","Añadir una copia","Eine Kopie hinzufügen","Adicionar uma cópia"],
+  "Ajouter à mon fichier": ["Add to my cabinet","Añadir a mi fichero","Zu meiner Kartei hinzufügen","Adicionar ao meu fichário"],
+  "Bon pour": ["Good for","Vale por","Gutschein","Vale"],
+  "Bon pour un mois de Pro, code {c}": ["Voucher for one month of Pro, code {c}","Vale por un mes de Pro, código {c}","Gutschein für einen Monat Pro, Code {c}","Vale um mês de Pro, código {c}"],
+  "C'est votre propre code : offrez-le à un ami.": ["That's your own code: give it to a friend.","Es tu propio código: regálalo a un amigo.","Das ist dein eigener Code: Schenk ihn einem Freund.","Este é o seu próprio código: ofereça-o a um amigo."],
+  "Ce code ne ressemble pas à un code Engram : six lettres et chiffres, comme K7Q 2MZ.": ["This doesn't look like an Engram code: six letters and digits, like K7Q 2MZ.","Esto no parece un código de Engram: seis letras y cifras, como K7Q 2MZ.","Das sieht nicht nach einem Engram-Code aus: sechs Buchstaben und Ziffern, etwa K7Q 2MZ.","Isto não parece um código Engram: seis letras e números, como K7Q 2MZ."],
+  "Ce lien de partage est incomplet ou abîmé. Demandez à votre ami de le renvoyer.": ["This share link is incomplete or damaged. Ask your friend to send it again.","Este enlace está incompleto o dañado. Pide a tu amigo que te lo reenvíe.","Dieser Link ist unvollständig oder beschädigt. Bitte deinen Freund, ihn erneut zu senden.","Este link está incompleto ou danificado. Peça ao seu amigo para reenviá-lo."],
+  "Ce lien vous offre aussi un mois de Pro": ["This link also gives you a month of Pro","Este enlace también te regala un mes de Pro","Dieser Link schenkt dir auch einen Monat Pro","Este link também lhe dá um mês de Pro"],
+  "Ce navigateur est trop ancien pour ouvrir ce lien. Mettez-le à jour, ou demandez le fichier du paquet.": ["This browser is too old to open this link. Update it, or ask for the deck file.","Este navegador es demasiado antiguo para abrir este enlace. Actualízalo o pide el archivo del mazo.","Dieser Browser ist zu alt für diesen Link. Aktualisiere ihn oder bitte um die Stapeldatei.","Este navegador é antigo demais para abrir este link. Atualize-o ou peça o arquivo do baralho."],
+  "Ce paquet est déjà dans votre fichier : {x}.": ["This deck is already in your cabinet: {x}.","Este mazo ya está en tu fichero: {x}.","Dieser Stapel ist schon in deiner Kartei: {x}.","Este baralho já está no seu fichário: {x}."],
+  "Ce paquet est trop lourd pour tenir dans un lien, surtout à cause des images. Envoyez le fichier : votre ami l'ouvre dans Engram, Importer.": ["This deck is too heavy to fit in a link, mostly because of its images. Send the file: your friend opens it in Engram, Import.","Este mazo es demasiado pesado para caber en un enlace, sobre todo por las imágenes. Envía el archivo: tu amigo lo abre en Engram, Importar.","Dieser Stapel ist zu groß für einen Link, vor allem wegen der Bilder. Sende die Datei: Dein Freund öffnet sie in Engram unter Importieren.","Este baralho é pesado demais para caber em um link, sobretudo por causa das imagens. Envie o arquivo: seu amigo o abre no Engram, em Importar."],
+  "Ce paquet est vide : ajoutez des fiches avant de le partager.": ["This deck is empty: add cards before sharing it.","Este mazo está vacío: añade tarjetas antes de compartirlo.","Dieser Stapel ist leer: Füge Karten hinzu, bevor du ihn teilst.","Este baralho está vazio: adicione cartões antes de compartilhá-lo."],
+  "Ce paquet partagé ne contient aucune fiche.": ["This shared deck has no cards.","Este mazo compartido no tiene tarjetas.","Dieser geteilte Stapel enthält keine Karten.","Este baralho compartilhado não tem cartões."],
+  "Chaque ami qui ouvre votre lien reçoit un mois de Pro, sans carte bancaire. Le lien part seul, ou avec un paquet que vous partagez.": ["Every friend who opens your link gets a month of Pro, no credit card needed. Send the link on its own, or with a deck you share.","Cada amigo que abre tu enlace recibe un mes de Pro, sin tarjeta bancaria. El enlace va solo o con un mazo que compartes.","Jeder Freund, der deinen Link öffnet, erhält einen Monat Pro, ohne Kreditkarte. Der Link geht allein oder mit einem Stapel, den du teilst.","Cada amigo que abre o seu link recebe um mês de Pro, sem cartão de crédito. O link vai sozinho ou com um baralho que você compartilha."],
+  "Choisissez un paquet ci-dessus pour le partager par un lien.": ["Choose a deck above to share it by link.","Elige un mazo arriba para compartirlo por enlace.","Wähle oben einen Stapel, um ihn per Link zu teilen.","Escolha um baralho acima para compartilhá-lo por link."],
+  "Code valable : un mois de Pro vous attend.": ["Valid code: a month of Pro is waiting for you.","Código válido: te espera un mes de Pro.","Gültiger Code: Ein Monat Pro wartet auf dich.","Código válido: um mês de Pro espera por você."],
+  "Code à six caractères": ["Six-character code","Código de seis caracteres","Sechsstelliger Code","Código de seis caracteres"],
+  "Comment offrir un mois de Pro à un ami ?": ["How do I give a friend a month of Pro?","¿Cómo regalar un mes de Pro a un amigo?","Wie schenke ich einem Freund einen Monat Pro?","Como oferecer um mês de Pro a um amigo?"],
+  "Copier en texte": ["Copy as text","Copiar como texto","Als Text kopieren","Copiar como texto"],
+  "Copier le lien": ["Copy link","Copiar el enlace","Link kopieren","Copiar o link"],
+  "Copier le message": ["Copy message","Copiar el mensaje","Nachricht kopieren","Copiar a mensagem"],
+  "Dans l'aperçu Claude, Engram n'a pas encore d'adresse à partager. Donnez votre code : il marche partout où Engram est installé.": ["In the Claude preview, Engram has no address to share yet. Give your code instead: it works wherever Engram is installed.","En la vista previa de Claude, Engram aún no tiene dirección que compartir. Da tu código: funciona allí donde Engram esté instalado.","In der Claude-Vorschau hat Engram noch keine Adresse zum Teilen. Gib deinen Code weiter: Er funktioniert überall, wo Engram installiert ist.","Na prévia do Claude, o Engram ainda não tem endereço para compartilhar. Passe o seu código: ele funciona onde o Engram estiver instalado."],
+  "Dans l'aperçu Claude, le lien ne s'ouvrirait pas chez votre ami. Envoyez le fichier, ou copiez le paquet en texte : votre ami le colle dans Engram, Importer, Coller.": ["In the Claude preview, the link wouldn't open for your friend. Send the file, or copy the deck as text: your friend pastes it in Engram, Import, Paste.","En la vista previa de Claude, el enlace no se abriría en casa de tu amigo. Envía el archivo o copia el mazo como texto: tu amigo lo pega en Engram, Importar, Pegar.","In der Claude-Vorschau würde sich der Link bei deinem Freund nicht öffnen. Sende die Datei oder kopiere den Stapel als Text: Dein Freund fügt ihn in Engram unter Importieren, Einfügen ein.","Na prévia do Claude, o link não abriria para o seu amigo. Envie o arquivo ou copie o baralho como texto: seu amigo o cola no Engram, em Importar, Colar."],
+  "E-mail": ["Email","Correo","E-Mail","E-mail"],
+  "Engram s'ouvre avec un mois de Pro, sans carte bancaire.": ["Engram opens with a month of Pro, no credit card needed.","Engram se abre con un mes de Pro, sin tarjeta bancaria.","Engram öffnet sich mit einem Monat Pro, ohne Kreditkarte.","O Engram abre com um mês de Pro, sem cartão de crédito."],
+  "Enregistrer le fichier": ["Save the file","Guardar el archivo","Datei speichern","Salvar o arquivo"],
+  "Envoyé par {x}": ["Sent by {x}","Enviado por {x}","Gesendet von {x}","Enviado por {x}"],
+  "Fichier complet, avec les images": ["Full file, with images","Archivo completo, con las imágenes","Vollständige Datei, mit Bildern","Arquivo completo, com as imagens"],
+  "Il s'active quand vous ajoutez le paquet. Sans carte bancaire.": ["It starts when you add the deck. No credit card needed.","Se activa cuando añades el mazo. Sin tarjeta bancaria.","Er startet, wenn du den Stapel hinzufügst. Ohne Kreditkarte.","Ele é ativado quando você adiciona o baralho. Sem cartão de crédito."],
+  "Inviter un ami": ["Invite a friend","Invitar a un amigo","Einen Freund einladen","Convidar um amigo"],
+  "J'ai un code d'ami": ["I have a friend's code","Tengo un código de amigo","Ich habe einen Freundescode","Tenho um código de amigo"],
+  "Je révise avec Engram : une photo du cours devient des fiches, et l'app me dit quoi revoir chaque jour. Je t'offre un mois de Pro : {u}": ["I study with Engram: a photo of my notes becomes flashcards, and the app tells me what to review each day. Here's a month of Pro for you: {u}","Estudio con Engram: una foto del apunte se convierte en tarjetas, y la app me dice qué repasar cada día. Te regalo un mes de Pro: {u}","Ich lerne mit Engram: Aus einem Foto der Notizen werden Karteikarten, und die App sagt mir jeden Tag, was ich wiederholen soll. Ich schenke dir einen Monat Pro: {u}","Eu estudo com o Engram: uma foto da matéria vira cartões, e o app me diz o que revisar todo dia. Te dou um mês de Pro: {u}"],
+  "Je révise avec Engram : une photo du cours devient des fiches, et l'app me dit quoi revoir chaque jour. Je t'offre un mois de Pro avec mon code {c} : dans Engram, page Pro, « J'ai un code d'ami ».": ["I study with Engram: a photo of my notes becomes flashcards, and the app tells me what to review each day. Here's a month of Pro with my code {c}: in Engram, Pro page, “I have a friend's code”.","Estudio con Engram: una foto del apunte se convierte en tarjetas, y la app me dice qué repasar cada día. Te regalo un mes de Pro con mi código {c}: en Engram, página Pro, «Tengo un código de amigo».","Ich lerne mit Engram: Aus einem Foto der Notizen werden Karteikarten, und die App sagt mir jeden Tag, was ich wiederholen soll. Ich schenke dir einen Monat Pro mit meinem Code {c}: in Engram, Seite Pro, „Ich habe einen Freundescode“.","Eu estudo com o Engram: uma foto da matéria vira cartões, e o app me diz o que revisar todo dia. Te dou um mês de Pro com o meu código {c}: no Engram, página Pro, “Tenho um código de amigo”."],
+  "Je te partage mon paquet {d} ({n}) sur Engram : {u}": ["Here's my deck {d} ({n}) on Engram: {u}","Te comparto mi mazo {d} ({n}) en Engram: {u}","Hier ist mein Stapel {d} ({n}) in Engram: {u}","Compartilho com você meu baralho {d} ({n}) no Engram: {u}"],
+  "Le lien offre aussi un mois de Pro": ["The link also gives a month of Pro","El enlace también regala un mes de Pro","Der Link schenkt auch einen Monat Pro","O link também dá um mês de Pro"],
+  "Le lien t'offre aussi un mois de Pro.": ["The link also gives you a month of Pro.","El enlace también te regala un mes de Pro.","Der Link schenkt dir auch einen Monat Pro.","O link também te dá um mês de Pro."],
+  "Le paquet tient dans un lien : votre ami l'ouvre dans Engram, sans compte. Le lien lui offre aussi un mois de Pro.": ["The deck fits in a link: your friend opens it in Engram, no account needed. The link also gives them a month of Pro.","El mazo cabe en un enlace: tu amigo lo abre en Engram, sin cuenta. El enlace también le regala un mes de Pro.","Der Stapel passt in einen Link: Dein Freund öffnet ihn in Engram, ohne Konto. Der Link schenkt ihm auch einen Monat Pro.","O baralho cabe em um link: seu amigo o abre no Engram, sem conta. O link também lhe dá um mês de Pro."],
+  "Les images ne tiennent pas dans un lien : {n} fiche à image reste dans le fichier.|Les images ne tiennent pas dans un lien : {n} fiches à image restent dans le fichier.": ["Images don't fit in a link: {n} image card stays in the file.|Images don't fit in a link: {n} image cards stay in the file.","Las imágenes no caben en un enlace: {n} tarjeta con imagen queda en el archivo.|Las imágenes no caben en un enlace: {n} tarjetas con imagen quedan en el archivo.","Bilder passen nicht in einen Link: {n} Bildkarte bleibt in der Datei.|Bilder passen nicht in einen Link: {n} Bildkarten bleiben in der Datei.","As imagens não cabem em um link: {n} cartão com imagem fica no arquivo.|As imagens não cabem em um link: {n} cartões com imagem ficam no arquivo."],
+  "Lien copié : collez-le dans une conversation.": ["Link copied: paste it into a conversation.","Enlace copiado: pégalo en una conversación.","Link kopiert: Füge ihn in einen Chat ein.","Link copiado: cole-o em uma conversa."],
+  "Lien d'invitation": ["Invitation link","Enlace de invitación","Einladungslink","Link de convite"],
+  "Lien d'invitation Engram reconnu.": ["Engram invitation link recognized.","Enlace de invitación de Engram reconocido.","Engram-Einladungslink erkannt.","Link de convite do Engram reconhecido."],
+  "Lien de partage Engram reconnu.": ["Engram share link recognized.","Enlace compartido de Engram reconocido.","Engram-Teilen-Link erkannt.","Link de compartilhamento do Engram reconhecido."],
+  "Lien du paquet": ["Deck link","Enlace del mazo","Link zum Stapel","Link do baralho"],
+  "Message copié : collez-le dans une conversation.": ["Message copied: paste it into a conversation.","Mensaje copiado: pégalo en una conversación.","Nachricht kopiert: Füge sie in einen Chat ein.","Mensagem copiada: cole-a em uma conversa."],
+  "Mois de {p} offert, jusqu'au {d}.": ["Free month of {p}, until {d}.","Mes de {p} regalado, hasta el {d}.","Geschenkter Monat {p}, bis {d}.","Mês de {p} de presente, até {d}."],
+  "Mon paquet {d} sur Engram": ["My deck {d} on Engram","Mi mazo {d} en Engram","Mein Stapel {d} in Engram","Meu baralho {d} no Engram"],
+  "Offert": ["Free","Regalo","Geschenkt","Grátis"],
+  "Offrez un mois de Pro.": ["Give a month of Pro.","Regala un mes de Pro.","Schenk einen Monat Pro.","Ofereça um mês de Pro."],
+  "Offrir un mois de Pro avec ce lien (parrainage)": ["Give a month of Pro with this link (referral)","Regalar un mes de Pro con este enlace (recomendación)","Mit diesem Link einen Monat Pro schenken (Empfehlung)","Oferecer um mês de Pro com este link (indicação)"],
+  "Ouvrir le paquet": ["Open the deck","Abrir el mazo","Stapel öffnen","Abrir o baralho"],
+  "Paquet copié en texte : votre ami le colle dans Engram, Importer, Coller.": ["Deck copied as text: your friend pastes it in Engram, Import, Paste.","Mazo copiado como texto: tu amigo lo pega en Engram, Importar, Pegar.","Stapel als Text kopiert: Dein Freund fügt ihn in Engram unter Importieren, Einfügen ein.","Baralho copiado como texto: seu amigo o cola no Engram, em Importar, Colar."],
+  "Paquet partagé": ["Shared deck","Mazo compartido","Geteilter Stapel","Baralho compartilhado"],
+  "Parrainage": ["Referral","Recomendación","Empfehlung","Indicação"],
+  "Partager ce paquet": ["Share this deck","Compartir este mazo","Diesen Stapel teilen","Compartilhar este baralho"],
+  "Partager un paquet par un lien": ["Share a deck by link","Compartir un mazo por enlace","Einen Stapel per Link teilen","Compartilhar um baralho por link"],
+  "Partagez votre lien d'invitation, ou un paquet : le lien porte votre code. Votre ami reçoit un mois de Pro sans carte bancaire, une fois. Il peut aussi entrer votre code à six caractères sur cette page.": ["Share your invitation link, or a deck: the link carries your code. Your friend gets a month of Pro with no credit card, once. They can also enter your six-character code on this page.","Comparte tu enlace de invitación o un mazo: el enlace lleva tu código. Tu amigo recibe un mes de Pro sin tarjeta bancaria, una vez. También puede introducir tu código de seis caracteres en esta página.","Teile deinen Einladungslink oder einen Stapel: Der Link enthält deinen Code. Dein Freund erhält einmalig einen Monat Pro, ohne Kreditkarte. Er kann deinen sechsstelligen Code auch auf dieser Seite eingeben.","Compartilhe seu link de convite, ou um baralho: o link leva o seu código. Seu amigo recebe um mês de Pro sem cartão de crédito, uma vez. Ele também pode digitar o seu código de seis caracteres nesta página."],
+  "Partagé avec Engram": ["Shared with Engram","Compartido con Engram","Mit Engram geteilt","Compartilhado com o Engram"],
+  "Préparation du lien…": ["Preparing the link…","Preparando el enlace…","Link wird vorbereitet…","Preparando o link…"],
+  "Présenter Engram": ["Introduce Engram","Presentar Engram","Engram vorstellen","Apresentar o Engram"],
+  "Recevoir mon mois": ["Get my month","Recibir mi mes","Meinen Monat erhalten","Receber meu mês"],
+  "Scans de cours illimités, les six assistants, Mentor sans limite et l'autopilote. Sans carte bancaire : à la fin du mois, vous revenez à Découverte sans rien perdre.": ["Unlimited course scans, the six assistants, unlimited Mentor and the autopilot. No credit card: at the end of the month, you go back to Discovery without losing anything.","Escaneos ilimitados, los seis asistentes, Mentor sin límite y el piloto automático. Sin tarjeta bancaria: al final del mes vuelves a Descubrimiento sin perder nada.","Unbegrenzte Scans, die sechs Assistenten, Mentor unbegrenzt und der Autopilot. Ohne Kreditkarte: Am Monatsende kehrst du zu Entdecken zurück, ohne etwas zu verlieren.","Escaneamentos ilimitados, os seis assistentes, Mentor sem limite e o piloto automático. Sem cartão de crédito: no fim do mês, você volta ao Descoberta sem perder nada."],
+  "Un ami vous a donné son code ? Entrez-le : vous recevez un mois de Pro, sans carte bancaire. Une seule fois par personne.": ["Did a friend give you their code? Enter it: you get a month of Pro, no credit card needed. Once per person.","¿Un amigo te dio su código? Introdúcelo: recibes un mes de Pro, sin tarjeta bancaria. Una sola vez por persona.","Hat dir ein Freund seinen Code gegeben? Gib ihn ein: Du erhältst einen Monat Pro, ohne Kreditkarte. Einmal pro Person.","Um amigo lhe deu o código dele? Digite-o: você recebe um mês de Pro, sem cartão de crédito. Uma única vez por pessoa."],
+  "Un ami vous offre un mois de Pro": ["A friend is giving you a month of Pro","Un amigo te regala un mes de Pro","Ein Freund schenkt dir einen Monat Pro","Um amigo lhe dá um mês de Pro"],
+  "Un ami vous offre un mois de Pro : scans illimités, les six assistants, Mentor sans limite et l'autopilote. Aucun paiement n'est demandé.": ["A friend is giving you a month of Pro: unlimited scans, the six assistants, unlimited Mentor and the autopilot. No payment required.","Un amigo te regala un mes de Pro: escaneos ilimitados, los seis asistentes, Mentor sin límite y el piloto automático. No se pide ningún pago.","Ein Freund schenkt dir einen Monat Pro: unbegrenzte Scans, die sechs Assistenten, Mentor unbegrenzt und der Autopilot. Keine Zahlung nötig.","Um amigo lhe dá um mês de Pro: escaneamentos ilimitados, os seis assistentes, Mentor sem limite e o piloto automático. Nenhum pagamento é pedido."],
+  "Un cadeau pour vous": ["A gift for you","Un regalo para ti","Ein Geschenk für dich","Um presente para você"],
+  "Un lien à envoyer": ["A link to send","Un enlace para enviar","Ein Link zum Senden","Um link para enviar"],
+  "Un mois d'Engram Pro pour toi": ["A month of Engram Pro for you","Un mes de Engram Pro para ti","Ein Monat Engram Pro für dich","Um mês de Engram Pro para você"],
+  "Un mois de Pro offert à chaque ami": ["A free month of Pro for every friend","Un mes de Pro gratis para cada amigo","Ein Monat Pro gratis für jeden Freund","Um mês de Pro grátis para cada amigo"],
+  "Un mois de Pro, offert": ["A month of Pro, on the house","Un mes de Pro, de regalo","Ein Monat Pro, geschenkt","Um mês de Pro, de presente"],
+  "Un paquet pour vous": ["A deck for you","Un mazo para ti","Ein Stapel für dich","Um baralho para você"],
+  "Voir le cadeau": ["See the gift","Ver el regalo","Geschenk ansehen","Ver o presente"],
+  "Votre ami entre votre code dans Engram, page Pro.": ["Your friend enters your code in Engram, on the Pro page.","Tu amigo introduce tu código en Engram, página Pro.","Dein Freund gibt deinen Code in Engram auf der Seite Pro ein.","Seu amigo digita o seu código no Engram, na página Pro."],
+  "Votre ami ouvre le lien.": ["Your friend opens the link.","Tu amigo abre el enlace.","Dein Freund öffnet den Link.","Seu amigo abre o link."],
+  "Votre ami reçoit": ["Your friend receives","Tu amigo recibe","Dein Freund erhält","Seu amigo recebe"],
+  "Votre ami reçoit les fiches, pas votre progression. Rien ne passe par un serveur : le paquet voyage dans le lien.": ["Your friend gets the cards, not your progress. Nothing goes through a server: the deck travels inside the link.","Tu amigo recibe las tarjetas, no tu progreso. Nada pasa por un servidor: el mazo viaja dentro del enlace.","Dein Freund erhält die Karten, nicht deinen Fortschritt. Nichts läuft über einen Server: Der Stapel reist im Link selbst.","Seu amigo recebe os cartões, não o seu progresso. Nada passa por um servidor: o baralho viaja dentro do link."],
+  "Votre code reste le même : il sert pour tous vos amis.": ["Your code stays the same: it works for all your friends.","Tu código no cambia: sirve para todos tus amigos.","Dein Code bleibt gleich: Er gilt für alle deine Freunde.","Seu código continua o mesmo: serve para todos os seus amigos."],
+  "Votre récompense, un mois offert pour chaque ami qui s'abonne, arrivera avec les comptes Engram.": ["Your reward, a free month for every friend who subscribes, will come with Engram accounts.","Tu recompensa, un mes gratis por cada amigo que se suscriba, llegará con las cuentas de Engram.","Deine Belohnung, ein Gratismonat für jeden Freund, der abonniert, kommt mit den Engram-Konten.","Sua recompensa, um mês grátis para cada amigo que assinar, chegará com as contas Engram."],
+  "Vous avez déjà reçu un mois offert par un ami.": ["You've already received a free month from a friend.","Ya recibiste un mes regalado por un amigo.","Du hast schon einen Gratismonat von einem Freund erhalten.","Você já recebeu um mês de presente de um amigo."],
+  "Vous êtes déjà abonné à Pro : gardez ce cadeau pour quelqu'un d'autre.": ["You already subscribe to Pro: keep this gift for someone else.","Ya estás suscrito a Pro: guarda este regalo para otra persona.","Du hast Pro bereits abonniert: Heb dieses Geschenk für jemand anderen auf.","Você já assina o Pro: guarde este presente para outra pessoa."],
+  "de {x}": ["from {x}","de {x}","von {x}","de {x}"],
+  "et un mois de Pro offert": ["and a free month of Pro","y un mes de Pro gratis","und einen Monat Pro gratis","e um mês de Pro grátis"],
+  "mois offert": ["free month","mes regalado","Gratismonat","mês de presente"],
+  "offert à un ami": ["for a friend","para un amigo","für einen Freund","para um amigo"],
+  "{n} invitation envoyée|{n} invitations envoyées": ["{n} invitation sent|{n} invitations sent","{n} invitación enviada|{n} invitaciones enviadas","{n} Einladung gesendet|{n} Einladungen gesendet","{n} convite enviado|{n} convites enviados"],
+  "{x} vous offre aussi un mois de Pro": ["{x} is also giving you a month of Pro","{x} también te regala un mes de Pro","{x} schenkt dir auch einen Monat Pro","{x} também lhe dá um mês de Pro"],
+  "{x} vous offre un mois de Pro": ["{x} is giving you a month of Pro","{x} te regala un mes de Pro","{x} schenkt dir einen Monat Pro","{x} lhe dá um mês de Pro"],
+  "{x} vous offre un mois de Pro : scans illimités, les six assistants, Mentor sans limite et l'autopilote. Aucun paiement n'est demandé.": ["{x} is giving you a month of Pro: unlimited scans, the six assistants, unlimited Mentor and the autopilot. No payment required.","{x} te regala un mes de Pro: escaneos ilimitados, los seis asistentes, Mentor sin límite y el piloto automático. No se pide ningún pago.","{x} schenkt dir einen Monat Pro: unbegrenzte Scans, die sechs Assistenten, Mentor unbegrenzt und der Autopilot. Keine Zahlung nötig.","{x} lhe dá um mês de Pro: escaneamentos ilimitados, os seis assistentes, Mentor sem limite e o piloto automático. Nenhum pagamento é pedido."],
+  "Cadeau · encore {n}": ["Gift · {n} left","Regalo · quedan {n}","Geschenk · noch {n}","Presente · faltam {n}"],
+  "Offert jusqu'au {d} · tout est inclus": ["Free until {d} · everything included","Regalado hasta el {d} · todo incluido","Geschenkt bis {d} · alles inklusive","De presente até {d} · tudo incluído"],
 };
 
 /* ── Démarrage ─────────────────────────────────────────────────────── */
@@ -11130,9 +11656,17 @@ function boot() {
   document.fonts?.addEventListener?.('loadingdone', reRule);
   document.fonts?.ready?.then(reRule);
   // Raccourcis de l'app installée (appui long sur l'icône) : #scan, #study.
-  const h = location.hash.slice(1);
-  if (h === 'scan') App.go('scan'); else if (h === 'study' && S.profile.onboarded) setTimeout(() => Study.start(), 300);
-  if (h) history.replaceState(null, '', location.pathname + location.search);
+  // Depuis la page de présentation : #pro, #teams, #invite. Lien de partage ou d'invitation : #deck=…&ref=…&n=… (voir PARTAGE ET PARRAINAGE).
+  // Aussi quand le lien s'ouvre dans un onglet où Engram tourne déjà : la page ne se recharge pas, seul le hash change.
+  const follow = () => {
+    const h = location.hash.slice(1); if (!h) return;
+    if (h === 'scan') App.go('scan'); else if (h === 'study' && S.profile.onboarded) setTimeout(() => Study.start(), 300);
+    else if (h === 'pro' || h === 'teams') App.go(h);
+    else if (h === 'invite') { App.go('pro'); if (S.profile.onboarded) setTimeout(() => openInvite(), 400); }
+    else if (Share.land(h)) closeModals();
+    history.replaceState(null, '', location.pathname + location.search);
+  };
+  follow(); addEventListener('hashchange', follow);
   // App installable et hors-ligne, quand la page est servie par un vrai site (pas dans l'app Claude).
   if ('serviceWorker' in navigator && !window.claude && (location.protocol === 'https:' || location.hostname === 'localhost')) {
     addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => { }));

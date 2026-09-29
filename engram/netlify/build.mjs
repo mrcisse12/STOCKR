@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const out = path.join(root, '_site');
-const files = ['index.html', 'dossier.html', 'manifest.webmanifest', 'sw.js', 'icons'];
+const files = ['index.html', 'dossier.html', 'decouvrir', 'manifest.webmanifest', 'sw.js', 'icons'];
 
 fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out);
@@ -14,4 +14,11 @@ for (const f of files) fs.cpSync(path.join(root, f), path.join(out, f), { recurs
 // Numéro de version du cache hors-ligne : change à chaque déploiement.
 const sw = path.join(out, 'sw.js');
 fs.writeFileSync(sw, fs.readFileSync(sw, 'utf8').replace('__BUILD__', process.env.COMMIT_REF?.slice(0, 8) || String(Date.now())));
-console.log('Engram → _site/ :', files.join(', '));
+// Adresse publique du site (fournie par Netlify) : les liens de partage et d'invitation en partent,
+// même quand l'app est ouverte ailleurs (dans l'app Claude, par exemple).
+const site = (process.env.URL || '').replace(/\/+$/, '');
+if (/^https:\/\/[^\s'"<>]+$/.test(site)) {
+  const app = path.join(out, 'index.html');
+  fs.writeFileSync(app, fs.readFileSync(app, 'utf8').replace("const SITE = '__SITE__';", `const SITE = '${site}';`));
+}
+console.log('Engram → _site/ :', files.join(', '), site ? '· ' + site : '');
