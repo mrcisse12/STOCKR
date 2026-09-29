@@ -603,8 +603,8 @@ body.studying .shell,body.studying .dock{visibility:hidden}
 .legend span{display:inline-flex;align-items:center;gap:7px}
 .legend i{width:10px;height:10px;border-radius:2px}
 .heat-wrap{overflow-x:auto;padding-bottom:4px}
-.heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,14px);gap:3px;width:max-content}
-.heat i{width:14px;height:14px;border-radius:2px;background:var(--hair);animation:grow .5s var(--ease) both}
+.heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,auto);grid-auto-columns:minmax(9px,1fr);gap:3px;width:100%;max-width:calc(var(--wk,26) * 22px)}
+.heat i{aspect-ratio:1;border-radius:2px;background:var(--hair);animation:grow .5s var(--ease) both}
 .heat i[data-l="1"]{background:color-mix(in srgb,var(--brass) 28%,transparent)}.heat i[data-l="2"]{background:color-mix(in srgb,var(--brass) 50%,transparent)}
 .heat i[data-l="3"]{background:color-mix(in srgb,var(--brass) 75%,transparent)}.heat i[data-l="4"]{background:var(--brass)}
 .heat i.today{outline:1.5px solid var(--text);outline-offset:1px}
@@ -618,6 +618,108 @@ body.studying .shell,body.studying .dock{visibility:hidden}
 .badge small{font-size:12px;color:var(--muted);line-height:1.35}
 .badge.locked svg{filter:grayscale(1);opacity:.28}
 .badge.locked b{color:var(--muted)}
+/* Carnet : réglages, écarts, points clés, activité, moments, paquets, tenue */
+.cn-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:26px}
+.cn-bar .grow{flex:1}
+.cn-bar .select{width:auto;min-width:190px;max-width:100%;padding:8px 12px;font-size:14px}
+.cn-body{display:flex;flex-direction:column;gap:clamp(28px,3.5vw,44px)}
+.cn-body.swap{animation:cnIn .45s var(--ease) both}
+@keyframes cnIn{from{opacity:.3;transform:translateY(8px)}}
+.cn-kpis{display:flex;flex-direction:column;gap:9px}
+.cn-kpis > p{margin:0 2px;font-size:12.5px;color:var(--muted)}
+.kpi .dl{display:inline-flex;align-items:center;gap:5px;margin-top:10px;font:700 11px/1 var(--f-type);color:var(--muted);white-space:nowrap}
+.kpi .dl.up{color:var(--good)}.kpi .dl.down{color:var(--again)}
+.kpi .dl.up::before,.kpi .dl.down::before{content:"";border:4px solid transparent}
+.kpi .dl.up::before{border-bottom:6px solid currentColor;border-top:0}
+.kpi .dl.down::before{border-top:6px solid currentColor;border-bottom:0}
+.cn-keys{position:relative;padding:24px 26px 18px 62px;border-radius:5px;background:var(--paper);color:var(--p-ink);box-shadow:var(--sh-card)}
+.cn-keys::before{content:"";position:absolute;left:42px;top:0;bottom:0;width:1.5px;background:var(--p-margin)}
+.cn-keys-h{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.cn-keys h3{font:400 26px/1.1 var(--f-display);margin:0;color:var(--p-ink)}
+.cn-keys ul{list-style:none;margin:12px 0 0;padding:0}
+.cn-keys li{display:flex;align-items:center;gap:14px;padding:13px 0;border-top:1px dashed var(--p-rule)}
+.cn-keys li:first-child{border-top:0}
+.cn-keys .ic{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:var(--p-muted);border:1px solid var(--p-rule)}
+.cn-keys li.good .ic{color:#1F7A52;border-color:rgba(31,122,82,.4)}
+.cn-keys li.bad .ic{color:var(--pen);border-color:color-mix(in srgb,var(--pen) 40%,transparent)}
+.cn-keys li p{flex:1;min-width:0;margin:0;font-size:15px;line-height:1.5;text-wrap:pretty}
+.cn-keys li p b{font-weight:650}
+.cn-keys .btn{flex:none;background:var(--p-ink);color:var(--paper);border-color:transparent}
+.cn-keys .btn:hover{background:color-mix(in srgb,var(--p-ink) 86%,var(--paper))}
+.cn-keys .foot{margin:8px 0 0;padding-top:10px;border-top:1px dashed var(--p-rule);font:400 12px/1.45 var(--f-type);color:var(--p-muted)}
+.cn-cap{margin:14px 0 0;font-size:13px;line-height:1.45;color:var(--muted)}
+.cn-act{height:170px;gap:3px}
+.cn-act .bar b{display:flex;flex-direction:column;background:none;overflow:hidden;max-width:22px}
+.cn-act .bar b.zero{background:var(--hair-2)}
+.cn-act .bar b i{display:block;min-height:0;background:var(--brass)}
+.cn-act .bar b i.miss{background:var(--again)}
+.cn-act.w .bar b,.cn-act.m .bar b{max-width:34px}
+.stacked.gr{height:18px;border-radius:4px}
+.gr-leg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:16px}
+.gr-leg > div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.gr-leg span{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gr-leg span i{flex:none;width:9px;height:9px;border-radius:2px}
+.gr-leg b{font:400 26px/1 var(--f-display)}
+.gr-leg small{font:400 11px/1 var(--f-type);color:var(--muted)}
+.cn-mom{container-type:inline-size}
+.dparts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@container (max-width:480px){.dparts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.dp{display:flex;flex-direction:column;gap:3px;padding:12px 12px 11px;border-radius:9px;border:1px solid var(--hair);min-width:0}
+.dp.best{border-color:var(--brass);background:linear-gradient(180deg,var(--brass-soft),transparent 70%)}
+.dp-n{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:13px;font-weight:600;min-height:18px}
+.dp-n .tag{padding:3px 5px;font-size:9px}
+.dp small{font:400 10.5px/1.2 var(--f-type);color:var(--muted)}
+.dp b{margin-top:8px;font:400 28px/1 var(--f-display)}
+.dp em{font:400 11px/1.3 var(--f-type);font-style:normal;color:var(--muted)}
+.hours{display:flex;align-items:flex-end;gap:2px;height:46px;margin-top:18px;padding-bottom:1px;border-bottom:1px solid var(--hair-2)}
+.hours i{flex:1;min-width:0;border-radius:2px 2px 0 0;background:color-mix(in srgb,var(--brass) 38%,transparent);transform-origin:bottom;animation:grow .8s var(--ease) both}
+.hours i.on{background:var(--brass)}
+.hours-x{display:flex;justify-content:space-between;margin-top:6px;font:400 10px/1 var(--f-type);color:var(--muted)}
+.cn-reg{display:flex;gap:clamp(18px,4vw,44px);flex-wrap:wrap;margin-bottom:18px}
+.cn-reg div{display:flex;flex-direction:column;gap:6px}
+.cn-reg b{font:400 30px/1 var(--f-display)}
+.cn-reg b small{font:400 15px/1 var(--f-ui);color:var(--muted)}
+.cn-reg span{font:700 10px/1.3 var(--f-type);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.hold{margin-top:22px;padding-top:16px;border-top:1px solid var(--hair)}
+.hold > p{margin:0 0 12px;font-size:13px;color:var(--text-2)}
+.hold-r{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,2fr) 34px;align-items:center;gap:12px;padding:4px 0}
+.hold-r span{font-size:13px;color:var(--text-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hold-r i{display:block;height:9px;border-radius:5px;background:var(--hair)}
+.hold-r b{display:block;height:100%;border-radius:5px;background:var(--st-m);transform-origin:left;animation:fill .9s var(--ease) both}
+.hold-r em{font:700 12px/1 var(--f-type);font-style:normal;text-align:right;color:var(--text-2)}
+.dk-tbl{border:1px solid var(--hair);border-radius:12px;overflow:hidden;background:var(--folder-2)}
+.dk-hd,.dk-row{display:grid;grid-template-columns:minmax(0,2.4fr) repeat(5,minmax(0,1fr));align-items:center;gap:12px;padding:12px 18px}
+.dk-hd{font:700 10px/1.3 var(--f-type);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--hair)}
+.dk-hd span:not(:first-child),.dk-row > span:not(.nm){text-align:right}
+.dk-row{width:100%;text-align:left;font-size:14px;color:var(--text);border-top:1px solid var(--hair);transition:background .2s}
+.dk-row:first-of-type{border-top:0}
+.dk-row:hover{background:var(--folder-3)}
+.dk-row:focus-visible{outline:2px solid var(--brass);outline-offset:-2px}
+.dk-row .nm{display:flex;align-items:center;gap:10px;min-width:0}
+.dk-row .nm b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dk-row .nm i.d{flex:none;width:10px;height:10px;border-radius:3px}
+.dk-row.weak .nm b::after{content:"";display:inline-block;width:6px;height:6px;margin-left:8px;border-radius:50%;background:var(--again);vertical-align:middle}
+.dk-row .dk-m{display:inline-block;width:38px;height:5px;margin-right:8px;border-radius:3px;background:var(--hair);vertical-align:middle;overflow:hidden}
+.dk-row .dk-m i{display:block;height:100%;border-radius:3px;background:var(--good)}
+.dk-row .dk-m i.hard{background:var(--hard)}.dk-row .dk-m i.again{background:var(--again)}
+@media (max-width:700px){
+  .cn-bar .select{flex:1 1 170px;min-width:0}
+  .cn-bar .grow{display:none}
+  .cn-keys{padding:20px 16px 14px 34px}.cn-keys::before{left:20px}
+  .cn-keys li{flex-wrap:wrap;align-items:flex-start;gap:10px}
+  .cn-keys .ic{width:26px;height:26px;margin-top:1px}
+  .cn-keys li p{flex-basis:calc(100% - 36px);font-size:14.5px}
+  .cn-keys li .btn{margin-left:36px}
+  .hold-r{grid-template-columns:minmax(0,1.7fr) minmax(0,1fr) 26px;gap:10px}
+  .cn-act.m .bar:nth-last-child(even) span{visibility:hidden}
+  .gr-leg{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:14px}
+  .dk-hd{display:none}
+  .dk-row{grid-template-columns:repeat(5,minmax(0,1fr));gap:10px 8px;padding:14px 16px}
+  .dk-row .nm{grid-column:1/-1}
+  .dk-row > span:not(.nm){display:flex;flex-direction:column;align-items:flex-start;gap:5px;text-align:left;font-size:14px}
+  .dk-row > span:not(.nm)::before{content:attr(data-l);font:700 9px/1.2 var(--f-type);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .dk-row .dk-m{display:none}
+}
 .badge.new{animation:pop .6s var(--snap)}
 
 /* ── Jeux ────────────────────────────────────────────────────────── */
@@ -2283,12 +2385,15 @@ const Store = {
 function logReview(g, ms, isNew, deckId) {
   const k = dayKey(); const l = S.profile.log[k] || (S.profile.log[k] = { r: 0, ok: 0, ms: 0, n: 0, xp: 0 });
   delete l.sim;
-  const xp = [0, 2, 5, 8, 10][g];
-  l.r++; if (g >= 2) l.ok++; l.ms += Math.min(ms, 60000); l.xp = (l.xp || 0) + xp;
+  const xp = [0, 2, 5, 8, 10][g], h = new Date().getHours(), dt = Math.min(ms, 60000);
+  l.r++; if (g >= 2) l.ok++; l.ms += dt; l.xp = (l.xp || 0) + xp;
   if (isNew) { l.n++; l.nd = l.nd || {}; l.nd[deckId] = (l.nd[deckId] || 0) + 1; }
+  // Détail pour le carnet : notes données, heure de la révision, paquet ([à revoir, difficile, acquis, facile, ms]).
+  (l.g = l.g || [0, 0, 0, 0])[g - 1]++;
+  const hr = (l.h = l.h || {})[h] || (l.h[h] = [0, 0]); hr[0]++; if (g >= 2) hr[1]++;
+  const dk = (l.dk = l.dk || {})[deckId] || (l.dk[deckId] = [0, 0, 0, 0, 0]); dk[g - 1]++; dk[4] += dt;
   S.profile.xp += xp;
   S.profile.bestStreak = Math.max(S.profile.bestStreak, streak());
-  const h = new Date().getHours();
   if (h >= 23 || h < 4) S.profile.flags.night = 1;
   if (h >= 4 && h < 7) S.profile.flags.dawn = 1;
   return xp;
@@ -3295,6 +3400,29 @@ function demoCards(rows) {
     return [mkCard('basic', { front: r[1], back: r[2], extra: r[3] })];
   });
 }
+/** Détail simulé d'une journée d'exemple (paquets, heures, notes), cohérent avec ses totaux.
+ *  Le matin réussit mieux que le soir et l'histoire résiste davantage, pour que le carnet ait quelque chose à dire. */
+function demoDetail(l, decks, R) {
+  const W = [0.4, 0.25, 0.2, 0.15], BIAS = [0, -0.12, 0.01, -0.01];
+  const SLOTS = [[7, 0.04], [8, 0.04], [9, 0.03], [10, 0.03], [13, 0], [14, 0], [18, -0.02], [20, -0.03], [21, -0.04], [22, -0.04]];
+  // Les bonnes journées tombent plutôt le matin, les moins bonnes plutôt le soir.
+  const q = clamp((l.ok / l.r - 0.8) / 0.16 + (R() - 0.5) * 0.7, 0, 1);
+  const ses = [SLOTS[Math.round((1 - q) * (SLOTS.length - 1))]]; if (R() < 0.4) ses.push(SLOTS[Math.floor(R() * SLOTS.length)]);
+  const items = Array.from({ length: l.r }, () => {
+    let u = R(), k = 0; while (k < 3 && u > W[k]) u -= W[k++];
+    const [h, hb] = ses[Math.floor(R() * ses.length)];
+    return { k, h, key: BIAS[k] + hb + (R() - 0.5) * 0.6 };
+  }).sort((a, b) => a.key - b.key);
+  // Les réponses les moins sûres échouent, les plus sûres sont notées « facile ».
+  const fail = l.r - l.ok, hard = Math.round(l.ok * 0.14), easy = Math.round(l.ok * 0.2), per = l.ms / l.r;
+  l.g = [0, 0, 0, 0]; l.h = {}; l.dk = {};
+  items.forEach((it, i) => {
+    const g = i < fail ? 1 : i < fail + hard ? 2 : i >= l.r - easy ? 4 : 3;
+    l.g[g - 1]++;
+    const hr = l.h[it.h] || (l.h[it.h] = [0, 0]); hr[0]++; if (g >= 2) hr[1]++;
+    const id = decks[it.k].id, dk = l.dk[id] || (l.dk[id] = [0, 0, 0, 0, 0]); dk[g - 1]++; dk[4] += per;
+  });
+}
 function seedDemo(lang = LANG) {
   const L = DEMO[lang] || DEMO.en;
   const R = rng(20260926);
@@ -3324,11 +3452,12 @@ function seedDemo(lang = LANG) {
   const leech = decks[1].cards[4];
   leech.srs = { state: 2, due: now - HOUR, s: 1.4, d: 8.6, reps: 11, lapses: 5, last: now - 2 * DAY }; leech.tags = ['leech'];
   // Historique simulé, clairement marqué comme exemple.
-  const log = {};
+  const log = {}, R2 = rng(7);
   for (let i = 84; i >= 1; i--) {
     const x = now - i * DAY; if (!(i <= 12 || R() > 0.3)) continue;
     const r = Math.round(12 + R() * 58); const ok = Math.round(r * (0.8 + R() * 0.16));
-    log[dayKey(x)] = { r, ok, ms: r * (4000 + R() * 5000), n: Math.round(R() * 12), xp: Math.round(r * 1.2), sim: true };
+    const l = log[dayKey(x)] = { r, ok, ms: r * (4000 + R() * 5000), n: Math.round(R() * 12), xp: Math.round(r * 1.2), sim: true };
+    demoDetail(l, decks, R2);
   }
   const xp = Object.values(log).reduce((a, l) => a + l.xp, 0);
   const examDate = new Date(now + 23 * DAY);
@@ -3644,34 +3773,29 @@ function countUp(el, to) {
 const words = (html, delay = 0) => html.split(/(<em>[\s\S]*?<\/em>|<br>|\s+)/).filter(Boolean).map((w, i) => /^\s+$/.test(w) || w === '<br>' ? w : `<span class="w" style="animation-delay:${delay + i * 35}ms">${w}</span>`).join('');
 
 /* ── Graphiques ────────────────────────────────────────────────────── */
-function heatmap(weeks = 26) {
+function heatmap(weeks = 26, deckId = '') {
   const today = new Date(dayStart() - 4 * HOUR + 12 * HOUR);
   const dow = (today.getDay() + 6) % 7;
   const start = new Date(today); start.setDate(start.getDate() - dow - (weeks - 1) * 7);
   let cells = '', i = 0;
   const lvl = r => !r ? 0 : r < 15 ? 1 : r < 35 ? 2 : r < 60 ? 3 : 4;
   for (let d = new Date(start); d <= today; d.setDate(d.getDate() + 1), i++) {
-    const k = dayKey(d.getTime() + 4 * HOUR + 1); const r = S.profile.log[k]?.r || 0;
+    const k = dayKey(d.getTime() + 4 * HOUR + 1); const r = Carnet.day(S.profile.log[k], deckId)?.r || 0;
     cells += `<i data-l="${lvl(r)}" class="${k === dayKey() ? 'today' : ''}" data-tip="${esc(r ? plural(r, 'révision|révisions') : t('Aucune révision'))} · ${esc(fmtDate(d))}" style="animation-delay:${Math.min(i * 4, 600)}ms"></i>`;
   }
-  return `<div class="heat-wrap"><div class="heat" role="img" aria-label="${esc(t('Activité des {n} dernières semaines', { n: weeks }))}">${cells}</div></div>
+  return `<div class="heat-wrap"><div class="heat" style="--wk:${weeks}" role="img" aria-label="${esc(t('Activité des {n} dernières semaines', { n: weeks }))}">${cells}</div></div>
     <div class="heat-legend"><span>${t('Moins')}</span>${[0, 1, 2, 3, 4].map(l => `<i style="background:${l ? `color-mix(in srgb,var(--brass) ${[0, 28, 50, 75, 100][l]}%,transparent)` : 'var(--hair)'}"></i>`).join('')}<span>${t('Plus')}</span></div>`;
 }
 const shortDay = i => i === 0 ? t('Auj.') : i === 1 ? t('Dem.') : cap(dayName(new Date(dayStart() + i * DAY + 6 * HOUR), 'short'));
-function forecast(days = 7) {
+function forecast(days = 7, deckId = '') {
   const base = dayStart(); const counts = Array(days).fill(0);
-  for (const d of S.decks) for (const c of d.cards) {
+  for (const d of S.decks) if (!deckId || d.id === deckId) for (const c of d.cards) {
     if (c.srs.state === 0 || c.suspended) continue;
     const idx = c.srs.due < base + DAY ? 0 : Math.floor((c.srs.due - base) / DAY);
     if (idx < days) counts[idx]++;
   }
   const max = Math.max(1, ...counts);
   return `<div class="bars" role="img" aria-label="${esc(t('Révisions prévues'))}">${counts.map((n, i) => `<div class="bar" data-tip="${esc(plural(n, 'fiche prévue|fiches prévues'))} · ${esc(shortDay(i))}"><em>${n && (days <= 10 || n === max) ? n : ''}</em><b class="${n ? '' : 'zero'}" style="height:max(2px, calc((100% - 36px) * ${(n / max).toFixed(3)}));animation-delay:${i * 60}ms"></b><span>${days > 10 && i % 2 ? '' : shortDay(i)}</span></div>`).join('')}</div>`;
-}
-function reviewBars(days = 30) {
-  const arr = []; for (let i = days - 1; i >= 0; i--) { const x = Date.now() - i * DAY; arr.push([x, S.profile.log[dayKey(x)]?.r || 0]); }
-  const max = Math.max(1, ...arr.map(a => a[1]));
-  return `<div class="bars" style="gap:4px;height:140px" role="img" aria-label="${esc(t('Révisions des {n} derniers jours', { n: days }))}">${arr.map(([x, n], i) => { const d = new Date(x - 4 * HOUR); return `<div class="bar" data-tip="${esc(plural(n, 'révision|révisions'))} · ${esc(fmtDate(d))}"><b class="${n ? '' : 'zero'}" style="height:max(2px, calc((100% - 18px) * ${(n / max).toFixed(3)}));animation-delay:${i * 18}ms;max-width:14px"></b><span>${i % 7 === 0 || i === days - 1 ? d.getDate() : ''}</span></div>`; }).join('')}</div>`;
 }
 function avgSecPerCard() {
   let ms = 0, r = 0; for (let i = 0; i < 14; i++) { const l = S.profile.log[dayKey(Date.now() - i * DAY)]; if (l && !l.sim) { ms += l.ms; r += l.r; } }
@@ -3868,48 +3992,278 @@ function openNote(deckId, id) {
   m.querySelector('#nDel').onclick = () => { d.notes = d.notes.filter(x => x !== n); Store.touchDeck(d); Modal.close(); App.render(); toast(t('Note supprimée'), 'trash'); };
 }
 
-Views.stats = () => {
-  const cards = S.decks.flatMap(d => d.cards);
-  let r30 = 0, ok30 = 0, ms30 = 0;
-  for (let i = 0; i < 30; i++) { const l = S.profile.log[dayKey(Date.now() - i * DAY)]; if (l) { r30 += l.r; ok30 += l.ok; ms30 += l.ms; } }
-  const m = maturity(cards), L = level();
-  const hard = cards.filter(c => c.srs.state > 0).sort((a, b) => (b.srs.lapses - a.srs.lapses) || (b.srs.d - a.srs.d)).slice(0, 5);
-  const got = BADGES.filter(b => S.profile.badges[b.id]).length;
-  return `
-    <header class="rise"><div class="kicker">${t('Carnet · 30 derniers jours')}${S.demo ? ' · ' + t("données d'exemple") : ''}</div><h1 class="display" style="margin-top:12px">${words(t('Votre mémoire, <em>mesurée</em>.'))}</h1></header>
-    <div class="kpis rise">
-      <div class="kpi"><b class="tnum"><span class="count" data-to="${r30 ? Math.round(ok30 / r30 * 100) : 0}">0</span> %</b><span>${t('Rétention réelle')}</span></div>
-      <div class="kpi"><b class="tnum count" data-to="${r30}">0</b><span>${t('Révisions')}</span></div>
-      <div class="kpi"><b class="tnum"><span class="count" data-to="${Math.round(ms30 / 60000)}">0</span> min</b><span>${t("Temps d'étude")}</span></div>
-      <div class="kpi"><b class="tnum count" data-to="${m.m}">0</b><span>${t('Fiches acquises')}</span></div>
+/* ── Carnet : période, paquet, tendances ───────────────────────────── */
+const STATS_PERIODS = [[7, N_('7 jours')], [30, N_('30 jours')], [90, N_('3 mois')], [365, N_('1 an')]];
+const PERIOD_LAST = { 7: N_('7 derniers jours'), 30: N_('30 derniers jours'), 90: N_('3 derniers mois'), 365: N_('12 derniers mois') };
+// Moments de la journée : nom, forme dans une phrase, heure de début, heure de fin (exclue).
+const DAY_PARTS = [[N_('Matin'), N_('le matin'), 5, 12], [N_('Après-midi'), N_("l'après-midi"), 12, 18], [N_('Soir'), N_('le soir'), 18, 23], [N_('Nuit'), N_('la nuit'), 23, 5]];
+const partOf = h => h >= 5 && h < 12 ? 0 : h >= 12 && h < 18 ? 1 : h >= 18 && h < 23 ? 2 : 3;
+// Tenue d'une fiche : temps avant de passer sous 90 % de chances de s'en souvenir (sa stabilité FSRS, en jours).
+const HOLD = [[1, N_("Moins d'un jour")], [7, N_('1 à 7 jours')], [21, N_('1 à 3 semaines')], [90, N_('3 semaines à 3 mois')], [Infinity, N_('Plus de 3 mois')]];
+const GRADE_VAR = { 1: 'again', 2: 'hard', 3: 'good', 4: 'easy' };
+const sgn = v => v > 0 ? '+' : v < 0 ? '−' : '±';
+const untag = s => { const d = document.createElement('div'); d.innerHTML = s; return d.textContent; };
+
+const Carnet = {
+  days: 30, deck: '',
+  /** Un jour du journal, tous paquets confondus ou pour un seul : { r, ok, ms, n, g } ou null. */
+  day(l, deckId = this.deck) {
+    if (!l?.r) return null;
+    if (!deckId) return { r: l.r, ok: l.ok, ms: l.ms, n: l.n || 0, g: l.g };
+    const d = l.dk?.[deckId]; if (!d) return null;
+    const r = d[0] + d[1] + d[2] + d[3];
+    return r ? { r, ok: r - d[0], ms: d[4], n: l.nd?.[deckId] || 0, g: d } : null;
+  },
+  /** Totaux des jours [from, to[ comptés à rebours depuis aujourd'hui (0 = aujourd'hui). */
+  sum(from, to, deckId = this.deck) {
+    const o = { r: 0, ok: 0, ms: 0, n: 0, days: 0, g: [0, 0, 0, 0], h: Array.from({ length: 24 }, () => [0, 0]), bare: 0 };
+    for (let i = from; i < to; i++) {
+      const l = S.profile.log[dayKey(Date.now() - i * DAY)];
+      if (l?.r && !l.dk) o.bare++; // révisions d'avant le détail par paquet, heure et note
+      const x = this.day(l, deckId); if (!x) continue;
+      o.r += x.r; o.ok += x.ok; o.ms += x.ms; o.n += x.n; o.days++;
+      if (x.g) for (let k = 0; k < 4; k++) o.g[k] += x.g[k];
+      if (!deckId) for (const [h, v] of Object.entries(l.h || {})) { const b = o.h[+h]; if (b) { b[0] += v[0]; b[1] += v[1]; } }
+    }
+    o.acc = o.r ? o.ok / o.r : null; o.min = Math.round(o.ms / 60000);
+    return o;
+  },
+  /** Jours écoulés depuis la première révision, plafonnés à la période (pour ne pas compter les jours d'avant Engram). */
+  span(days = this.days) {
+    const first = Object.keys(S.profile.log).filter(k => S.profile.log[k]?.r).sort()[0];
+    return first ? clamp(1 - daysUntil(first), 1, days) : days;
+  },
+  /** Réussite par moment de la journée, et le meilleur s'il se détache vraiment. */
+  parts(h) {
+    const P = DAY_PARTS.map(([name, inl, a, b]) => ({ name, inl, a, b, r: 0, ok: 0, acc: null }));
+    h.forEach(([r, ok], k) => { const p = P[partOf(k)]; p.r += r; p.ok += ok; });
+    P.forEach(p => p.acc = p.r ? p.ok / p.r : null);
+    const s = P.filter(p => p.r >= 15).sort((x, y) => y.acc - x.acc);
+    const best = s.length >= 2 && s[0].acc - s[s.length - 1].acc >= 0.04 ? s[0] : null;
+    return { P, best, worst: best ? s[s.length - 1] : null };
+  },
+  /** Chaque paquet sur la période : révisions, réussite, mémoire du jour, fiches à revoir. */
+  decks(days = this.days) {
+    return S.decks.map(d => {
+      const rs = d.cards.filter(c => c.srs.state === 2 && !c.suspended).map(c => FSRS.retrievability(c.srs));
+      return { d, s: this.sum(0, days, d.id), m: maturity(d.cards), n: d.cards.length, mem: rs.length ? rs.reduce((a, b) => a + b, 0) / rs.length : null, due: todayCounts(d.id).total };
+    });
+  },
+  /** Barres d'activité : par jour jusqu'à 30 jours, par semaine sur 3 mois, par mois sur un an. */
+  series(days = this.days) {
+    const unit = days <= 30 ? 'd' : days <= 90 ? 'w' : 'm', bars = [];
+    // Sur un an : douze mois pleins, du même mois l'an dernier (exclu) jusqu'au mois en cours.
+    const now = new Date(dayStart() - 4 * HOUR), from = unit === 'm' ? dayKey(new Date(now.getFullYear(), now.getMonth() - 11, 1).getTime() + 4 * HOUR + 1) : '';
+    for (let i = days - 1; i >= 0; i--) {
+      const x = Date.now() - i * DAY, k = dayKey(x), date = new Date(x - 4 * HOUR);
+      if (k < from) continue;
+      const id = unit === 'd' ? k : unit === 'w' ? Math.floor(i / 7) : k.slice(0, 7);
+      let b = bars[bars.length - 1];
+      if (!b || b.id !== id) bars.push(b = { id, date, r: 0, ok: 0 });
+      const v = this.day(S.profile.log[k]); if (v) { b.r += v.r; b.ok += v.ok; }
+    }
+    return { unit, bars };
+  },
+  /** Ce qu'il faut retenir : quelques phrases tirées des chiffres, les plus utiles d'abord. */
+  insights(days = this.days, deckId = this.deck) {
+    const out = [], cur = this.sum(0, days, deckId), prev = this.sum(days, 2 * days, deckId);
+    const x = upcomingExams().find(e => !deckId || !e.deckIds?.length || e.deckIds.includes(deckId));
+    const e = x && examInfo(x), rd = x && Plan.readiness(x);
+    if (e && rd && e.days >= 1 && e.days <= 60) out.push({ ic: 'target', tone: rd.follow >= 0.8 ? 'good' : 'bad', html: t('{exam} dans {d} : prêt à {p} si vous suivez le programme, {q} sans réviser.', { exam: `<b>${esc(e.name)}</b>`, d: plural(e.days, 'jour|jours'), p: `<b>${pct(rd.follow)}</b>`, q: pct(rd.idle) }), act: ['go', 'plan', t('Programme')] });
+    if (!deckId && cur.r) {
+      const w = this.decks(days).filter(r => r.s.r >= 20).sort((a, b) => a.s.acc - b.s.acc)[0];
+      if (w && cur.acc - w.s.acc >= 0.06) out.push({ ic: 'brain', tone: 'bad', html: t('{deck} vous résiste : {p} de bonnes réponses, contre {q} en moyenne.', { deck: `<b>${esc(w.d.name)}</b>`, p: `<b>${pct(w.s.acc)}</b>`, q: pct(cur.acc) }), act: ['stats-weak', w.d.id, t('Retravailler')] });
+    }
+    if (deckId && cur.r >= 20) {
+      const all = this.sum(0, days, '');
+      if (all.acc - cur.acc >= 0.06) out.push({ ic: 'brain', tone: 'bad', html: t('Ce paquet vous résiste plus que les autres : {p} de bonnes réponses, contre {q} en moyenne.', { p: `<b>${pct(cur.acc)}</b>`, q: pct(all.acc) }), act: ['stats-weak', deckId, t('Retravailler')] });
+      else if (cur.acc - all.acc >= 0.04) out.push({ ic: 'check', tone: 'good', html: t('Ce paquet se passe mieux que la moyenne : {p} de bonnes réponses, contre {q}.', { p: `<b>${pct(cur.acc)}</b>`, q: pct(all.acc) }) });
+    }
+    if (!deckId) {
+      const { best, worst } = this.parts(cur.h);
+      if (best) out.push({ ic: best.a >= 5 && best.a < 18 ? 'sun' : 'moon', tone: 'good', html: t('Vous réussissez mieux {a} : {p} de bonnes réponses, contre {q} {b}.', { a: `<b>${t(best.inl)}</b>`, p: `<b>${pct(best.acc)}</b>`, q: pct(worst.acc), b: t(worst.inl) }) });
+    }
+    if (prev.r >= 30 && cur.r >= 30) {
+      const d = Math.round((cur.acc - prev.acc) * 100);
+      if (d >= 3) out.push({ ic: 'chart', tone: 'good', html: t('Vos bonnes réponses gagnent {n} sur la période précédente.', { n: `<b>${tp(d, '{n} point|{n} points')}</b>` }) });
+      else if (d <= -3) out.push({ ic: 'chart', tone: 'bad', html: t('Vos bonnes réponses perdent {n} sur la période précédente. Ajoutez moins de nouvelles fiches quelques jours, le temps que la mémoire se consolide.', { n: `<b>${tp(-d, '{n} point|{n} points')}</b>` }) });
+    }
+    if (prev.r >= 20 && cur.r) {
+      const v = cur.r / prev.r - 1;
+      if (v >= 0.15) out.push({ ic: 'flame', tone: 'good', html: t('Vous révisez {p} de plus que la période précédente.', { p: `<b>${pct(v)}</b>` }) });
+      else if (v <= -0.25) out.push({ ic: 'flame', tone: 'bad', html: t('Vous révisez {p} de moins que la période précédente.', { p: `<b>${pct(-v)}</b>` }) });
+    }
+    const span = this.span(days);
+    if (span >= 7 && cur.days) {
+      const k = cur.days / span, v = { a: `<b>${cur.days}</b>`, b: span };
+      if (k >= 0.8) out.push({ ic: 'cal', tone: 'good', html: t('Très régulier : {a} jours de révision sur {b}. C\'est ce qui fait tenir la mémoire.', v) });
+      else if (k < 0.5) out.push({ ic: 'cal', tone: 'bad', html: t('{a} jours de révision sur {b}. Dix minutes chaque jour valent mieux qu\'une heure le dimanche.', v) });
+    }
+    if (!out.length) out.push({ ic: 'bulb', html: cur.r ? t('Rien à signaler sur la période : continuez comme ça.') : t('Révisez quelques jours et vos tendances apparaîtront ici.') });
+    return { cur, prev, list: out.slice(0, 4) };
+  },
+  kicker() {
+    const d = deckById(this.deck);
+    return `${t('Carnet')} · ${t(PERIOD_LAST[this.days])}${d ? ' · ' + esc(d.name) : ''}${S.demo ? ' · ' + t("données d'exemple") : ''}`;
+  },
+  set(o) {
+    Object.assign(this, o);
+    if (this.deck && !deckById(this.deck)) this.deck = '';
+    $$('#stPeriod button').forEach(b => { const on = +b.dataset.days === this.days; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+    const sel = $('#stDeck'); if (sel) sel.value = this.deck;
+    const k = $('#stKicker'); if (k) k.innerHTML = this.kicker();
+    const b = $('#statsBody'); if (!b) return;
+    b.innerHTML = this.body(); b.classList.remove('swap'); void b.offsetWidth; b.classList.add('swap');
+    requestAnimationFrame(() => { $$('.count', b).forEach(el => countUp(el, +el.dataset.to)); Ruling.scan(b); });
+    drawCurve();
+  },
+  csv() {
+    const d = deckById(this.deck);
+    const rows = [[t('date'), t('révisions'), t('bonnes réponses'), t('minutes'), t('nouvelles'), ...[1, 2, 3, 4].map(g => t(GRADE_LABEL[g]).toLowerCase())].join(';')];
+    for (const k of Object.keys(S.profile.log).sort()) {
+      const x = this.day(S.profile.log[k]); if (!x) continue;
+      rows.push([k, x.r, x.ok, Math.round(x.ms / 60000), x.n, ...(x.g ? x.g.slice(0, 4) : ['', '', '', ''])].join(';'));
+    }
+    if (rows.length < 2) return toast(t('Aucune révision à exporter pour le moment.'), 'download');
+    saveFile(`engram-${slug(t('journal'))}${d ? '-' + slug(d.name) : ''}-${dayKey()}.csv`, rows.join('\n'));
+  },
+  mentor() {
+    const d = deckById(this.deck), p = t(PERIOD_LAST[this.days]);
+    Mentor.open(d ? t('Fais le bilan de mes {p} sur le paquet {d} : ce qui progresse, ce qui coince, et ce que je change cette semaine.', { p, d: quote(d.name) }) : t('Fais le bilan de mes {p} : ce qui progresse, ce qui coince, et ce que je change cette semaine.', { p }), true);
+  },
+  /** En français, une espace insécable avant « : ; ! ? » pour qu'aucune ponctuation ne tombe seule en début de ligne. */
+  body() { const h = this.html(); return LANG === 'fr' ? h.replace(/ ([:;!?])(?=[\s<])/g, '\u00a0$1') : h; },
+  html() {
+    const days = this.days, deck = deckById(this.deck), deckId = deck?.id || '';
+    const { cur, prev, list } = this.insights(days, deckId);
+    const cards = deck ? deck.cards : S.decks.flatMap(d => d.cards), m = maturity(cards);
+    const has = prev.r > 0;
+    const dl = (v, txt, tip) => v == null ? '' : `<small class="dl ${v > 0 ? 'up' : v < 0 ? 'down' : ''}" data-tip="${esc(tip)}">${txt}</small>`;
+    const dPct = (a, b) => has && b ? Math.round((a / b - 1) * 100) : null;
+    const dAcc = has && cur.r && prev.r ? Math.round((cur.acc - prev.acc) * 100) : null, dR = dPct(cur.r, prev.r), dM = dPct(cur.ms, prev.ms);
+    const before = v => t('Période précédente : {v}', { v });
+    const time = cur.min >= 120 ? `<span class="count" data-to="${Math.round(cur.min / 60)}">0</span> h` : `<span class="count" data-to="${cur.min}">0</span> min`;
+    const hard = cards.filter(c => c.srs.state > 0).sort((a, b) => (b.srs.lapses - a.srs.lapses) || (b.srs.d - a.srs.d)).slice(0, 5);
+    const L = level(), got = BADGES.filter(b => S.profile.badges[b.id]).length;
+    return `
+    <div class="cn-kpis rise">
+      <div class="kpis">
+        <div class="kpi"><b class="tnum"><span class="count" data-to="${cur.r ? Math.round(cur.acc * 100) : 0}">0</span> %</b><span>${t('Rétention réelle')}</span>${dl(dAcc, t('{n} pts', { n: sgn(dAcc) + Math.abs(dAcc || 0) }), before(prev.r ? pct(prev.acc) : '—'))}</div>
+        <div class="kpi"><b class="tnum count" data-to="${cur.r}">0</b><span>${t('Révisions')}</span>${dl(dR, sgn(dR) + pct(Math.abs(dR || 0) / 100), before(num(prev.r)))}</div>
+        <div class="kpi"><b class="tnum">${time}</b><span>${t("Temps d'étude")}</span>${dl(dM, sgn(dM) + pct(Math.abs(dM || 0) / 100), before(t('{n} min', { n: prev.min })))}</div>
+        <div class="kpi"><b class="tnum count" data-to="${m.m}">0</b><span>${t('Fiches acquises')}</span><small class="dl">${t('sur {n}', { n: cards.length })}</small></div>
+      </div>
+      ${has ? `<p>${t('Les écarts comparent avec la période précédente de même durée.')}</p>` : ''}
     </div>
-    <article class="graph rise">
-      <h3 class="t">${t("La courbe de l'oubli")}</h3><p class="s">${t("Probabilité de vous souvenir, selon le temps passé sans réviser. Ebbinghaus l'a mesurée en 1885 ; FSRS la calcule pour chacune de vos fiches.")}</p>
-      <div id="curveBox" style="margin-top:14px"></div>
-      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px"><label for="curveDays">${t('Dans')}</label><input type="range" id="curveDays" min="0" max="60" value="7" style="flex:1;min-width:160px"><div class="out" id="curveOut"></div></div>
+    <article class="cn-keys rise">
+      <div class="cn-keys-h"><h3>${t("Ce qu'il faut retenir")}</h3>${AI.on ? `<button class="btn btn-sm" data-act="stats-mentor">${icon('sparkles', 'i-sm')}${t('Bilan avec Mentor')}</button>` : ''}</div>
+      <ul>${list.map(x => `<li class="${x.tone || ''}"><span class="ic">${icon(x.ic, 'i-sm')}</span><p>${x.html}</p>${x.act ? `<button class="btn btn-sm" data-act="${x.act[0]}" data-v="${esc(x.act[1])}">${x.act[2]}</button>` : ''}</li>`).join('')}</ul>
+      ${cur.bare && (deckId || cur.g.every(v => !v)) ? `<p class="foot">${t("Le détail par paquet, par heure et par note commence avec cette version d'Engram : les jours d'avant ne comptent que dans les totaux.")}</p>` : ''}
     </article>
-    <div class="duo">
-      <article class="panel rise"><div class="panel-h"><h3 class="h3">${t('Révisions par jour')}</h3><span class="kicker">${t('30 jours')}</span></div>${reviewBars(30)}</article>
-      <article class="panel rise"><div class="panel-h"><h3 class="h3">${t('Charge à venir')}</h3><span class="kicker">${t('14 jours')}</span></div>${forecast(14)}</article>
-    </div>
-    <article class="panel rise"><div class="panel-h"><h3 class="h3">${t('Régularité')}</h3><span class="kicker">${t('26 semaines')}</span></div>${heatmap(26)}</article>
+    <section class="sec">
+      <div class="sec-h"><div><h2 class="h2">${t('Votre activité')}</h2><p>${t('Ce que vous avez fait, quand, et avec quel résultat.')}</p></div></div>
+      <article class="panel rise"><div class="panel-h"><h3 class="h3">${t('Révisions')}</h3><div class="legend"><span><i style="background:var(--brass)"></i>${t('Réussies')}</span><span><i style="background:var(--again)"></i>${t('Oubliées')}</span></div></div>${activityBars(this.series(days))}</article>
+      <div class="duo">
+        ${gradesPanel(cur.g)}
+        ${partsPanel(deckId ? this.sum(0, days, '').h : cur.h, !!deckId)}
+      </div>
+      ${regularityPanel(cur, this.span(days), deckId)}
+    </section>
+    ${!deckId && S.decks.length > 1 ? decksTable(this.decks(days), cur) : ''}
+    <section class="sec">
+      <div class="sec-h"><div><h2 class="h2">${t('Votre mémoire')}</h2><p>${t('Ce que vous retenez aujourd\'hui, et ce qui vous attend.')}</p></div></div>
+      <article class="graph rise">
+        <h3 class="t">${t("La courbe de l'oubli")}</h3><p class="s">${t("Probabilité de vous souvenir, selon le temps passé sans réviser. Ebbinghaus l'a mesurée en 1885 ; FSRS la calcule pour chacune de vos fiches.")}</p>
+        <div id="curveBox" style="margin-top:14px"></div>
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px"><label for="curveDays">${t('Dans')}</label><input type="range" id="curveDays" min="0" max="60" value="7" style="flex:1;min-width:160px"><div class="out" id="curveOut"></div></div>
+      </article>
+      <article class="panel rise"><div class="panel-h"><h3 class="h3">${t('Charge à venir')}</h3><span class="kicker">${t('14 jours')}</span></div>${forecast(14, deckId)}</article>
+      <div class="duo">
+        ${holdPanel(cards, m)}
+        <article class="panel rise"><div class="panel-h"><h3 class="h3">${t('Fiches qui vous résistent')}</h3>${AI.on ? '<span class="tag ai">IA</span>' : ''}</div>
+          ${hard.length ? `<div class="cat" style="background:transparent;border:0">${hard.map(c => cardRow(c, findCard(c.id)[1])).join('')}</div>` : `<div class="muted">${t('Pas encore assez de révisions.')}</div>`}
+          <p class="muted" style="font-size:13px;margin:12px 0 0">${t("Ouvrez une fiche puis « Améliorer avec l'IA » pour la reformuler, ou demandez à Mentor de retravailler vos points faibles.")}</p></article>
+      </div>
+    </section>
     <section class="sec">
       <div class="sec-h"><div><h2 class="h2">${t('Ex-libris')}</h2><p>${t('Les cachets que vous avez gagnés. Niveau {i} · {name}, {xp} XP', { i: L.i + 1, name: L.name, xp: S.profile.xp })}${L.next ? ' — ' + t('encore {n} pour « {next} »', { n: L.left, next: L.next }) : ''}.</p></div><div style="display:flex;gap:8px;align-items:center"><span class="kicker">${got} / ${BADGES.length}</span><button class="btn btn-sm" data-act="share">${icon('share', 'i-sm')}${t('Partager ma progression')}</button></div></div>
       <div class="badges">${BADGES.map(b => { const on = S.profile.badges[b.id]; return `<div class="badge ${on ? '' : 'locked'}">${waxSeal(b)}<b>${esc(t(b.name))}</b><small>${esc(t(b.desc))}</small>${on ? `<small class="tnum">${esc(fmtDate(on, { day: 'numeric', month: 'short', year: 'numeric' }))}</small>` : ''}</div>`; }).join('')}</div>
-    </section>
-    <div class="duo">
-      <article class="panel rise"><div class="panel-h"><h3 class="h3">${t('La boîte, en proportions')}</h3><span class="kicker tnum">${plural(cards.length, 'fiche|fiches')}</span></div>
-        <div class="stacked" style="height:22px">${COMP.map(k => m[k] ? `<i style="flex:${m[k]};background:${ST_COLORS[k]}" data-tip="${m[k]} ${esc(t(ST_LABELS[k]).toLowerCase())}"></i>` : '').join('')}</div>
-        <div class="legend" style="margin-top:14px">${COMP.map(k => `<span><i style="background:${ST_COLORS[k]}"></i>${t(ST_LABELS[k])} <b class="tnum">${m[k]}</b></span>`).join('')}</div>
-        <p class="muted" style="font-size:13px;margin:16px 0 0">${t('Une fiche est « acquise » quand sa stabilité dépasse 21 jours : vous avez 90 % de chances de vous en souvenir trois semaines plus tard.')}</p></article>
-      <article class="panel rise"><div class="panel-h"><h3 class="h3">${t('Fiches qui vous résistent')}</h3>${AI.on ? '<span class="tag ai">IA</span>' : ''}</div>
-        ${hard.length ? `<div class="cat" style="background:transparent;border:0">${hard.map(c => cardRow(c, findCard(c.id)[1])).join('')}</div>` : `<div class="muted">${t('Pas encore assez de révisions.')}</div>`}
-        <p class="muted" style="font-size:13px;margin:12px 0 0">${t("Ouvrez une fiche puis « Améliorer avec l'IA » pour la reformuler, ou demandez à Mentor de retravailler vos points faibles.")}</p></article>
-    </div>`;
+    </section>`;
+  }
 };
-Hooks.stats = () => {
+
+function activityBars({ unit, bars }) {
+  const max = Math.max(1, ...bars.map(b => b.r)), n = bars.length;
+  const lab = (b, i) => {
+    const back = n - 1 - i; // on étiquette à rebours depuis la dernière barre pour ne jamais coller deux dates
+    if (unit === 'm') return cap(fmtDate(b.date, { month: 'short' }));
+    if (unit === 'w') return back % 3 ? '' : fmtDate(b.date, { day: 'numeric', month: 'short' });
+    return n <= 7 ? cap(dayName(b.date, 'short')) : back % 7 ? '' : b.date.getDate();
+  };
+  const when = b => unit === 'd' ? fmtDate(b.date) : unit === 'w' ? t('Semaine du {d}', { d: fmtDate(b.date) }) : cap(fmtDate(b.date, { month: 'long', year: 'numeric' }));
+  const act = bars.filter(b => b.r), avg = act.length ? Math.round(act.reduce((a, b) => a + b.r, 0) / act.length) : 0;
+  return `<div class="bars cn-act ${unit}" role="img" aria-label="${esc(t('Révisions réussies et oubliées'))}">${bars.map((b, i) => `<div class="bar" data-tip="${esc(when(b))} · ${esc(plural(b.r, 'révision|révisions'))}${b.r ? ' · ' + esc(t('{p} réussies', { p: pct(b.ok / b.r) })) : ''}"><b class="${b.r ? '' : 'zero'}" style="height:max(2px, calc((100% - 18px) * ${(b.r / max).toFixed(3)}));animation-delay:${Math.min(i * 18, 540)}ms"><i class="miss" style="flex:${b.r - b.ok}"></i><i style="flex:${b.ok}"></i></b><span>${lab(b, i)}</span></div>`).join('')}</div>
+    ${avg ? `<p class="cn-cap">${unit === 'd' ? t('En moyenne {n} par jour de révision.', { n: avg }) : unit === 'w' ? t('En moyenne {n} par semaine de révision.', { n: avg }) : t('En moyenne {n} par mois de révision.', { n: avg })}</p>` : ''}`;
+}
+function gradesPanel(g) {
+  const n = g[0] + g[1] + g[2] + g[3], f = g.map(v => n ? v / n : 0);
+  let tip = '';
+  if (n >= 20) tip = f[0] > 0.2 ? t('Beaucoup de {g} : ajoutez moins de nouvelles fiches par jour, ou découpez les fiches trop longues.', { g: quote(t(GRADE_LABEL[1])) })
+    : f[3] > 0.4 ? t('Vous notez souvent {e} : Engram espace alors beaucoup ces fiches. Si elles vous échappent ensuite, préférez {g}.', { e: quote(t(GRADE_LABEL[4])), g: quote(t(GRADE_LABEL[3])) })
+    : f[1] > 0.25 ? t('{h} compte comme une bonne réponse : Engram raccourcit un peu l\'intervalle, sans tout reprendre.', { h: quote(t(GRADE_LABEL[2])) })
+    : t('Des notes bien réparties : Engram ajuste vos intervalles au plus juste.');
+  return `<article class="panel rise"><div class="panel-h"><h3 class="h3">${t('Vos réponses')}</h3><span class="kicker tnum">${n ? plural(n, 'note|notes') : ''}</span></div>
+    ${n ? `<div class="stacked gr">${[1, 2, 3, 4].map(k => g[k - 1] ? `<i style="flex:${g[k - 1]};background:var(--${GRADE_VAR[k]})" data-tip="${esc(t(GRADE_LABEL[k]))} · ${pct(f[k - 1])}"></i>` : '').join('')}</div>
+    <div class="gr-leg">${[1, 2, 3, 4].map(k => `<div><span><i style="background:var(--${GRADE_VAR[k]})"></i>${t(GRADE_LABEL[k])}</span><b class="tnum">${pct(f[k - 1])}</b><small class="tnum">${num(g[k - 1])}</small></div>`).join('')}</div>
+    ${tip ? `<p class="cn-cap">${tip}</p>` : ''}` : `<div class="muted">${t('Vos notes apparaîtront ici après vos prochaines révisions.')}</div>`}</article>`;
+}
+function partsPanel(h, global) {
+  const { P, best } = Carnet.parts(h), tot = P.reduce((a, p) => a + p.r, 0), max = Math.max(1, ...h.map(v => v[0]));
+  const bestH = best ? h.map((_, k) => DAY_PARTS[partOf(k)][0] === best.name) : [];
+  return `<article class="panel cn-mom rise"><div class="panel-h"><h3 class="h3">${t('Vos meilleurs moments')}</h3>${global ? `<span class="kicker">${t('Tous les paquets')}</span>` : ''}</div>
+    ${tot ? `<div class="dparts">${P.map(p => `<div class="dp ${p === best ? 'best' : ''}"><span class="dp-n">${t(p.name)}${p === best ? `<span class="tag gilt">${t('Meilleur')}</span>` : ''}</span><small>${t('{a}–{b} h', { a: p.a, b: p.b })}</small><b class="tnum">${p.r >= 5 ? pct(p.acc) : '—'}</b><em class="tnum">${p.r ? t('sur {n}', { n: plural(p.r, 'révision|révisions') }) : t('Aucune révision')}</em></div>`).join('')}</div>
+    <div class="hours" role="img" aria-label="${esc(t('Révisions heure par heure'))}">${h.map(([r, ok], k) => `<i class="${bestH[k] ? 'on' : ''}" style="height:${r ? Math.max(8, r / max * 100).toFixed(1) : 0}%" data-tip="${esc(t('{n} h', { n: k }))} · ${esc(plural(r, 'révision|révisions'))}${r ? ' · ' + esc(t('{p} réussies', { p: pct(ok / r) })) : ''}"></i>`).join('')}</div>
+    <div class="hours-x tnum"><span>0 h</span><span>6 h</span><span>12 h</span><span>18 h</span><span>24 h</span></div>
+    <p class="cn-cap">${t('Part de bonnes réponses selon le moment de la révision. En dessous, vos révisions heure par heure.')}</p>` : `<div class="muted">${t('Vos heures de révision apparaîtront ici après vos prochaines séances.')}</div>`}</article>`;
+}
+function regularityPanel(cur, span, deckId) {
+  const weeks = clamp(Math.floor((Math.min(innerWidth, 1140) - 120) / 15), 16, 53);
+  return `<article class="panel rise"><div class="panel-h"><h3 class="h3">${t('Régularité')}</h3><span class="kicker">${t('{n} semaines', { n: weeks })}</span></div>
+    <div class="cn-reg">
+      <div><b class="tnum">${num(streak())}</b><span>${t('Série en cours')}</span></div>
+      <div><b class="tnum">${num(S.profile.bestStreak)}</b><span>${t('Record')}</span></div>
+      <div><b class="tnum">${cur.days} <small>/ ${span}</small></b><span>${t('Jours actifs')}</span></div>
+    </div>
+    ${heatmap(weeks, deckId)}</article>`;
+}
+function holdPanel(cards, m) {
+  const on = cards.filter(c => c.srs.state > 0 && c.srs.s > 0 && !c.suspended), cnt = HOLD.map(() => 0);
+  for (const c of on) cnt[HOLD.findIndex(([d]) => c.srs.s < d)]++;
+  const max = Math.max(1, ...cnt);
+  return `<article class="panel rise"><div class="panel-h"><h3 class="h3">${t('La tenue de vos fiches')}</h3><span class="kicker tnum">${plural(cards.length, 'fiche|fiches')}</span></div>
+    <div class="stacked" style="height:22px">${COMP.map(k => m[k] ? `<i style="flex:${m[k]};background:${ST_COLORS[k]}" data-tip="${m[k]} ${esc(t(ST_LABELS[k]).toLowerCase())}"></i>` : '').join('')}</div>
+    <div class="legend" style="margin-top:14px">${COMP.map(k => `<span><i style="background:${ST_COLORS[k]}"></i>${t(ST_LABELS[k])} <b class="tnum">${m[k]}</b></span>`).join('')}</div>
+    ${on.length ? `<div class="hold"><p>${t('Combien de temps chacune tient avant de passer sous 90 % de souvenir')}</p>${HOLD.map(([, l], i) => `<div class="hold-r"><span>${t(l)}</span><i><b style="width:${(cnt[i] / max * 100).toFixed(1)}%;animation-delay:${i * 70}ms"></b></i><em class="tnum">${cnt[i]}</em></div>`).join('')}</div>` : ''}
+    <p class="muted" style="font-size:13px;margin:16px 0 0">${t('Une fiche est « acquise » quand sa stabilité dépasse 21 jours : vous avez 90 % de chances de vous en souvenir trois semaines plus tard.')}</p></article>`;
+}
+function decksTable(rows, cur) {
+  const tone = a => a == null ? '' : a >= 0.85 ? 'good' : a >= 0.75 ? 'hard' : 'again';
+  const worst = rows.filter(r => r.s.r >= 20).sort((a, b) => a.s.acc - b.s.acc)[0];
+  const H = [t('Fiches'), t('Acquises'), t('Réussite'), t('Mémoire'), t('À revoir')];
+  return `<section class="sec">
+    <div class="sec-h"><div><h2 class="h2">${t('Vos paquets')}</h2><p>${t('Réussite sur la période et mémoire estimée aujourd\'hui. Touchez un paquet pour voir ses chiffres.')}</p></div></div>
+    <div class="dk-tbl rise">
+      <div class="dk-hd" aria-hidden="true"><span>${t('Paquet')}</span>${H.map((h, i) => `<span ${i === 2 ? `data-tip="${esc(t('Bonnes réponses sur la période'))}"` : i === 3 ? `data-tip="${esc(t('Chances de vous souvenir aujourd\'hui, en moyenne'))}"` : i === 4 ? `data-tip="${esc(t('Fiches à revoir aujourd\'hui'))}"` : ''}>${h}</span>`).join('')}</div>
+      ${rows.map(r => { const v = [num(r.n), r.n ? pct(r.m.m / r.n) : '—', r.s.r ? pct(r.s.acc) : '—', r.mem != null ? pct(r.mem) : '—', num(r.due)]; return `<button class="dk-row ${r === worst && cur.acc - r.s.acc >= 0.06 ? 'weak' : ''}" data-act="stats-deck" data-v="${r.d.id}" aria-label="${esc(r.d.name)} : ${esc(H.map((h, i) => h + ' ' + v[i]).join(', '))}">
+        <span class="nm"><i class="d" style="background:${DECK_COLORS[r.d.color] || 'var(--brass)'}"></i><b>${esc(r.d.name)}</b></span>
+        ${v.map((x, i) => `<span data-l="${esc(H[i])}" class="tnum">${i === 2 && r.s.r ? `<em class="dk-m"><i class="${tone(r.s.acc)}" style="width:${(r.s.acc * 100).toFixed(0)}%"></i></em>` : ''}${x}</span>`).join('')}
+      </button>`; }).join('')}
+    </div></section>`;
+}
+function drawCurve() {
   const box = $('#curveBox'), inp = $('#curveDays'), out = $('#curveOut'); if (!box) return;
-  const cards = S.decks.flatMap(d => d.cards).filter(c => c.srs.state === 2 && c.srs.s > 0);
+  const deck = deckById(Carnet.deck);
+  const cards = (deck ? deck.cards : S.decks.flatMap(d => d.cards)).filter(c => c.srs.state === 2 && c.srs.s > 0);
   const ss = cards.map(c => c.srs.s).sort((a, b) => a - b); const med = ss.length ? ss[Math.floor(ss.length / 2)] : 10;
   const W = 720, H = 250, pl = 40, pr = 16, pt = 14, pb = 28, T = 60;
   const x = d => pl + d / T * (W - pl - pr), y = r => pt + (1 - r) * (H - pt - pb);
@@ -3930,7 +4284,26 @@ Hooks.stats = () => {
     </svg>`;
     out.innerHTML = t('<b class="tnum">{d}</b> : vous retiendriez <b class="tnum">{a}</b> de vos fiches sans réviser, contre {b} pour une notion vue une fois.', { d: t('{n} j', { n: d0 }), a: pct(avg), b: pct(FSRS.R(d0, once)) });
   };
-  inp.addEventListener('input', draw); draw();
+  inp.oninput = draw; draw();
+}
+
+Views.stats = () => {
+  if (Carnet.deck && !deckById(Carnet.deck)) Carnet.deck = '';
+  return `
+    <header class="rise"><div class="kicker" id="stKicker">${Carnet.kicker()}</div><h1 class="display" style="margin-top:12px">${words(t('Votre mémoire, <em>mesurée</em>.'))}</h1>
+      <div class="cn-bar">
+        <div class="seg" id="stPeriod" role="group" aria-label="${esc(t('Période'))}">${STATS_PERIODS.map(([n, l]) => `<button class="${Carnet.days === n ? 'on' : ''}" data-days="${n}" aria-pressed="${Carnet.days === n}">${t(l)}</button>`).join('')}</div>
+        ${S.decks.length > 1 ? `<select class="select" id="stDeck" aria-label="${esc(t('Paquet'))}"><option value="">${t('Tous les paquets')}</option>${S.decks.map(d => `<option value="${d.id}" ${Carnet.deck === d.id ? 'selected' : ''}>${esc(d.name)}</option>`).join('')}</select>` : ''}
+        <span class="grow"></span>
+        <button class="btn btn-sm" data-act="stats-csv" data-tip="${esc(t('Toutes vos journées de révision, en CSV'))}">${icon('download', 'i-sm')}${t('Exporter')}</button>
+      </div>
+    </header>
+    <div class="cn-body" id="statsBody">${Carnet.body()}</div>`;
+};
+Hooks.stats = () => {
+  $('#stPeriod')?.addEventListener('click', e => { const b = e.target.closest('[data-days]'); if (b && +b.dataset.days !== Carnet.days) Carnet.set({ days: +b.dataset.days }); });
+  $('#stDeck')?.addEventListener('change', e => Carnet.set({ deck: e.target.value }));
+  drawCurve();
 };
 
 /* ── Paquets : création, réglages ──────────────────────────────────── */
@@ -4329,6 +4702,7 @@ const Cmd = {
       C('export', G.io, 'share', t('Exporter vers Anki, Quizlet, Excel, Notion'), () => openExport(here || 'all'), { kw: 'exporter anki apkg csv excel pdf imprimer export print exportar imprimir exportieren drucken' }),
       C('calendar', G.io, 'cal', t('Ajouter mon programme à mon agenda'), () => openCalendar(), { kw: 'agenda calendrier google outlook apple ics calendar calendario kalender' }),
       C('backup', G.io, 'download', t('Sauvegarder mes données'), () => Actions.backup(), { kw: 'sauvegarde json backup save copia seguridad sicherung' }),
+      C('journal', G.io, 'chart', t('Exporter mon journal de révision (CSV)'), () => Carnet.csv(), { kw: 'journal statistiques csv excel historique stats history log historial verlauf historico' }),
       C('shareprog', G.io, 'share', t('Partager ma progression'), () => shareProgress(), { kw: 'partager progression share progress compartir teilen compartilhar' }),
       C('mentor', G.ai, 'sparkles', t('Demander à Mentor'), () => Mentor.open(), { key: '/', kw: 'mentor ia ai chat question aide help ayuda hilfe ajuda' }),
       C('proof', G.ai, 'pen', t('Le Correcteur : relire un paquet'), () => Agents.run('proof', here ? { deckId: here } : undefined), { kw: 'correcteur relire fautes proofread corrector korrektor revisor' }),
@@ -5831,6 +6205,10 @@ const Actions = {
   game: el => openGame(el.dataset.g, el.dataset.deck),
   examPlan: el => openExamPlan(el.dataset.deck, el.dataset.exam),
   mentor: el => Mentor.open('', false, el.dataset.deck),
+  'stats-deck': el => { Carnet.set({ deck: el.dataset.v }); scrollTo({ top: 0, behavior: REDUCED ? 'auto' : 'smooth' }); },
+  'stats-weak': el => Study.start({ deckId: el.dataset.v, weak: true }),
+  'stats-csv': () => Carnet.csv(),
+  'stats-mentor': () => Carnet.mentor(),
   boxFilter: el => { if (el.dataset.deck) { deckFilter = el.dataset.k; if (App.route.v === 'deck') { $$('#deckFilter button').forEach(x => x.classList.toggle('on', x.dataset.f === deckFilter)); Hooks.deck(el.dataset.deck); $('#deckCards')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); } } else { libFilter = el.dataset.k; App.go('library'); } },
   pro: () => openPro(),
   proTrial: () => { if (Pro.canTrial) Pro.start('expert', { trial: true }); else if (App.route.v === 'pro') $('#tiers')?.scrollIntoView({ behavior: 'smooth' }); else App.go('pro'); },
@@ -7590,7 +7968,7 @@ const Mentor = {
     });
     return {
       today, weekday: fmtDate(new Date(), { weekday: 'long' }), ui_language: LANG,
-      student: { name: S.profile.study.name || null, aim: S.profile.study.aim, level: LEVEL_EN[S.profile.study.level], minutes_per_day_mon_to_sun: S.profile.study.weekly, preferred_time: S.profile.study.time, tone: S.profile.settings.tone, follows_plan: S.profile.settings.followPlan, new_cards_cap: S.profile.settings.newPerDay, target_retention: S.profile.settings.retention, streak_days: streak(), reviews_last_7_days: Array.from({ length: 7 }, (_, i) => S.profile.log[dayKey(Date.now() - i * DAY)]?.r || 0) },
+      student: { name: S.profile.study.name || null, aim: S.profile.study.aim, level: LEVEL_EN[S.profile.study.level], minutes_per_day_mon_to_sun: S.profile.study.weekly, preferred_time: S.profile.study.time, tone: S.profile.settings.tone, follows_plan: S.profile.settings.followPlan, new_cards_cap: S.profile.settings.newPerDay, target_retention: S.profile.settings.retention, streak_days: streak(), reviews_last_7_days: Array.from({ length: 7 }, (_, i) => S.profile.log[dayKey(Date.now() - i * DAY)]?.r || 0), last_30_days: (() => { const c = Carnet.sum(0, 30, ''), b = Carnet.parts(c.h).best; return { reviews: c.r, success_rate: c.r ? Math.round(c.acc * 100) + '%' : null, minutes: c.min, active_days: c.days, best_time_of_day: b ? ['morning', 'afternoon', 'evening', 'night'][DAY_PARTS.findIndex(p => p[0] === b.name)] : null }; })() },
       exams: S.profile.exams.map(x => ({ id: x.id, name: x.name, date: x.date, days_left: daysUntil(x.date), deck_ids: x.deckIds, example: !!x.example })),
       decks,
       plan_next_7_days: P.days.map(d => ({ date: d.key, minutes: d.min, available: d.avail, reviews: d.rev, new: d.newN })),
@@ -7725,14 +8103,28 @@ ${JSON.stringify(this.snapshot())}`;
         execute: i => { const f = str(i.fact).slice(0, 200); if (!f) throw new Error('empty fact'); if (!S.profile.memory.some(m => normTxt(m) === normTxt(f))) S.profile.memory.push(f); if (S.profile.memory.length > 40) S.profile.memory.shift(); Store.touch('profile'); mark(); say(t('Retenu : « {f} »', { f })); return 'saved'; } },
       { name: 'forget', description: 'Remove a saved fact about the student (index in memory_about_student).', inputSchema: { type: 'object', properties: { index: { type: 'number' } }, required: ['index'] },
         execute: i => { const k = Math.round(+i.index); if (!(k >= 0 && k < S.profile.memory.length)) throw new Error('bad index'); const [f] = S.profile.memory.splice(k, 1); Store.touch('profile'); mark(); say(t('Oublié : « {f} »', { f })); return 'ok'; } },
-      { name: 'get_stats', description: 'Detailed statistics: 30-day retention, reviews and study time, weakest tags, 14-day workload forecast, exam readiness.', inputSchema: { type: 'object', properties: { deck_id: { type: 'string' } } },
+      { name: 'get_stats', description: 'Detailed statistics over a period (default 30 days, optionally one deck): success rate, reviews, study time and active days vs the previous period of the same length, grades used, success by time of day, per-deck table, how long cards hold (FSRS stability), weakest tags, 14-day workload, exam readiness, and the takeaways the stats page shows the student.',
+        inputSchema: { type: 'object', properties: { deck_id: { type: 'string' }, days: { type: 'number', description: '7 to 365' } } },
         execute: i => {
-          const decks = str(i.deck_id) ? [deckOf(i.deck_id)] : S.decks, cards = decks.flatMap(d => d.cards);
-          let r = 0, ok = 0, ms = 0; for (let k = 0; k < 30; k++) { const l = S.profile.log[dayKey(Date.now() - k * DAY)]; if (l) { r += l.r; ok += l.ok; ms += l.ms; } }
+          const deckId = str(i.deck_id) ? deckOf(i.deck_id).id : '', days = clamp(Math.round(+i.days) || 30, 7, 365);
+          const decks = deckId ? [deckById(deckId)] : S.decks, cards = decks.flatMap(d => d.cards);
+          const cur = Carnet.sum(0, days, deckId), prev = Carnet.sum(days, 2 * days, deckId), pc = v => v == null ? null : Math.round(v * 100) + '%';
           const tags = {}; for (const c of cards) for (const tg of c.tags || []) { const x = tags[tg] = tags[tg] || { n: 0, lapses: 0 }; x.n++; x.lapses += c.srs.lapses || 0; }
-          return { retention_30d: r ? Math.round(ok / r * 100) + '%' : null, reviews_30d: r, minutes_30d: Math.round(ms / 60000), boxes: maturity(cards), leeches: cards.filter(isLeech).length,
+          const hold = HOLD.map(() => 0); for (const c of cards) if (c.srs.state > 0 && c.srs.s > 0 && !c.suspended) hold[HOLD.findIndex(([d]) => c.srs.s < d)]++;
+          const fc = []; { const base = dayStart(); for (let k = 0; k < 14; k++) fc.push(0); for (const c of cards) { if (c.srs.state === 0 || c.suspended) continue; const k = c.srs.due < base + DAY ? 0 : Math.floor((c.srs.due - base) / DAY); if (k < 14) fc[k]++; } }
+          return { period_days: days, deck: deckId ? deckById(deckId).name : 'all decks',
+            success_rate: pc(cur.acc), reviews: cur.r, minutes: cur.min, active_days: cur.days, new_cards_studied: cur.n,
+            previous_period: prev.r ? { success_rate: pc(prev.acc), reviews: prev.r, minutes: prev.min, active_days: prev.days } : null,
+            grades_given: { again: cur.g[0], hard: cur.g[1], good: cur.g[2], easy: cur.g[3] },
+            success_by_time_of_day: Carnet.parts(Carnet.sum(0, days, '').h).P.map((p, k) => ({ part: ['morning 5-12h', 'afternoon 12-18h', 'evening 18-23h', 'night 23-5h'][k], reviews: p.r, success_rate: pc(p.acc) })),
+            by_deck: deckId ? undefined : Carnet.decks(days).map(r => ({ id: r.d.id, name: r.d.name, cards: r.n, mastered: r.m.m, reviews: r.s.r, success_rate: pc(r.s.acc), memory_today: pc(r.mem), due_today: r.due })),
+            cards_hold_before_dropping_below_90pct: { under_1_day: hold[0], '1_to_7_days': hold[1], '1_to_3_weeks': hold[2], '3_weeks_to_3_months': hold[3], over_3_months: hold[4] },
+            streak_days: streak(), best_streak: S.profile.bestStreak, boxes: maturity(cards), leeches: cards.filter(isLeech).length,
             weakest_tags: Object.entries(tags).filter(([, x]) => x.n >= 2).sort((a, b) => b[1].lapses / b[1].n - a[1].lapses / a[1].n).slice(0, 6).map(([k, x]) => ({ tag: k, cards: x.n, lapses: x.lapses })),
-            exams: upcomingExams().map(x => { const rd = Plan.readiness(x); return { name: x.name, days_left: daysUntil(x.date), coverage: rd ? Math.round(rd.coverage * 100) + '%' : null, predicted_if_plan_followed: rd ? Math.round(rd.follow * 100) + '%' : null, predicted_if_no_more_study: rd ? Math.round(rd.idle * 100) + '%' : null }; }) };
+            reviews_due_next_14_days: fc,
+            exams: upcomingExams().map(x => { const rd = Plan.readiness(x); return { name: x.name, days_left: daysUntil(x.date), coverage: rd ? Math.round(rd.coverage * 100) + '%' : null, predicted_if_plan_followed: rd ? Math.round(rd.follow * 100) + '%' : null, predicted_if_no_more_study: rd ? Math.round(rd.idle * 100) + '%' : null }; }),
+            takeaways_shown_to_student: Carnet.insights(days, deckId).list.map(x => untag(x.html)),
+            detail_note: cur.bare ? 'Per-deck, per-hour and per-grade detail only exists for recent days; older days count in totals only.' : undefined };
         } },
       { name: 'get_plan', description: 'The computed daily programme for the next days (minutes planned vs available, reviews, new cards per deck) and the app\'s own advice.', inputSchema: { type: 'object', properties: { days: { type: 'number' } } },
         execute: i => { const P = Plan.compute(clamp(+i.days || 14, 1, 28)); return { days: P.days.map(d => ({ date: d.key, minutes: d.min, available: d.avail, reviews: d.rev, new_by_deck: Object.fromEntries(Object.entries(d.quota).map(([id, n]) => [deckById(id)?.name || id, n])), overloaded: d.over, exams: d.exams.map(x => x.name) })), advice: Plan.advice().map(a => a[1]) }; } },
@@ -10215,6 +10607,96 @@ TR = {
   "Écouter mes fiches": ["Listen to my cards","Escuchar mis tarjetas","Meine Karten anhören","Ouvir meus cartões"],
   "Écrivez votre question après le « ? »": ["Type your question after the “?”","Escribe tu pregunta después del «?»","Schreib deine Frage nach dem „?“","Escreva sua pergunta depois do “?”"],
   "Écrivez « question = réponse »": ["Type “question = answer”","Escribe «pregunta = respuesta»","Schreib „Frage = Antwort“","Escreva “pergunta = resposta”"],
+  // Carnet (statistiques)
+  "1 an": ["1 year","1 año","1 Jahr","1 ano"],
+  "3 mois": ["3 months","3 meses","3 Monate","3 meses"],
+  "7 derniers jours": ["last 7 days","últimos 7 días","letzte 7 Tage","últimos 7 dias"],
+  "30 derniers jours": ["last 30 days","últimos 30 días","letzte 30 Tage","últimos 30 dias"],
+  "3 derniers mois": ["last 3 months","últimos 3 meses","letzte 3 Monate","últimos 3 meses"],
+  "12 derniers mois": ["last 12 months","últimos 12 meses","letzte 12 Monate","últimos 12 meses"],
+  "Période": ["Period","Periodo","Zeitraum","Período"],
+  "Période précédente : {v}": ["Previous period: {v}","Periodo anterior: {v}","Voriger Zeitraum: {v}","Período anterior: {v}"],
+  "Les écarts comparent avec la période précédente de même durée.": ["Changes compare with the previous period of the same length.","Las variaciones comparan con el periodo anterior de la misma duración.","Die Veränderungen vergleichen mit dem vorigen, gleich langen Zeitraum.","As variações comparam com o período anterior de mesma duração."],
+  "{n} pts": ["{n} pts","{n} pts","{n} Pkt.","{n} pts"],
+  "{n} point|{n} points": ["{n} point|{n} points","{n} punto|{n} puntos","{n} Punkt|{n} Punkte","{n} ponto|{n} pontos"],
+  "sur {n}": ["of {n}","de {n}","von {n}","de {n}"],
+  "Toutes vos journées de révision, en CSV": ["All your study days, as CSV","Todos tus días de repaso, en CSV","Alle deine Lerntage als CSV","Todos os seus dias de revisão, em CSV"],
+  "Exporter mon journal de révision (CSV)": ["Export my study log (CSV)","Exportar mi registro de repaso (CSV)","Mein Lernprotokoll exportieren (CSV)","Exportar meu registro de revisão (CSV)"],
+  "Aucune révision à exporter pour le moment.": ["No reviews to export yet.","Todavía no hay repasos que exportar.","Noch keine Wiederholungen zum Exportieren.","Ainda não há revisões para exportar."],
+  "date": ["date","fecha","Datum","data"],
+  "révisions": ["reviews","repasos","Wiederholungen","revisões"],
+  "bonnes réponses": ["correct","correctas","richtig","certas"],
+  "minutes": ["minutes","minutos","Minuten","minutos"],
+  "nouvelles": ["new","nuevas","neu","novas"],
+  "journal": ["log","registro","protokoll","registro"],
+  "Ce qu'il faut retenir": ["Key takeaways","Lo que hay que retener","Das Wichtigste","O que reter"],
+  "Bilan avec Mentor": ["Review with Mentor","Balance con Mentor","Bilanz mit Mentor","Balanço com o Mentor"],
+  "Fais le bilan de mes {p} : ce qui progresse, ce qui coince, et ce que je change cette semaine.": ["Review my {p}: what is improving, what is stuck, and what I should change this week.","Haz el balance de mis {p}: lo que mejora, lo que se atasca y lo que cambio esta semana.","Zieh Bilanz über meine {p}: was besser wird, was hakt und was ich diese Woche ändere.","Faça o balanço dos meus {p}: o que melhora, o que emperra e o que eu mudo nesta semana."],
+  "Fais le bilan de mes {p} sur le paquet {d} : ce qui progresse, ce qui coince, et ce que je change cette semaine.": ["Review my {p} on the deck {d}: what is improving, what is stuck, and what I should change this week.","Haz el balance de mis {p} en el mazo {d}: lo que mejora, lo que se atasca y lo que cambio esta semana.","Zieh Bilanz über meine {p} im Stapel {d}: was besser wird, was hakt und was ich diese Woche ändere.","Faça o balanço dos meus {p} no baralho {d}: o que melhora, o que emperra e o que eu mudo nesta semana."],
+  "Le détail par paquet, par heure et par note commence avec cette version d'Engram : les jours d'avant ne comptent que dans les totaux.": ["The detail by deck, hour and rating starts with this version of Engram: earlier days only count in the totals.","El detalle por mazo, por hora y por nota empieza con esta versión de Engram: los días anteriores solo cuentan en los totales.","Die Aufschlüsselung nach Stapel, Uhrzeit und Bewertung beginnt mit dieser Engram-Version: frühere Tage zählen nur in den Summen.","O detalhe por baralho, por hora e por nota começa com esta versão do Engram: os dias anteriores só contam nos totais."],
+  "{exam} dans {d} : prêt à {p} si vous suivez le programme, {q} sans réviser.": ["{exam} in {d}: {p} ready if you follow the plan, {q} without studying.","{exam} en {d}: preparado al {p} si sigues el programa, {q} sin repasar.","{exam} in {d}: zu {p} bereit, wenn du dem Plan folgst, {q} ohne Lernen.","{exam} em {d}: pronto a {p} se seguir o programa, {q} sem revisar."],
+  "{deck} vous résiste : {p} de bonnes réponses, contre {q} en moyenne.": ["{deck} is giving you trouble: {p} correct, versus {q} on average.","{deck} se te resiste: {p} de respuestas correctas, frente a {q} de media.","{deck} fällt dir schwer: {p} richtige Antworten, gegenüber {q} im Schnitt.","{deck} está difícil: {p} de respostas certas, contra {q} em média."],
+  "Retravailler": ["Work on it","Repasarlo","Üben","Retrabalhar"],
+  "Ce paquet vous résiste plus que les autres : {p} de bonnes réponses, contre {q} en moyenne.": ["This deck is harder for you than the others: {p} correct, versus {q} on average.","Este mazo se te resiste más que los otros: {p} de respuestas correctas, frente a {q} de media.","Dieser Stapel fällt dir schwerer als die anderen: {p} richtige Antworten, gegenüber {q} im Schnitt.","Este baralho está mais difícil que os outros: {p} de respostas certas, contra {q} em média."],
+  "Ce paquet se passe mieux que la moyenne : {p} de bonnes réponses, contre {q}.": ["This deck is going better than average: {p} correct, versus {q}.","Este mazo va mejor que la media: {p} de respuestas correctas, frente a {q}.","Dieser Stapel läuft besser als der Durchschnitt: {p} richtige Antworten, gegenüber {q}.","Este baralho vai melhor que a média: {p} de respostas certas, contra {q}."],
+  "Vous réussissez mieux {a} : {p} de bonnes réponses, contre {q} {b}.": ["You do best {a}: {p} correct, versus {q} {b}.","Aciertas más {a}: {p} de respuestas correctas, frente a {q} {b}.","Am besten klappt es {a}: {p} richtige Antworten, gegenüber {q} {b}.","Você acerta mais {a}: {p} de respostas certas, contra {q} {b}."],
+  "Vos bonnes réponses gagnent {n} sur la période précédente.": ["Your correct answers are up {n} on the previous period.","Tus respuestas correctas suben {n} respecto al periodo anterior.","Deine Trefferquote steigt um {n} gegenüber dem vorigen Zeitraum.","Suas respostas certas sobem {n} em relação ao período anterior."],
+  "Vos bonnes réponses perdent {n} sur la période précédente. Ajoutez moins de nouvelles fiches quelques jours, le temps que la mémoire se consolide.": ["Your correct answers are down {n} on the previous period. Add fewer new cards for a few days while your memory consolidates.","Tus respuestas correctas bajan {n} respecto al periodo anterior. Añade menos tarjetas nuevas unos días, mientras la memoria se consolida.","Deine Trefferquote sinkt um {n} gegenüber dem vorigen Zeitraum. Nimm ein paar Tage weniger neue Karten, bis sich das Gedächtnis festigt.","Suas respostas certas caem {n} em relação ao período anterior. Adicione menos cartões novos por alguns dias, enquanto a memória se consolida."],
+  "Vous révisez {p} de plus que la période précédente.": ["You are studying {p} more than in the previous period.","Repasas un {p} más que en el periodo anterior.","Du wiederholst {p} mehr als im vorigen Zeitraum.","Você revisa {p} a mais que no período anterior."],
+  "Vous révisez {p} de moins que la période précédente.": ["You are studying {p} less than in the previous period.","Repasas un {p} menos que en el periodo anterior.","Du wiederholst {p} weniger als im vorigen Zeitraum.","Você revisa {p} a menos que no período anterior."],
+  "Très régulier : {a} jours de révision sur {b}. C'est ce qui fait tenir la mémoire.": ["Very steady: {a} study days out of {b}. That is what makes memory last.","Muy constante: {a} días de repaso de {b}. Es lo que hace durar la memoria.","Sehr regelmäßig: {a} Lerntage von {b}. Genau das lässt das Gedächtnis halten.","Muito regular: {a} dias de revisão de {b}. É isso que faz a memória durar."],
+  "{a} jours de révision sur {b}. Dix minutes chaque jour valent mieux qu'une heure le dimanche.": ["{a} study days out of {b}. Ten minutes a day beat an hour on Sunday.","{a} días de repaso de {b}. Diez minutos al día valen más que una hora el domingo.","{a} Lerntage von {b}. Zehn Minuten täglich bringen mehr als eine Stunde am Sonntag.","{a} dias de revisão de {b}. Dez minutos por dia valem mais que uma hora no domingo."],
+  "Rien à signaler sur la période : continuez comme ça.": ["Nothing to flag for this period: keep it up.","Nada que señalar en el periodo: sigue así.","Nichts Auffälliges in diesem Zeitraum: weiter so.","Nada a assinalar no período: continue assim."],
+  "Révisez quelques jours et vos tendances apparaîtront ici.": ["Study for a few days and your trends will show up here.","Repasa unos días y tus tendencias aparecerán aquí.","Lerne ein paar Tage, dann erscheinen hier deine Trends.","Revise por alguns dias e suas tendências vão aparecer aqui."],
+  "Votre activité": ["Your activity","Tu actividad","Deine Aktivität","Sua atividade"],
+  "Ce que vous avez fait, quand, et avec quel résultat.": ["What you did, when, and how it went.","Lo que hiciste, cuándo y con qué resultado.","Was du gemacht hast, wann und mit welchem Ergebnis.","O que você fez, quando e com que resultado."],
+  "Réussies": ["Correct","Acertadas","Richtig","Certas"],
+  "Oubliées": ["Forgotten","Olvidadas","Vergessen","Esquecidas"],
+  "Révisions réussies et oubliées": ["Correct and forgotten reviews","Repasos acertados y olvidados","Richtige und vergessene Wiederholungen","Revisões certas e esquecidas"],
+  "{p} réussies": ["{p} correct","{p} acertadas","{p} richtig","{p} certas"],
+  "Semaine du {d}": ["Week of {d}","Semana del {d}","Woche vom {d}","Semana de {d}"],
+  "En moyenne {n} par jour de révision.": ["On average {n} per study day.","De media, {n} por día de repaso.","Im Schnitt {n} pro Lerntag.","Em média {n} por dia de revisão."],
+  "En moyenne {n} par semaine de révision.": ["On average {n} per study week.","De media, {n} por semana de repaso.","Im Schnitt {n} pro Lernwoche.","Em média {n} por semana de revisão."],
+  "En moyenne {n} par mois de révision.": ["On average {n} per study month.","De media, {n} por mes de repaso.","Im Schnitt {n} pro Lernmonat.","Em média {n} por mês de revisão."],
+  "Vos réponses": ["Your ratings","Tus respuestas","Deine Bewertungen","Suas respostas"],
+  "note|notes": ["rating|ratings","valoración|valoraciones","Bewertung|Bewertungen","avaliação|avaliações"],
+  "Beaucoup de {g} : ajoutez moins de nouvelles fiches par jour, ou découpez les fiches trop longues.": ["Lots of {g}: add fewer new cards per day, or split cards that are too long.","Muchos {g}: añade menos tarjetas nuevas al día, o divide las tarjetas demasiado largas.","Viele {g}: nimm weniger neue Karten pro Tag oder teile zu lange Karten auf.","Muitos {g}: adicione menos cartões novos por dia, ou divida os cartões longos demais."],
+  "Vous notez souvent {e} : Engram espace alors beaucoup ces fiches. Si elles vous échappent ensuite, préférez {g}.": ["You often rate {e}: Engram then spaces those cards far apart. If they slip away later, choose {g} instead.","Sueles marcar {e}: Engram espacia mucho esas tarjetas. Si luego se te escapan, elige {g}.","Du bewertest oft mit {e}: Engram setzt diese Karten dann weit auseinander. Wenn sie dir danach entfallen, nimm lieber {g}.","Você marca {e} com frequência: o Engram espaça muito esses cartões. Se eles escaparem depois, prefira {g}."],
+  "{h} compte comme une bonne réponse : Engram raccourcit un peu l'intervalle, sans tout reprendre.": ["{h} counts as a correct answer: Engram shortens the interval a little, without starting over.","{h} cuenta como respuesta correcta: Engram acorta un poco el intervalo, sin empezar de cero.","{h} zählt als richtige Antwort: Engram verkürzt das Intervall etwas, ohne von vorn zu beginnen.","{h} conta como resposta certa: o Engram encurta um pouco o intervalo, sem recomeçar do zero."],
+  "Des notes bien réparties : Engram ajuste vos intervalles au plus juste.": ["Well-balanced ratings: Engram can fine-tune your intervals.","Notas bien repartidas: Engram ajusta tus intervalos con precisión.","Gut verteilte Bewertungen: Engram stimmt deine Intervalle genau ab.","Notas bem distribuídas: o Engram ajusta seus intervalos com precisão."],
+  "Vos notes apparaîtront ici après vos prochaines révisions.": ["Your ratings will show up here after your next reviews.","Tus notas aparecerán aquí tras tus próximos repasos.","Deine Bewertungen erscheinen hier nach deinen nächsten Wiederholungen.","Suas notas vão aparecer aqui depois das próximas revisões."],
+  "Vos meilleurs moments": ["Your best times","Tus mejores momentos","Deine besten Zeiten","Seus melhores momentos"],
+  "Matin": ["Morning","Mañana","Morgen","Manhã"],
+  "Après-midi": ["Afternoon","Tarde","Nachmittag","Tarde"],
+  "Soir": ["Evening","Noche","Abend","Noite"],
+  "Nuit": ["Night","Madrugada","Nacht","Madrugada"],
+  "le matin": ["in the morning","por la mañana","morgens","de manhã"],
+  "l'après-midi": ["in the afternoon","por la tarde","nachmittags","à tarde"],
+  "le soir": ["in the evening","por la noche","abends","à noite"],
+  "la nuit": ["at night","de madrugada","nachts","de madrugada"],
+  "{a}–{b} h": ["{a}:00–{b}:00","{a}–{b} h","{a}–{b} Uhr","{a}h–{b}h"],
+  "Meilleur": ["Best","Mejor","Beste","Melhor"],
+  "Révisions heure par heure": ["Reviews hour by hour","Repasos hora a hora","Wiederholungen Stunde für Stunde","Revisões hora a hora"],
+  "Part de bonnes réponses selon le moment de la révision. En dessous, vos révisions heure par heure.": ["Share of correct answers by time of day. Below, your reviews hour by hour.","Porcentaje de respuestas correctas según el momento del repaso. Debajo, tus repasos hora a hora.","Anteil richtiger Antworten nach Tageszeit. Darunter deine Wiederholungen Stunde für Stunde.","Parte de respostas certas conforme o momento da revisão. Abaixo, suas revisões hora a hora."],
+  "Vos heures de révision apparaîtront ici après vos prochaines séances.": ["Your study hours will show up here after your next sessions.","Tus horas de repaso aparecerán aquí tras tus próximas sesiones.","Deine Lernzeiten erscheinen hier nach deinen nächsten Sitzungen.","Seus horários de revisão vão aparecer aqui depois das próximas sessões."],
+  "{n} semaines": ["{n} weeks","{n} semanas","{n} Wochen","{n} semanas"],
+  "Série en cours": ["Current streak","Racha actual","Aktuelle Serie","Sequência atual"],
+  "Record": ["Best","Récord","Rekord","Recorde"],
+  "Jours actifs": ["Active days","Días activos","Aktive Tage","Dias ativos"],
+  "Vos paquets": ["Your decks","Tus mazos","Deine Stapel","Seus baralhos"],
+  "Réussite sur la période et mémoire estimée aujourd'hui. Touchez un paquet pour voir ses chiffres.": ["Success over the period and estimated memory today. Tap a deck to see its numbers.","Acierto en el periodo y memoria estimada hoy. Toca un mazo para ver sus cifras.","Trefferquote im Zeitraum und geschätztes Gedächtnis heute. Tippe auf einen Stapel für seine Zahlen.","Acerto no período e memória estimada hoje. Toque em um baralho para ver seus números."],
+  "Bonnes réponses sur la période": ["Correct answers over the period","Respuestas correctas en el periodo","Richtige Antworten im Zeitraum","Respostas certas no período"],
+  "Chances de vous souvenir aujourd'hui, en moyenne": ["Average chance of remembering today","Probabilidad media de recordar hoy","Durchschnittliche Chance, dich heute zu erinnern","Chance média de lembrar hoje"],
+  "Fiches à revoir aujourd'hui": ["Cards due today","Tarjetas para repasar hoy","Heute fällige Karten","Cartões para revisar hoje"],
+  "Votre mémoire": ["Your memory","Tu memoria","Dein Gedächtnis","Sua memória"],
+  "Ce que vous retenez aujourd'hui, et ce qui vous attend.": ["What you remember today, and what lies ahead.","Lo que recuerdas hoy y lo que te espera.","Was du heute behältst und was auf dich zukommt.","O que você lembra hoje e o que vem pela frente."],
+  "La tenue de vos fiches": ["How well your cards hold","Cuánto aguantan tus tarjetas","Wie gut deine Karten sitzen","Quanto seus cartões aguentam"],
+  "Combien de temps chacune tient avant de passer sous 90 % de souvenir": ["How long each one lasts before recall drops below 90%","Cuánto aguanta cada una antes de bajar del 90 % de recuerdo","Wie lange jede hält, bevor die Erinnerung unter 90 % fällt","Quanto tempo cada um dura antes de cair abaixo de 90 % de lembrança"],
+  "Moins d'un jour": ["Under a day","Menos de un día","Unter einem Tag","Menos de um dia"],
+  "1 à 7 jours": ["1 to 7 days","1 a 7 días","1 bis 7 Tage","1 a 7 dias"],
+  "1 à 3 semaines": ["1 to 3 weeks","1 a 3 semanas","1 bis 3 Wochen","1 a 3 semanas"],
+  "3 semaines à 3 mois": ["3 weeks to 3 months","3 semanas a 3 meses","3 Wochen bis 3 Monate","3 semanas a 3 meses"],
+  "Plus de 3 mois": ["Over 3 months","Más de 3 meses","Über 3 Monate","Mais de 3 meses"],
 };
 
 /* ── Démarrage ─────────────────────────────────────────────────────── */

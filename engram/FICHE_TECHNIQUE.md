@@ -10,6 +10,7 @@ Ce document accompagne le prototype livré dans ce dossier (`engram/index.html` 
    - [Engram Pro et les six assistants](#1-ter-engram-pro-et-les-six-assistants)
    - [Écoles et entreprises](#1-quater-écoles-et-entreprises)
    - [Commandes et voix](#1-quinquies-commandes-et-voix)
+   - [Le carnet de statistiques](#1-sexies-le-carnet-de-statistiques)
 2. [Anki : ce qu'il fait bien, ce qu'il fait mal](#2-anki--ce-quil-fait-bien-ce-quil-fait-mal)
 3. [Ce que le prototype fait](#3-ce-que-le-prototype-fait)
 4. [Cinq langues, entièrement traduites](#4-cinq-langues-entièrement-traduites)
@@ -135,6 +136,21 @@ Reconnaissance et synthèse vocales du navigateur (Chrome, Edge, Safari sur iPho
 
 Code : `Cmd`, `Fz`, `openPalette`, `Voice`, `VOICE`, `HandsFree`, `openShortcuts`.
 
+## 1 sexies. Le carnet de statistiques
+
+Le carnet répond à trois questions, dans cet ordre : où j'en suis, qu'est-ce qui coince, que faire maintenant.
+
+- **Réglages** : période (7 jours, 30 jours, 3 mois, 1 an) et paquet. Toute la page suit, sans recharger. Un bouton exporte le journal de révision en CSV (une ligne par jour : révisions, bonnes réponses, minutes, nouvelles fiches, et les quatre notes).
+- **Chiffres clés** : bonnes réponses, révisions, temps d'étude, fiches acquises, avec l'écart par rapport à la période précédente de même durée.
+- **Ce qu'il faut retenir** : quatre phrases au plus, calculées sur l'appareil, chacune avec son action. L'examen qui approche et la préparation prévue ; le paquet qui résiste (bouton « Retravailler » qui lance l'atelier des points faibles de ce paquet) ; le moment de la journée où l'on réussit le mieux ; la réussite ou le volume qui montent ou baissent ; la régularité. « Bilan avec Mentor » demande à l'IA une analyse de la même période.
+- **Votre activité** : révisions réussies et oubliées (par jour, par semaine sur 3 mois, par mois sur un an), répartition des quatre notes avec un conseil, meilleurs moments (matin, après-midi, soir, nuit, et les 24 heures), série, record et jours actifs, régularité sur un an.
+- **Vos paquets** : un tableau (des fiches empilées sur téléphone) avec fiches, acquises, réussite sur la période, mémoire estimée aujourd'hui et fiches à revoir. Toucher un paquet filtre toute la page.
+- **Votre mémoire** : courbe de l'oubli, charge des 14 prochains jours, tenue des fiches (combien de temps chacune reste au-dessus de 90 % de souvenir, d'après sa stabilité FSRS), fiches qui résistent. Puis les cachets.
+
+Pour cela, chaque révision enregistre désormais la note, l'heure et le paquet dans le journal du jour (quelques centaines d'octets par jour). Les jours d'avant cette version comptent dans les totaux ; la page le signale. Mentor et les six assistants reçoivent les mêmes chiffres (`get_stats` accepte une période et un paquet), et le résumé envoyé à Mentor contient les 30 derniers jours.
+
+Code : `logReview`, `Carnet`, `activityBars`, `gradesPanel`, `partsPanel`, `holdPanel`, `decksTable`, `demoDetail`.
+
 ---
 
 ## 2. Anki : ce qu'il fait bien, ce qu'il fait mal
@@ -170,6 +186,7 @@ Code : `Cmd`, `Fz`, `openPalette`, `Voice`, `VOICE`, `HandsFree`, `openShortcuts
 | **Importer, exporter** | §7 | `70-integrations` |
 | **Écoles et entreprises** | §1 quater : kit de classe ou d'équipe, mise à jour qui garde la progression, tableau de bord d'exemple, prix dégressifs et estimation à copier | `Views.teams`, `joinKit` |
 | **Personnaliser** | §8 | `Custom` |
+| **Mesurer** | §1 sexies : carnet par période et par paquet, écarts avec la période précédente, points clés avec leur action, notes, meilleurs moments, tableau des paquets, tenue des fiches, export CSV, bilan par Mentor | `Carnet`, `Views.stats` |
 | **Commander** | §1 quinquies : palette de commandes (Ctrl/⌘ K) avec suggestions, récents et recherche tolérante, fiche créée en une ligne, commandes vocales, révision mains libres, feuille des raccourcis | `Cmd`, `Voice`, `HandsFree` |
 | **Tout le reste** | Accueil guidé en 5 étapes (langue, profil, rythme, examen, apparence), raccourcis clavier complets, synchronisation multi-appareils dans l'app Claude, mobile, accessibilité (mouvement réduit, focus visible, contrastes WCAG AA) | `Onb`, `openPalette`, `Store` |
 
@@ -572,6 +589,7 @@ Scripts automatisés (Chromium sans interface), tous au vert sur la version livr
 - **Mise en ligne** (24 vérifications sur une fausse API Claude) : serveur Node (flux, modèles, effort, repli, en-tête bêta, cache, mode JSON, battement pendant la réflexion, refus, validation, code d'accès, limite de débit, coupure par la page, fichiers de l'app installable, aucun fichier du serveur exposé) et fonction Netlify appelée directement (santé et flux) ; fonction empaquetée avec esbuild ; dossier publié `_site` construit.
 - **Engram Pro et assistants** : page Pro, salle des assistants, accueil de l'offre, note du matin sur l'accueil, fenêtres de quota, les 6 missions, dans les 5 langues × téléphone, iPad et ordinateur : aucune phrase manquante, aucun débordement, aucune erreur ; missions avec une IA simulée qui appelle vraiment les outils : propositions affichées, « Tout appliquer » modifie les fiches (réécriture, suppression), « Annuler les changements » restaure tout, séance et examen blanc préparés qui se lancent, erreur d'outil rapportée à l'IA, modèle Expert choisi en Pro Expert ; quotas de Découverte (3 missions IA, puis analyse locale ou offre Pro) ; autopilote (note du matin réécrite par l'IA, bilan du lundi) ; Mentor qui confie une mission ; mission arrêtée quand on ferme la fenêtre ; retour à Découverte qui coupe l'autopilote.
 - **Écoles et entreprises** (34 vérifications × téléphone, iPad et ordinateur) : page complète pour les deux publics ; calcul du budget (26 élèves = 650 €, 350 = 6 650 € en Établissement, 1 200 = 19 200 €, minimum de 10 élèves, curseur et champ synchronisés, estimation copiée) ; kit enregistré (nom du fichier, aucune progression du professeur, date) puis ouvert : paquet étiqueté, examen ajouté, message d'accueil ; nouvelle version collée après une révision de l'élève : progression gardée, fiche modifiée mise à jour, fiche retirée supprimée, fiche ajoutée, « 1 fiche modifiée, 1 ajoutée, 1 retirée » ; liens depuis Pro, Réglages et Intégrations ; 4 autres langues sans phrase manquante ni débordement.
+- **Carnet de statistiques** (30 vérifications sur ordinateur, iPad et téléphone) : journal d'exemple cohérent (notes, heures et paquets retombent sur les totaux de chaque jour), quatre périodes (7 barres par jour, 30 par jour, 13 par semaine, 12 par mois), écarts avec la période précédente, points clés (paquet qui résiste, meilleur moment), filtre par paquet depuis le tableau et depuis le menu, « Retravailler » qui lance les points faibles du paquet, une vraie révision qui enregistre note, heure et paquet puis s'annule proprement, export CSV, rien qui déborde ni d'étiquettes qui se chevauchent, chiffres transmis à Mentor, page d'un nouvel utilisateur sans révision ; page vérifiée dans les 5 langues sur 3 écrans, aucune phrase manquante.
 - **Commandes et voix** (54 vérifications sur ordinateur, 52 sur téléphone et iPad, micro et synthèse simulés) : palette vide (suggestions, rubriques, réglages rapides cachés), recherche tolérante et mots-clés en anglais, thème appliqué depuis la palette, paquet révisé par Maj + Entrée puis proposé en « Reprendre », `#` et `?`, fiche créée par « question = réponse », flèches, feuille des raccourcis ; voix : réviser un paquet, thème clair, fiche dictée avec sa réponse, ouvrir une page, phrase incomprise qui garde la palette ouverte, silence ; mains libres : question lue, réponse dite jugée juste, fiche retournée, note dite, « retourne », note incomprise redemandée, pause après trois silences et reprise d'un toucher, « stop », touche M, micro coupé à la fermeture ; palette et voix en anglais ; aucune phrase manquante.
 - **Apparence** : 7 thèmes × vues principales, accents, polices, tailles 85 % et 130 %, densité, 4 papiers, mouvement coupé ; contraste du texte ≥ 4,5:1 partout.
 
