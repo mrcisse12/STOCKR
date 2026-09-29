@@ -3,9 +3,14 @@
 # (Site configuration → Build & deploy → Build settings), puis ajoutez la
 # variable ANTHROPIC_API_KEY (Site configuration → Environment variables).
 # Le site de STOCKR, à la racine du dépôt, n'est pas touché.
+#
+# « npm ci » installe le SDK Claude dans engram/node_modules (package.json de
+# ce dossier) : c'est là que Netlify le cherche pour l'emballer avec la
+# fonction /api/ai. Installé seulement dans server/, il restait dehors et
+# l'IA ne marchait pas en ligne (vérifié avec netlify build, lot 12).
 
 [build]
-  command = "npm ci --prefix server && node netlify/build.mjs"
+  command = "npm ci && node netlify/build.mjs"
   publish = "_site"
   functions = "netlify/functions"
 

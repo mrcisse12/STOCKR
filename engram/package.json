@@ -1,0 +1,12 @@
+{
+  "name": "engram-site",
+  "version": "3.0.0",
+  "private": true,
+  "description": "Site Netlify d'Engram. La fonction /api/ai (netlify/functions/ai.mjs) embarque le SDK Claude depuis ce dossier : sans lui, l'IA ne marche pas en ligne.",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0"
+  }
+}

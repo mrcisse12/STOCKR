@@ -2019,6 +2019,32 @@ html[data-vt="out"]::view-transition-new(root){animation:vtLift .46s .12s cubic-
 .onb-skins{width:100%}
 @media (max-width:640px){.onb-choices{grid-template-columns:1fr 1fr}}
 .games{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+/* ── Bilan de l'installation (lot 12) ──────────────────────────────── */
+.chk-top{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--hair-2);background:var(--folder-2);margin:2px 0 4px}
+.chk-top .seal{flex:none;display:grid;place-items:center;width:46px;height:46px;border-radius:50%;border:1.5px solid currentColor;color:var(--muted);transition:color .3s}
+.chk-top .seal .i{width:22px;height:22px}
+.chk-top.ok .seal{color:var(--good)}.chk-top.warn .seal{color:var(--hard)}.chk-top.bad .seal{color:var(--again)}.chk-top.na .seal{color:var(--brass-text)}
+.chk-top b{display:block;font:400 21px/1.2 var(--f-display);color:var(--text)}
+.chk-top small{display:block;margin-top:4px;color:var(--muted);font-size:12.5px;line-height:1.45;overflow-wrap:anywhere}
+.chk-top.wait .seal .i,.chk .wait .st .i{animation:spin 1.1s linear infinite}
+.chk{list-style:none;margin:0;padding:0}
+.chk li{display:grid;grid-template-columns:28px 1fr;gap:0 12px;align-items:start;padding:14px 0;border-top:1px solid var(--hair)}
+.chk li:first-child{border-top:0}
+.chk .st{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;color:var(--muted);background:color-mix(in srgb,currentColor 13%,transparent)}
+.chk .st .i{width:15px;height:15px;stroke-width:2}
+.chk .ok .st{color:var(--good)}.chk .warn .st{color:var(--hard)}.chk .bad .st{color:var(--again)}.chk .info .st{color:var(--brass-text)}
+.ck-h{display:flex;align-items:center;justify-content:space-between;gap:4px 12px;flex-wrap:wrap;min-height:28px}
+.chk h4{display:flex;align-items:center;gap:8px;margin:0;font:600 14.5px/1.3 var(--f-ui);color:var(--text)}
+.chk h4 .i{width:15px;height:15px;color:var(--muted)}
+.chk .tag{font:700 10.5px/1 var(--f-type);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.chk .ok .tag{color:var(--good)}.chk .warn .tag{color:var(--hard)}.chk .bad .tag{color:var(--again)}.chk .info .tag{color:var(--brass-text)}
+.chk p{margin:3px 0 0;color:var(--text-2);font-size:13.5px;line-height:1.5;overflow-wrap:anywhere}
+.chk .wait p{color:var(--muted)}
+.chk .fix{display:flex;gap:9px;margin-top:9px;padding:9px 12px;border-radius:9px;background:color-mix(in srgb,var(--hard) 11%,transparent);color:var(--text);font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+.chk .fix .i{flex:none;width:14px;height:14px;margin-top:3px;color:var(--hard)}
+.chk .bad .fix{background:color-mix(in srgb,var(--again) 11%,transparent)}.chk .bad .fix .i{color:var(--again)}
+.chk .info .fix,.chk .ok .fix{background:var(--brass-soft)}.chk .info .fix .i,.chk .ok .fix .i{color:var(--brass-text)}
+.chk .ck-act{margin-top:10px}
 </style>
 </head>
 <body>
@@ -2327,7 +2353,13 @@ const I = {
   scribble: '<path d="M3 17c3-6 5-9 6.5-9S10 13 12 13s3-6 4.5-6S18 12 21 11"/>',
   users: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 5.2a3 3 0 0 1 0 5.6"/><path d="M18 14.3c1.8.8 3 2.6 3 4.7"/>',
   school: '<path d="M2 9.5 12 5l10 4.5L12 14z"/><path d="M6 11.3V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.7"/><path d="M22 9.5v5"/>',
-  building: '<path d="M4 21V4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v17"/><path d="M15 9h4a1 1 0 0 1 1 1v11"/><path d="M2.5 21h19"/><path d="M8 7h3M8 11h3M8 15h3"/>'
+  building: '<path d="M4 21V4a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v17"/><path d="M15 9h4a1 1 0 0 1 1 1v11"/><path d="M2.5 21h19"/><path d="M8 7h3M8 11h3M8 15h3"/>',
+  shield: '<path d="M12 3 4.5 6v5.6c0 4.5 3.1 8.3 7.5 9.4 4.4-1.1 7.5-4.9 7.5-9.4V6z"/><path d="m8.8 12.1 2.3 2.3 4.2-4.5"/>',
+  alert: '<path d="M10.3 4.2 2.6 17.6a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0z"/><path d="M12 9.5v4M12 17h.01"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.8h.01"/>',
+  refresh: '<path d="M20.5 12a8.5 8.5 0 1 1-2.5-6"/><path d="M20.5 3.5V9H15"/>',
+  spin: '<path d="M12 3a9 9 0 1 0 9 9"/>',
+  minus: '<path d="M6 12h12"/>'
 };
 const icon = (n, cls = '') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${I[n] || ''}</svg>`;
 
@@ -3948,6 +3980,17 @@ function toastUndo(msg, undo) {
   $('#toasts').append(el);
   setTimeout(() => { if (!done) { done = true; bye(); } }, 7000);
 }
+/** Un toast avec un bouton : il reste le temps de lire et d'agir. */
+function toastAct(msg, ic, label, btnIc, run, ms = 7000) {
+  const el = document.createElement('div'); el.className = 'toast toast-undo'; el.setAttribute('role', 'status');
+  el.innerHTML = icon(ic) + `<span>${esc(msg)}</span><button type="button" class="toast-btn">${icon(btnIc, 'i-sm')}${esc(label)}</button>`;
+  let done = false;
+  const bye = () => { if (done) return; done = true; el.classList.add('out'); setTimeout(() => el.remove(), 400); };
+  el.querySelector('button').onclick = () => { if (done) return; bye(); run(); };
+  $('#toasts').append(el);
+  setTimeout(bye, ms);
+  return el;
+}
 function toast(msg, ic = 'check', lead = '') {
   const el = document.createElement('div'); el.className = 'toast';
   el.innerHTML = (lead || (ic ? icon(ic) : '')) + `<span>${esc(msg)}</span>`;
@@ -5456,6 +5499,7 @@ const Cmd = {
       C('look', G.set, 'palette', t('Apparence'), () => App.go('settings', 'look'), { kw: 'apparence theme couleurs police look appearance colors apariencia aussehen aparencia' }),
       C('lang', G.set, 'globe', t('Langue'), () => openLangMenu(), { kw: 'langue language idioma sprache lingua' }),
       C('settings', G.set, 'settings', t('Réglages'), go('settings'), { kw: 'reglages parametres preferences settings ajustes einstellungen configuracoes' }),
+      C('checkup', G.set, 'shield', t('Bilan de l\'installation'), () => openCheckup(), { sub: t('IA, hors ligne, installation, mémoire'), kw: 'bilan verifier installation diagnostic sante mise en ligne netlify deploiement check health status diagnostico verificar prufen diagnose instalacao' }),
       C('keys', G.set, 'keyboard', t('Raccourcis clavier'), () => openShortcuts(), { key: '?', kw: 'raccourcis clavier touches aide shortcuts keyboard keys atajos teclado tastenkurzel tastatur atalhos' }),
       ...Object.entries(SKINS).map(([k, v]) => C('skin-' + k, G.qk, 'palette', t('Thème : {x}', { x: t(v.name) }), () => { s.skin = k; Store.touch('profile'); Custom.apply(); toast(t('Thème : {x}', { x: t(v.name) }), 'palette'); }, { hide: true, on: s.skin === k, sw: v.sw, kw: 'theme mode couleur theme skin tema thema ' + (k === 'auto' ? 'automatique auto systeme system' : SKIN_DARK[k] ? 'sombre nuit noir dark night black oscuro noche dunkel nacht escuro noite' : 'clair jour blanc light day white claro dia hell tag') })),
       C('sound', G.qk, 'volume', s.sound ? t('Couper les sons') : t('Activer les sons'), () => { s.sound = !s.sound; Store.touch('profile'); toast(s.sound ? t('Sons activés') : t('Sons coupés'), 'volume'); }, { hide: true, kw: 'sons son bruit silence sound mute audio sonido silencio ton stumm som' }),
@@ -7268,6 +7312,204 @@ async function openShareDeck(id) {
   draw();
 }
 
+/* ── Mise en ligne (lot 12) ──────────────────────────────────────────
+   · Le service worker garde l'app pour les jours sans réseau. boot() attend
+     IndexedDB : la page a souvent fini de charger avant, l'inscription se
+     fait donc tout de suite dans ce cas (sinon à l'événement load).
+   · BUILD : numéro de version écrit au déploiement par netlify/build.mjs,
+     le même que celui du cache hors ligne. Une nouvelle version publiée
+     pendant que l'app est ouverte se signale, sans rechargement forcé.
+   · Le bilan de l'installation vérifie en un geste ce qu'une vraie mise en
+     ligne demande : l'IA (un appel d'essai, moins d'un centime), le hors
+     ligne, l'installation, la mémoire, l'adresse des liens. Chaque point
+     qui ne va pas dit quoi faire, et où. Ouvert depuis Réglages, la palette
+     de commandes, ou l'adresse du site suivie de #bilan.
+   ════════════════════════════════════════════════════════════════════ */
+const BUILD = '__BUILD__';
+const Install = {
+  evt: null, told: false,
+  get dev() { return BUILD.startsWith('__'); },
+  /** Où tourne la page : dans l'app Claude, en fichier local, en http, ou sur un vrai site (https ou l'ordinateur du développeur). */
+  get where() {
+    if (window.claude) return 'claude';
+    if (location.protocol === 'file:') return 'file';
+    return location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname) ? 'site' : 'http';
+  },
+  get local() { return ['localhost', '127.0.0.1'].includes(location.hostname); },
+  get standalone() { return ['standalone', 'window-controls-overlay', 'fullscreen'].some(m => matchMedia(`(display-mode: ${m})`).matches) || navigator.standalone === true; },
+  get ios() { return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); },
+  init() {
+    addEventListener('beforeinstallprompt', e => { this.evt = e; });
+    addEventListener('appinstalled', () => { this.evt = null; toast(t('Engram est installé : il s\'ouvre maintenant comme une application.'), 'check'); });
+    if (!('serviceWorker' in navigator) || this.where !== 'site') return;
+    const reg = () => navigator.serviceWorker.register('sw.js').catch(() => { });
+    if (document.readyState === 'complete') reg(); else addEventListener('load', reg, { once: true });
+    navigator.serviceWorker.addEventListener('controllerchange', () => this.fresh());
+    // Une app installée peut rester ouverte des jours : au retour, on demande s'il y a du nouveau, au plus toutes les 30 minutes.
+    let last = Date.now();
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState !== 'visible' || Date.now() - last < 30 * MIN) return;
+      last = Date.now(); navigator.serviceWorker.getRegistration().then(r => r?.update()).catch(() => { });
+    });
+  },
+  /** Version du service worker qui sert la page ('' si aucun, ou s'il ne répond pas). Pendant une mise à jour,
+      les caches de deux versions coexistent un instant : seule sa réponse fait foi. */
+  served() {
+    const c = navigator.serviceWorker?.controller; if (!c) return Promise.resolve('');
+    return new Promise(res => {
+      const ch = new MessageChannel(), tm = setTimeout(() => res(''), 3000);
+      ch.port1.onmessage = e => { clearTimeout(tm); res(e.data?.version || ''); };
+      c.postMessage({ type: 'version' }, [ch.port2]);
+    });
+  },
+  async fresh() {
+    if (this.told || this.dev) return;
+    const v = await this.served(); if (!v || v === BUILD) return;
+    this.told = true;
+    toastAct(t('Une nouvelle version d\'Engram est prête.'), 'sparkles', t('Recharger'), 'refresh', () => { Store.flushLocal(); location.reload(); }, 15000);
+  },
+  async prompt() {
+    const e = this.evt; if (!e) return false; this.evt = null;
+    try { await e.prompt(); return (await e.userChoice)?.outcome === 'accepted'; } catch { return false; }
+  }
+};
+
+const Checkup = {
+  ITEMS: [['ai', 'sparkles', N_('L\'IA')], ['offline', 'cloud', N_('Hors ligne')], ['install', 'download', N_('Installation')], ['memory', 'layers', N_('Mémoire de cet appareil')], ['site', 'globe', N_('Adresse des liens')], ['pay', 'crown', N_('Paiements')]],
+  STATE: { wait: ['spin', N_('Vérification')], ok: ['check', N_('Prêt')], warn: ['alert', N_('À régler')], bad: ['x', N_('Bloquant')], info: ['info', N_('À savoir')], na: ['minus', N_('Sans objet')] },
+  NETLIFY_FN: N_('Relancez le bilan ; si ça se répète, ouvrez Logs, Functions dans Netlify.'),
+  res: {}, at: 0, run_: 0,
+  async ai() {
+    if (AI.via === 'claude') return AI.on ? { s: 'ok', d: t('Par votre compte Claude : rien à régler dans l\'aperçu.') } : { s: 'warn', d: t('L\'IA n\'est pas autorisée pour cette page.'), fix: t('Acceptez la demande de l\'app Claude, ou rechargez l\'aperçu.') };
+    const url = AI.serverUrl(), custom = !!S.profile.settings.aiServer.trim();
+    if (!url) return { s: 'bad', d: t('Ouvert comme un fichier : pas de serveur IA.'), fix: t('Ouvrez Engram depuis son adresse en ligne.') };
+    AI.status = 'checking'; await AI.probeServer(); AI.changed();
+    if (AI.nokey) return { s: 'bad', d: t('Le serveur IA répond, mais il n\'a pas de clé d\'API.'), fix: t('Netlify, Site configuration, Environment variables : ajoutez ANTHROPIC_API_KEY, puis relancez un déploiement (Deploys, Trigger deploy).') };
+    if (AI.status === 'off') return { s: 'bad', d: t('Aucun serveur IA ne répond à {u}.', { u: url }), fix: custom ? t('Vérifiez l\'adresse du serveur dans Réglages, IA et Mentor.') : t('Dans Netlify, la fonction « ai » doit apparaître dans Logs, Functions : relancez un déploiement.') };
+    const code = [t('Saisir le code'), () => { closeModals(); App.go('settings', 'ai'); }];
+    if (AI.status === 'locked') return { s: 'warn', d: t('Le serveur IA demande un code d\'accès.'), fix: t('Saisissez-le dans Réglages, IA et Mentor : la même valeur que ENGRAM_ACCESS_CODE.'), act: code };
+    const t0 = performance.now(), ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 30000);
+    try {
+      await AI.ask('This is a connection test from the Engram app. Reply with the single word: OK', { modelTier: 'quick', signal: ctl.signal });
+      const sec = num((performance.now() - t0) / 1000, 1);
+      if (!AI.info?.locked && !Install.local) return { s: 'warn', d: t('L\'IA répond (en {s} s), mais sans code d\'accès : n\'importe qui peut dépenser vos crédits.', { s: sec }), fix: t('Netlify, Environment variables : ajoutez ENGRAM_ACCESS_CODE, relancez un déploiement, puis saisissez le code dans Réglages, IA et Mentor.') };
+      return { s: 'ok', d: t('Clé valide : l\'IA a répondu en {s} s.', { s: sec }) + (AI.info?.locked ? ' ' + t('Protégée par un code d\'accès.') : '') };
+    } catch (e) {
+      const [s, d, fix, act] = ({
+        server_key: ['bad', t('La clé d\'API est refusée par Anthropic.'), t('Recopiez-la en entier dans ANTHROPIC_API_KEY (elle commence par sk-ant-), puis relancez un déploiement.')],
+        budget: ['bad', t('La clé est bonne, mais le crédit est épuisé ou la limite de dépense atteinte.'), t('platform.claude.com, Settings, Billing : ajoutez du crédit ou relevez la limite mensuelle.')],
+        not_granted: ['bad', t('Le code d\'accès est refusé.'), t('Saisissez dans Réglages, IA et Mentor exactement la valeur de ENGRAM_ACCESS_CODE.'), code],
+        rate_limited: ['warn', t('Le serveur IA est très sollicité.'), t('Relancez le bilan dans une minute.')],
+        cancelled: ['warn', t('L\'IA n\'a pas répondu en 30 secondes.'), t(this.NETLIFY_FN)]
+      })[e?.code] || ['bad', t('L\'appel d\'essai a échoué.'), t(this.NETLIFY_FN)];
+      return { s, d, fix, act };
+    } finally { clearTimeout(tm); }
+  },
+  async offline() {
+    const w = Install.where;
+    if (w === 'claude') return { s: 'na', d: t('L\'aperçu dans l\'app Claude ne se garde pas hors ligne : le site en ligne, oui.') };
+    if (w !== 'site') return { s: 'bad', d: t('Le hors ligne demande une adresse en https.'), fix: t('Ouvrez Engram depuis son adresse en ligne.') };
+    if (!('serviceWorker' in navigator)) return { s: 'bad', d: t('Ce navigateur ne garde pas d\'application hors ligne.'), fix: t('Utilisez Safari, Chrome, Edge ou Firefox à jour.') };
+    const reg = await navigator.serviceWorker.getRegistration().catch(() => null);
+    if (!reg) return { s: 'bad', d: t('Le mode hors ligne ne s\'est pas activé.'), fix: t('Vérifiez que sw.js est publié à côté de index.html, puis rechargez la page.') };
+    const v = await Install.served();
+    let page = null; try { page = v && await (await caches.open('engram-' + v)).match(new URL('index.html', reg.scope).href); } catch { }
+    if (!page || !navigator.serviceWorker.controller) return { s: 'warn', d: t('La copie hors ligne se prépare.'), fix: t('Rechargez la page une fois, puis relancez le bilan.'), act: [t('Recharger'), () => { Store.flushLocal(); location.reload(); }] };
+    if (!Install.dev && v !== BUILD) return { s: 'warn', d: t('Une version plus récente est en ligne.'), fix: t('Rechargez la page pour la prendre.'), act: [t('Recharger'), () => { Store.flushLocal(); location.reload(); }] };
+    return { s: 'ok', d: t('Engram s\'ouvre sans réseau : réviser, créer des fiches, jouer. L\'IA revient avec la connexion.') };
+  },
+  async install() {
+    const w = Install.where;
+    if (w === 'claude') return { s: 'na', d: t('L\'aperçu dans l\'app Claude ne s\'installe pas : le site en ligne, oui.') };
+    if (w !== 'site') return { s: 'bad', d: t('L\'installation demande une adresse en https.'), fix: t('Ouvrez Engram depuis son adresse en ligne.') };
+    let man = false; try { const r = await fetch('manifest.webmanifest', { cache: 'no-store' }); man = r.ok && !!(await r.json()).icons?.length; } catch { }
+    if (!man) return { s: 'bad', d: t('Le fichier manifest.webmanifest est introuvable : l\'app ne peut pas s\'installer.'), fix: t('Vérifiez qu\'il est publié à côté de index.html.') };
+    if (Install.standalone) return { s: 'ok', d: t('Installée : Engram s\'ouvre comme une application, avec son icône.') };
+    if (Install.evt) return { s: 'ok', d: t('Prête : ce navigateur propose de l\'installer.'), act: [t('Installer'), async () => { if (await Install.prompt()) this.rerun(['install']); }] };
+    return { s: 'info', d: t('Prête à installer sur cet appareil.'), fix: Install.ios ? t('Sur iPhone et iPad : bouton Partager, puis « Sur l\'écran d\'accueil ».') : t('Menu du navigateur : « Installer Engram » ou « Ajouter à l\'écran d\'accueil ».') };
+  },
+  async memory() {
+    if (Store.frozen) return { s: 'bad', d: t('Vos fiches n\'ont pas pu être lues.'), fix: t('Rechargez la page. Rien n\'a été effacé.') };
+    const est = await navigator.storage?.estimate?.().catch(() => null);
+    const n = plural(S.decks.reduce((a, d) => a + d.cards.length, 0), 'fiche|fiches'), here = est?.usage ? t('{n} sur cet appareil ({s}).', { n, s: fmtSize(est.usage) }) : t('{n} sur cet appareil.', { n });
+    if (!IDB.ok) return { s: 'warn', d: here + ' ' + t('Grande mémoire indisponible (navigation privée ?) : environ 5 Mo au plus.'), fix: t('Sortez de la navigation privée, ou exportez une sauvegarde de temps en temps (Réglages, Données).') };
+    if (await navigator.storage?.persisted?.().catch(() => false)) return { s: 'ok', d: here + ' ' + t('Protégées : le navigateur ne les effacera pas.') };
+    return {
+      s: 'info', d: here,
+      fix: Install.ios ? t('Safari peut effacer un site non installé après 7 jours sans visite : installez l\'app, ou exportez une sauvegarde.') : t('Pas encore protégées : le navigateur peut les effacer s\'il manque de place. Installer l\'app les protège.'),
+      act: navigator.storage?.persist ? [t('Protéger'), async () => { const ok = await navigator.storage.persist().catch(() => false); toast(ok ? t('Mémoire protégée : le navigateur ne l\'effacera pas.') : t('Le navigateur préfère attendre : installez l\'app, il acceptera.'), ok ? 'check' : 'info'); this.rerun(['memory']); }] : null
+    };
+  },
+  async site() {
+    const w = Install.where, base = Share.base();
+    if (w === 'claude') return { s: 'na', d: t('L\'aperçu n\'a pas d\'adresse publique : les liens de partage partiront du site en ligne.') };
+    if (w === 'file' || !base) return { s: 'warn', d: t('Ouvert comme un fichier : les liens de partage ne peuvent pas marcher.'), fix: t('Ouvrez Engram depuis son adresse en ligne.') };
+    if (w === 'http') return { s: 'bad', d: t('Le site n\'est pas en https : ni installation, ni hors ligne, ni micro.'), fix: t('Sur Netlify, le https est automatique : ouvrez l\'adresse qui commence par https://.') };
+    if (Install.local) return { s: 'info', d: t('Adresse locale ({u}) : les liens ne marchent que sur cet ordinateur.', { u: base }) };
+    return { s: 'ok', d: t('Les liens de partage et d\'invitation partent de {u}.', { u: base }) };
+  },
+  async pay() {
+    return { s: 'info', d: t('Pas encore branchés : une formule choisie s\'active sur l\'appareil, sans paiement.'), fix: t('Pour encaisser : Stripe sur le Web, puis App Store et Google Play dans les applications (fiche technique, partie 10).') };
+  },
+  /** Le verdict en tête : combien de points à régler. */
+  top() {
+    const r = Object.values(this.res), busy = r.length < this.ITEMS.length || r.some(x => x.s === 'wait');
+    const n = r.filter(x => x.s === 'warn' || x.s === 'bad').length, bad = r.some(x => x.s === 'bad');
+    const meta = [this.at ? new Date(this.at).toLocaleString(locale(), { dateStyle: 'short', timeStyle: 'short' }) : '', (Install.dev ? t('version de développement') : t('version {v}', { v: BUILD })), Install.where === 'site' ? location.host : ''].filter(Boolean).join(' · ');
+    const [cls, ic, head, sub] = busy ? ['wait', 'spin', t('Vérification en cours'), t('Un appel d\'essai à l\'IA : moins d\'un centime.')]
+      : Install.where === 'claude' ? ['na', 'eye', t('Aperçu dans l\'app Claude'), t('Ouvrez ce bilan sur le site en ligne pour tout vérifier.') + ' · ' + meta]
+      : n ? [bad ? 'bad' : 'warn', bad ? 'x' : 'alert', plural(n, 'point à régler|points à régler'), meta]
+      : ['ok', 'shield', t('Tout est prêt'), meta];
+    return `<div class="chk-top ${cls}"><span class="seal">${icon(ic)}</span><div><b>${esc(head)}</b><small>${esc(sub)}</small></div></div>`;
+  },
+  row(k) {
+    const [, ic, label] = this.ITEMS.find(x => x[0] === k), r = this.res[k] || { s: 'wait', d: t('Vérification…') }, [sic, sl] = this.STATE[r.s];
+    return `<li class="${r.s}" data-k="${k}"><span class="st">${icon(sic)}</span><div class="ck-b">
+      <div class="ck-h"><h4>${icon(ic)}${t(label)}</h4><span class="tag">${t(sl)}</span></div>
+      <p>${esc(nbq(r.d))}</p>${r.fix ? `<div class="fix">${icon(r.s === 'info' || r.s === 'ok' ? 'info' : 'arrow')}<span>${esc(nbq(r.fix))}</span></div>` : ''}
+      ${r.act ? `<button class="btn btn-sm ck-act" data-ck="${k}">${esc(r.act[0])}</button>` : ''}</div></li>`;
+  },
+  draw() {
+    const m = this.m; if (!m?.isConnected) return;
+    $('#ckTop', m).innerHTML = this.top();
+    $('#ckList', m).innerHTML = this.ITEMS.map(([k]) => this.row(k)).join('');
+    const busy = Object.keys(this.res).length < this.ITEMS.length || Object.values(this.res).some(x => x.s === 'wait');
+    $('#ckRun', m).disabled = busy; $('#ckCopy', m).disabled = busy;
+  },
+  async rerun(keys = this.ITEMS.map(x => x[0])) {
+    const run = ++this.run_;
+    for (const k of keys) this.res[k] = { s: 'wait', d: t('Vérification…') };
+    this.draw();
+    await Promise.all(keys.map(async k => {
+      let r; try { r = await this[k](); } catch (e) { r = { s: 'bad', d: t('Vérification impossible : {e}', { e: String(e?.message || e).slice(0, 120) }) }; }
+      if (run !== this.run_) return;
+      this.res[k] = r; this.draw();
+    }));
+    if (run === this.run_) { this.at = Date.now(); this.draw(); }
+  },
+  /** Le rapport à coller dans un message : rien de secret (ni clé, ni code d'accès). */
+  report() {
+    const L = [t('Engram, bilan de l\'installation'), [new Date(this.at).toLocaleString(locale()), (Install.dev ? t('version de développement') : t('version {v}', { v: BUILD })), location.origin + location.pathname].join(' · '), navigator.userAgent.slice(0, 160), ''];
+    for (const [k, , label] of this.ITEMS) { const r = this.res[k]; if (!r) continue; L.push(`[${t(this.STATE[r.s][1])}] ${t(label)} : ${r.d}`); if (r.fix) L.push('    → ' + r.fix); }
+    return L.join('\n');
+  }
+};
+function openCheckup() {
+  closeModals();
+  const m = Modal.open(mh(t('Bilan de l\'installation'), t('Mise en ligne')) + `<div class="chk-wrap">
+    <div id="ckTop" aria-live="polite"></div>
+    <ul class="chk" id="ckList"></ul>
+  </div><div class="modal-f"><button class="btn btn-ghost" id="ckCopy" disabled>${icon('file', 'i-sm')}${t('Copier le rapport')}</button><button class="btn btn-brass" id="ckRun" disabled>${icon('refresh', 'i-sm')}${t('Vérifier à nouveau')}</button></div>`, 'm-check');
+  Checkup.m = m; Checkup.res = {};
+  m.addEventListener('click', e => {
+    const b = e.target.closest('[data-ck]'); if (b) { Checkup.res[b.dataset.ck]?.act?.[1](); return; }
+    if (e.target.closest('#ckRun')) Checkup.rerun();
+    if (e.target.closest('#ckCopy')) copyText(Checkup.report(), t('Rapport copié : collez-le dans un message.'));
+  });
+  Modal.onClose(m, () => { Checkup.run_++; Checkup.m = null; });
+  Checkup.rerun();
+}
+
 /* ── Actions (délégation de clics) ─────────────────────────────────── */
 const Actions = {
   kitNew: () => openKit(),
@@ -7276,6 +7518,7 @@ const Actions = {
   study: el => Study.start({ deckId: el.dataset.deck }),
   cram: el => Study.start({ deckId: el.dataset.deck, cram: true }),
   close: () => Modal.close(),
+  checkup: () => openCheckup(),
   newDeck: () => openNewDeck(),
   addCard: el => openEditor(null, el.dataset.deck),
   editCard: el => openEditor(el.dataset.id),
@@ -7443,11 +7686,12 @@ Views.settings = arg => {
       <div class="set-row col" id="sServer"><div class="t"><b>${t('Serveur IA (hors de l\'app Claude)')}</b><span>${t("Dans l'app Claude, rien à configurer. Ailleurs, lancez le serveur Engram (dossier engram/server) qui détient votre clé d'API ; l'adresse /api/ai est détectée automatiquement.")}</span></div>
         <div class="two" style="width:100%"><div class="field"><label for="aiSrv">${t('Adresse du serveur')}</label><input class="input" id="aiSrv" value="${esc(s.aiServer)}" placeholder="https://…/api/ai"></div><div class="field"><label for="aiCode">${t("Code d'accès")}</label><input class="input" id="aiCode" type="password" value="${esc(s.aiCode)}" placeholder="${esc(t('Si le serveur en demande un'))}"></div></div>
         <button class="btn btn-sm" id="aiRecheck">${icon('link', 'i-sm')}${t('Se connecter')}</button>
-        <details class="howto"><summary>${t("Brancher l'IA : la clé d'API en 4 étapes")}</summary><ol class="lk-steps">${[
+        <details class="howto"><summary>${t("Brancher l'IA : la clé d'API en 5 étapes")}</summary><ol class="lk-steps">${[
           t('Créez un compte sur platform.claude.com, ajoutez une carte dans Settings → Billing et fixez une limite de dépense mensuelle.'),
           t("Settings → API keys → Create key. Copiez la clé (elle commence par sk-ant-) : elle ne s'affiche qu'une fois."),
           t("Sur Netlify, dans le site d'Engram : ajoutez ANTHROPIC_API_KEY et ENGRAM_ACCESS_CODE (Environment variables), puis redéployez."),
-          t("Ici, saisissez le code d'accès et touchez « Se connecter ». La clé reste sur le serveur, jamais dans l'app.")
+          t("Ici, saisissez le code d'accès et touchez « Se connecter ». La clé reste sur le serveur, jamais dans l'app."),
+          t('Lancez le bilan de l\'installation (Réglages, Données) : chaque point doit être prêt.')
         ].map(x => `<li><span>${x}</span></li>`).join('')}</ol></details></div>
     </div></article></section>
 
@@ -7456,6 +7700,7 @@ Views.settings = arg => {
       ${setRow(t('Synchronisation'), Store.mode === 'cloud' ? t('Vos paquets sont enregistrés dans votre espace privé et suivent votre compte sur tous vos appareils.') : S.demo ? t("Les exemples restent sur cet appareil. Vos propres paquets seront synchronisés dès leur création, dans l'app Claude.") : t('Enregistré sur cet appareil.'), `<span class="pill ${Store.mode === 'cloud' ? 'on' : ''}"><i></i>${Store.mode === 'cloud' ? t('Synchronisé') : t('Local')}</span>`)}
       ${setRow(t('Intégrations'), t('Anki, Quizlet, Excel, Google Sheets, Notion, PDF, Google Agenda, Outlook et Apple Calendrier : importer, exporter, planifier.'), `<button class="btn btn-sm btn-brass" data-act="go" data-v="links">${icon('link', 'i-sm')}${t('Ouvrir')}</button>`)}
       ${setRow(t('Mémoire de cet appareil'), `<span id="storeUse">${t('Paquets et photos restent sur cet appareil, même une très grande collection.')}</span>`, `<span class="pill on" id="storePill" hidden data-tip="${esc(t('Le navigateur ne l\'effacera pas pour faire de la place.'))}">${icon('check', 'i-sm')}${t('Protégée')}</span>`)}
+      ${setRow(t('Bilan de l\'installation'), t('L\'IA, le hors ligne, l\'installation et la mémoire, vérifiés en un geste.'), `<button class="btn btn-sm" data-act="checkup">${icon('shield', 'i-sm')}${t('Vérifier')}</button>`)}
       ${setRow(t('Sauvegarde'), t('Tous vos paquets, notes, examens et profil dans un seul fichier.'), `<button class="btn btn-sm" data-act="backup">${icon('download', 'i-sm')}${t('Exporter (.json)')}</button>`)}
       ${setRow(t("Revoir l'accueil"), t('Relancer la présentation du premier démarrage.'), `<button class="btn btn-sm" data-act="onboard">${icon('eye', 'i-sm')}${t('Revoir')}</button>`)}
       ${setRow(t('Réinitialiser'), S.demo ? t("Retirer les paquets d'exemple et repartir de zéro.") : t('Supprimer définitivement tous vos paquets et votre historique.'), `<button class="btn btn-sm btn-danger" data-act="${S.demo ? 'clearDemo' : 'wipe'}">${icon('trash', 'i-sm')}${S.demo ? t('Effacer les exemples') : t('Tout effacer')}</button>`)}
@@ -7503,7 +7748,8 @@ Hooks.settings = arg => {
   $('#memAdd')?.addEventListener('submit', e => { e.preventDefault(); const v = $('#memIn').value.trim(); if (!v) return; S.profile.memory.push(v.slice(0, 200)); Store.touch('profile'); App.render(); });
   $('#aiRecheck')?.addEventListener('click', async () => { s.aiServer = $('#aiSrv').value.trim(); s.aiCode = $('#aiCode').value.trim(); Store.touch('profile'); if (AI.via !== 'claude') { AI.status = 'checking'; await AI.probeServer(); AI.changed(); toast(AI.on ? t('Serveur IA connecté') : AI.nokey ? t("Serveur trouvé, mais sans clé d'API : ajoutez ANTHROPIC_API_KEY puis redéployez.") : t('Serveur IA introuvable'), AI.on ? 'check' : 'x'); App.render(); } });
   $$('.set-nav [data-jump]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); $('#' + a.dataset.jump)?.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'start' }); }));
-  if (arg === 'look') setTimeout(() => $('#sLook')?.scrollIntoView({ block: 'start' }), 60);
+  const sec = { look: 'sLook', ai: 'sAI', data: 'sData' }[arg];
+  if (sec) setTimeout(() => $('#' + sec)?.scrollIntoView({ block: 'start' }), 60);
 };
 
 /* ── Premier lancement : langue, profil, rythme, examen, apparence ─── */
@@ -10661,7 +10907,7 @@ TR = {
   "Le budget IA du serveur est atteint pour ce mois. La correction locale prend le relais.": ["The AI server's budget is used up for this month. Local grading takes over.","El presupuesto de IA del servidor se agotó este mes. La corrección local toma el relevo.","Das KI-Budget des Servers ist für diesen Monat aufgebraucht. Die lokale Korrektur übernimmt.","O orçamento de IA do servidor acabou neste mês. A correção local assume."],
   "Le serveur IA n'a pas de clé d'API valide (variable ANTHROPIC_API_KEY).": ["The AI server has no valid API key (ANTHROPIC_API_KEY variable).","El servidor de IA no tiene una clave de API válida (variable ANTHROPIC_API_KEY).","Der KI-Server hat keinen gültigen API-Schlüssel (Variable ANTHROPIC_API_KEY).","O servidor de IA não tem uma chave de API válida (variável ANTHROPIC_API_KEY)."],
   "Serveur trouvé, mais sans clé d'API : ajoutez ANTHROPIC_API_KEY puis redéployez.": ["Server found, but it has no API key: add ANTHROPIC_API_KEY, then redeploy.","Servidor encontrado, pero sin clave de API: añada ANTHROPIC_API_KEY y vuelva a desplegar.","Server gefunden, aber ohne API-Schlüssel: ANTHROPIC_API_KEY hinzufügen und neu bereitstellen.","Servidor encontrado, mas sem chave de API: adicione ANTHROPIC_API_KEY e publique de novo."],
-  "Brancher l'IA : la clé d'API en 4 étapes": ["Connect the AI: the API key in 4 steps","Conectar la IA: la clave de API en 4 pasos","KI anbinden: der API-Schlüssel in 4 Schritten","Ligar a IA: a chave de API em 4 passos"],
+  "Brancher l'IA : la clé d'API en 5 étapes": ["Connect the AI: the API key in 5 steps","Conectar la IA: la clave de API en 5 pasos","KI anbinden: der API-Schlüssel in 5 Schritten","Ligar a IA: a chave de API em 5 passos"],
   "Créez un compte sur platform.claude.com, ajoutez une carte dans Settings → Billing et fixez une limite de dépense mensuelle.": ["Create an account on platform.claude.com, add a card under Settings → Billing and set a monthly spend limit.","Cree una cuenta en platform.claude.com, añada una tarjeta en Settings → Billing y fije un límite de gasto mensual.","Legen Sie ein Konto auf platform.claude.com an, hinterlegen Sie unter Settings → Billing eine Karte und setzen Sie ein monatliches Ausgabenlimit.","Crie uma conta em platform.claude.com, adicione um cartão em Settings → Billing e defina um limite de gasto mensal."],
   "Settings → API keys → Create key. Copiez la clé (elle commence par sk-ant-) : elle ne s'affiche qu'une fois.": ["Settings → API keys → Create key. Copy the key (it starts with sk-ant-): it is shown only once.","Settings → API keys → Create key. Copie la clave (empieza por sk-ant-): solo se muestra una vez.","Settings → API keys → Create key. Kopieren Sie den Schlüssel (er beginnt mit sk-ant-): Er wird nur einmal angezeigt.","Settings → API keys → Create key. Copie a chave (começa com sk-ant-): ela só aparece uma vez."],
   "Sur Netlify, dans le site d'Engram : ajoutez ANTHROPIC_API_KEY et ENGRAM_ACCESS_CODE (Environment variables), puis redéployez.": ["On Netlify, in the Engram site: add ANTHROPIC_API_KEY and ENGRAM_ACCESS_CODE (Environment variables), then redeploy.","En Netlify, en el sitio de Engram: añada ANTHROPIC_API_KEY y ENGRAM_ACCESS_CODE (Environment variables) y vuelva a desplegar.","In Netlify, auf der Engram-Site: ANTHROPIC_API_KEY und ENGRAM_ACCESS_CODE hinzufügen (Environment variables), dann neu bereitstellen.","No Netlify, no site do Engram: adicione ANTHROPIC_API_KEY e ENGRAM_ACCESS_CODE (Environment variables) e publique de novo."],
@@ -12007,11 +12253,111 @@ TR = {
   "{s} utilisés sur cet appareil : {n} et {p}.": ["{s} used on this device: {n} and {p}.","{s} usados en este dispositivo: {n} y {p}.","{s} auf diesem Gerät belegt: {n} und {p}.","{s} usados neste aparelho: {n} e {p}."],
   "Vos fiches n'ont pas pu être lues : rechargez la page. Rien n'a été effacé.": ["Your cards couldn't be read: reload the page. Nothing has been erased.","No se pudieron leer tus tarjetas: recarga la página. No se ha borrado nada.","Deine Karten konnten nicht gelesen werden: Lade die Seite neu. Nichts wurde gelöscht.","Não foi possível ler seus cartões: recarregue a página. Nada foi apagado."],
   "Annuler@@défaire": ["Undo","Deshacer","Rückgängig","Desfazer"],
+  "Acceptez la demande de l'app Claude, ou rechargez l'aperçu.": ["Accept the Claude app's request, or reload the preview.","Acepta la solicitud de la app Claude o recarga la vista previa.","Bestätige die Anfrage der Claude-App oder lade die Vorschau neu.","Aceite o pedido do app Claude ou recarregue a prévia."],
+  "Adresse des liens": ["Link address","Dirección de los enlaces","Link-Adresse","Endereço dos links"],
+  "Adresse locale ({u}) : les liens ne marchent que sur cet ordinateur.": ["Local address ({u}): links only work on this computer.","Dirección local ({u}): los enlaces solo funcionan en este ordenador.","Lokale Adresse ({u}): Links funktionieren nur auf diesem Computer.","Endereço local ({u}): os links só funcionam neste computador."],
+  "Aperçu dans l'app Claude": ["Preview in the Claude app","Vista previa en la app Claude","Vorschau in der Claude-App","Prévia no app Claude"],
+  "Aucun serveur IA ne répond à {u}.": ["No AI server responds at {u}.","Ningún servidor de IA responde en {u}.","Unter {u} antwortet kein KI-Server.","Nenhum servidor de IA responde em {u}."],
+  "Bilan de l'installation": ["Setup check","Revisión de la instalación","Installations-Check","Verificação da instalação"],
+  "Bloquant": ["Blocking","Bloqueante","Blockiert","Bloqueante"],
+  "Ce navigateur ne garde pas d'application hors ligne.": ["This browser doesn't keep apps for offline use.","Este navegador no guarda aplicaciones sin conexión.","Dieser Browser hält keine Apps offline bereit.","Este navegador não guarda aplicativos offline."],
+  "Clé valide : l'IA a répondu en {s} s.": ["Valid key: the AI answered in {s} s.","Clave válida: la IA respondió en {s} s.","Schlüssel gültig: Die KI hat in {s} s geantwortet.","Chave válida: a IA respondeu em {s} s."],
+  "Copier le rapport": ["Copy report","Copiar el informe","Bericht kopieren","Copiar relatório"],
+  "Dans Netlify, la fonction « ai » doit apparaître dans Logs, Functions : relancez un déploiement.": ["In Netlify, the “ai” function should appear under Logs, Functions: trigger a new deploy.","En Netlify, la función «ai» debe aparecer en Logs, Functions: lanza un nuevo despliegue.","In Netlify muss die Funktion „ai“ unter Logs, Functions erscheinen: Starte ein neues Deployment.","No Netlify, a função “ai” deve aparecer em Logs, Functions: faça um novo deploy."],
+  "Engram est installé : il s'ouvre maintenant comme une application.": ["Engram is installed: it now opens like an app.","Engram está instalado: ahora se abre como una aplicación.","Engram ist installiert: Es öffnet sich jetzt wie eine App.","O Engram está instalado: agora ele abre como um aplicativo."],
+  "Engram s'ouvre sans réseau : réviser, créer des fiches, jouer. L'IA revient avec la connexion.": ["Engram opens without a connection: review, create cards, play. The AI comes back when you're online.","Engram se abre sin conexión: repasar, crear tarjetas, jugar. La IA vuelve con la conexión.","Engram öffnet sich ohne Netz: lernen, Karten erstellen, spielen. Die KI kommt mit der Verbindung zurück.","O Engram abre sem internet: revisar, criar cartões, jogar. A IA volta com a conexão."],
+  "Engram, bilan de l'installation": ["Engram setup check","Engram, revisión de la instalación","Engram, Installations-Check","Engram, verificação da instalação"],
+  "Grande mémoire indisponible (navigation privée ?) : environ 5 Mo au plus.": ["Large storage unavailable (private browsing?): about 5 MB at most.","Memoria grande no disponible (¿navegación privada?): unos 5 MB como máximo.","Großer Speicher nicht verfügbar (privates Surfen?): höchstens etwa 5 MB.","Memória grande indisponível (navegação privada?): cerca de 5 MB no máximo."],
+  "IA, hors ligne, installation, mémoire": ["AI, offline, install, storage","IA, sin conexión, instalación, memoria","KI, offline, Installation, Speicher","IA, offline, instalação, memória"],
+  "Installation": ["Install","Instalación","Installation","Instalação"],
+  "Installer": ["Install","Instalar","Installieren","Instalar"],
+  "Installée : Engram s'ouvre comme une application, avec son icône.": ["Installed: Engram opens like an app, with its own icon.","Instalada: Engram se abre como una aplicación, con su icono.","Installiert: Engram öffnet sich wie eine App, mit eigenem Symbol.","Instalado: o Engram abre como um aplicativo, com seu ícone."],
+  "L'IA": ["AI","La IA","KI","A IA"],
+  "L'IA n'a pas répondu en 30 secondes.": ["The AI didn't answer within 30 seconds.","La IA no respondió en 30 segundos.","Die KI hat nicht innerhalb von 30 Sekunden geantwortet.","A IA não respondeu em 30 segundos."],
+  "L'IA répond (en {s} s), mais sans code d'accès : n'importe qui peut dépenser vos crédits.": ["The AI answers (in {s} s), but there's no access code: anyone can spend your credits.","La IA responde (en {s} s), pero sin código de acceso: cualquiera puede gastar tus créditos.","Die KI antwortet (in {s} s), aber ohne Zugangscode: Jeder kann dein Guthaben verbrauchen.","A IA responde (em {s} s), mas sem código de acesso: qualquer pessoa pode gastar seus créditos."],
+  "L'IA, le hors ligne, l'installation et la mémoire, vérifiés en un geste.": ["AI, offline mode, install and storage, checked in one tap.","La IA, el modo sin conexión, la instalación y la memoria, comprobados de un toque.","KI, Offline-Modus, Installation und Speicher, mit einem Tipp geprüft.","A IA, o modo offline, a instalação e a memória, verificados com um toque."],
+  "L'aperçu dans l'app Claude ne s'installe pas : le site en ligne, oui.": ["The preview in the Claude app can't be installed; the live site can.","La vista previa en la app Claude no se instala; el sitio en línea, sí.","Die Vorschau in der Claude-App lässt sich nicht installieren, die Live-Website schon.","A prévia no app Claude não se instala; o site no ar, sim."],
+  "L'aperçu dans l'app Claude ne se garde pas hors ligne : le site en ligne, oui.": ["The preview in the Claude app isn't kept offline; the live site is.","La vista previa en la app Claude no se guarda sin conexión; el sitio en línea, sí.","Die Vorschau in der Claude-App bleibt nicht offline verfügbar, die Live-Website schon.","A prévia no app Claude não fica disponível offline; o site no ar, sim."],
+  "L'aperçu n'a pas d'adresse publique : les liens de partage partiront du site en ligne.": ["The preview has no public address: share links will point to the live site.","La vista previa no tiene dirección pública: los enlaces para compartir saldrán del sitio en línea.","Die Vorschau hat keine öffentliche Adresse: Teilen-Links führen später zur Live-Website.","A prévia não tem endereço público: os links de compartilhamento sairão do site no ar."],
+  "L'appel d'essai a échoué.": ["The test call failed.","La llamada de prueba falló.","Der Testaufruf ist fehlgeschlagen.","A chamada de teste falhou."],
+  "L'installation demande une adresse en https.": ["Installing requires an https address.","La instalación requiere una dirección https.","Die Installation braucht eine https-Adresse.","A instalação exige um endereço https."],
+  "La clé d'API est refusée par Anthropic.": ["Anthropic rejects the API key.","Anthropic rechaza la clave de API.","Anthropic lehnt den API-Schlüssel ab.","A Anthropic recusa a chave de API."],
+  "La clé est bonne, mais le crédit est épuisé ou la limite de dépense atteinte.": ["The key is fine, but the credit is used up or the spending limit is reached.","La clave es correcta, pero el crédito se agotó o se alcanzó el límite de gasto.","Der Schlüssel stimmt, aber das Guthaben ist aufgebraucht oder das Ausgabenlimit erreicht.","A chave está certa, mas o crédito acabou ou o limite de gastos foi atingido."],
+  "La copie hors ligne se prépare.": ["The offline copy is being prepared.","La copia sin conexión se está preparando.","Die Offline-Kopie wird vorbereitet.","A cópia offline está sendo preparada."],
+  "Lancez le bilan de l'installation (Réglages, Données) : chaque point doit être prêt.": ["Run the setup check (Settings, Data): every item should be ready.","Lanza la revisión de la instalación (Ajustes, Datos): cada punto debe estar listo.","Starte den Installations-Check (Einstellungen, Daten): Jeder Punkt sollte bereit sein.","Rode a verificação da instalação (Ajustes, Dados): cada item deve estar pronto."],
+  "Le code d'accès est refusé.": ["The access code is rejected.","Se rechaza el código de acceso.","Der Zugangscode wird abgelehnt.","O código de acesso foi recusado."],
+  "Le fichier manifest.webmanifest est introuvable : l'app ne peut pas s'installer.": ["The manifest.webmanifest file can't be found: the app can't be installed.","No se encuentra el archivo manifest.webmanifest: la app no se puede instalar.","Die Datei manifest.webmanifest fehlt: Die App lässt sich nicht installieren.","O arquivo manifest.webmanifest não foi encontrado: o app não pode ser instalado."],
+  "Le hors ligne demande une adresse en https.": ["Offline mode requires an https address.","El modo sin conexión requiere una dirección https.","Der Offline-Modus braucht eine https-Adresse.","O modo offline exige um endereço https."],
+  "Le mode hors ligne ne s'est pas activé.": ["Offline mode didn't turn on.","El modo sin conexión no se activó.","Der Offline-Modus wurde nicht aktiviert.","O modo offline não foi ativado."],
+  "Le navigateur préfère attendre : installez l'app, il acceptera.": ["The browser would rather wait: install the app and it will agree.","El navegador prefiere esperar: instala la app y aceptará.","Der Browser wartet lieber: Installiere die App, dann stimmt er zu.","O navegador prefere esperar: instale o app e ele vai aceitar."],
+  "Le serveur IA demande un code d'accès.": ["The AI server asks for an access code.","El servidor de IA pide un código de acceso.","Der KI-Server verlangt einen Zugangscode.","O servidor de IA pede um código de acesso."],
+  "Le serveur IA est très sollicité.": ["The AI server is very busy.","El servidor de IA está muy ocupado.","Der KI-Server ist stark ausgelastet.","O servidor de IA está muito ocupado."],
+  "Le serveur IA répond, mais il n'a pas de clé d'API.": ["The AI server answers, but it has no API key.","El servidor de IA responde, pero no tiene clave de API.","Der KI-Server antwortet, hat aber keinen API-Schlüssel.","O servidor de IA responde, mas não tem chave de API."],
+  "Le site n'est pas en https : ni installation, ni hors ligne, ni micro.": ["The site isn't on https: no install, no offline mode, no microphone.","El sitio no está en https: ni instalación, ni modo sin conexión, ni micrófono.","Die Website läuft nicht über https: keine Installation, kein Offline-Modus, kein Mikrofon.","O site não está em https: sem instalação, sem modo offline, sem microfone."],
+  "Les liens de partage et d'invitation partent de {u}.": ["Share and invite links point to {u}.","Los enlaces para compartir e invitar salen de {u}.","Teilen- und Einladungslinks führen zu {u}.","Os links de compartilhamento e convite saem de {u}."],
+  "Menu du navigateur : « Installer Engram » ou « Ajouter à l'écran d'accueil ».": ["Browser menu: “Install Engram” or “Add to Home screen”.","Menú del navegador: «Instalar Engram» o «Añadir a pantalla de inicio».","Browsermenü: „Engram installieren“ oder „Zum Startbildschirm hinzufügen“.","Menu do navegador: “Instalar Engram” ou “Adicionar à tela inicial”."],
+  "Mise en ligne": ["Going live","Publicación","Veröffentlichung","Publicação"],
+  "Mémoire protégée : le navigateur ne l'effacera pas.": ["Storage protected: the browser won't erase it.","Memoria protegida: el navegador no la borrará.","Speicher geschützt: Der Browser löscht ihn nicht.","Memória protegida: o navegador não vai apagá-la."],
+  "Netlify, Environment variables : ajoutez ENGRAM_ACCESS_CODE, relancez un déploiement, puis saisissez le code dans Réglages, IA et Mentor.": ["Netlify, Environment variables: add ENGRAM_ACCESS_CODE, trigger a new deploy, then enter the code in Settings, AI and Mentor.","Netlify, Environment variables: añade ENGRAM_ACCESS_CODE, lanza un nuevo despliegue y escribe el código en Ajustes, IA y Mentor.","Netlify, Environment variables: ENGRAM_ACCESS_CODE hinzufügen, neu bereitstellen, dann den Code unter Einstellungen, KI und Mentor eingeben.","Netlify, Environment variables: adicione ENGRAM_ACCESS_CODE, faça um novo deploy e digite o código em Ajustes, IA e Mentor."],
+  "Netlify, Site configuration, Environment variables : ajoutez ANTHROPIC_API_KEY, puis relancez un déploiement (Deploys, Trigger deploy).": ["Netlify, Site configuration, Environment variables: add ANTHROPIC_API_KEY, then redeploy (Deploys, Trigger deploy).","Netlify, Site configuration, Environment variables: añade ANTHROPIC_API_KEY y vuelve a desplegar (Deploys, Trigger deploy).","Netlify, Site configuration, Environment variables: ANTHROPIC_API_KEY hinzufügen, dann neu bereitstellen (Deploys, Trigger deploy).","Netlify, Site configuration, Environment variables: adicione ANTHROPIC_API_KEY e faça um novo deploy (Deploys, Trigger deploy)."],
+  "Ouvert comme un fichier : les liens de partage ne peuvent pas marcher.": ["Opened as a file: share links can't work.","Abierto como archivo: los enlaces para compartir no pueden funcionar.","Als Datei geöffnet: Teilen-Links können nicht funktionieren.","Aberto como arquivo: os links de compartilhamento não podem funcionar."],
+  "Ouvert comme un fichier : pas de serveur IA.": ["Opened as a file: no AI server.","Abierto como archivo: sin servidor de IA.","Als Datei geöffnet: kein KI-Server.","Aberto como arquivo: sem servidor de IA."],
+  "Ouvrez Engram depuis son adresse en ligne.": ["Open Engram from its web address.","Abre Engram desde su dirección en línea.","Öffne Engram über seine Web-Adresse.","Abra o Engram pelo endereço dele na web."],
+  "Ouvrez ce bilan sur le site en ligne pour tout vérifier.": ["Open this check on the live site to verify everything.","Abre esta revisión en el sitio en línea para comprobarlo todo.","Öffne diesen Check auf der Live-Website, um alles zu prüfen.","Abra esta verificação no site no ar para conferir tudo."],
+  "Paiements": ["Payments","Pagos","Zahlungen","Pagamentos"],
+  "Par votre compte Claude : rien à régler dans l'aperçu.": ["Through your Claude account: nothing to set up in the preview.","Con tu cuenta de Claude: nada que configurar en la vista previa.","Über dein Claude-Konto: In der Vorschau ist nichts einzurichten.","Pela sua conta Claude: nada a configurar na prévia."],
+  "Pas encore branchés : une formule choisie s'active sur l'appareil, sans paiement.": ["Not connected yet: a chosen plan turns on for this device, without payment.","Aún no conectados: el plan elegido se activa en el dispositivo, sin pago.","Noch nicht angebunden: Ein gewählter Tarif wird auf dem Gerät aktiviert, ohne Zahlung.","Ainda não conectados: o plano escolhido é ativado no aparelho, sem pagamento."],
+  "Pas encore protégées : le navigateur peut les effacer s'il manque de place. Installer l'app les protège.": ["Not protected yet: the browser may erase them if it runs out of space. Installing the app protects them.","Aún no protegidas: el navegador puede borrarlas si le falta espacio. Instalar la app las protege.","Noch nicht geschützt: Der Browser kann sie löschen, wenn Platz fehlt. Die App zu installieren schützt sie.","Ainda não protegidos: o navegador pode apagá-los se faltar espaço. Instalar o app os protege."],
+  "Pour encaisser : Stripe sur le Web, puis App Store et Google Play dans les applications (fiche technique, partie 10).": ["To get paid: Stripe on the web, then the App Store and Google Play in the apps (technical sheet, part 10).","Para cobrar: Stripe en la web, luego App Store y Google Play en las apps (ficha técnica, parte 10).","Um Geld einzunehmen: Stripe im Web, dann App Store und Google Play in den Apps (technisches Datenblatt, Teil 10).","Para receber: Stripe na web, depois App Store e Google Play nos apps (ficha técnica, parte 10)."],
+  "Protéger": ["Protect","Proteger","Schützen","Proteger"],
+  "Protégée par un code d'accès.": ["Protected by an access code.","Protegida con un código de acceso.","Durch einen Zugangscode geschützt.","Protegida por um código de acesso."],
+  "Protégées : le navigateur ne les effacera pas.": ["Protected: the browser won't erase them.","Protegidas: el navegador no las borrará.","Geschützt: Der Browser löscht sie nicht.","Protegidos: o navegador não vai apagá-los."],
+  "Prêt": ["Ready","Listo","Bereit","Pronto"],
+  "Prête : ce navigateur propose de l'installer.": ["Ready: this browser offers to install it.","Lista: este navegador ofrece instalarla.","Bereit: Dieser Browser bietet die Installation an.","Pronto: este navegador oferece instalá-lo."],
+  "Prête à installer sur cet appareil.": ["Ready to install on this device.","Lista para instalar en este dispositivo.","Bereit zur Installation auf diesem Gerät.","Pronto para instalar neste aparelho."],
+  "Rapport copié : collez-le dans un message.": ["Report copied: paste it into a message.","Informe copiado: pégalo en un mensaje.","Bericht kopiert: Füge ihn in eine Nachricht ein.","Relatório copiado: cole-o em uma mensagem."],
+  "Recharger": ["Reload","Recargar","Neu laden","Recarregar"],
+  "Rechargez la page pour la prendre.": ["Reload the page to get it.","Recarga la página para obtenerla.","Lade die Seite neu, um sie zu erhalten.","Recarregue a página para obtê-la."],
+  "Rechargez la page une fois, puis relancez le bilan.": ["Reload the page once, then run the check again.","Recarga la página una vez y vuelve a lanzar la revisión.","Lade die Seite einmal neu und starte den Check erneut.","Recarregue a página uma vez e rode a verificação de novo."],
+  "Rechargez la page. Rien n'a été effacé.": ["Reload the page. Nothing was erased.","Recarga la página. No se ha borrado nada.","Lade die Seite neu. Nichts wurde gelöscht.","Recarregue a página. Nada foi apagado."],
+  "Recopiez-la en entier dans ANTHROPIC_API_KEY (elle commence par sk-ant-), puis relancez un déploiement.": ["Paste it in full into ANTHROPIC_API_KEY (it starts with sk-ant-), then redeploy.","Cópiala entera en ANTHROPIC_API_KEY (empieza por sk-ant-) y vuelve a desplegar.","Kopiere ihn vollständig in ANTHROPIC_API_KEY (er beginnt mit sk-ant-) und stelle neu bereit.","Copie-a inteira em ANTHROPIC_API_KEY (ela começa com sk-ant-) e faça um novo deploy."],
+  "Relancez le bilan ; si ça se répète, ouvrez Logs, Functions dans Netlify.": ["Run the check again; if it keeps happening, open Logs, Functions in Netlify.","Vuelve a lanzar la revisión; si se repite, abre Logs, Functions en Netlify.","Starte den Check erneut; wenn es sich wiederholt, öffne Logs, Functions in Netlify.","Rode a verificação de novo; se continuar, abra Logs, Functions no Netlify."],
+  "Relancez le bilan dans une minute.": ["Run the check again in a minute.","Vuelve a lanzar la revisión en un minuto.","Starte den Check in einer Minute erneut.","Rode a verificação de novo em um minuto."],
+  "Safari peut effacer un site non installé après 7 jours sans visite : installez l'app, ou exportez une sauvegarde.": ["Safari may erase a site that isn't installed after 7 days without a visit: install the app, or export a backup.","Safari puede borrar un sitio no instalado tras 7 días sin visitas: instala la app o exporta una copia de seguridad.","Safari kann eine nicht installierte Website nach 7 Tagen ohne Besuch löschen: Installiere die App oder exportiere eine Sicherung.","O Safari pode apagar um site não instalado após 7 dias sem visita: instale o app ou exporte um backup."],
+  "Saisir le code": ["Enter the code","Introducir el código","Code eingeben","Digitar o código"],
+  "Saisissez dans Réglages, IA et Mentor exactement la valeur de ENGRAM_ACCESS_CODE.": ["In Settings, AI and Mentor, enter exactly the value of ENGRAM_ACCESS_CODE.","En Ajustes, IA y Mentor, escribe exactamente el valor de ENGRAM_ACCESS_CODE.","Gib unter Einstellungen, KI und Mentor genau den Wert von ENGRAM_ACCESS_CODE ein.","Em Ajustes, IA e Mentor, digite exatamente o valor de ENGRAM_ACCESS_CODE."],
+  "Saisissez-le dans Réglages, IA et Mentor : la même valeur que ENGRAM_ACCESS_CODE.": ["Enter it in Settings, AI and Mentor: the same value as ENGRAM_ACCESS_CODE.","Escríbelo en Ajustes, IA y Mentor: el mismo valor que ENGRAM_ACCESS_CODE.","Gib ihn unter Einstellungen, KI und Mentor ein: derselbe Wert wie ENGRAM_ACCESS_CODE.","Digite-o em Ajustes, IA e Mentor: o mesmo valor de ENGRAM_ACCESS_CODE."],
+  "Sans objet": ["Not applicable","No aplica","Entfällt","Não se aplica"],
+  "Sortez de la navigation privée, ou exportez une sauvegarde de temps en temps (Réglages, Données).": ["Leave private browsing, or export a backup now and then (Settings, Data).","Sal de la navegación privada o exporta una copia de seguridad de vez en cuando (Ajustes, Datos).","Verlasse das private Surfen oder exportiere ab und zu eine Sicherung (Einstellungen, Daten).","Saia da navegação privada ou exporte um backup de vez em quando (Ajustes, Dados)."],
+  "Sur Netlify, le https est automatique : ouvrez l'adresse qui commence par https://.": ["On Netlify, https is automatic: open the address that starts with https://.","En Netlify, el https es automático: abre la dirección que empieza por https://.","Bei Netlify ist https automatisch: Öffne die Adresse, die mit https:// beginnt.","No Netlify, o https é automático: abra o endereço que começa com https://."],
+  "Sur iPhone et iPad : bouton Partager, puis « Sur l'écran d'accueil ».": ["On iPhone and iPad: Share button, then “Add to Home Screen”.","En iPhone y iPad: botón Compartir y luego «Añadir a pantalla de inicio».","Auf iPhone und iPad: Teilen-Taste, dann „Zum Home-Bildschirm“.","No iPhone e iPad: botão Compartilhar, depois “Adicionar à Tela de Início”."],
+  "Tout est prêt": ["All set","Todo listo","Alles bereit","Tudo pronto"],
+  "Un appel d'essai à l'IA : moins d'un centime.": ["One test call to the AI: less than a cent.","Una llamada de prueba a la IA: menos de un céntimo.","Ein Testaufruf an die KI: weniger als ein Cent.","Uma chamada de teste à IA: menos de um centavo."],
+  "Une nouvelle version d'Engram est prête.": ["A new version of Engram is ready.","Hay una nueva versión de Engram lista.","Eine neue Version von Engram ist bereit.","Uma nova versão do Engram está pronta."],
+  "Une version plus récente est en ligne.": ["A newer version is live.","Hay una versión más reciente en línea.","Eine neuere Version ist online.","Uma versão mais recente está no ar."],
+  "Utilisez Safari, Chrome, Edge ou Firefox à jour.": ["Use an up-to-date Safari, Chrome, Edge or Firefox.","Usa Safari, Chrome, Edge o Firefox actualizados.","Nutze einen aktuellen Safari, Chrome, Edge oder Firefox.","Use Safari, Chrome, Edge ou Firefox atualizados."],
+  "Vos fiches n'ont pas pu être lues.": ["Your cards couldn't be read.","No se pudieron leer tus tarjetas.","Deine Karten konnten nicht gelesen werden.","Não foi possível ler seus cartões."],
+  "Vérification": ["Checking","Comprobando","Prüfung","Verificando"],
+  "Vérification en cours": ["Check in progress","Revisión en curso","Prüfung läuft","Verificação em andamento"],
+  "Vérification impossible : {e}": ["Couldn't check: {e}","No se pudo comprobar: {e}","Prüfung nicht möglich: {e}","Não foi possível verificar: {e}"],
+  "Vérifier à nouveau": ["Check again","Volver a comprobar","Erneut prüfen","Verificar de novo"],
+  "Vérifiez l'adresse du serveur dans Réglages, IA et Mentor.": ["Check the server address in Settings, AI and Mentor.","Comprueba la dirección del servidor en Ajustes, IA y Mentor.","Prüfe die Serveradresse unter Einstellungen, KI und Mentor.","Confira o endereço do servidor em Ajustes, IA e Mentor."],
+  "Vérifiez qu'il est publié à côté de index.html.": ["Make sure it's published next to index.html.","Comprueba que esté publicado junto a index.html.","Prüfe, ob sie neben index.html veröffentlicht ist.","Confira se ele está publicado ao lado de index.html."],
+  "Vérifiez que sw.js est publié à côté de index.html, puis rechargez la page.": ["Make sure sw.js is published next to index.html, then reload the page.","Comprueba que sw.js esté publicado junto a index.html y recarga la página.","Prüfe, ob sw.js neben index.html veröffentlicht ist, und lade die Seite neu.","Confira se sw.js está publicado ao lado de index.html e recarregue a página."],
+  "version de développement": ["development version","versión de desarrollo","Entwicklungsversion","versão de desenvolvimento"],
+  "version {v}": ["version {v}","versión {v}","Version {v}","versão {v}"],
+  "platform.claude.com, Settings, Billing : ajoutez du crédit ou relevez la limite mensuelle.": ["platform.claude.com, Settings, Billing: add credit or raise the monthly limit.","platform.claude.com, Settings, Billing: añade crédito o sube el límite mensual.","platform.claude.com, Settings, Billing: Guthaben aufladen oder das Monatslimit erhöhen.","platform.claude.com, Settings, Billing: adicione crédito ou aumente o limite mensal."],
+  "point à régler|points à régler": ["item to fix|items to fix","punto por resolver|puntos por resolver","Punkt zu klären|Punkte zu klären","item a resolver|itens a resolver"],
+  "{n} sur cet appareil ({s}).": ["{n} on this device ({s}).","{n} en este dispositivo ({s}).","{n} auf diesem Gerät ({s}).","{n} neste aparelho ({s})."],
+  "{n} sur cet appareil.": ["{n} on this device.","{n} en este dispositivo.","{n} auf diesem Gerät.","{n} neste aparelho."],
+  "À régler": ["To fix","Por resolver","Zu klären","A resolver"],
+  "À savoir": ["Good to know","A saber","Gut zu wissen","Bom saber"],
 };
 
 /* ── Démarrage ─────────────────────────────────────────────────────── */
 async function boot() {
   Store.load();
+  Install.init();
   addEventListener('pagehide', () => Store.flushLocal());
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') Store.flushLocal(); });
   await Store.hydrate();
@@ -12031,21 +12377,18 @@ async function boot() {
   document.fonts?.addEventListener?.('loadingdone', reRule);
   document.fonts?.ready?.then(reRule);
   // Raccourcis de l'app installée (appui long sur l'icône) : #scan, #study.
-  // Depuis la page de présentation : #pro, #teams, #invite. Lien de partage ou d'invitation : #deck=…&ref=…&n=… (voir PARTAGE ET PARRAINAGE).
+  // Depuis la page de présentation : #pro, #teams, #invite. Après une mise en ligne : #bilan. Lien de partage ou d'invitation : #deck=…&ref=…&n=… (voir PARTAGE ET PARRAINAGE).
   // Aussi quand le lien s'ouvre dans un onglet où Engram tourne déjà : la page ne se recharge pas, seul le hash change.
   const follow = () => {
     const h = location.hash.slice(1); if (!h) return;
     if (h === 'scan') App.go('scan'); else if (h === 'study' && S.profile.onboarded) setTimeout(() => Study.start(), 300);
     else if (h === 'pro' || h === 'teams') App.go(h);
     else if (h === 'invite') { App.go('pro'); if (S.profile.onboarded) setTimeout(() => openInvite(), 400); }
+    else if (h === 'bilan') setTimeout(() => openCheckup(), 300);
     else if (Share.land(h)) closeModals();
     history.replaceState(null, '', location.pathname + location.search);
   };
   follow(); addEventListener('hashchange', follow);
-  // App installable et hors-ligne, quand la page est servie par un vrai site (pas dans l'app Claude).
-  if ('serviceWorker' in navigator && !window.claude && (location.protocol === 'https:' || location.hostname === 'localhost')) {
-    addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => { }));
-  }
 }
 boot();
 </script>

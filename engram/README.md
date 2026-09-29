@@ -8,7 +8,7 @@ App de flashcards nouvelle génération, dans l'univers d'une salle de lecture :
 |---|---|
 | [`index.html`](index.html) | L'application, en un seul fichier, sans compilation |
 | [`server/`](server/) | Le serveur Engram : sert l'app et relaie l'API Claude (clé côté serveur) ; le relais est dans `server/core.mjs` |
-| [`netlify.toml`](netlify.toml), [`netlify/`](netlify/) | Mise en ligne sur Netlify, IA comprise (fonction `/api/ai`) |
+| [`netlify.toml`](netlify.toml), [`netlify/`](netlify/), [`package.json`](package.json) | Mise en ligne sur Netlify, IA comprise (fonction `/api/ai`, qui emporte le SDK Claude déclaré dans `package.json`) |
 | `manifest.webmanifest`, `sw.js`, [`icons/`](icons/) | App installable (iPad, iPhone, Android, ordinateur) et hors-ligne |
 | [`FICHE_TECHNIQUE.md`](FICHE_TECHNIQUE.md) | Fiche technique complète : fonctionnalités, architecture, coûts, budget, planning |
 | [`dossier.html`](dossier.html) | La page de présentation du projet |
@@ -39,10 +39,11 @@ docker run -p 8787:8787 -e ANTHROPIC_API_KEY=sk-ant-... -e ENGRAM_ACCESS_CODE=un
 
 Le site de STOCKR n'est pas touché : Engram a son propre site.
 
-1. Netlify → **Add new site → Import an existing project** → ce dépôt.
-2. **Base directory** : `engram` (tout le reste est dans `engram/netlify.toml`).
-3. **Environment variables** : `ANTHROPIC_API_KEY`, et `ENGRAM_ACCESS_CODE` (conseillé pour un site public).
+1. Netlify → **Add new site → Import an existing project** → ce dépôt, branche `main`.
+2. **Base directory** : `engram` (tout le reste est dans `engram/netlify.toml` ; `engram/package.json` fournit le SDK Claude à la fonction `/api/ai`).
+3. **Environment variables** : `ANTHROPIC_API_KEY`, et `ENGRAM_ACCESS_CODE` (fortement conseillé pour un site public).
 4. **Deploy** : l'app trouve seule l'IA à `/api/ai`.
+5. Ouvrez l'adresse du site suivie de `#bilan` : le bilan de l'installation vérifie l'IA (un appel d'essai), le hors ligne, l'installation et la mémoire, et dit quoi corriger.
 
 Netlify limite la durée d'une fonction : si une très longue lecture (gros PDF scanné, Mentor Expert) est coupée, hébergez l'image Docker et indiquez son adresse dans **Réglages → IA et Mentor**.
 

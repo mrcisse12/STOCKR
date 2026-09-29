@@ -56,11 +56,13 @@ async function relay(req, res) {
   return true;
 }
 
-// L'application elle-même : index.html, le dossier de présentation et les fichiers de l'app installable.
+// L'application elle-même : index.html, la page de présentation (decouvrir/), le dossier et les fichiers de l'app installable.
 const STATIC = {
   '/': ['index.html', 'text/html; charset=utf-8'],
   '/index.html': ['index.html', 'text/html; charset=utf-8'],
   '/dossier.html': ['dossier.html', 'text/html; charset=utf-8'],
+  '/decouvrir/': ['decouvrir/index.html', 'text/html; charset=utf-8'],
+  '/decouvrir/index.html': ['decouvrir/index.html', 'text/html; charset=utf-8'],
   '/manifest.webmanifest': ['manifest.webmanifest', 'application/manifest+json'],
   '/sw.js': ['sw.js', 'text/javascript; charset=utf-8'],
   '/icons/icon.svg': ['icons/icon.svg', 'image/svg+xml'],
@@ -76,6 +78,8 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://x');
   try {
     if (url.pathname.startsWith('/api/ai') && await relay(req, res)) return;
+    // Les liens d'invitation mènent à la page de présentation : /decouvrir sans barre finale y mène aussi.
+    if (url.pathname === '/decouvrir' && req.method === 'GET') { res.writeHead(301, { location: '/decouvrir/' + url.search }); return res.end(); }
     const file = STATIC[url.pathname];
     if (file && req.method === 'GET') {
       const p = path.join(ROOT, file[0]);
