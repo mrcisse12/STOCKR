@@ -1992,6 +1992,7 @@ html[data-vt="out"]::view-transition-new(root){animation:vtLift .46s .12s cubic-
 @keyframes vtLift{from{opacity:0;transform:scale(.97)}}
 /* Plus bas dans la page, les blocs attendent d'être à l'écran pour se lever. */
 .rise.defer{animation-play-state:paused}
+#view.return .rise{animation:none}
 /* Fenêtres : elles repartent comme elles sont venues ; sur téléphone, on les tire vers le bas. */
 .modal-back{background:rgba(4,8,6,calc(.6 * var(--dim,1)));backdrop-filter:blur(calc(6px * var(--dim,1)));-webkit-backdrop-filter:blur(calc(6px * var(--dim,1)))}
 .modal-back.out{--dim:0;animation:none;transition:background .28s,backdrop-filter .28s,-webkit-backdrop-filter .28s}
@@ -3978,7 +3979,7 @@ const Modal = {
    à l'autre au lieu de disparaître. Tout passe par les View Transitions
    du navigateur, seulement en animations « Complètes ». */
 const Motion = {
-  tok: 0,
+  tok: 0, late: 0,
   get full() { return !REDUCED && S.profile.settings.anim === 'full'; },
   get some() { return !REDUCED && S.profile.settings.anim !== 'none'; },
   /** Sens du trajet : onglet suivant ou précédent, ouverture ou fermeture d'un paquet, sinon fondu. */
@@ -3998,14 +3999,17 @@ const Motion = {
     if (!this.seen(old)) old = null;
     if (old) old.style.viewTransitionName = 'vt-plate';
     root.dataset.vt = kind;
-    let vt;
-    try {
-      vt = document.startViewTransition(() => {
-        draw();
-        const nu = old && (kind === 'in' ? $('#view .deck-head .holder') : this.plate(id));
-        if (nu && this.seen(nu)) lock(nu);
-      });
-    } catch { draw(); delete root.dataset.vt; return; }
+    let vt, done = false;
+    const update = () => {
+      if (done) return; done = true;
+      draw();
+      const nu = old && (kind === 'in' ? $('#view .deck-head .holder') : this.plate(id));
+      if (nu && this.seen(nu)) lock(nu);
+    };
+    try { vt = document.startViewTransition(update); } catch { update(); delete root.dataset.vt; return; }
+    // Filet : si le navigateur tarde à photographier l'écran (appareil saturé, onglet en arrière-plan), la page change tout de suite, sans animation.
+    const guard = setTimeout(() => { if (done) return; this.late++; try { vt.skipTransition(); } catch { } update(); }, 450);
+    vt.updateCallbackDone.finally(() => clearTimeout(guard)).catch(() => { });
     vt.finished.finally(() => {
       if (tok !== this.tok) return;
       delete root.dataset.vt;
@@ -4163,7 +4167,8 @@ const App = {
   /** Redessine la page, puis la place à la hauteur `y` s'il y en a une ; avec `from`, c'est un changement de page (voir Motion). */
   render(anim = false, from = null, y = null) {
     const view = Views[this.route.v] || Views.today;
-    const draw = () => { $('#view').innerHTML = `<div class="view">${view(this.route.arg)}</div>`; if (y != null) scrollTo({ top: y, behavior: 'instant' }); this.chrome(); this.after(); };
+    // Au retour sur une page déjà vue (y > 0), ses blocs sont là tout de suite : pas d'apparition en cascade.
+    const draw = () => { const v = $('#view'); v.innerHTML = `<div class="view">${view(this.route.arg)}</div>`; if (y != null) { v.classList.toggle('return', y > 0); scrollTo({ top: y, behavior: 'instant' }); } this.chrome(); this.after(); };
     if (anim && document.startViewTransition && Motion.full) { Motion.nav(from || this.route, this.route, draw); return true; }
     draw(); return false;
   },
