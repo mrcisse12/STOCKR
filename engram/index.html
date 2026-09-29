@@ -1948,6 +1948,64 @@ a.btn{text-decoration:none}
 .pro-welcome .pw-later{color:rgba(243,232,204,.72);margin-top:-12px}
 .pro-welcome .pw-later:hover{color:#F3E8CC;background:rgba(255,255,255,.06)}
 
+/* ── Mouvement (lot 10) ─────────────────────────────────────────────
+   Navigation : l'en-tête, le dock et Mentor restent en place ; le contenu
+   glisse dans le sens du parcours ; la plaque du tiroir devient l'en-tête
+   du paquet. Seulement pendant une transition de page. On ne nomme jamais
+   un grand bloc (le dossier entier) : sa capture peut bloquer la page. */
+.hdr{view-transition-name:vt-hdr}
+.dock{view-transition-name:vt-dock}
+.mentor-fab{view-transition-name:vt-fab}
+.vt-lock,.vt-lock .w{animation:none!important}
+::view-transition-group(vt-hdr),::view-transition-group(vt-dock),::view-transition-group(vt-fab){animation:none}
+::view-transition-old(vt-hdr),::view-transition-new(vt-hdr),::view-transition-old(vt-dock),::view-transition-new(vt-dock){animation-duration:.3s}
+/* Le reste de la page (le dossier) : seulement la partie visible de l'écran, jamais toute la hauteur. */
+html[data-vt]::view-transition-old(root),html[data-vt]::view-transition-new(root){mix-blend-mode:normal}
+/* L'ancienne page s'efface presque avant que la nouvelle n'arrive : jamais deux pages lisibles à la fois. */
+html[data-vt="fade"]::view-transition-old(root){animation:vtFade .16s cubic-bezier(.4,0,1,1) both}
+html[data-vt="fade"]::view-transition-new(root){animation:vtLift .42s .1s cubic-bezier(.16,1,.3,1) both}
+html[data-vt="fwd"]::view-transition-old(root){animation:vtOutL .18s cubic-bezier(.4,0,1,1) both}
+html[data-vt="fwd"]::view-transition-new(root){animation:vtInR .46s .1s cubic-bezier(.16,1,.3,1) both}
+html[data-vt="back"]::view-transition-old(root){animation:vtOutR .18s cubic-bezier(.4,0,1,1) both}
+html[data-vt="back"]::view-transition-new(root){animation:vtInL .46s .1s cubic-bezier(.16,1,.3,1) both}
+html[data-vt="in"]::view-transition-old(root){animation:vtSink .18s cubic-bezier(.4,0,1,1) both}
+html[data-vt="in"]::view-transition-new(root){animation:vtRise .5s .14s cubic-bezier(.16,1,.3,1) both}
+html[data-vt="out"]::view-transition-old(root){animation:vtFall .18s cubic-bezier(.4,0,1,1) both}
+html[data-vt="out"]::view-transition-new(root){animation:vtLift .46s .12s cubic-bezier(.16,1,.3,1) both}
+/* La plaque : elle voyage au-dessus de tout, sans se déformer ni laisser de fantôme. */
+::view-transition-group(vt-plate){animation-duration:.6s;animation-timing-function:cubic-bezier(.2,.9,.25,1.02);z-index:5}
+::view-transition-old(vt-plate),::view-transition-new(vt-plate){height:100%;object-fit:cover;object-position:left top;mix-blend-mode:normal}
+::view-transition-old(vt-plate){animation:vtFade .2s both}
+::view-transition-new(vt-plate){animation:vtShow .2s .04s both}
+@keyframes vtFade{to{opacity:0}}
+@keyframes vtShow{from{opacity:0}}
+@keyframes vtOutL{to{opacity:0;transform:translateX(-36px)}}
+@keyframes vtOutR{to{opacity:0;transform:translateX(36px)}}
+@keyframes vtInR{from{opacity:0;transform:translateX(48px)}}
+@keyframes vtInL{from{opacity:0;transform:translateX(-48px)}}
+@keyframes vtSink{to{opacity:0;transform:scale(.97)}}
+@keyframes vtRise{from{opacity:0;transform:translateY(22px)}}
+@keyframes vtFall{to{opacity:0;transform:translateY(22px)}}
+@keyframes vtLift{from{opacity:0;transform:scale(.97)}}
+/* Plus bas dans la page, les blocs attendent d'être à l'écran pour se lever. */
+.rise.defer{animation-play-state:paused}
+/* Fenêtres : elles repartent comme elles sont venues ; sur téléphone, on les tire vers le bas. */
+.modal-back{background:rgba(4,8,6,calc(.6 * var(--dim,1)));backdrop-filter:blur(calc(6px * var(--dim,1)));-webkit-backdrop-filter:blur(calc(6px * var(--dim,1)))}
+.modal-back.out{--dim:0;animation:none;transition:background .28s,backdrop-filter .28s,-webkit-backdrop-filter .28s}
+.modal-back.out .modal{animation:popOut .22s cubic-bezier(.4,0,1,1) both}
+@keyframes popOut{to{opacity:0;transform:translateY(10px) scale(.97)}}
+.m-grip{display:none}
+@media (max-width:620px){
+  .modal-back.out .modal{animation:sheetOut .3s cubic-bezier(.4,0,1,1) both}
+  @keyframes sheetOut{to{transform:translateY(105%)}}
+  .modal-back.out .modal.palette{animation:palUp .26s cubic-bezier(.4,0,1,1) both}
+  @keyframes palUp{to{transform:translateY(-100%)}}
+  .m-grip{display:block;position:absolute;left:0;right:0;top:0;height:20px;touch-action:none}
+  .m-grip::before{content:"";position:absolute;left:50%;top:8px;width:40px;height:4px;margin-left:-20px;border-radius:3px;background:var(--hair-2)}
+  .modal:not(.palette) .modal-h{touch-action:pan-x}
+  .modal.dragging{transition:none;user-select:none;-webkit-user-select:none}
+}
+@media (max-width:620px) and (pointer:fine){.m-grip{display:none}.modal:not(.palette) .modal-h{touch-action:auto}}
 /* ── Divers ───────────────────────────────────────────────────────── */
 .c-img{display:block;max-width:100%;max-height:180px;margin:0 auto;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.25)}
 .onb-langs{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
@@ -3752,15 +3810,121 @@ const Modal = {
   stack: [],
   open(html, cls = '') {
     const back = document.createElement('div'); back.className = 'modal-back';
-    back.innerHTML = `<div class="modal ${cls}" role="dialog" aria-modal="true">${html}</div>`;
+    back.innerHTML = `<div class="modal ${cls}" role="dialog" aria-modal="true"><i class="m-grip" aria-hidden="true"></i>${html}</div>`;
     back.addEventListener('pointerdown', e => { back._down = e.target === back; });
     back.addEventListener('click', e => { if (e.target === back && back._down) this.close(); });
-    $('#modals').append(back); this.stack.push(back);
+    // Une fenêtre qui repart garde ses identifiants le temps de s'effacer : la nouvelle les reprend.
+    $$('#modals > .out [id]').forEach(e => { if (!e.closest('svg')) e.removeAttribute('id'); });
+    $('#modals').append(back); this.stack.push(back); Motion.sheet(back);
     setTimeout(() => back.querySelector('[autofocus]')?.focus(), 60);
     return back.querySelector('.modal');
   },
-  close() { const b = this.stack.pop(); if (!b) return; b.style.transition = 'opacity .2s'; b.style.opacity = 0; setTimeout(() => b.remove(), 200); b._onclose?.(); },
+  close() { const b = this.stack.pop(); if (!b) return; this.out(b); b._onclose?.(); },
+  /** Elle repart comme elle est venue : glissée vers le bas sur téléphone, fondue ailleurs. */
+  out(b) { if (!Motion.some) { b.remove(); return; } b.classList.add('out'); b.style.pointerEvents = 'none'; b.inert = true; setTimeout(() => b.remove(), 320); },
   onClose(m, fn) { m.closest('.modal-back')._onclose = fn; }
+};
+/* ── Mouvement (lot 10) ──────────────────────────────────────────────
+   Trois règles : l'en-tête et le dock ne bougent jamais ; le contenu part
+   dans le sens du parcours ; un élément qui existe des deux côtés (la
+   plaque d'un tiroir, qui devient l'en-tête du paquet) voyage d'une page
+   à l'autre au lieu de disparaître. Tout passe par les View Transitions
+   du navigateur, seulement en animations « Complètes ». */
+const Motion = {
+  tok: 0,
+  get full() { return !REDUCED && S.profile.settings.anim === 'full'; },
+  get some() { return !REDUCED && S.profile.settings.anim !== 'none'; },
+  /** Sens du trajet : onglet suivant ou précédent, ouverture ou fermeture d'un paquet, sinon fondu. */
+  kind(from, to) {
+    if (to.v === 'deck' && from?.v !== 'deck') return 'in';
+    if (from?.v === 'deck' && to.v !== 'deck') return 'out';
+    const order = TABS.map(x => x[0]), a = order.indexOf(from?.v), b = order.indexOf(to.v);
+    return a >= 0 && b >= 0 && a !== b ? (b > a ? 'fwd' : 'back') : 'fade';
+  },
+  seen(el) { if (!el) return false; const r = el.getBoundingClientRect(); return r.width > 0 && r.bottom > 0 && r.top < innerHeight; },
+  plate(id) { return id ? $(`#view .drawer[data-id="${CSS.escape(id)}"] .holder`) : null; },
+  nav(from, to, draw, scroll = true) {
+    const root = document.documentElement, kind = this.kind(from, to), tok = ++this.tok;
+    const id = to.v === 'deck' ? to.arg : from?.v === 'deck' ? from.arg : null;
+    const lock = el => { el.style.viewTransitionName = 'vt-plate'; el.classList.add('vt-lock'); el.closest('.rise')?.classList.add('vt-lock'); };
+    let old = kind === 'in' ? this.plate(id) : kind === 'out' ? $('#view .deck-head .holder') : null;
+    if (!this.seen(old)) old = null;
+    if (old) old.style.viewTransitionName = 'vt-plate';
+    root.dataset.vt = kind;
+    let vt;
+    try {
+      vt = document.startViewTransition(() => {
+        if (scroll) scrollTo(0, 0); draw();
+        const nu = old && (kind === 'in' ? $('#view .deck-head .holder') : this.plate(id));
+        if (nu && this.seen(nu)) lock(nu);
+      });
+    } catch { if (scroll) scrollTo(0, 0); draw(); delete root.dataset.vt; return; }
+    vt.finished.finally(() => {
+      if (tok !== this.tok) return;
+      delete root.dataset.vt;
+      $$('.vt-lock').forEach(e => { e.style.viewTransitionName = ''; e.classList.remove('vt-lock'); });
+    });
+  },
+  /** Plus bas dans la page : les blocs attendent d'être à l'écran pour se lever, et leurs chiffres pour compter. */
+  io: null,
+  defer(v) {
+    this.io?.disconnect(); this.io = null;
+    if (!this.full || !('IntersectionObserver' in window)) return false;
+    const low = $$('.rise', v).filter(el => !el.closest('.rise.defer') && el.getBoundingClientRect().top > innerHeight - 24);
+    if (!low.length) return false;
+    low.forEach(el => el.classList.add('defer'));
+    this.io = new IntersectionObserver(list => {
+      let k = 0;
+      for (const x of list) {
+        if (!x.isIntersecting) continue;
+        const el = x.target; this.io.unobserve(el);
+        el.style.animationDelay = (k++ * 70) + 'ms'; el.classList.remove('defer');
+        this.wake(el);
+      }
+    }, { rootMargin: '0px 0px -8% 0px' });
+    low.forEach(el => this.io.observe(el));
+    return true;
+  },
+  /** Ce qui s'anime à l'arrivée d'un bloc : jauges et compteurs. */
+  wake(el) {
+    requestAnimationFrame(() => {
+      $$('.rv', el).forEach(c => { if (!c.closest('.defer')) c.style.strokeDashoffset = c.dataset.off; });
+      $$('.count', el).forEach(c => { if (!c.closest('.defer')) countUp(c, +c.dataset.to); });
+    });
+  },
+  /** Tirer une feuille vers le bas pour la fermer (téléphone, au doigt). */
+  sheet(back) {
+    const m = back.querySelector('.modal'); if (!m || m.classList.contains('palette')) return;
+    let y0 = 0, dy = 0, on = false, id = null, last = [];
+    const narrow = () => matchMedia('(max-width:620px)').matches;
+    m.addEventListener('pointerdown', e => {
+      // On tire par la poignée ou par le titre, jamais depuis un bouton ou un champ.
+      if (e.pointerType === 'mouse' || !narrow() || m.scrollTop > 0 || !e.target.closest('.m-grip,.modal-h') || e.target.closest('button,a,input,select,textarea,label')) return;
+      y0 = e.clientY; dy = 0; on = true; id = e.pointerId; last = [[e.timeStamp, e.clientY]];
+    });
+    m.addEventListener('pointermove', e => {
+      if (!on || e.pointerId !== id) return;
+      dy = Math.max(0, e.clientY - y0);
+      // L'animation d'entrée est retirée pour de bon : sinon elle rejouerait au relâcher.
+      if (dy > 6 && !m.classList.contains('dragging')) { try { m.setPointerCapture(id); } catch { } m.style.animation = 'none'; m.classList.add('dragging'); }
+      if (!m.classList.contains('dragging')) return;
+      last.push([e.timeStamp, e.clientY]); if (last.length > 5) last.shift();
+      m.style.transform = `translateY(${dy}px)`;
+      back.style.setProperty('--dim', String(Math.max(0, 1 - dy / (m.offsetHeight || 1))));
+    });
+    const end = e => {
+      if (!on || e.pointerId !== id) return; on = false;
+      if (!m.classList.contains('dragging')) return;
+      m.classList.remove('dragging');
+      const [ta, ya] = last[0], v = (e.clientY - ya) / Math.max(1, e.timeStamp - ta);
+      if (dy > Math.min(140, m.offsetHeight * .3) || v > .6) { haptic(10); m.style.animation = ''; this.drop(back); }
+      else { m.style.transition = 'transform .45s var(--spring)'; m.style.transform = ''; back.style.removeProperty('--dim'); setTimeout(() => { m.style.transition = ''; }, 460); }
+    };
+    m.addEventListener('pointerup', end); m.addEventListener('pointercancel', end);
+    m.addEventListener('click', e => { if (dy > 6) { e.stopPropagation(); e.preventDefault(); dy = 0; } }, true);
+  },
+  /** La feuille tirée est toujours celle du dessus. */
+  drop(back) { if (Modal.stack[Modal.stack.length - 1] === back) Modal.close(); }
 };
 const mh = (title, sub = '') => `<div class="modal-h"><div>${sub ? `<div class="kicker">${sub}</div>` : ''}<h2>${title}</h2></div><button class="icon-btn" data-act="close" aria-label="${esc(t('Fermer'))}">${icon('x')}</button></div>`;
 
@@ -3841,15 +4005,16 @@ const App = {
   route: { v: 'today', arg: null },
   go(v, arg = null) {
     if (Study.active) Study.close(true);
-    const same = this.route.v === v && this.route.arg === arg;
+    const same = this.route.v === v && this.route.arg === arg, from = this.route;
     this.route = { v, arg };
-    this.render(!same);
-    if (!same) scrollTo({ top: 0, behavior: 'auto' });
+    if (!this.render(!same, from) && !same) scrollTo({ top: 0, behavior: 'auto' });
   },
-  render(anim = false) {
+  /** Redessine la page ; avec `from`, c'est un changement de page (voir Motion). Renvoie vrai si une transition s'en charge. */
+  render(anim = false, from = null) {
     const view = Views[this.route.v] || Views.today;
     const draw = () => { $('#view').innerHTML = `<div class="view">${view(this.route.arg)}</div>`; this.chrome(); this.after(); };
-    if (anim && document.startViewTransition && !REDUCED && S.profile.settings.anim === 'full') { try { document.startViewTransition(draw); } catch { draw(); } } else draw();
+    if (anim && document.startViewTransition && Motion.full) { Motion.nav(from || this.route, this.route, draw, !!from); return true; }
+    draw(); return false;
   },
   refreshAI() { if (['scan', 'settings', 'deck', 'plan'].includes(this.route.v) && !Scan.running && !Study.active) this.render(); Mentor.refresh(); },
   chrome() {
@@ -3867,10 +4032,10 @@ const App = {
     applyStatic($('#shell'));
   },
   after() {
-    const v = $('#view');
+    const v = $('#view'); Motion.defer(v);
     requestAnimationFrame(() => {
-      $$('.rv', v).forEach(c => c.style.strokeDashoffset = c.dataset.off);
-      $$('.count', v).forEach(el => countUp(el, +el.dataset.to));
+      $$('.rv', v).forEach(c => { if (!c.closest('.defer')) c.style.strokeDashoffset = c.dataset.off; });
+      $$('.count', v).forEach(el => { if (!el.closest('.defer')) countUp(el, +el.dataset.to); });
       Ruling.scan(v);
     });
     Hooks[this.route.v]?.(this.route.arg);
@@ -7050,7 +7215,7 @@ Views.settings = arg => {
           ${setRow(t('Taille du texte'), '', segCtl('textSize', [[0.92, 'A−'], [1, 'A'], [1.1, 'A+'], [1.22, 'A++']], s.textSize))}
           ${setRow(t('Densité'), '', segCtl('density', [['comfy', t('Aérée')], ['compact', t('Compacte')]], s.density))}
           ${setRow(t('Papier des fiches'), '', segCtl('cardStyle', [['ruled', t('Bristol ligné')], ['plain', t('Uni')], ['grid', t('Quadrillé')], ['slate', t('Ardoise')]], s.cardStyle))}
-          ${setRow(t('Animations'), t('« Complètes » : tampon, envol vers la boîte, bordereau imprimé. « Rapides » : l\'essentiel. « Aucune » : immobile.'), segCtl('anim', [['full', t('Complètes')], ['fast', t('Rapides')], ['none', t('Aucune')]], s.anim))}
+          ${setRow(t('Animations'), t('« Complètes » : pages qui glissent, tampon, envol vers la boîte, bordereau imprimé. « Rapides » : l\'essentiel. « Aucune » : immobile.'), segCtl('anim', [['full', t('Complètes')], ['fast', t('Rapides')], ['none', t('Aucune')]], s.anim))}
           ${setRow(t('Grain du bureau'), t('La texture de feutre et la lumière de lampe.'), sw('desk', s.desk, t('Grain du bureau')))}
         </div>
         <div class="look-prev" aria-hidden="true">
@@ -10216,7 +10381,7 @@ TR = {
   "Quadrillé": ["Graph paper","Cuadriculado","Kariert","Quadriculado"],
   "Ardoise": ["Slate","Pizarra","Schiefertafel","Lousa"],
   "Animations": ["Animations","Animaciones","Animationen","Animações"],
-  "« Complètes » : tampon, envol vers la boîte, bordereau imprimé. « Rapides » : l'essentiel. « Aucune » : immobile.": ["\"Full\": stamp, flight into the box, printed slip. \"Fast\": the essentials. \"None\": still.","«Completas»: sello, vuelo hacia la caja, recibo impreso. «Rápidas»: lo esencial. «Ninguna»: inmóvil.","„Voll“: Stempel, Flug in die Kartei, gedruckter Beleg. „Schnell“: das Wesentliche. „Keine“: ruhig.","“Completas”: carimbo, voo até a caixa, recibo impresso. “Rápidas”: o essencial. “Nenhuma”: imóvel."],
+  "« Complètes » : pages qui glissent, tampon, envol vers la boîte, bordereau imprimé. « Rapides » : l'essentiel. « Aucune » : immobile.": ["\"Full\": sliding pages, stamp, flight into the box, printed slip. \"Fast\": the essentials. \"None\": still.","«Completas»: páginas que se deslizan, sello, vuelo hacia la caja, recibo impreso. «Rápidas»: lo esencial. «Ninguna»: inmóvil.","„Voll“: gleitende Seiten, Stempel, Flug in die Kartei, gedruckter Beleg. „Schnell“: das Wesentliche. „Keine“: ruhig.","“Completas”: páginas que deslizam, carimbo, voo até a caixa, recibo impresso. “Rápidas”: o essencial. “Nenhuma”: imóvel."],
   "Complètes": ["Full","Completas","Voll","Completas"],
   "Rapides": ["Fast","Rápidas","Schnell","Rápidas"],
   "Aucune": ["None","Ninguna","Keine","Nenhuma"],

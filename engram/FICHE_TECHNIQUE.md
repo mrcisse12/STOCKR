@@ -13,6 +13,7 @@ Ce document accompagne le prototype livré dans ce dossier (`engram/index.html` 
    - [Le carnet de statistiques](#1-sexies-le-carnet-de-statistiques)
    - [Une IA plus intelligente](#1-septies-une-ia-plus-intelligente)
    - [Partager, parrainer, vendre](#1-octies-partager-parrainer-vendre)
+   - [Des animations qui guident](#1-nonies-des-animations-qui-guident)
 2. [Anki : ce qu'il fait bien, ce qu'il fait mal](#2-anki--ce-quil-fait-bien-ce-quil-fait-mal)
 3. [Ce que le prototype fait](#3-ce-que-le-prototype-fait)
 4. [Cinq langues, entièrement traduites](#4-cinq-langues-entièrement-traduites)
@@ -179,6 +180,23 @@ Trois outils pour que les élèves fassent connaître Engram eux-mêmes, sans se
 **Adresse des liens.** Sur un vrai site, les liens utilisent l'adresse de la page. Dans l'aperçu Claude, l'app ne connaît pas encore son adresse publique : au build Netlify, `netlify/build.mjs` remplace `'__SITE__'` par l'adresse du site (`URL`). En attendant, l'aperçu propose le fichier, le texte à coller ou le code. Un lien ouvert dans un onglet où Engram tourne déjà fonctionne aussi (`hashchange`). Le service worker ne met en cache que l'app ; la page de vente est toujours servie fraîche.
 
 Code : `packText`, `unpackText`, `Share`, `Ref`, `openShareDeck`, `openReceived`, `openInvite`, `openRedeem`, `openGift`, `referHTML`, `ticketHTML`, `decouvrir/index.html`.
+
+---
+
+## 1 nonies. Des animations qui guident
+
+Le mouvement sert à comprendre où l'on va, pas à décorer :
+
+- **Des pages qui glissent dans le bon sens.** L'en-tête, le dock et le bouton Mentor ne bougent plus quand on change de page : seul le dossier change. Vers un onglet situé à droite, la page arrive de la droite ; vers la gauche, de la gauche ; ailleurs, un fondu. L'ancienne page s'efface presque avant que la nouvelle n'arrive : jamais deux pages lisibles à la fois.
+- **Le tiroir s'ouvre.** Touchez un paquet dans le fichier : sa plaque de laiton quitte le tiroir et devient l'en-tête du paquet. Au retour, elle reprend sa place dans le tiroir.
+- **Des fenêtres qu'on tire.** Sur téléphone, les fenêtres ont une poignée : on les tire vers le bas pour les fermer, par la poignée ou le titre ; lâchées trop tôt, elles remontent. Partout, elles repartent comme elles sont venues (glissées vers le bas sur téléphone, fondues ailleurs) au lieu de disparaître d'un coup.
+- **Des pages qui se dévoilent.** Dans une page longue (Pro, Carnet, Écoles), les blocs du bas attendent d'être à l'écran pour se lever, et leurs compteurs et jauges pour se remplir.
+
+Réglages → Apparence → Animations : « Complètes » active tout ; « Rapides » garde seulement les fermetures de fenêtres ; « Aucune », comme le réglage « Réduire les animations » du téléphone, coupe tout.
+
+Technique : les View Transitions du navigateur. Seule la partie visible de l'écran est capturée, avec l'en-tête, le dock et la plaque : capturer un bloc plus haut que l'écran pouvait bloquer la page dans Chromium. Sans cette API, la page change sans animation.
+
+Code : `Motion` (`nav`, `defer`, `wake`, `sheet`), `Modal.out`.
 
 ---
 
@@ -623,6 +641,7 @@ Scripts automatisés (Chromium sans interface), tous au vert sur la version livr
 - **Commandes et voix** (54 vérifications sur ordinateur, 52 sur téléphone et iPad, micro et synthèse simulés) : palette vide (suggestions, rubriques, réglages rapides cachés), recherche tolérante et mots-clés en anglais, thème appliqué depuis la palette, paquet révisé par Maj + Entrée puis proposé en « Reprendre », `#` et `?`, fiche créée par « question = réponse », flèches, feuille des raccourcis ; voix : réviser un paquet, thème clair, fiche dictée avec sa réponse, ouvrir une page, phrase incomprise qui garde la palette ouverte, silence ; mains libres : question lue, réponse dite jugée juste, fiche retournée, note dite, « retourne », note incomprise redemandée, pause après trois silences et reprise d'un toucher, « stop », touche M, micro coupé à la fermeture ; palette et voix en anglais ; aucune phrase manquante.
 - **IA plus intelligente** (38 vérifications sur ordinateur, iPad et téléphone, IA simulée) : masques d'une IA décalés et trop grands recalés sur un schéma de test (recouvrement moyen de 0,34 à 0,66), masque sur une zone vide laissé tel quel, cadres en fractions, en % ou en ‰ ; éditeur : légendes détectées et calées, masque tracé à la main recalé par « Caler sur le texte », une fiche par masque ; scan d'une page avec schéma : consigne envoyée, schéma recadré, 5 masques calés et dessinés, doublon décoché et signalé, « Ranger 7 fiches », retouche dans l'éditeur puis « Ranger 6 fiches », paquet créé avec 4 fiches à masques sur une seule image, puce coupée ; même cours scanné deux fois sans IA : 12 doublons sur 12 ; recherche par les mots (pluriel, faute, ordre, accents, début et milieu de mot, classement, filtre par paquet, chaque fiche retrouvée par deux mots de sa question, 3 000 fiches en plus indexées en 0,13 s) ; recherche par le sens dans le fichier, un paquet et la palette (fiche sur l'ATP trouvée sans mot commun, seule la question envoyée, lancement automatique, mémoire, « Mots exacts ») ; outil de Mentor ; les 5 langues sur 3 écrans sans phrase manquante ni débordement.
 - **Partage et parrainage** (95 vérifications × ordinateur, iPad et téléphone) : code de parrainage stable ; lien d'un paquet (forme, copie comptée une fois par fenêtre, WhatsApp et e-mail avec le lien, sans parrainage : pas de code) ; paquet à images et paquet trop lourd pour un lien ; fichier de partage réimporté ; section parrainage, lien d'invitation, palette et page Intégrations ; son propre lien : aperçu sans cadeau. Nouveau profil : accueil d'abord, puis aperçu (nom, 4 fiches, expéditeur, cadeau, bouton visible sur téléphone), paquet ajouté sans la progression de l'expéditeur, mois de Pro offert de 30 jours, « Plus tard » ; même lien rouvert dans le même onglet : « déjà dans votre fichier », pas de second cadeau ; lien collé dans Importer. Codes : trop court, mal formé, le sien, déjà reçu, valable avec ou sans espace, abonné payant, essai Expert prolongé. Lien abîmé : message ; contenu piégé (HTML, script, image `javascript:`, type inconnu, progression) neutralisé. Page de vente dans les 5 langues : langue, largeur, bandeau du cadeau, liens vers l'app avec le code, prix, aucun texte vide, bascule mensuel/annuel, changement de langue ; sans code, liens vers `#pro` et `#teams`. Tous les écrans du partage (18) dans les 5 langues sur 3 écrans : aucune phrase manquante, aucun texte français restant, aucun débordement.
+- **Animations** (79 vérifications sur ordinateur, iPad et téléphone) : sens du glissé entre onglets, en-tête immobile, retour en haut de page ; plaque du tiroir qui voyage à l'ouverture d'un paquet et au retour ; fin propre (aucun nom de transition laissé) ; navigation rapide, dernière page gagnante ; même page redessinée sans remonter ; mode « Rapides » sans glissé. Blocs du bas en attente puis tous levés en descendant, compteur lancé à l'écran. Fenêtres : fermeture animée puis retirée, retirée tout de suite sans animation, rouverte aussitôt avec ses propres champs, Échap ; poignée sur téléphone seulement ; petit tiré qui revient, grand tiré qui ferme, rien depuis un bouton, rien quand le contenu est défilé, rien sur la palette ; iPad : fenêtre centrée qui ne se tire pas. Toutes les suites des lots précédents repassées.
 - **Apparence** : 7 thèmes × vues principales, accents, polices, tailles 85 % et 130 %, densité, 4 papiers, mouvement coupé ; contraste du texte ≥ 4,5:1 partout.
 
 Non testé ici : les vrais paiements (non branchés dans le prototype), les appels à la vraie API Claude (pas de clé dans l'environnement de test), la synchronisation réelle dans l'app Claude, un vrai déploiement Netlify et un vrai Apple Pencil (tracés simulés dans le navigateur).
