@@ -2454,16 +2454,63 @@ function normalizeState(st) {
   if (p.exam && p.exam.date) { p.exams.push({ id: uid('x'), name: p.exam.name, date: p.exam.date, deckIds: p.exam.deckId ? [p.exam.deckId] : [], example: p.exam.example }); }
   delete p.exam;
   for (const d of st.decks) {
-    d.cards = Array.isArray(d.cards) ? d.cards : [];
-    d.notes = Array.isArray(d.notes) ? d.notes : [];
+    d.cards = Array.isArray(d.cards) ? d.cards.every(isObj) ? d.cards : d.cards.filter(isObj) : [];
+    d.notes = Array.isArray(d.notes) ? d.notes.every(isObj) ? d.notes : d.notes.filter(isObj) : [];
     d.updatedAt = d.updatedAt || Date.now();
-    for (const c of d.cards) {
-      c.srs = c.srs || FSRS.blank(); c.tags = c.tags || [];
-      if (c.dir && !c.flang) { const [a, b] = c.dir.split('→'); c.flang = a; c.blang = b; delete c.dir; }
-    }
+    // Une fiche mal formée (reçue avant ce contrôle) ne doit plus casser la liste ni la recherche.
+    for (const c of d.cards) fixCard(c);
   }
   return st;
 }
+
+/* ── Données reçues ────────────────────────────────────────────────────
+   Un lien, un kit ou un fichier JSON viennent d'ailleurs : paquets, fiches,
+   notes, examens et images sont reconstruits avec des champs connus et du bon
+   type, pour que rien ne s'injecte dans la page ni ne casse l'affichage. */
+const IMG_RE = /^data:image\/(?:png|jpe?g|gif|webp|avif|bmp|svg\+xml)(?:;charset=[\w-]+)?(?:;base64,[A-Za-z0-9+\/]+=*|,[\w.!~*'()%-]*)$/i;
+const SAFE_ID = /^[\w-]{1,64}$/;
+const isObj = v => !!v && typeof v === 'object' && !Array.isArray(v);
+const safeId = v => typeof v === 'string' && SAFE_ID.test(v);
+const txt = v => typeof v === 'string' ? v : v == null ? '' : String(v);
+const CARD_KEYS = ['type', 'front', 'back', 'extra', 'text', 'n', 'options', 'answer', 'items', 'img', 'fimg', 'bimg', 'masks', 'maskIdx', 'flang', 'blang', 'dir', 'note', 'src', 'ref', 'tags'];
+/** Répare une fiche sur place : chaque champ connu reprend le type attendu (au chargement et à l'import). */
+function fixCard(c) {
+  if (!isObj(c.srs)) c.srs = FSRS.blank();
+  if (!Array.isArray(c.tags)) c.tags = c.tags ? [txt(c.tags)] : [];
+  else if (c.tags.some(x => typeof x !== 'string')) c.tags = c.tags.filter(x => x != null).map(txt);
+  if (c.dir && !c.flang) { if (typeof c.dir === 'string') { const [a, b] = c.dir.split('→'); c.flang = a; c.blang = b; } delete c.dir; }
+  for (const k of ['front', 'back', 'text', 'extra']) if (c[k] != null && typeof c[k] !== 'string') c[k] = txt(c[k]);
+  for (const k of ['options', 'items']) if (c[k] != null && (!Array.isArray(c[k]) || c[k].some(x => typeof x !== 'string'))) c[k] = (Array.isArray(c[k]) ? c[k] : [c[k]]).map(txt);
+  if (c.masks != null && (!Array.isArray(c.masks) || !c.masks.every(isObj))) c.masks = Array.isArray(c.masks) ? c.masks.filter(isObj) : [];
+  for (const k of ['img', 'fimg', 'bimg']) if (c[k] != null && typeof c[k] !== 'string') delete c[k];
+  return c;
+}
+/** Une fiche reçue : seulement les champs connus, du bon type ; nouvel identifiant, progression à zéro sauf `keep`. */
+function cleanCard(c, keep = {}) {
+  const o = {}; for (const k of CARD_KEYS) if (c[k] != null) o[k] = c[k];
+  o.type = Object.keys(TYPE_LABEL).includes(c.type) ? c.type : 'basic';
+  fixCard(o);
+  if (o.n != null) o.n = Math.max(1, parseInt(o.n, 10) || 1);
+  if (o.type === 'mcq') o.answer = Math.max(0, parseInt(o.answer, 10) || 0);
+  else if (o.type === 'tf') o.answer = o.answer === true || o.answer === 'true' || o.answer === 1;
+  else delete o.answer;
+  if (o.masks) o.masks = o.masks.map(m => ({ x: +m.x || 0, y: +m.y || 0, w: +m.w || 0, h: +m.h || 0, label: txt(m.label) }));
+  if (o.maskIdx != null) o.maskIdx = parseInt(o.maskIdx, 10) || 0;
+  for (const k of ['img', 'fimg', 'bimg']) if (o[k] != null && !safeId(o[k])) delete o[k];
+  for (const k of ['flang', 'blang']) if (o[k] != null && !CARD_LANGS.includes(o[k])) delete o[k];
+  for (const k of ['note', 'src', 'ref']) if (o[k] != null) o[k] = txt(o[k]);
+  return Object.assign(o, { id: uid('c'), srs: FSRS.blank() }, keep);
+}
+/** Progression d'une sauvegarde : seulement des nombres. */
+function cleanSrs(s) { const b = FSRS.blank(); if (isObj(s)) for (const k in b) if (Number.isFinite(s[k])) b[k] = s[k]; return b; }
+/** Notes reçues : titre, texte, date ; l'identifiant est gardé s'il est sûr (mises à jour d'un kit). */
+const cleanNotes = a => (Array.isArray(a) ? a : []).filter(isObj).map(n => ({ id: safeId(n.id) ? n.id : uid('note'), title: txt(n.title), md: txt(n.md), created: Number.isFinite(n.created) ? n.created : Date.now() }));
+/** Images reçues : de vraies images en data URL, sous des clés sûres. */
+function cleanImages(o) { const out = {}; if (isObj(o)) for (const [k, v] of Object.entries(o)) if (SAFE_ID.test(k) && typeof v === 'string' && IMG_RE.test(v)) out[k] = v; return out; }
+/** Examen d'une sauvegarde : une vraie date, un nom, un identifiant sûr ; null sinon. */
+const cleanExam = x => isObj(x) && typeof x.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x.date) ? { id: safeId(x.id) ? x.id : uid('x'), name: txt(x.name).slice(0, 100), date: x.date, deckIds: Array.isArray(x.deckIds) ? x.deckIds.filter(safeId) : [], ...(x.example === true ? { example: true } : {}) } : null;
+/** Un paquet reçu : nom, description, couleur, langue et notes vérifiés (les fiches à part). */
+const cleanDeck = d => ({ name: txt(d.name), desc: txt(d.desc), color: Object.keys(DECK_COLORS).includes(d.color) ? d.color : '', lang: CARD_LANGS.includes(d.lang) ? d.lang : LANG, notes: cleanNotes(d.notes) });
 const allCards = () => S.decks.flatMap(d => d.cards.map(c => (Object.defineProperty(c, '_deck', { value: d, enumerable: false, configurable: true, writable: true }), c)));
 const deckById = id => S.decks.find(d => d.id === id);
 function findCard(id) { for (const d of S.decks) { const c = d.cards.find(x => x.id === id); if (c) return [c, d]; } return [null, null]; }
@@ -3856,7 +3903,7 @@ function drawer(d, i = 0) {
   const c = todayCounts(d.id);
   return `<article class="drawer rise" style="animation-delay:${i * 60}ms" data-act="deck" data-id="${d.id}" tabindex="0" role="link" aria-label="${esc(t('Ouvrir {name}', { name: d.name }))}">
     ${d.example ? `<span class="ex-tag">${t('Exemple')}</span>` : d.cls ? `<span class="ex-tag">${esc(d.cls.name)}</span>` : ''}
-    <div class="holder"><div class="label" style="--c:${DECK_COLORS[d.color] || DECK_COLORS.brass}"><b>${esc(d.name)}</b><small>${plural(d.cards.length, 'fiche|fiches')} · ${(d.lang || 'fr').toUpperCase()}</small></div></div>
+    <div class="holder"><div class="label" style="--c:${DECK_COLORS[d.color] || DECK_COLORS.brass}"><b>${esc(d.name)}</b><small>${plural(d.cards.length, 'fiche|fiches')} · ${esc((d.lang || 'fr').toUpperCase())}</small></div></div>
     <div class="pull" aria-hidden="true"></div>
     <div class="drawer-foot"><div class="due tnum">${c.total ? `<span><i style="background:var(--st-n)"></i>${c.nNew}</span><span><i style="background:var(--st-l)"></i>${c.nLearn}</span><span><i style="background:var(--st-m)"></i>${c.nRev}</span>` : `<span class="muted">${t('À jour')}</span>`}</div>
       ${c.total ? `<button class="btn btn-sm" data-act="study" data-deck="${d.id}" aria-label="${esc(t('Réviser {name}', { name: d.name }))}">${icon('play', 'i-sm')}${c.total}</button>` : ''}</div>
@@ -3909,7 +3956,7 @@ function cardFaces(c, o = {}) {
   if (c.type === 'occlusion') {
     const src = S.images[c.img];
     const masks = rev => (c.masks || []).map((m, i) => `<div class="m ${i === c.maskIdx ? (rev ? 'rev' : 't') : ''}" style="left:${m.x * 100}%;top:${m.y * 100}%;width:${m.w * 100}%;height:${m.h * 100}%">${i === c.maskIdx && !rev ? '?' : ''}</div>`).join('');
-    const im = src ? `<img src="${src}" alt="">` : `<div style="padding:40px;text-align:center">${t('Image introuvable')}</div>`;
+    const im = src ? `<img src="${esc(src)}" alt="">` : `<div style="padding:40px;text-align:center">${t('Image introuvable')}</div>`;
     const label = c.masks?.[c.maskIdx]?.label || '';
     return {
       question: c.front || t('Nommez la zone masquée'), expected: label,
@@ -3917,7 +3964,7 @@ function cardFaces(c, o = {}) {
       back: `<div class="occ">${im}${masks(true)}</div>${label ? `<div class="a-text" style="font-size:24px">${esc(label)}</div>` : ''}`
     };
   }
-  const cimg = id => id && S.images[id] ? `<img class="c-img ${/^ink/.test(id) ? 'sketch' : ''}" src="${S.images[id]}" alt="">` : '';
+  const cimg = id => id && S.images[id] ? `<img class="c-img ${/^ink/.test(id) ? 'sketch' : ''}" src="${esc(S.images[id])}" alt="">` : '';
   const fi = cimg(c.fimg), bi = cimg(c.bimg);
   return { question: c.front, expected: c.back, front: `${fi}<div class="q-text">${md(c.front)}</div>`, back: `<div class="q-small">${md(c.front)}</div>${bi}<div class="a-text">${md(c.back)}</div>${extra}` };
 }
@@ -4607,7 +4654,7 @@ Views.deck = id => {
       <div class="kpi"><b class="tnum"><span class="count" data-to="${mem}">0</span> %</b><span>${t('Mémoire estimée')}</span></div>
     </div>
     ${leitner(d.cards, d.id)}
-    ${d.notes?.length ? `<section class="sec"><div class="sec-h"><div><h2 class="h2">${t('Notes')}</h2><p>${t('Fiches de synthèse et notes enregistrées par vous ou par Mentor.')}</p></div></div><div class="notes">${d.notes.map(n => `<button class="note-card" data-act="openNote" data-deck="${d.id}" data-id="${n.id}"><span class="kicker">${esc(fmtDate(n.created))}</span><b>${esc(n.title)}</b><span class="muted">${esc(plain(n.md).replace(/[#*-]/g, '').slice(0, 120))}…</span></button>`).join('')}</div></section>` : ''}
+    ${d.notes?.length ? `<section class="sec"><div class="sec-h"><div><h2 class="h2">${t('Notes')}</h2><p>${t('Fiches de synthèse et notes enregistrées par vous ou par Mentor.')}</p></div></div><div class="notes">${d.notes.map(n => `<button class="note-card" data-act="openNote" data-deck="${d.id}" data-id="${esc(n.id)}"><span class="kicker">${esc(fmtDate(n.created))}</span><b>${esc(n.title)}</b><span class="muted">${esc(plain(n.md).replace(/[#*-]/g, '').slice(0, 120))}…</span></button>`).join('')}</div></section>` : ''}
     <div class="toolbar">
       <div class="search">${icon('search')}<input class="input" id="deckSearch" placeholder="${esc(t('Filtrer les fiches…'))}" autocomplete="off"></div>
       <div class="seg" id="deckFilter">${[['all', t('Toutes')], ['due', t('À revoir')], ['new', t('Nouvelles')], ['leech', t('Sangsues') + (leeches ? ' · ' + leeches : '')]].concat(COMP.filter(k => k !== 'n').map(k => [k, t(ST_LABELS[k])])).map(([k, l]) => `<button class="${deckFilter === k ? 'on' : ''}" data-f="${k}">${l}</button>`).join('')}</div>
@@ -5051,7 +5098,7 @@ function openEditor(cardId, deckId, preset) {
   if (!deck) { openNewDeck(d => openEditor(null, d.id)); return; }
   const st = { type: card ? card.type : (preset || 'basic'), front: card?.front || '', back: card?.back || '', extra: card?.extra || '', text: card?.text || '', options: card?.options ? [...card.options] : ['', '', '', ''], answer: card?.answer ?? 0, items: (card?.items || []).join('\n'), tags: (card?.tags || []).join(', '), fimg: card?.fimg || '', bimg: card?.bimg || '' };
   const sk = side => { const id = st[side], src = id && S.images[id];
-    return `<div class="sk-row">${src ? `<img class="sk-thumb ${/^ink/.test(id) ? 'sketch' : ''}" src="${src}" alt=""><button class="btn btn-ghost btn-sm" data-sk-draw="${side}">${icon('nib', 'i-sm')}${t('Redessiner')}</button><button class="btn btn-ghost btn-sm" data-sk-rm="${side}">${icon('x', 'i-sm')}${t('Retirer')}</button>` : `<button class="btn btn-ghost btn-sm" data-sk-draw="${side}">${icon('nib', 'i-sm')}${t('Ajouter un schéma dessiné')}</button>`}</div>`; };
+    return `<div class="sk-row">${src ? `<img class="sk-thumb ${/^ink/.test(id) ? 'sketch' : ''}" src="${esc(src)}" alt=""><button class="btn btn-ghost btn-sm" data-sk-draw="${side}">${icon('nib', 'i-sm')}${t('Redessiner')}</button><button class="btn btn-ghost btn-sm" data-sk-rm="${side}">${icon('x', 'i-sm')}${t('Retirer')}</button>` : `<button class="btn btn-ghost btn-sm" data-sk-draw="${side}">${icon('nib', 'i-sm')}${t('Ajouter un schéma dessiné')}</button>`}</div>`; };
   if (st.type === 'tf' && typeof st.answer !== 'boolean') st.answer = true;
   const m = Modal.open('<div id="edRoot"></div>', 'wide');
   const fields = () => {
@@ -5346,7 +5393,7 @@ function openOcclusion(deckId, existing, o = {}) {
     m.querySelector('#ocRoot').innerHTML = mh(t("Masquage d'image"), esc(o.draft ? t('Schéma trouvé dans le cours') : deck.name)) + (st.src ? `
       <p class="muted" style="margin-top:0">${t("Glissez sur l'image pour masquer une légende. Chaque masque devient une fiche ; les autres restent cachés pendant la question.")}</p>
       <div class="editor-grid">
-        <div class="occ-edit" id="ocImg"><img src="${st.src}" alt="">${st.masks.map((k, i) => `<div class="m" style="left:${k.x * 100}%;top:${k.y * 100}%;width:${k.w * 100}%;height:${k.h * 100}%">${i + 1}</div>`).join('')}</div>
+        <div class="occ-edit" id="ocImg"><img src="${esc(st.src)}" alt="">${st.masks.map((k, i) => `<div class="m" style="left:${k.x * 100}%;top:${k.y * 100}%;width:${k.w * 100}%;height:${k.h * 100}%">${i + 1}</div>`).join('')}</div>
         <div class="form">
           <div class="field"><label for="ocTitle">${t('Consigne')}</label><input class="input" id="ocTitle" value="${esc(st.title)}"></div>
           <div class="field"><span class="flabel">${t('Masques · {n}', { n: st.masks.length })}</span><div class="mask-list">${st.masks.map((k, i) => `<div class="mask-row"><b>${i + 1}</b><input class="input" data-lab="${i}" value="${esc(k.label || '')}" placeholder="${esc(t('Réponse (ex. Noyau)'))}"><button class="icon-btn" data-rm="${i}" aria-label="${esc(t('Retirer'))}">${icon('x', 'i-sm')}</button></div>`).join('') || `<span class="muted" style="font-size:13px">${t("Aucun masque pour l'instant.")}</span>`}</div></div>
@@ -6305,7 +6352,7 @@ function openKit(id) {
 /* Côté élève : un kit reçu ajoute les paquets, ou met à jour ceux de la même classe en gardant la progression. */
 function joinKit(P) {
   if (S.demo) Store.leaveDemo(false);
-  for (const [k, v] of Object.entries(P.images || {})) if (typeof v === 'string' && v.startsWith('data:image/')) { S.images[k] = v; Store.dirty.add('img:' + k); }
+  for (const [k, v] of Object.entries(cleanImages(P.images))) { S.images[k] = v; Store.dirty.add('img:' + k); }
   const K = P.cls, made = []; let add = 0, upd = 0, rem = 0, fresh = true;
   const body = o => JSON.stringify(Object.entries(o).filter(([f]) => !['id', 'srs', 'suspended', 'created', 'tags'].includes(f)).sort((a, b) => a[0].localeCompare(b[0])));
   for (const d of P.decks) {
@@ -6317,9 +6364,9 @@ function joinKit(P) {
       nd.cards = d.cards.map(c => { const o = old.get(c.ref); if (!o) { add++; return c; } old.delete(c.ref); if (body(o) !== body(c)) upd++; return Object.assign(o, c, { id: o.id, srs: o.srs, suspended: o.suspended, created: o.created }); });
       rem += old.size;
       Object.assign(nd, { name: d.name || nd.name, desc: d.desc || '', cls: { ...K } });
-      for (const n of Array.isArray(d.notes) ? d.notes : []) { const o = nd.notes.find(x => x.id === n.id); if (o) Object.assign(o, n); else nd.notes.unshift(n); }
+      for (const n of cleanNotes(d.notes)) { const o = nd.notes.find(x => x.id === n.id); if (o) Object.assign(o, n); else nd.notes.unshift(n); }
     } else {
-      nd = { id: uid('d'), ref: d.ref, cls: { ...K }, name: d.name || K.name, desc: d.desc || '', color: DECK_COLORS[d.color] ? d.color : pick(Object.keys(DECK_COLORS)), lang: d.lang || LANG, created: Date.now(), updatedAt: Date.now(), cards: d.cards, notes: Array.isArray(d.notes) ? d.notes : [] };
+      nd = { id: uid('d'), ref: d.ref, cls: { ...K }, name: d.name || K.name, desc: d.desc || '', color: DECK_COLORS[d.color] ? d.color : pick(Object.keys(DECK_COLORS)), lang: CARD_LANGS.includes(d.lang) ? d.lang : LANG, created: Date.now(), updatedAt: Date.now(), cards: d.cards, notes: cleanNotes(d.notes) };
       S.decks.unshift(nd); add += d.cards.length;
     }
     Store.touchDeck(nd); made.push(nd);
@@ -7112,15 +7159,11 @@ const Share = {
   /** Relit un paquet reçu : seulement des champs connus, des tailles raisonnables. */
   read(j) {
     if (!j || j.app !== 'engram' || j.kind !== 'share' || !Array.isArray(j.cards)) throw new Error('share');
-    const d = j.deck || {}, str = (v, n) => String(v ?? '').slice(0, n);
-    const cards = j.cards.filter(c => c && typeof c === 'object' && !Array.isArray(c)).slice(0, 5000).map(c => {
-      const { id, srs, suspended, created, ...rest } = c;
-      return { ...rest, type: TYPE_LABEL[c.type] ? c.type : 'basic', id: uid('c'), srs: FSRS.blank(), tags: Array.isArray(c.tags) ? c.tags.slice(0, 20).map(x => str(x, 40)) : [] };
-    });
-    const images = {}; for (const [k, v] of Object.entries(j.images || {})) if (typeof v === 'string' && v.startsWith('data:image/')) images[str(k, 60)] = v;
+    const d = isObj(j.deck) ? j.deck : {}, str = (v, n) => String(v ?? '').slice(0, n);
+    const cards = j.cards.filter(isObj).slice(0, 5000).map(c => { const o = cleanCard(c); o.tags = o.tags.slice(0, 20).map(x => x.slice(0, 40)); return o; });
     return {
-      deck: { name: str(d.name, 80).trim() || t('Paquet partagé'), desc: str(d.desc, 400), color: DECK_COLORS[d.color] ? d.color : 'brass', lang: CARD_LANGS.includes(d.lang) ? d.lang : LANG, notes: Array.isArray(d.notes) ? d.notes.slice(0, 50) : [] },
-      cards, images
+      deck: { name: str(d.name, 80).trim() || t('Paquet partagé'), desc: str(d.desc, 400), color: Object.keys(DECK_COLORS).includes(d.color) ? d.color : 'brass', lang: CARD_LANGS.includes(d.lang) ? d.lang : LANG, notes: cleanNotes(d.notes).slice(0, 50) },
+      cards, images: cleanImages(j.images)
     };
   },
   /** Un lien ou un texte collé qui contient un partage Engram. */
@@ -7634,7 +7677,7 @@ Views.settings = arg => {
       ${setRow(t('Moment préféré'), t("Sert aux rappels de l'agenda."), segCtl('time', Object.entries(STUDY_TIMES).map(([k, v]) => [k, t(v)]), st.time, 'data-study'))}
       ${setRow(t('Suivre mon programme'), t("Les nouvelles fiches de chaque paquet sont dosées par le programme (examens, temps disponible). Désactivé : un nombre fixe par jour."), sw('followPlan', s.followPlan, t('Suivre mon programme')))}
       <div class="set-row col"><div class="t"><b>${t('Examens')}</b><span>${t('Chaque examen a sa date et ses paquets. Le programme met les bouchées doubles à l\'approche du jour J.')}</span></div>
-        <div class="exam-list">${S.profile.exams.map(x => { const d = daysUntil(x.date); return `<button class="exam-chip ${d < 0 ? 'past' : ''}" data-act="examPlan" data-exam="${x.id}"><b>${esc(x.name)}</b><span class="tnum">${esc(fmtDate(keyToDate(x.date), { day: 'numeric', month: 'short', year: 'numeric' }))} · ${d < 0 ? t('passé') : t('J−{n}', { n: d })}</span></button>`; }).join('')}<button class="exam-chip add" data-act="examPlan">${icon('plus', 'i-sm')}${t('Ajouter un examen')}</button></div></div>
+        <div class="exam-list">${S.profile.exams.map(x => { const d = daysUntil(x.date); return `<button class="exam-chip ${d < 0 ? 'past' : ''}" data-act="examPlan" data-exam="${esc(x.id)}"><b>${esc(x.name)}</b><span class="tnum">${esc(fmtDate(keyToDate(x.date), { day: 'numeric', month: 'short', year: 'numeric' }))} · ${d < 0 ? t('passé') : t('J−{n}', { n: d })}</span></button>`; }).join('')}<button class="exam-chip add" data-act="examPlan">${icon('plus', 'i-sm')}${t('Ajouter un examen')}</button></div></div>
     </div></article></section>
 
     <section class="sec" id="sLook"><div class="sec-h"><div><h2 class="h2">${t('Apparence')}</h2><p>${t('Composez votre salle de lecture. Tout est appliqué immédiatement.')}</p></div></div>
@@ -9202,7 +9245,7 @@ Views.plan = () => {
         <div class="ec-j"><span class="tnum">${e.days}</span><small>${tp(e.days, 'jour|jours')}</small></div>
         <div class="ec-b"><b>${esc(x.name)}${x.example ? ` <span class="tag">${t('exemple')}</span>` : ''}</b><span class="muted">${esc(cap(fmtDate(e.date, { weekday: 'long', day: 'numeric', month: 'long' })))} · ${e.decks.length ? e.decks.map(d => esc(d.name)).join(', ') : t('tous les paquets')}</span>
           ${r ? `<div class="ready"><div class="rd-row"><span>${t('En suivant le programme')}</span><span class="rd-bar"><i style="width:${r.follow * 100}%;background:var(--good)"></i></span><b class="tnum">${pct(r.follow)}</b></div><div class="rd-row"><span>${t('Sans réviser')}</span><span class="rd-bar"><i style="width:${r.idle * 100}%;background:var(--again)"></i></span><b class="tnum">${pct(r.idle)}</b></div><small class="muted">${t('{a} vues sur {b} · {c} prévues d\'ici là', { a: r.seen, b: r.total, c: r.planned })}</small></div>` : ''}</div>
-        <button class="icon-btn" data-act="examPlan" data-exam="${x.id}" aria-label="${esc(t('Modifier'))}">${icon('pen', 'i-sm')}</button></article>`; }).join('')}</div>` : `<div class="empty"><div class="t">${t('Aucun examen en vue')}</div><div>${t('Ajoutez une date : chaque paquet concerné recevra la bonne dose de nouvelles fiches chaque jour.')}</div></div>`}
+        <button class="icon-btn" data-act="examPlan" data-exam="${esc(x.id)}" aria-label="${esc(t('Modifier'))}">${icon('pen', 'i-sm')}</button></article>`; }).join('')}</div>` : `<div class="empty"><div class="t">${t('Aucun examen en vue')}</div><div>${t('Ajoutez une date : chaque paquet concerné recevra la bonne dose de nouvelles fiches chaque jour.')}</div></div>`}
     </section>
     <section class="sec">
       <div class="sec-h rise"><div><h2 class="h2">${t('Votre semaine type')}</h2><p>${t('Minutes disponibles chaque jour. Modifiez-les ici ou dans les réglages.')}</p></div></div>
@@ -9815,15 +9858,15 @@ function addImported(parsed, opts = {}) {
   const decks = parsed.decks.filter(d => d.cards.length);
   if (!decks.length) { toast(t('Aucune fiche reconnue. Format attendu : recto;verso par ligne.'), 'file'); return null; }
   if (S.demo) Store.leaveDemo(false);
-  for (const [k, v] of Object.entries(parsed.images || {})) if (typeof v === 'string' && v.startsWith('data:image/')) { S.images[k] = v; Store.dirty.add('img:' + k); }
+  for (const [k, v] of Object.entries(cleanImages(parsed.images))) { S.images[k] = v; Store.dirty.add('img:' + k); }
   let n = 0; const made = [];
   for (const d of decks) {
     const into = opts.into && deckById(opts.into);
     if (into) { into.cards.push(...d.cards); n += d.cards.length; Store.touchDeck(into); made.push(into); continue; }
-    const nd = { id: uid('d'), name: d.name, desc: d.desc || '', color: DECK_COLORS[d.color] ? d.color : pick(Object.keys(DECK_COLORS)), lang: d.lang || LANG, created: Date.now(), updatedAt: Date.now(), cards: d.cards, notes: d.notes || [] };
+    const nd = { id: uid('d'), name: d.name, desc: d.desc || '', color: DECK_COLORS[d.color] ? d.color : pick(Object.keys(DECK_COLORS)), lang: CARD_LANGS.includes(d.lang) ? d.lang : LANG, created: Date.now(), updatedAt: Date.now(), cards: d.cards, notes: cleanNotes(d.notes) };
     S.decks.unshift(nd); n += d.cards.length; Store.touchDeck(nd); made.push(nd);
   }
-  if (parsed.exams) for (const x of parsed.exams) if (!S.profile.exams.some(y => y.id === x.id)) S.profile.exams.push(x);
+  if (Array.isArray(parsed.exams)) for (const x of parsed.exams.map(cleanExam).filter(Boolean)) if (!S.profile.exams.some(y => y.id === x.id)) S.profile.exams.push(x);
   S.profile.flags.importer = 1;
   Store.touch('profile'); App.go(made.length === 1 ? 'deck' : 'library', made.length === 1 ? made[0].id : null);
   toast(plural(n, 'fiche importée|fiches importées'), 'upload'); checkBadges();
@@ -9835,15 +9878,24 @@ function parseImport(name, text) {
   if (/^\s*[\[{]/.test(text)) {
     const j = JSON.parse(text);
     // Kit de classe ou d'équipe : les fiches gardent leur « ref » pour les mises à jour.
-    if (j && j.kind === 'class' && j.cls?.id && Array.isArray(j.decks)) return {
-      cls: { id: String(j.cls.id), name: String(j.cls.name || t('Classe')).slice(0, 80), org: j.cls.org === 'work' ? 'work' : 'school', v: +j.cls.v || Date.now() },
-      exam: j.exam && /^\d{4}-\d{2}-\d{2}$/.test(j.exam.date) ? { name: String(j.exam.name || '').slice(0, 100), date: j.exam.date } : null,
-      images: j.images || {},
-      decks: j.decks.map(d => ({ ...d, ref: String(d.ref || uid('r')), cards: (d.cards || []).map(c => ({ ...c, ref: String(c.ref || uid('r')), id: uid('c'), srs: FSRS.blank(), tags: Array.isArray(c.tags) ? c.tags : [] })) }))
-    };
+    // Tout est reconstruit champ par champ (cleanCard, cleanDeck…) : un fichier reçu ne peut rien injecter.
+    const list = a => (Array.isArray(a) ? a : []).filter(isObj);
+    if (j && j.kind === 'class' && j.cls?.id && Array.isArray(j.decks)) {
+      // L'identifiant de la classe sert de clé (mises à jour, examen) : lettres, chiffres, tirets seulement.
+      const id = String(j.cls.id).replace(/[^\w-]/g, '').slice(0, 64); if (!id) throw new Error('kit');
+      return {
+        cls: { id, name: String(j.cls.name || t('Classe')).slice(0, 80), org: j.cls.org === 'work' ? 'work' : 'school', v: +j.cls.v || Date.now() },
+        exam: j.exam && typeof j.exam.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(j.exam.date) ? { name: String(j.exam.name || '').slice(0, 100), date: j.exam.date } : null,
+        images: cleanImages(j.images),
+        decks: list(j.decks).map(d => ({ ...cleanDeck(d), ref: String(d.ref || uid('r')), cards: list(d.cards).map(c => cleanCard(c, { ref: String(c.ref || uid('r')), ...(Number.isFinite(c.created) ? { created: c.created } : {}) })) }))
+      };
+    }
     // Paquet partagé (fichier du bouton « Partager ») : les fiches, sans progression.
     if (j && j.kind === 'share') { const P = Share.read(j); return { images: P.images, decks: [{ ...P.deck, cards: P.cards }] }; }
-    if (j && Array.isArray(j.decks)) return { images: j.images || {}, exams: j.profile?.exams, decks: j.decks.map(d => ({ ...d, id: uid('d'), example: false, cards: (d.cards || []).map(c => ({ ...c, id: uid('c'), srs: c.srs || FSRS.blank(), tags: c.tags || [] })) })) };
+    if (j && Array.isArray(j.decks)) return {
+      images: cleanImages(j.images), exams: Array.isArray(j.profile?.exams) ? j.profile.exams.map(cleanExam).filter(Boolean) : undefined,
+      decks: list(j.decks).map(d => ({ ...cleanDeck(d), id: uid('d'), example: false, cards: list(d.cards).map(c => cleanCard(c, { srs: cleanSrs(c.srs), ...(c.suspended ? { suspended: true } : {}), ...(Number.isFinite(c.created) ? { created: c.created } : {}) })) }))
+    };
     const arr = Array.isArray(j) ? j : j.cards || [];
     return { images: {}, decks: [{ name: base, cards: arr.map(o => mkCard('basic', { front: htmlToText(o.front ?? o.question ?? o.q ?? o.term), back: htmlToText(o.back ?? o.answer ?? o.a ?? o.definition), src: 'import' })).filter(c => c.front && c.back) }] };
   }
