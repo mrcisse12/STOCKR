@@ -79,11 +79,32 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
     if (hits.size > 5000) for (const [k, w] of hits) if (!w.some(x => now - x < 60_000)) hits.delete(k);
     return win.length > RATE_PER_MIN;
   }
+  // Codes faux comptés à part, avant toute comparaison : au-delà de FAIL_MAX en 10 minutes, l'adresse attend.
+  const fails = new Map(), FAIL_MAX = 10, FAIL_WIN = 10 * 60_000;
+  function guessing(ip, failed) {
+    const now = Date.now(), win = fails.get(ip)?.filter(x => now - x < FAIL_WIN) || [];
+    if (failed) win.push(now);
+    if (win.length) fails.set(ip, win); else fails.delete(ip);
+    if (fails.size > 5000) for (const [k, w] of fails) if (!w.some(x => now - x < FAIL_WIN)) fails.delete(k);
+    return win.length >= FAIL_MAX;
+  }
   function codeOk(headers) {
     if (!ACCESS_CODE) return true;
-    const got = Buffer.from(String(headers.get('x-engram-code') || ''));
+    // La page envoie le code encodé (encodeURIComponent : œ, € … passent dans un en-tête) ; le code brut reste accepté.
+    const raw = String(headers.get('x-engram-code') || '');
+    let dec = raw; try { dec = decodeURIComponent(raw); } catch { }
     const want = Buffer.from(ACCESS_CODE);
-    return got.length === want.length && crypto.timingSafeEqual(got, want);
+    const eq = s => { const got = Buffer.from(s); return got.length === want.length && crypto.timingSafeEqual(got, want); };
+    return eq(dec) || eq(raw);
+  }
+  /** Contrôles qui ne demandent pas le corps (code, débit, taille annoncée) : une Response de refus, ou null. */
+  function precheck(headers, ip) {
+    const req = { headers };
+    if (ACCESS_CODE && guessing(ip)) return json(req, 429, { code: 'rate_limited', message: 'too many wrong codes' });
+    if (!codeOk(headers)) { guessing(ip, true); return json(req, 401, { code: 'not_granted', message: 'access code' }); }
+    if (rateLimited(ip)) return json(req, 429, { code: 'rate_limited', message: 'slow down' });
+    if (+(headers.get('content-length') || 0) > MAX_BODY) return json(req, 413, { code: 'prompt_too_large', message: 'too large' });
+    return null;
   }
 
   /** Vérifie la forme de la requête envoyée par la page ; renvoie un message d'erreur ou null. */
@@ -110,10 +131,10 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
   }
   const json = (request, status, obj) => new Response(JSON.stringify(obj), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...corsHeaders(request) } });
 
-  async function handleAI(request, ip) {
-    if (!codeOk(request.headers)) return json(request, 401, { code: 'not_granted', message: 'access code' });
-    if (rateLimited(ip)) return json(request, 429, { code: 'rate_limited', message: 'slow down' });
-    if (+(request.headers.get('content-length') || 0) > MAX_BODY) return json(request, 413, { code: 'prompt_too_large', message: 'too large' });
+  async function handleAI(request, ip, checked) {
+    // `checked` : le serveur Node a déjà fait ces contrôles avant de lire le corps (sans compter deux fois le débit).
+    const stop = checked ? null : precheck(request.headers, ip);
+    if (stop) return stop;
     let body;
     try {
       const raw = await request.text();
@@ -189,16 +210,16 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
   }
 
   return {
-    TIERS, FALLBACKS, locked: !!ACCESS_CODE, RATE_PER_MIN, MAX_BODY,
+    TIERS, FALLBACKS, locked: !!ACCESS_CODE, RATE_PER_MIN, MAX_BODY, precheck,
     /** Répond aux routes /api/ai… ; renvoie null pour toute autre adresse. */
-    async handle(request, { ip = '?' } = {}) {
+    async handle(request, { ip = '?', checked = false } = {}) {
       const { pathname } = new URL(request.url);
       if (!pathname.startsWith('/api/ai')) return null;
       if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders(request) });
       if (pathname === '/api/ai/health' && request.method === 'GET') {
         return json(request, 200, { ok: true, key: HAS_KEY, images: true, tools: true, locked: !!ACCESS_CODE, fallbacks: FALLBACKS, models: Object.fromEntries(Object.entries(TIERS).map(([k, v]) => [k, v.model])) });
       }
-      if (pathname === '/api/ai' && request.method === 'POST') return handleAI(request, ip);
+      if (pathname === '/api/ai' && request.method === 'POST') return handleAI(request, ip, checked);
       return json(request, 404, { code: 'upstream_error', message: 'not found' });
     }
   };

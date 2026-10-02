@@ -18,8 +18,18 @@ const PORT = +env.PORT || 8787;
 const HOST = env.HOST || '0.0.0.0';
 const ROOT = env.ENGRAM_STATIC_DIR || path.join(here, '..');
 const engram = createEngram(env);
+// Filet : une promesse rejetée par une requête ne doit jamais arrêter le serveur (et les flux des autres).
+process.on('unhandledRejection', e => console.error('[engram] unhandledRejection', e));
 
-const clientIp = req => (env.ENGRAM_TRUST_PROXY ? String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() : '') || req.socket.remoteAddress || '?';
+// ENGRAM_TRUST_PROXY = nombre de relais de confiance devant le serveur (1, ou « true », pour un seul).
+// Chacun ajoute l'adresse qu'il voit à droite de X-Forwarded-For : on compte depuis la droite,
+// car tout ce qui est plus à gauche a pu être écrit par le client lui-même.
+const TP = String(env.ENGRAM_TRUST_PROXY || '').trim();
+const HOPS = !TP || /^(0|off|false|no)$/i.test(TP) ? 0 : parseInt(TP, 10) || 1;
+const clientIp = req => {
+  const xff = HOPS ? String(req.headers['x-forwarded-for'] || '').split(',').map(s => s.trim()).filter(Boolean) : [];
+  return xff[xff.length - HOPS] || req.socket.remoteAddress || '?';
+};
 
 function readBody(req) {
   return new Promise((resolve, reject) => {
@@ -31,22 +41,29 @@ function readBody(req) {
 }
 
 /** Passe une requête Node au relais (objets Web standard) et recopie la réponse, en flux. */
-async function relay(req, res) {
+async function relay(req, res, url) {
   const ac = new AbortController();
   res.on('close', () => { if (!res.writableFinished) ac.abort(); });
-  let body;
-  if (req.method === 'POST') {
-    try { body = await readBody(req); }
-    catch (e) {
-      res.writeHead(e.code === 'prompt_too_large' ? 413 : 400, { 'content-type': 'application/json; charset=utf-8' });
-      return res.end(JSON.stringify({ code: e.code === 'prompt_too_large' ? 'prompt_too_large' : 'upstream_error', message: 'bad body' }));
-    }
-  }
   const headers = new Headers();
   for (const [k, v] of Object.entries(req.headers)) if (typeof v === 'string') headers.set(k, v);
-  const request = new Request('http://engram.local' + req.url, { method: req.method, headers, body, signal: ac.signal });
-  const response = await engram.handle(request, { ip: clientIp(req) });
-  if (!response) return false;
+  const ip = clientIp(req);
+  // Code, débit et taille annoncée sont vérifiés avant de lire le corps : une requête refusée ne met rien en mémoire
+  // (Node jette le reste du corps). Seul POST /api/ai a besoin du corps.
+  const ai = req.method === 'POST' && url.pathname === '/api/ai';
+  let response = ai ? engram.precheck(headers, ip) : null;
+  if (!response) {
+    let body;
+    if (ai) {
+      try { body = await readBody(req); }
+      catch (e) {
+        res.writeHead(e.code === 'prompt_too_large' ? 413 : 400, { 'content-type': 'application/json; charset=utf-8' });
+        return res.end(JSON.stringify({ code: e.code === 'prompt_too_large' ? 'prompt_too_large' : 'upstream_error', message: 'bad body' }));
+      }
+    }
+    const request = new Request('http://engram.local' + url.pathname + url.search, { method: req.method, headers, body, signal: ac.signal });
+    response = await engram.handle(request, { ip, checked: ai });
+    if (!response) return false;
+  }
   res.writeHead(response.status, Object.fromEntries(response.headers));
   if (response.body) {
     try { for await (const chunk of response.body) { if (res.destroyed) break; res.write(chunk); } }
@@ -75,9 +92,12 @@ const STATIC = {
 const SECURITY = { 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer', 'permissions-policy': 'camera=(self), microphone=(self)' };
 
 const server = http.createServer(async (req, res) => {
-  const url = new URL(req.url, 'http://x');
   try {
-    if (url.pathname.startsWith('/api/ai') && await relay(req, res)) return;
+    // Node accepte des cibles que l'analyseur d'URL refuse (« //a:b/ ») : réponse 400, pas d'arrêt du serveur.
+    let url;
+    try { url = new URL(req.url, 'http://x'); }
+    catch { res.writeHead(400, { 'content-type': 'text/plain; charset=utf-8' }); return res.end('Bad request'); }
+    if (url.pathname.startsWith('/api/ai') && await relay(req, res, url)) return;
     // Les liens d'invitation mènent à la page de présentation : /decouvrir sans barre finale y mène aussi.
     if (url.pathname === '/decouvrir' && req.method === 'GET') { res.writeHead(301, { location: '/decouvrir/' + url.search }); return res.end(); }
     const file = STATIC[url.pathname];
@@ -91,7 +111,9 @@ const server = http.createServer(async (req, res) => {
     if (!res.headersSent) { res.writeHead(500, { 'content-type': 'application/json; charset=utf-8' }); res.end(JSON.stringify({ code: 'upstream_error', message: 'server error' })); } else res.end();
   }
 });
-server.requestTimeout = 0; // les réponses longues arrivent en flux
+// Délai pour recevoir toute la requête (photos comprises), pas pour la réponse : les réponses longues
+// arrivent en flux sans être coupées. Sans lui, un envoi bloqué à mi-corps garderait sa mémoire indéfiniment.
+server.requestTimeout = 300_000;
 server.listen(PORT, HOST, () => {
   const T = engram.TIERS;
   console.log(`Engram → http://localhost:${PORT}`);
