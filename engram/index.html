@@ -4011,6 +4011,8 @@ const Modal = {
     return back.querySelector('.modal');
   },
   close() { const b = this.stack.pop(); if (!b) return; this.out(b); b._onclose?.(); },
+  /** Ferme cette fenêtre-là, où qu'elle soit dans la pile (rien si elle est déjà fermée) : pas celle du dessus. */
+  closeEl(b) { const i = this.stack.indexOf(b); if (i < 0) return; this.stack.splice(i, 1); this.out(b); b._onclose?.(); },
   /** Elle repart comme elle est venue : glissée vers le bas sur téléphone, fondue ailleurs. */
   out(b) { if (!Motion.some) { b.remove(); return; } b.classList.add('out'); b.style.pointerEvents = 'none'; b.inert = true; setTimeout(() => b.remove(), 320); },
   onClose(m, fn) { m.closest('.modal-back')._onclose = fn; }
@@ -9691,7 +9693,7 @@ function lkImport() {
   return `<section class="panel bridges">
     ${bridge({ m: 'Ak', c: '#3A6FC4', name: 'Anki', desc: t('Paquets .apkg et collections .colpkg, avec les images et votre progression.'), how: ['file'], acts: lkFile('anki', t('Choisir le paquet'), '', 'btn btn-brass') })}
     ${bridge({ m: 'Qz', c: '#4257B2', name: 'Quizlet', desc: t('Vos listes en un copier-coller : chaque terme devient une fiche.'), how: ['paste'], steps: PASTE_STEPS.quizlet.map(x => t(x)), acts: lkBtn('data-lkpaste="quizlet"', 'list', t('Coller'), 'btn btn-brass') })}
-    ${bridge({ m: 'Xl', c: '#1E7B4F', name: t('Excel, Numbers, Google Sheets'), desc: t('Deux colonnes : recto et verso. Une troisième colonne devient la note.'), how: ['paste', 'file'], steps: PASTE_STEPS.sheet.map(x => t(x)), acts: lkBtn('data-lkpaste="sheet"', 'list', t('Coller')) + lkFile('table', 'CSV') })}
+    ${bridge({ m: 'Xl', c: '#1E7B4F', name: t('Excel, Numbers, Google Sheets'), desc: t('Deux colonnes : recto et verso. Une troisième colonne devient la note.'), how: ['paste', 'file'], steps: PASTE_STEPS.sheet.map(x => t(x)), acts: lkBtn('data-lkpaste="sheet"', 'list', t('Coller')) + lkFile('table', 'CSV', '.csv,.tsv,.txt,text/csv,text/tab-separated-values,text/plain') })}
     ${bridge({ m: 'N', c: '#37352F', name: 'Notion', desc: t('Un tableau ou une base copiés, ou une liste « terme – définition ».'), how: ['paste'], steps: PASTE_STEPS.notion.map(x => t(x)), acts: lkBtn('data-lkpaste="notion"', 'list', t('Coller')) })}
     ${bridge({ m: 'Pdf', c: '#C3342A', name: t('Cours en PDF'), desc: t("L'IA en tire les fiches ; sans IA, le texte est extrait."), how: ['file', 'ai'], acts: lkFile('pdf', t('Choisir le PDF'), 'application/pdf,.pdf') })}
     ${bridge({ m: icon('users'), c: '#2C6A4D', name: t("Kit de classe ou d'équipe"), desc: t('Le fichier envoyé par un professeur ou un formateur : les paquets et la date arrivent dans votre programme.'), how: ['file', 'paste'], acts: lkFile('kit', t('Ouvrir le kit'), 'application/json,.json') + lkBtn('data-lkpaste="kit"', 'list', t('Coller')) + lkBtn('data-act="go" data-v="teams"', 'arrow', t('En savoir plus'), 'btn btn-ghost') })}
@@ -9804,9 +9806,16 @@ async function importFile(f, kind = '') {
     if (kind === 'anki') { toast(t("Ce fichier n'est pas un paquet Anki : choisissez un fichier .apkg ou .colpkg."), 'layers'); return; }
     if (/\.pdf$/.test(name) || f.type === 'application/pdf') { Scan.tab = 'pdf'; App.go('scan'); return loadPdfForScan(f); }
     if (/^image\//.test(f.type)) { Scan.tab = 'photo'; Scan.files = [f]; Scan.urls = [URL.createObjectURL(f)]; App.go('scan'); return; }
-    const text = await f.text();
+    // Texte en UTF-8, ou en UTF-16 avec sa marque (« Texte Unicode » d'Excel).
+    const u = new Uint8Array(await f.arrayBuffer());
+    const text = new TextDecoder(u[0] === 0xff && u[1] === 0xfe ? 'utf-16le' : u[0] === 0xfe && u[1] === 0xff ? 'utf-16be' : 'utf-8').decode(u);
     if (kind === 'backup' && !/^\s*[\[{]/.test(text)) { toast(t("Ce fichier n'est pas une sauvegarde Engram (.json)."), 'file'); return; }
     if (kind === 'kit' && !/^\s*[\[{]/.test(text)) { toast(t("Ce fichier n'est pas un kit Engram (.json)."), 'file'); return; }
+    // Un fichier binaire (classeur .xlsx, .ods, .numbers, .xls…) n'est pas une liste : on ne le découpe pas en fiches.
+    if (text.includes('\0')) {
+      if (kind === 'table' || /\.(xlsx|xlsm|xls|ods|numbers)$/.test(name)) { toast(t("Ce fichier n'est pas un CSV. Enregistrez d'abord le tableau en CSV, puis choisissez le nouveau fichier."), 'file'); return; }
+      throw new Error('binary file');
+    }
     addImported(parseImport(f.name, text));
   } catch (e) { console.warn(e); toast(t('Fichier illisible. Utilisez un paquet Anki, un JSON Engram, un CSV ou un TSV.'), 'file'); }
 }
@@ -9850,7 +9859,15 @@ function parseImport(name, text) {
   const head = {}; for (const l of text.split(/\r?\n/)) { const m = l.match(/^#(\w[\w ]*):(.*)$/); if (m) head[m[1].trim().toLowerCase()] = m[2].trim(); }
   const sepName = { tab: '\t', comma: ',', semicolon: ';', pipe: '|', colon: ':', space: ' ' }[head.separator?.toLowerCase()];
   const rows = parseDelimited(text.split(/\r?\n/).filter(l => !l.startsWith('#')).join('\n'), sepName);
-  return { images: {}, decks: [{ name: base, cards: rowsToCards(rows) }] };
+  // Colonnes déclarées : « #deck column:3 »… dans le texte d'Anki, ou la ligne de titres de notre propre CSV (recto;verso;type;étiquettes;paquet).
+  const at = k => +head[k + ' column'] > 0 ? +head[k + ' column'] - 1 : -1;
+  let cols = { guid: at('guid'), notetype: at('notetype'), deck: at('deck'), tags: at('tags'), type: -1 };
+  const h0 = (rows[0] || []).map(x => x.trim().toLowerCase());
+  if (h0[2] === 'type' && ['recto', ...(TR.recto || [])].some(x => x.toLowerCase() === h0[0])) { rows.shift(); cols = { type: 2, tags: 3, deck: h0.length > 4 ? 4 : -1 }; }
+  if (cols.deck < 0) return { images: {}, decks: [{ name: base, cards: rowsToCards(rows, { cols }) }] };
+  // Une colonne « paquet » : un paquet Engram par valeur (« Langues::Espagnol » devient « Langues — Espagnol », comme pour Anki).
+  const by = new Map(); for (const r of rows) { const k = (r[cols.deck] || '').trim(); by.set(k, [...(by.get(k) || []), r]); }
+  return { images: {}, decks: [...by].map(([k, rs]) => { const dn = k.split('::').map(x => x.trim()).filter(Boolean); return { name: dn.length > 1 ? dn.slice(-2).join(' — ') : dn[0] || base, cards: rowsToCards(rs, { cols }) }; }) };
 }
 /** Découpe un texte délimité (guillemets CSV gérés) ; le séparateur est deviné s'il n'est pas donné. */
 function parseDelimited(text, sep) {
@@ -9880,16 +9897,20 @@ function parseDelimited(text, sep) {
   return out;
 }
 function rowsToCards(rows, o = {}) {
-  const cards = [];
+  const cards = [], k = o.cols || {}, skip = new Set([k.guid, k.notetype, k.deck, k.tags, k.type]);
   for (const r of rows) {
-    let [a, b, extra] = r.map(x => htmlToText(x));
+    // Les colonnes d'identifiant, de type, de paquet et d'étiquettes ne sont pas des faces de la fiche.
+    let [a, b, extra] = r.filter((_, i) => !skip.has(i)).map(x => htmlToText(x));
+    const tags = k.tags >= 0 ? String(r[k.tags] || '').trim().split(/\s+/).filter(Boolean).slice(0, 8) : [];
+    // Notre CSV : la 2e colonne d'un texte à trous est sa 1re réponse, pas une note.
+    if (k.type >= 0 && /\{\{c\d+::/.test(a || '')) b = '';
     a = (a || '').replace(/^(?:[-*•–—]|\d{1,3}[.)])\s+/, '');
     if (!a || /^(front|recto|question|term|terme|pregunta|frage|pergunta|vorderseite)$/i.test(a)) continue;
-    if (/\{\{c\d+::/.test(a)) { cards.push(...clozeCards(a, { src: 'import', extra: b || undefined })); continue; }
+    if (/\{\{c\d+::/.test(a)) { cards.push(...clozeCards(a, { src: 'import', extra: b || undefined, tags })); continue; }
     if (!b) continue;
     if (o.swap) [a, b] = [b, a];
-    if (o.both) { const note = uid('n'); cards.push(mkCard('basic', { front: a, back: b, note, src: 'import' }), mkCard('basic', { front: b, back: a, note, src: 'import' })); }
-    else cards.push(mkCard('basic', { front: a, back: b, extra: extra || undefined, src: 'import' }));
+    if (o.both) { const note = uid('n'); cards.push(mkCard('basic', { front: a, back: b, note, tags, src: 'import' }), mkCard('basic', { front: b, back: a, note, tags, src: 'import' })); }
+    else cards.push(mkCard('basic', { front: a, back: b, extra: extra || undefined, tags, src: 'import' }));
   }
   return cards;
 }
@@ -9982,7 +10003,9 @@ function readProtoMedia(u) {
 }
 function progressModal(title) {
   const m = Modal.open(mh(title) + `<div class="imp-prog"><span class="thinking"><i></i><i></i><i></i></span><span id="ipTxt"></span></div>`);
-  return { set: x => { const el = m.querySelector('#ipTxt'); if (el) el.textContent = x; }, m };
+  // La tâche finie ferme sa propre fenêtre : si on l'a déjà fermée et qu'on en a ouvert une autre, celle-ci reste.
+  const back = m.closest('.modal-back');
+  return { set: x => { const el = m.querySelector('#ipTxt'); if (el) el.textContent = x; }, m, close: () => Modal.closeEl(back) };
 }
 async function importAnki(file) {
   const P = progressModal(t('Import Anki'));
@@ -10004,16 +10027,17 @@ async function importAnki(file) {
     if (tables.has('decks') && colRow.ver >= 15) for (const r of q('select id, name from decks')) deckNames[r.id] = String(r.name).split('\x1f').join('::');
     else try { for (const [id, d] of Object.entries(JSON.parse(colRow.decks || '{}'))) deckNames[id] = d.name; } catch { }
     const notes = new Map(q('select id, tags, flds from notes').map(r => [r.id, r]));
-    const cards = q('select id, nid, did, ord, type, queue, due, ivl, factor, reps, lapses, data from cards order by did, nid, ord');
+    const cards = q('select id, nid, did, odid, ord, type, queue, due, odue, ivl, factor, reps, lapses, data from cards order by did, nid, ord');
     // Médias : index → nom de fichier.
     let media = [];
     const mf = zip.file('media');
     if (mf) { const u = await mf.async('uint8array'); if (isZstd(u)) media = readProtoMedia(await unzstd(u)); else try { const j = JSON.parse(new TextDecoder().decode(u) || '{}'); for (const [k, v] of Object.entries(j)) media[+k] = v; } catch { } }
     const byName = new Map(media.map((n, i) => [n, i]).filter(x => x[0]));
     const imgCache = new Map(); const images = {};
+    const mediaFile = name => { const idx = byName.get(name); return idx != null ? zip.file(String(idx)) : zip.file(name); };
     const loadImg = async name => {
       if (imgCache.has(name)) return imgCache.get(name);
-      let id = null; const idx = byName.get(name); const zf = idx != null ? zip.file(String(idx)) : zip.file(name);
+      let id = null; const zf = mediaFile(name);
       if (zf && /\.(png|jpe?g|gif|webp|svg|bmp)$/i.test(name)) {
         try {
           const u = await unzstd(await zf.async('uint8array'));
@@ -10024,16 +10048,51 @@ async function importAnki(file) {
       }
       imgCache.set(name, id); return id;
     };
+    // Taille d'origine d'une image : les masques des premières versions d'Anki (23.10) sont notés en pixels.
+    const imgSize = async name => {
+      const zf = mediaFile(name); if (!zf) return null;
+      const url = URL.createObjectURL(new Blob([await unzstd(await zf.async('uint8array'))], { type: /\.svg$/i.test(name) ? 'image/svg+xml' : '' }));
+      try { const i = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; }); return i.naturalWidth && i.naturalHeight ? [i.naturalWidth, i.naturalHeight] : null; } catch { return null; } finally { URL.revokeObjectURL(url); }
+    };
+    // Masquage d'image d'Anki : 1er champ « {{c1::image-occlusion:rect:left=.1:top=.1:width=.3:height=.2}} … », 2e champ l'image, 3e la consigne.
+    // Chaque numéro devient un masque Engram (le cadre de ses formes) ; les textes posés sur l'image ne cachent rien.
+    const ioCache = new Map();
+    const ioNote = async (nid, f) => {
+      if (ioCache.has(nid)) return ioCache.get(nid);
+      const name = imgSrcs(f[1])[0], img = name ? await loadImg(name) : null, by = new Map();
+      for (const [, k, kind, args] of String(f[0]).matchAll(/\{\{c(\d+)::image-occlusion:(\w+)([^}]*)\}\}/g)) {
+        const p = {}; for (const kv of args.split(':')) { const i = kv.indexOf('='); if (i > 0) p[kv.slice(0, i)] = kv.slice(i + 1); }
+        let x = +p.left || 0, y = +p.top || 0, w = +p.width || 0, h = +p.height || 0;
+        if (kind === 'ellipse') { w = 2 * (+p.rx || 0); h = 2 * (+p.ry || 0); }
+        else if (kind === 'polygon') {
+          const pts = String(p.points || '').trim().split(/\s+/).map(s => s.split(',').map(Number)).filter(q => q.length === 2 && q.every(Number.isFinite)); if (!pts.length) continue;
+          const xs = pts.map(q => q[0]), ys = pts.map(q => q[1]); x = Math.min(...xs); y = Math.min(...ys); w = Math.max(...xs) - x; h = Math.max(...ys) - y;
+        } else if (kind !== 'rect') continue;
+        if (!(+k > 0 && w > 0 && h > 0)) continue;
+        const o = by.get(+k); by.set(+k, o ? [Math.min(o[0], x), Math.min(o[1], y), Math.max(o[2], x + w), Math.max(o[3], y + h)] : [x, y, x + w, y + h]);
+      }
+      const ns = [...by.keys()].sort((a, b) => a - b);
+      let z = [1, 1]; if ([...by.values()].some(b => b[2] > 1.5 || b[3] > 1.5)) z = img && await imgSize(name);
+      const r = img && z && ns.length ? { img, ns, masks: ns.map(k => { const [x0, y0, x1, y1] = by.get(k).map((v, i) => clamp(v / z[i % 2], 0, 1)); return { x: x0, y: y0, w: x1 - x0, h: y1 - y0, label: '' }; }) } : null;
+      ioCache.set(nid, r); return r;
+    };
     P.set(t('Conversion de {x}…', { x: plural(cards.length, 'fiche|fiches') }));
     const decks = new Map(); let learned = 0, suspended = 0;
     const now = Date.now();
     for (const c of cards) {
+      // Carte prêtée à un paquet filtré (« Custom Study Session ») : elle retrouve son paquet d'origine et sa vraie échéance.
+      if (c.odid) { c.due = c.odue; if (deckNames[c.odid]) c.did = c.odid; }
       const n = notes.get(c.nid); if (!n) continue;
       const f = String(n.flds).split('\x1f');
       const tags = String(n.tags || '').trim().split(/\s+/).filter(Boolean).slice(0, 8);
       let card = null;
       const ci = f.findIndex(x => /\{\{c\d+::/.test(x));
-      if (ci >= 0) {
+      if (/\{\{c\d+::image-occlusion:/.test(f[0] || '')) {
+        // Une fiche « Image » par carte Anki, jamais un texte à trous fait de coordonnées.
+        const io = await ioNote(c.nid, f), maskIdx = io ? io.ns.indexOf(c.ord + 1) : -1;
+        if (maskIdx < 0) continue;
+        card = mkCard('occlusion', { img: io.img, masks: io.masks, maskIdx, note: 'anki' + c.nid, front: htmlToText(f[2] || '') || t('Nommez la structure masquée'), tags, src: 'anki' });
+      } else if (ci >= 0) {
         const text = htmlToText(f[ci]); if (!/\{\{c\d+::/.test(text)) continue;
         card = mkCard('cloze', { text, n: c.ord + 1, note: 'anki' + c.nid, extra: htmlToText(f[ci + 1] || '') || undefined, tags, src: 'anki' });
       } else {
@@ -10064,14 +10123,14 @@ async function importAnki(file) {
       decks.get(key).cards.push(card);
     }
     db.close();
-    Modal.close();
+    P.close();
     const list = [...decks.values()].filter(d => d.cards.length);
     if (!list.length) { toast(t('Ce paquet Anki ne contient aucune fiche lisible.'), 'layers'); return; }
     addImported({ images, decks: list });
     const nImg = Object.keys(images).length;
     setTimeout(() => toast(t('Anki : {a}, {b} déjà apprises, {c}, {d}.', { a: plural(list.length, 'paquet|paquets'), b: num(learned), c: plural(suspended, 'suspendue|suspendues'), d: plural(nImg, 'image|images') }), 'layers'), 900);
   } catch (e) {
-    console.warn(e); Modal.close();
+    console.warn(e); P.close();
     toast(/load /.test(e?.message) ? t("Impossible de charger le lecteur Anki (connexion requise la première fois).") : t('Ce fichier Anki est illisible.'), 'layers');
   }
 }
@@ -10133,9 +10192,11 @@ async function exportAnki(deckList) {
         const ords = clozeNums ? clozeNums.map(n => n - 1) : [0];
         for (const ord of ords) {
           const src = clozeNums ? sibs.find(x => x.n === ord + 1) || c : c; const s = src.srs;
-          let type = 0, queue = src.suspended ? -1 : 0, due = nNotes, ivl = 0;
+          let type = 0, queue = src.suspended ? -1 : 0, due = nNotes, ivl = 0, left = 0;
           if (s.state === 2) { type = 2; queue = src.suspended ? -1 : 2; due = Math.max(0, Math.round((s.due - crt * 1000) / DAY)); ivl = Math.max(1, Math.round((s.due - s.last) / DAY)); }
-          insC.run([++cid, id, did, ord, nowS, -1, type, queue, due, ivl, s.state === 2 ? Math.round(clamp(2500 - (s.d - 5) * 300, 1300, 3500)) : 0, s.reps || 0, s.lapses || 0, 0, 0, 0, 0, s.state === 2 ? JSON.stringify({ s: +s.s.toFixed(2), d: +s.d.toFixed(2) }) : '']);
+          // En (ré)apprentissage : file d'apprentissage d'Anki, échéance en secondes, une étape restante ; une fiche réapprise garde son intervalle.
+          else if (s.state === 1 || s.state === 3) { type = s.state; queue = src.suspended ? -1 : 1; due = Math.floor((s.due || now) / 1000); ivl = s.state === 3 ? Math.max(1, Math.round(s.s || 1)) : 0; left = 1; }
+          insC.run([++cid, id, did, ord, nowS, -1, type, queue, due, ivl, type ? Math.round(clamp(2500 - ((+s.d || 5) - 5) * 300, 1300, 3500)) : 0, s.reps || 0, s.lapses || 0, left, 0, 0, 0, type && s.s > 0 && s.d > 0 ? JSON.stringify({ s: +s.s.toFixed(2), d: +s.d.toFixed(2) }) : '']);
         }
       }
     }
@@ -10146,11 +10207,11 @@ async function exportAnki(deckList) {
     zip.file('media', JSON.stringify(media));
     for (const [name, blob] of mediaFiles) zip.file(name, blob);
     const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
-    Modal.close();
+    P.close();
     const base = deckList.length === 1 ? slug(deckList[0].name) : 'engram';
     await saveFile(base + '.apkg', blob, { alt: base + '.apkg.zip', altNote: t('Enregistré en .zip (seul format permis ici) : renommez-le en .apkg, puis ouvrez-le avec Anki.') });
     return nNotes;
-  } catch (e) { console.warn(e); Modal.close(); toast(t("Export Anki impossible (connexion requise la première fois pour charger l'outil)."), 'layers'); }
+  } catch (e) { console.warn(e); P.close(); toast(t("Export Anki impossible (connexion requise la première fois pour charger l'outil)."), 'layers'); }
 }
 
 /* ── Exports ───────────────────────────────────────────────────────── */
@@ -10206,9 +10267,9 @@ async function printCards(d) {
       chunk.forEach((c, i) => drawCell(c, mx + (cols - 1 - (i % cols)) * cw, my + Math.floor(i / cols) * ch, true));
     }
     doc.setProperties({ title: d.name, creator: 'Engram' });
-    const blob = doc.output('blob'); Modal.close();
+    const blob = doc.output('blob'); P.close();
     await saveFile(slug(d.name) + '-cards.pdf', blob);
-  } catch (e) { console.warn(e); Modal.close(); toast(t("Impossible de préparer le PDF (connexion requise la première fois pour charger l'outil)."), 'printer'); }
+  } catch (e) { console.warn(e); P.close(); toast(t("Impossible de préparer le PDF (connexion requise la première fois pour charger l'outil)."), 'printer'); }
 }
 
 /* ── PDF de cours → texte (ou pages en images pour l'IA) ───────────── */
@@ -12365,6 +12426,7 @@ TR = {
   // recette-30-09 E : nouvelles traductions ci-dessous
   //
   // recette-30-09 F : nouvelles traductions ci-dessous
+  "Ce fichier n'est pas un CSV. Enregistrez d'abord le tableau en CSV, puis choisissez le nouveau fichier.": ["This file isn't a CSV. Save the sheet as CSV first, then choose the new file.","Este archivo no es un CSV. Guarda primero la hoja como CSV y luego elige el archivo nuevo.","Diese Datei ist keine CSV. Speichere die Tabelle zuerst als CSV und wähle dann die neue Datei aus.","Este arquivo não é um CSV. Salve primeiro a planilha em CSV e depois escolha o novo arquivo."],
   //
   // recette-30-09 G : nouvelles traductions ci-dessous
   //
