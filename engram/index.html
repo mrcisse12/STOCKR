@@ -2566,7 +2566,12 @@ const IDB = {
 const Store = {
   KEY: 'engram.v1', db: null, col: null, uid: null, mode: 'local', dirty: new Set(), timer: null, busy: false, parts: {},
   ready: false, fromLS: false, stub: false, pend: false, frozen: false, saveT: 0, lsMax: Infinity, lsFat: false, imgs: new Map(), warned: false,
+  // Plusieurs onglets (ou l'app installée à côté d'un onglet) : chaque enregistrement laisse un repère (GEN).
+  // Un onglet qui voit un repère qu'il n'a ni lu ni écrit n'écrit plus par-dessus : il suit l'autre (follow) ou se fige (stale).
+  GEN: 'engram.v1.gen', seen: '', following: false, staleEl: null, retry: 0,
+  diskGen() { try { return localStorage.getItem(this.GEN) || ''; } catch { return ''; } },
   load() {
+    this.seen = this.diskGen();
     const saved = LS.get(this.KEY); IDB.open();
     const real = saved && !saved.stub ? saved : null;
     this.stub = !!saved?.stub; this.fromLS = !!real;
@@ -2594,19 +2599,58 @@ const Store = {
       setTimeout(() => toast(t('Vos fiches n\'ont pas pu être lues : rechargez la page. Rien n\'a été effacé.'), 'undo'), 800);
     }
     this.ready = true;
-    if (this.pend) { this.pend = false; this.saveLocal(); }
+    // Un autre onglet a enregistré pendant la lecture : on reprend sa version plutôt que d'écrire la nôtre.
+    if (this.diskGen() !== this.seen) { this.pend = false; this.follow(); }
+    else if (this.pend) { this.pend = false; this.saveLocal(); }
     // Demande au navigateur de ne pas effacer ces données pour faire de la place.
     if (!S.demo) navigator.storage?.persist?.().catch(() => { });
   },
   /** Enregistre tout de suite. */
   saveLocal() {
     clearTimeout(this.saveT); this.saveT = 0;
-    // La vraie collection est encore dans IndexedDB : on attend de l'avoir lue pour ne pas l'écraser.
-    if (this.frozen) return;
+    // Figé : la vraie collection est encore dans IndexedDB (on attend de l'avoir lue), ou un autre onglet a écrit plus récent (voir stale).
+    if (this.frozen) { if (this.staleEl) this.stale(); return; }
     if (!this.ready && this.stub) { this.pend = true; return; }
+    // Un autre onglet a enregistré depuis notre dernière lecture : écrire maintenant effacerait son travail.
+    if (this.ready && this.diskGen() !== this.seen) { this.stale(); return; }
     S.updatedAt = Date.now();
     const json = JSON.stringify({ ...S, images: {} });
     this.writeIDB(json); this.writeLS(json);
+    // Le repère en dernier : quand les autres onglets le voient changer, l'état est déjà écrit.
+    const gen = S.updatedAt.toString(36) + Math.random().toString(36).slice(2, 6);
+    try { localStorage.setItem(this.GEN, gen); this.seen = gen; } catch { this.seen = this.diskGen(); }
+  },
+  /** Un autre onglet vient d'enregistrer : on reprend sa version au lieu d'écrire la nôtre par-dessus.
+   *  Onglet occupé (séance, fenêtre ouverte, accueil, modification pas encore enregistrée) : il se fige et propose de recharger. */
+  async follow(force = false, tries = 0) {
+    if (this.frozen || this.following || !this.ready) return;
+    const gen = this.diskGen(); if (gen === this.seen && !force) return;
+    const busy = () => this.saveT || Study.active || Modal.stack.length || !$('#onb').hidden;
+    if (busy()) return this.stale();
+    this.following = true;
+    try {
+      const kv = await IDB.all(), ls = LS.get(this.KEY), real = ls && !ls.stub ? ls : null;
+      let st = kv?.get('state'); try { if (typeof st === 'string') st = JSON.parse(st); } catch { st = null; }
+      if (!st?.decks || (real && (real.updatedAt || 0) >= (st.updatedAt || 0))) st = real;
+      // IndexedDB n'a pas encore la version que l'autre onglet vient d'annoncer : on relit un peu plus tard.
+      const late = ls?.stub && (st?.updatedAt || 0) < (ls.updatedAt || 0);
+      if (late && tries < 5) { setTimeout(() => this.follow(true, tries + 1), 200); return; }
+      if (!st?.decks || late || busy()) return this.stale();
+      S = normalizeState(st); this.seen = gen; this.stub = !!ls?.stub;
+      this.imgs = new Map();
+      for (const [k, v] of kv || []) if (typeof k === 'string' && k.startsWith('img:')) { const id = k.slice(4); this.imgs.set(id, v); if (!S.images[id]) S.images[id] = v; }
+      const relang = S.profile.settings.lang && S.profile.settings.lang !== LANG;
+      if (relang) { setLang(S.profile.settings.lang); applyStatic(); }
+      S.profile.settings.lang = LANG;
+      if (typeof Plan !== 'undefined') Plan.invalidate();
+      Custom.apply(); if (!Scan.running) App.render(); if (relang) Mentor.refresh();
+    } finally { this.following = false; }
+    if (this.diskGen() !== this.seen) this.follow();
+  },
+  /** Cet onglet n'écrit plus rien : il faut le recharger pour reprendre la dernière version. */
+  stale() {
+    this.frozen = true; clearTimeout(this.saveT); this.saveT = 0;
+    if (!this.staleEl?.isConnected) this.staleEl = toastAct(t('Vos fiches ont changé dans un autre onglet : rechargez cette page pour ne rien écraser.'), 'refresh', t('Recharger'), 'refresh', () => location.reload(), 864e5);
   },
   /** Enregistrement groupé, au calme : noter une fiche ou taper un mot ne fige plus l'écran. */
   soon() {
@@ -2659,7 +2703,8 @@ const Store = {
       this.col = db.collection('data/users/' + id);
       const snap = await this.col.get();
       const remote = snap.empty ? null : this.assemble(snap.docs);
-      if (remote && remote.decks.length) {
+      // Un nuage sans paquet (tout supprimé ailleurs) passe aussi par la fusion : ses pierres tombales comptent.
+      if (remote && (remote.decks.length || !S.demo)) {
         this.merge(remote);
         if (remote.profile?.settings?.lang && remote.profile.settings.lang !== LANG) { setLang(remote.profile.settings.lang); Custom.apply(); }
         if (!Study.active) App.render();
@@ -2687,9 +2732,21 @@ const Store = {
     for (const d of docs) if (d.id.startsWith('img_')) st.images[d.id.slice(4)] = d.data().data;
     return normalizeState(st);
   },
+  /** Pierres tombales : un paquet supprimé ici ne revient pas d'un autre appareil (gardées six mois). */
+  bury(ids) {
+    const g = S.profile.gone = S.profile.gone && typeof S.profile.gone === 'object' ? S.profile.gone : {}, now = Date.now();
+    for (const k of Object.keys(g)) if (!(g[k] > now - 180 * DAY)) delete g[k];
+    ids.forEach(id => g[id] = now);
+  },
   merge(remote) {
-    // Fusion : pour chaque paquet, la version la plus récente l'emporte.
-    if (S.demo) { S = remote; S.demo = false; S.profile.onboarded = true; this.saveLocal(); return; }
+    // Fusion : pour chaque paquet, la version la plus récente l'emporte ; un paquet supprimé après sa dernière modification ne revient pas.
+    const obj = o => o && typeof o === 'object' ? o : {}, gone = { ...obj(remote.profile.gone) };
+    for (const [k, v] of Object.entries(obj(S.profile.gone))) if (!(gone[k] >= v)) gone[k] = v;
+    const dead = d => (+gone[d.id] || 0) >= (d.updatedAt || 0);
+    // Encore dans le nuage (effacement raté) : le prochain envoi le retire.
+    for (const rd of remote.decks) if (dead(rd)) this.dirty.add('deck:' + rd.id);
+    remote.decks = remote.decks.filter(d => !dead(d));
+    if (S.demo) { S = remote; S.demo = false; S.profile.onboarded = true; this.saveLocal(); if (this.dirty.size) this.schedule(); return; }
     const local = new Map(S.decks.map(d => [d.id, d]));
     const out = [];
     for (const rd of remote.decks) {
@@ -2697,32 +2754,47 @@ const Store = {
       if (ld && ld.updatedAt > rd.updatedAt) { out.push(ld); this.dirty.add('deck:' + ld.id); } else out.push(rd);
       local.delete(rd.id);
     }
-    for (const ld of local.values()) { out.push(ld); this.dirty.add('deck:' + ld.id); }
+    for (const ld of local.values()) { if (dead(ld)) continue; out.push(ld); this.dirty.add('deck:' + ld.id); }
     const useLocalProfile = (S.profile.updatedAt || 0) > (remote.profile.updatedAt || 0);
     S = normalizeState({ ...S, decks: out, images: { ...remote.images, ...S.images }, profile: useLocalProfile ? S.profile : remote.profile });
-    if (useLocalProfile) this.dirty.add('profile');
+    const kept = obj(S.profile.gone); S.profile.gone = gone;
+    if (useLocalProfile || Object.keys(gone).some(k => kept[k] !== gone[k])) this.dirty.add('profile');
+    // Une image d'une fiche absente du nuage (envoi raté) : on la renvoie.
+    for (const d of S.decks) for (const c of d.cards) for (const f of ['img', 'fimg', 'bimg']) { const id = c[f]; if (id && S.images[id] && !(id in remote.images)) this.dirty.add('img:' + id); }
     this.saveLocal(); if (this.dirty.size) this.schedule();
   },
   async flush() {
     if (!this.col || this.busy || S.demo) return;
     this.busy = true;
+    // Une écriture ratée garde sa clé pour la prochaine fois (sauf une donnée refusée pour de bon) ; les autres passent quand même.
+    let fail = null;
+    const keep = (k, e) => { fail = e || {}; if (!['invalid_argument', 'transform_error'].includes(e?.code)) this.dirty.add(k); };
     try {
       const keys = [...this.dirty]; this.dirty.clear();
       for (const k of keys) {
         if (k === 'profile') continue;
-        if (k.startsWith('deck:')) {
-          const id = k.slice(5); const deck = deckById(id);
-          if (!deck) await this.dropDeck(id); else await this.writeDeck(deck);
-        } else if (k.startsWith('img:')) {
-          const id = k.slice(4);
-          if (S.images[id]) await this.col.doc('img_' + id).set({ data: S.images[id], updatedAt: Date.now() });
-          else await this.col.doc('img_' + id).delete();
-        }
+        try {
+          if (k.startsWith('deck:')) {
+            const id = k.slice(5); const deck = deckById(id);
+            if (!deck) await this.dropDeck(id); else await this.writeDeck(deck);
+          } else if (k.startsWith('img:')) {
+            const id = k.slice(4);
+            if (S.images[id]) await this.col.doc('img_' + id).set({ data: S.images[id], updatedAt: Date.now() });
+            else await this.col.doc('img_' + id).delete();
+          }
+        } catch (e) { keep(k, e); }
       }
-      if (keys.length) { S.profile.updatedAt = Date.now(); await this.col.doc('profile').set({ profile: S.profile, order: S.decks.map(d => d.id), updatedAt: Date.now() }); }
-    } catch (e) {
-      if (e && e.code === 'quota_exceeded') toast(t('Espace de synchronisation plein : supprimez quelques images ou paquets.'), 'cloud');
-    } finally { this.busy = false; if (this.dirty.size) this.schedule(); }
+      if (keys.length) try { S.profile.updatedAt = Date.now(); await this.col.doc('profile').set({ profile: S.profile, order: S.decks.map(d => d.id), updatedAt: Date.now() }); } catch (e) { keep('profile', e); }
+    } finally {
+      this.busy = false;
+      if (!fail) { this.retry = 0; if (this.dirty.size) this.schedule(); }
+      else if (fail.code !== 'revoked') {
+        if (fail.code === 'quota_exceeded' && !this.retry) toast(t('Espace de synchronisation plein : supprimez quelques images ou paquets.'), 'cloud');
+        // Réseau ou plateforme indisponible : on réessaie de plus en plus tard, au plus une fois par minute.
+        this.retry = Math.min((this.retry || 1000) * 2, 60000);
+        clearTimeout(this.timer); this.timer = setTimeout(() => this.flush(), this.retry + Math.random() * 1000);
+      }
+    }
   },
   async writeDeck(deck) {
     const { cards, ...meta } = deck;
@@ -5045,9 +5117,10 @@ function deleteDeck(d) {
   }
   S.decks = S.decks.filter(x => x !== d);
   for (const x of S.profile.exams) x.deckIds = (x.deckIds || []).filter(id => id !== d.id);
-  Store.touch('deck:' + d.id, 'profile');
+  Store.bury([d.id]); Store.touch('deck:' + d.id, 'profile');
   return () => {
     if (S.decks.includes(d)) return;
+    delete S.profile.gone?.[d.id];
     S.decks.splice(Math.min(at, S.decks.length), 0, d); Object.assign(S.images, imgs);
     for (const [x, ids] of exams) if (S.profile.exams.includes(x)) x.deckIds = ids;
     Object.keys(imgs).forEach(k => Store.dirty.add('img:' + k));
@@ -5084,6 +5157,7 @@ function openExamPlan(deckId, examId) {
   m.querySelector('#xSave').onclick = () => {
     const date = m.querySelector('#xDate').value; if (!date) { m.querySelector('#xDate').focus(); return; }
     const o = { name: m.querySelector('#xName').value.trim() || t('Examen'), date, deckIds: $$('#xDecks .on', m).map(b => b.dataset.id) };
+    if (S.demo) Store.leaveDemo(false);
     if (x) { Object.assign(x, o); delete x.example; } else S.profile.exams.push({ id: uid('x'), ...o });
     Store.touch('profile'); Modal.close(); App.render(); toast(t('Examen enregistré'), 'cal');
   };
@@ -5232,6 +5306,7 @@ function openEditor(cardId, deckId, preset) {
         if (ty === 'order') card.items = items;
         if (target !== deck) { deck.cards = deck.cards.filter(x => x !== card); target.cards.push(card); }
       }
+      if (S.demo) Store.leaveDemo(false); // une fiche d'exemple modifiée devient la vôtre
       Store.touchDeck(deck); if (target !== deck) Store.touchDeck(target);
       Modal.close(); if (!Study.active) App.render(); toast(t('Fiche enregistrée'));
       if (Study.active) Study.refreshCard();
@@ -5824,6 +5899,8 @@ function openLangMenu() {
 }
 function changeLang(l) {
   if (l === LANG) return;
+  // Les exemples sont refaits dans la nouvelle langue, mais jamais par-dessus du contenu à soi (examen, fiches ajoutées) : là, on quitte le mode démo.
+  if (S.demo && (S.profile.exams.some(x => !x.example) || S.decks.some(d => !d.example || d.cards.some(c => c.src && c.src !== 'exemple')))) Store.leaveDemo(false);
   const wasDemo = S.demo;
   setLang(l); S.profile.settings.lang = l;
   if (wasDemo) { const keep = S.profile.settings, study = S.profile.study, onb = S.profile.onboarded; S = seedDemo(l); S.profile.settings = { ...keep, lang: l }; S.profile.study = study; S.profile.onboarded = onb; }
@@ -7602,7 +7679,7 @@ const Actions = {
     if (!el.dataset.sure) { el.dataset.sure = 1; el.innerHTML = icon('trash', 'i-sm') + t('Confirmer : tout supprimer'); return; }
     const ids = S.decks.map(d => d.id), imgs = Object.keys(S.images);
     S.decks = []; S.images = {}; Object.assign(S.profile, { log: {}, xp: 0, bestStreak: 0, badges: {}, flags: {}, exams: [], memory: [], classes: [], cmd: { recent: [] } });
-    ids.forEach(id => Store.dirty.add('deck:' + id)); imgs.forEach(k => Store.dirty.add('img:' + k)); Store.touch('profile');
+    Store.bury(ids); ids.forEach(id => Store.dirty.add('deck:' + id)); imgs.forEach(k => Store.dirty.add('img:' + k)); Store.touch('profile');
     App.go('today'); toast(t('Tout a été effacé'), 'trash');
   }
 };
@@ -7615,7 +7692,7 @@ function bootApp() {
     const fn = Actions[a.dataset.act]; if (fn) fn(a, e); else Study.act(a.dataset.act, a, e);
   });
   document.addEventListener('keydown', e => {
-    if (!$('#onb').hidden) return;
+    if (!$('#onb').hidden) { if (e.key === 'Escape' && Onb.replay) Onb.close(); return; }
     if (e.key === 'Enter' && e.target.matches?.('[role="link"][data-act]')) { e.target.click(); return; }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); if (!Modal.stack.length) openPalette(); return; }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'j') { e.preventDefault(); Mentor.toggle(); return; }
@@ -7815,8 +7892,19 @@ const Splash = {
   }
 };
 const Onb = {
-  step: 0, st: null, N: 5,
-  open() { this.step = 0; this.st = { ...S.profile.study, weekly: S.profile.study.weekly.slice(), rhythm: 25, exam: '', date: '', skin: S.profile.settings.skin, tone: S.profile.settings.tone }; const el = $('#onb'); el.hidden = false; this.render(); },
+  step: 0, st: null, N: 5, replay: false, r0: null, skin0: null,
+  week: r => [r, r, r, r, r, Math.round(r * 1.3 / 5) * 5, Math.round(r * 0.6 / 5) * 5],
+  open() {
+    // Revu depuis les réglages : le rythme part de la semaine enregistrée, et on peut quitter sans rien changer.
+    const w = S.profile.study.weekly.join();
+    this.replay = !!S.profile.onboarded; this.skin0 = S.profile.settings.skin;
+    this.r0 = this.replay ? [10, 25, 45, 75].find(r => this.week(r).join() === w) || null : null;
+    this.step = 0; this.st = { ...S.profile.study, weekly: S.profile.study.weekly.slice(), rhythm: this.replay ? this.r0 : 25, exam: '', date: '', skin: S.profile.settings.skin, tone: S.profile.settings.tone }; const el = $('#onb'); el.hidden = false; this.render();
+  },
+  close() {
+    if (S.profile.settings.skin !== this.skin0) { S.profile.settings.skin = this.skin0; Custom.apply(); Store.touch('profile'); }
+    const el = $('#onb'); el.hidden = true; el.innerHTML = '';
+  },
   seal() { return markSVG('onb'); },
   render() {
     const el = $('#onb'), o = this.st; const dots = `<div class="dots">${Array.from({ length: this.N }, (_, i) => `<i class="${i === this.step ? 'on' : ''}"></i>`).join('')}</div>`;
@@ -7847,7 +7935,7 @@ const Onb = {
       <div class="kicker" style="margin-top:4px">${t('Ton de Mentor')}</div>
       <div class="onb-choices sm" data-grp="tone">${Object.entries(TONES).map(([k, v]) => `<button class="choice ${o.tone === k ? 'on' : ''}" data-v="${k}"><b>${t(v.label)}</b><small>${t(v.desc)}</small></button>`).join('')}</div>
       <div class="hero-actions" style="justify-content:center"><button class="btn btn-lg btn-ghost" data-onb="back">${t('Retour')}</button><button class="btn btn-brass btn-lg" data-onb="finish">${icon('check')}${t('Entrer dans la salle')}</button></div>${dots}`;
-    el.innerHTML = `<div class="onb">${body}</div>`;
+    el.innerHTML = (this.replay ? `<button class="icon-btn" data-onb="close" aria-label="${esc(t('Fermer'))}" style="position:fixed;top:calc(14px + env(safe-area-inset-top,0px));right:14px">${icon('x')}</button>` : '') + `<div class="onb">${body}</div>`;
   },
   read() { const n = $('#oName'); if (n) this.st.name = n.value.trim().slice(0, 40); const e = $('#oExam'), d = $('#oDate'); if (e) this.st.exam = e.value.trim(); if (d) this.st.date = d.value; },
   click(e) {
@@ -7863,12 +7951,15 @@ const Onb = {
     if (a === 'next') { this.step = Math.min(this.N - 1, this.step + 1); this.render(); }
     else if (a === 'back') { this.step = Math.max(0, this.step - 1); this.render(); }
     else if (a === 'finish') this.finish();
+    else if (a === 'close') this.close();
   },
   finish() {
     const o = this.st, p = S.profile;
-    const r = o.rhythm; p.study = { ...p.study, name: o.name, aim: o.aim, level: o.level, time: o.time, weekly: [r, r, r, r, r, Math.round(r * 1.3 / 5) * 5, Math.round(r * 0.6 / 5) * 5] };
-    p.settings.skin = o.skin; p.settings.tone = o.tone; p.settings.goal = clamp(Math.round(r * 60 / 9 / 10) * 10, 20, 300);
-    if (o.date) { p.exams = p.exams.filter(x => !x.example); p.exams.push({ id: uid('x'), name: o.exam || t('Examen'), date: o.date, deckIds: [] }); }
+    const r = o.rhythm; p.study = { ...p.study, name: o.name, aim: o.aim, level: o.level, time: o.time };
+    p.settings.skin = o.skin; p.settings.tone = o.tone;
+    // La semaine et l'objectif du jour ne changent que si l'on a choisi un autre rythme (pas en revoyant simplement l'accueil).
+    if (r && r !== this.r0) { p.study.weekly = this.week(r); p.settings.goal = clamp(Math.round(r * 60 / 9 / 10) * 10, 20, 300); }
+    if (o.date) { if (S.demo) Store.leaveDemo(false); p.exams = p.exams.filter(x => !x.example); p.exams.push({ id: uid('x'), name: o.exam || t('Examen'), date: o.date, deckIds: [] }); }
     p.onboarded = true; Scan.level = o.level;
     Store.touch('profile'); Custom.apply();
     const el = $('#onb'); el.style.transition = 'opacity .5s'; el.style.opacity = 0; setTimeout(() => { el.hidden = true; el.style.opacity = ''; el.innerHTML = ''; }, 500);
@@ -8767,6 +8858,8 @@ async function commitScan() {
   const src = Scan.local ? 'local' : 'ia';
   const cards = chosen.flatMap(r => r.type === 'occlusion' ? occCards(r, tag, src) : r.type === 'cloze' ? clozeCards(r.text, { extra: r.extra || undefined, tags: tag, src })
     : [mkCard(r.type, { front: r.front, back: r.back || '', extra: r.extra || undefined, ...(r.type === 'mcq' ? { options: r.options, answer: r.answer } : {}), ...(r.type === 'tf' ? { answer: r.answer } : {}), ...(r.type === 'order' ? { items: r.items } : {}), tags: tag, src })]);
+  // Des fiches à soi rangées dans un paquet d'exemple : on quitte le mode démo (sinon un changement de langue les effacerait).
+  if (S.demo) Store.leaveDemo(false);
   deck.cards.push(...cards);
   if (!S.demo) S.profile.flags.scan = 1;
   Store.touchDeck(deck); Store.touch('profile');
@@ -12409,6 +12502,7 @@ TR = {
   // recette-30-09 B : nouvelles traductions ci-dessous
   //
   // recette-30-09 C : nouvelles traductions ci-dessous
+  "Vos fiches ont changé dans un autre onglet : rechargez cette page pour ne rien écraser.": ["Your cards changed in another tab: reload this page so nothing gets overwritten.","Tus tarjetas cambiaron en otra pestaña: recarga esta página para no sobrescribir nada.","Deine Karten wurden in einem anderen Tab geändert: Lade diese Seite neu, damit nichts überschrieben wird.","Seus cartões mudaram em outra aba: recarregue esta página para não sobrescrever nada."],
   //
   // recette-30-09 D1 : nouvelles traductions ci-dessous
   //
@@ -12427,7 +12521,13 @@ async function boot() {
   Store.load();
   Install.init();
   addEventListener('pagehide', () => Store.flushLocal());
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') Store.flushLocal(); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') Store.flushLocal(); else Store.follow(); });
+  addEventListener('pageshow', e => { if (e.persisted) Store.follow(); });
+  // Un autre onglet a enregistré : on suit sa version. Une version plus ancienne d'Engram ne pose pas de repère, seul l'état change.
+  addEventListener('storage', e => {
+    if (e.key === Store.GEN) Store.follow();
+    else if (e.key === Store.KEY) { const g = Store.diskGen(), s = Store.seen; setTimeout(() => { if (g === s && Store.diskGen() === g) Store.follow(true); }, 250); }
+  });
   await Store.hydrate();
   Custom.apply(); applyStatic(); Splash.init();
   Scan.level = S.profile.study.level || 'lycee';
