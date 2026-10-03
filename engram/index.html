@@ -4092,9 +4092,11 @@ const Motion = {
     let y0 = 0, dy = 0, on = false, id = null, last = [];
     const narrow = () => matchMedia('(max-width:620px)').matches;
     m.addEventListener('pointerdown', e => {
+      // Un nouvel appui oublie le tirage précédent : seul le clic qui suit tout de suite un tirage est avalé.
+      dy = 0;
       // On tire par la poignée ou par le titre, jamais depuis un bouton ou un champ.
       if (e.pointerType === 'mouse' || !narrow() || m.scrollTop > 0 || !e.target.closest('.m-grip,.modal-h') || e.target.closest('button,a,input,select,textarea,label')) return;
-      y0 = e.clientY; dy = 0; on = true; id = e.pointerId; last = [[e.timeStamp, e.clientY]];
+      y0 = e.clientY; on = true; id = e.pointerId; last = [[e.timeStamp, e.clientY]];
     });
     m.addEventListener('pointermove', e => {
       if (!on || e.pointerId !== id) return;
@@ -4617,7 +4619,9 @@ Views.deck = id => {
 Hooks.deck = id => {
   const d = deckById(id); if (!d) return;
   const box = $('#deckCards'); if (!box) return;
-  const seek = wireSeek($('#deckSearch'), box, { deckId: d.id, show: (items, head) => {
+  // Déjà branché (clic sur un compartiment) : on redessine seulement, sans empiler d'écouteurs ni de recherches par le sens.
+  if (box._seek) { box._seek.draw(); return; }
+  const seek = box._seek = wireSeek($('#deckSearch'), box, { deckId: d.id, show: (items, head) => {
     let list = items || d.cards.map(c => ({ c, d }));
     const ok = deckFilter === 'due' ? c => isDue(c) : deckFilter === 'new' ? c => c.srs.state === 0 : deckFilter === 'leech' ? isLeech : COMP.includes(deckFilter) ? c => compOf(c) === deckFilter : null;
     if (ok) list = list.filter(x => ok(x.c));
@@ -8669,14 +8673,20 @@ async function runScan() {
   if (!AI.on) {
     if (photo || Scan.tab === 'topic' || pdfImgs) { Scan.err = t("Cette source nécessite l'IA. Collez le texte du cours à la place."); App.render(); return; }
     Scan.phase = 'running'; Scan.running = true; App.render();
-    const { meta, cards } = localGenerate(srcText, Scan.n, Scan.types);
-    await sleep(REDUCED ? 0 : 900);
-    Scan.meta = meta; $('#scOut').innerHTML = scanOutHTML(); bindScanOut();
-    for (const c of cards) { await sleep(REDUCED ? 0 : 150); addGen(c); }
-    await sleep(REDUCED ? 0 : 500);
-    Scan.running = false; Scan.phase = 'review';
-    if (!Scan.results.length) Scan.err = t('Aucune fiche trouvée : le texte doit contenir des définitions (« terme : explication »), des phrases avec « est / sont », des dates ou des chiffres.');
-    App.render(); return;
+    // « Arrêter » coupe aussi la génération locale ; si l'on quitte la page, elle finit sans toucher à l'autre page.
+    const ctl = Scan.ctl = new AbortController();
+    try {
+      const { meta, cards } = localGenerate(srcText, Scan.n, Scan.types);
+      await sleep(REDUCED ? 0 : 900);
+      Scan.meta = meta; const out = $('#scOut'); if (out) { out.innerHTML = scanOutHTML(); bindScanOut(); }
+      for (const c of cards) { if (ctl.signal.aborted) break; await sleep(REDUCED ? 0 : 150); if (ctl.signal.aborted) break; addGen(c); }
+      if (!ctl.signal.aborted) await sleep(REDUCED ? 0 : 500);
+    } finally {
+      Scan.running = false; Scan.phase = 'review';
+      if (!Scan.results.length && !ctl.signal.aborted) Scan.err = t('Aucune fiche trouvée : le texte doit contenir des définitions (« terme : explication »), des phrases avec « est / sont », des dates ou des chiffres.');
+      if (App.route.v === 'scan') App.render();
+    }
+    return;
   }
   if (!Pro.use('scan')) { Pro.upsell('scan'); return; }
   Scan.phase = 'running'; Scan.running = true; App.render();
