@@ -3276,7 +3276,7 @@ const Store = {
   async follow(force = false, tries = 0) {
     if (this.frozen || this.following || !this.ready) return;
     const gen = this.diskGen(); if (gen === this.seen && !force) return;
-    const busy = () => this.saveT || Study.active || Modal.stack.length || !$('#onb').hidden;
+    const busy = () => this.saveT || Study.active && !Study.summaryOn || Modal.stack.length || !$('#onb').hidden; // le bordereau de fin de séance ne retient rien
     if (busy()) return this.stale();
     this.following = true;
     try {
@@ -3301,6 +3301,8 @@ const Store = {
   /** Cet onglet n'écrit plus rien : il faut le recharger pour reprendre la dernière version. */
   stale() {
     this.frozen = true; clearTimeout(this.saveT); this.saveT = 0;
+    // En séance, recharger perdrait les notes : elles sont reportées sur la version de l'autre onglet à la fin (Study.rejoin).
+    if (Study.active && !Study.summaryOn) { if (this.staleEl !== true) { this.staleEl?.remove?.(); this.staleEl = true; toast(t('Vos fiches ont changé dans un autre onglet : continuez la séance, vos notes seront ajoutées à la nouvelle version à la fin.'), 'refresh'); } return; }
     if (!this.staleEl?.isConnected) this.staleEl = toastAct(t('Vos fiches ont changé dans un autre onglet : rechargez cette page pour ne rien écraser.'), 'refresh', t('Recharger'), 'refresh', () => location.reload(), 864e5);
   },
   /** Enregistrement groupé, au calme : noter une fiche ou taper un mot ne fige plus l'écran. */
@@ -3576,9 +3578,9 @@ function todayCounts(deckId) {
   const decks = deckId ? [deckById(deckId)].filter(Boolean) : S.decks;
   const now = Date.now(), byPlan = !!planQuota();
   let nNew = 0, fresh = 0, nLearn = 0, nRev = 0;
-  // Comme Study.build : une seule nouvelle par note, aucune d'une note révisée aujourd'hui ou due en révision.
+  // Comme Study.build : une seule fiche par note, aucune d'une note révisée aujourd'hui (ses sœurs attendent demain).
   const seen = notesToday(decks);
-  for (const d of decks) for (const c of d.cards) { if (!isDue(c, now)) continue; if (c.srs.state === 2) { nRev++; if (c.note) seen.add(c.note); } else nLearn++; }
+  for (const d of decks) for (const c of d.cards) { if (!isDue(c, now)) continue; if (c.srs.state !== 2) nLearn++; else if (!c.note || !seen.has(c.note) && !!seen.add(c.note)) nRev++; }
   for (const d of decks) {
     const f = d.cards.filter(c => c.srs.state === 0 && !c.suspended && (!c.note || !seen.has(c.note) && !!seen.add(c.note))).length;
     if (byPlan) nNew += Math.min(f, newAllowance(d.id)); else fresh += f;
@@ -3955,10 +3957,16 @@ const STOP = new Set(('le la les l un une des de du d et ou au aux en dans par p
   'o os as um uma uns umas do da dos das no na nos nas e ou em por para com sem que e sao ser se seu sua').split(' '));
 /* Les négations sont des mots vides pour le recoupement, mais elles inversent le sens :
    « le corps change » ne vaut pas « le corps ne change pas ». En portugais, « no » veut dire « dans le ». */
-const NEG = new Set(('ne pas jamais aucun aucune rien ni non not no never none nothing nobody neither nor cannot ' +
-  'nicht kein keine keinen keinem keiner keines nie niemals nichts niemand weder nunca jamas nada nadie ningun ninguno ninguna tampoco ' +
+const NEG = new Set(('pas jamais aucun aucune rien ni non not no never none nothing nobody neither nor cannot ' +
+  'nicht kein keine keinen keinem keiner keines nie niemals nichts niemand nein weder nunca jamas nada nadie ningun ninguno ninguna tampoco ' +
   'nao nem nenhum nenhuma ninguem').split(' '));
-const hasNeg = (s, pt) => s.split(' ').some(w => NEG.has(w) && !(pt && w === 'no')) || /(?:^| )n (?=[aeiouyh])|(?:^| )(?:don|doesn|didn|isn|aren|wasn|weren|haven|hasn|hadn|won|wouldn|can|couldn|shouldn|mustn|needn) t(?= |$)/.test(s);
+/* Sur le texte brut. « ne / n' » ne compte qu'avec sa particule (ne… plus, n'… personne) : un « n » seul est une variable
+   (« n est la quantité de matière », n-hexane). « Non, … » en tête répond à une question ; « non-polaire » est un seul mot. */
+const hasNeg = (raw, pt) => {
+  const s = normTxt(String(raw || '').replace(/^\s*(?:non|no|nein|não|nao)\s*[,.;:!]+\s*(?=\S)/i, '').replace(/\bnon[-‑]/gi, 'non').replace(/\bn['’ʼ]/gi, 'ne '));
+  return /(?:^| )ne (?:\S+ ){0,3}(?:pas|plus|jamais|rien|personne|aucun|aucune|guere|point)(?= |$)/.test(s) || s.split(' ').some(w => NEG.has(w) && !(pt && w === 'no')) ||
+    /(?:^| )(?:don|doesn|didn|isn|aren|wasn|weren|haven|hasn|hadn|won|wouldn|can|couldn|shouldn|mustn|needn) t(?= |$)/.test(s);
+};
 const normTxt = s => String(s || '').toLowerCase().replace(/ß/g, 'ss').replace(/æ/g, 'ae').replace(/œ/g, 'oe').replace(/ø/g, 'o').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’']/g, ' ').replace(/[^a-z0-9,.\s]/g, ' ').replace(/(\d),(\d)/g, '$1.$2').replace(/[,]/g, ' ').replace(/\.(?!\d)/g, ' ').replace(/\s+/g, ' ').trim();
 const stem = w => w.length > 4 ? w.replace(/(issements|issement|ations|ation|ciones|cion|coes|cao|ungen|ung|heit|keit|ements|ement|ments|ment|mente|euses|euse|eurs|eur|ives|ive|ifs|if|lich|isch|ing|ies|es|en|er|s|x|e|a|o)$/, '') : w;
 function lev(a, b) {
@@ -4003,13 +4011,21 @@ function scoreAnswer(answer, expected, strict, lang) {
   if (nb.length && !nb.every(n => na.includes(n))) score -= 0.3;
   if (strict === 'strict') score = Math.min(score, charSim + 0.05);
   const th = STRICT[strict];
-  // Une négation en moins (ou en trop) dit le contraire : jamais « correct ».
-  const pt = /^pt/i.test(lang || LANG), neg = hasNeg(b, pt), flip = neg !== hasNeg(a, pt);
-  if (flip) score = Math.min(score, th.part - 0.01);
+  // Une négation en moins (ou en trop) dit le contraire : jamais « correct ». L'heuristique peut se tromper : « partiel » au pire, pas « à revoir ».
+  const pt = /^pt/i.test(lang || LANG), neg = hasNeg(expected, pt), flip = neg !== hasNeg(answer, pt);
+  if (flip) score = Math.min(score, th.part);
   score = clamp(score, 0, 1);
   const verdict = score >= th.ok ? 'correct' : score >= th.part ? 'partiel' : 'incorrect';
   const missing = [...new Set(words.filter((w, i) => !matched[i]))].sort((x, y) => y.length - x.length).slice(0, 3);
   return { score: Math.round(score * 100), verdict, missing: verdict === 'correct' ? [] : missing, comment: '', grade: verdict === 'correct' ? (score > 0.97 ? 4 : 3) : verdict === 'partiel' ? 2 : 1, ai: false, ...(flip ? { note: neg ? t('négation manquante') : t('négation en trop') } : {}) };
+}
+/* La réponse attendue, mot pour mot, aux articles de tête près et à une faute de frappe près par mot de plus de 4 lettres
+   (même première lettre, chiffres exacts), sans négation de différence : l'IA n'apporterait rien.
+   Un autre ordre, « avec » pour « sans », « et » pour « ou » ne passent pas. */
+const DETS = /^(?:(?:le|la|les|l|un|une|des|du|the|a|an|el|lo|los|las|unos|unas|una|der|die|das|den|dem|ein|eine|einen|einem|einer|eines|o|os|as|um|uma|uns|umas) )+/;
+function nearSame(answer, expected, lang) {
+  const w = s => normTxt(s).replace(DETS, '').split(' '), a = w(answer), b = w(expected), pt = /^pt/i.test(lang || LANG);
+  return a.length === b.length && a.every((x, i) => x === b[i] || b[i].length > 4 && x[0] === b[i][0] && !/\d/.test(x + b[i]) && lev(x, b[i]) <= 1) && hasNeg(answer, pt) === hasNeg(expected, pt);
 }
 
 /* ── 8. Sons (synthétisés, aucun fichier) et ambiance ─────────────── */
@@ -9740,7 +9756,7 @@ const Onb = {
    ════════════════════════════════════════════════════════════════════ */
 const Study = {
   active: false, queue: [], learn: [], cur: null, flipped: false, mode: 'flip', choice: null, verdict: null, typed: '',
-  order: [], pool: [], t0: 0, stats: null, history: [], ctl: null, tutorCtl: null, fails: {}, wake: null, cram: false, busy: false, tok: 0, scope: [], summaryOn: false,
+  order: [], pool: [], t0: 0, stats: null, history: [], ctl: null, tutorCtl: null, fails: {}, wake: null, cram: false, busy: false, tok: 0, scope: [], summaryOn: false, unsaved: [], joining: false,
 
   build(deckId, cram, weak) {
     const decks = deckId ? [deckById(deckId)].filter(Boolean) : S.decks;
@@ -9757,11 +9773,10 @@ const Study = {
     const now = Date.now();
     const learning = cards.filter(([c]) => (c.srs.state === 1 || c.srs.state === 3) && isDue(c, now)).sort((a, b) => a[0].srs.due - b[0].srs.due);
     const reviews = shuffle(cards.filter(([c]) => c.srs.state === 2 && isDue(c, now))).sort((a, b) => FSRS.retrievability(a[0].srs) - FSRS.retrievability(b[0].srs));
-    // Une seule fiche « sœur » par note le même jour, comme dans Anki.
-    const seen = new Set(); const dedupe = arr => arr.filter(([c]) => { if (!c.note) return true; if (seen.has(c.note)) return false; seen.add(c.note); return true; });
+    // Une seule fiche « sœur » par note le même jour, comme dans Anki : rien d'une note déjà révisée aujourd'hui (même règle que todayCounts).
+    const seen = notesToday(decks); const dedupe = arr => arr.filter(([c]) => { if (!c.note) return true; if (seen.has(c.note)) return false; seen.add(c.note); return true; });
     const rev = dedupe(reviews);
-    // Nouvelles : tri des sœurs avant la limite du jour, et rien d'une note déjà révisée aujourd'hui (même règle que todayCounts).
-    for (const n of notesToday(decks)) seen.add(n);
+    // Nouvelles : tri des sœurs avant la limite du jour.
     let nw;
     if (planQuota()) nw = decks.flatMap(d => dedupe(d.cards.filter(c => c.srs.state === 0 && !c.suspended).map(c => [c, d])).slice(0, newAllowance(d.id)));
     else nw = dedupe(cards.filter(([c]) => c.srs.state === 0)).slice(0, newAllowance());
@@ -9795,7 +9810,7 @@ const Study = {
     this.next();
   },
   close(silent) {
-    this.active = false; this.summaryOn = false; this.cur = null; this.busy = false; this.tok++;
+    this.active = false; this.summaryOn = false; this.cur = null; this.busy = false; this.tok++; this.keep();
     this.ctl?.abort(); this.tutorCtl?.abort(); HandsFree.stop(true); Dictation.stop(); Ambient.stop();
     this.pad?.destroy(); this.scratchPad?.destroy(); this.pad = this.scratchPad = null;
     try { speechSynthesis.cancel(); } catch { }
@@ -9803,6 +9818,38 @@ const Study = {
     const el = $('#study'); el.hidden = true; el.innerHTML = '';
     document.body.classList.remove('studying');
     if (!silent) App.render();
+  },
+  /** Fin de séance dans un onglet figé par un autre onglet (Store.stale) : ses notes attendent d'être reportées. */
+  keep() {
+    if (Store.frozen && Store.staleEl && this.history.length) this.unsaved.push(...this.history.splice(0));
+    this.rejoin();
+  },
+  /** On reprend la version de l'autre onglet, puis on y reporte, fiche par fiche, les notes qu'elle n'a pas encore
+   *  (calendrier, journal du jour, XP, étiquette « leech »), et on enregistre : la séance n'est pas perdue. */
+  async rejoin() {
+    if (this.joining || !this.unsaved.length || this.active && !this.summaryOn) return;
+    this.joining = true; const old = S, flags = { ...S.profile.flags };
+    try {
+      clearTimeout(Store.saveT); Store.saveT = 0; Store.frozen = false;
+      await Store.follow(true);
+      // Pas encore possible (fenêtre ouverte, autre lecture en cours) : on réessaie un peu plus tard.
+      if (S === old) { setTimeout(() => this.rejoin(), 2000); return; }
+      const add = (o, a, b) => { for (const k in a) { const x = a[k], y = b?.[k]; if (typeof x === 'number') o[k] = (+o[k] || 0) + x - (+y || 0); else if (x && typeof x === 'object') add(o[k] || (o[k] = Array.isArray(x) ? [] : {}), x, y); } };
+      const decks = new Set();
+      for (const h of this.unsaved.splice(0)) {
+        const [c, d] = findCard(h.item[0].id);
+        if (!c || (c.srs.last || 0) >= h.at) continue; // déjà dans l'autre version, ou fiche supprimée là-bas
+        c.srs = { ...h.after }; if (h.leech && !c.tags.includes('leech')) c.tags.push('leech');
+        if (h.logAfter) add(S.profile.log[h.day] || (S.profile.log[h.day] = {}), h.logAfter, h.logBefore);
+        S.profile.xp += h.xp || 0; decks.add(d);
+      }
+      for (const [k, v] of Object.entries(flags)) if (v && !S.profile.flags[k]) S.profile.flags[k] = v;
+      S.profile.bestStreak = Math.max(S.profile.bestStreak || 0, streak());
+      decks.forEach(d => Store.touchDeck(d)); Store.touch('profile'); Store.saveLocal();
+      Store.staleEl?.remove?.(); Store.staleEl = null;
+      if (decks.size) toast(t("Notes de la séance enregistrées, avec les changements de l'autre onglet."), 'check');
+      if (!this.active) App.render();
+    } finally { this.joining = false; }
   },
   counts() {
     const m = { n: 0, l: 0, r: 0 };
@@ -10049,15 +10096,18 @@ const Study = {
     Dictation.stop();
     const [c, d] = this.cur; const f = cardFaces(c); this.typed = ans;
     const strict = S.profile.settings.strict;
-    const local = localGrade(ans, f.expected, strict, cardLangs(c, d)[1]);
-    // Seule une réponse identique se passe de l'IA : un score local élevé peut cacher une négation oubliée.
+    const lang = cardLangs(c, d)[1], local = localGrade(ans, f.expected, strict, lang);
+    // Une réponse identique, ou à un article et une faute de frappe près (nearSame), se passe de l'IA :
+    // un score local élevé seul peut cacher une négation oubliée, un ordre inversé, « avec » pour « sans ».
     const exact = normTxt(ans) === normTxt(f.expected);
-    if (!AI.on || exact) { this.verdict = { ...local, note: local.note || (AI.on ? t('correspondance exacte') : '') }; return this.afterCheck(); }
+    if (!AI.on || exact || local.verdict === 'correct' && nearSame(ans, f.expected, lang)) { this.verdict = { ...local, note: local.note || (!AI.on ? '' : exact ? t('correspondance exacte') : t('correspondance quasi exacte')) }; return this.afterCheck(); }
     if (!Pro.use('grade')) { this.verdict = { ...local, note: t('corrections IA du jour épuisées : correction locale') }; return this.afterCheck(); }
     // La réponse ne compte que si cette attente est toujours en cours (fiche suivante, annulation, séance fermée : on l'ignore).
-    const wait = this.verdict = { pending: true }, live = () => this.active && this.verdict === wait;
+    const wait = this.verdict = { pending: true, at: Date.now() }, live = () => this.active && this.verdict === wait;
     $('#verdictBox').innerHTML = this.verdictHTML(); if (inp) inp.disabled = true;
     this.ctl?.abort(); this.ctl = new AbortController();
+    // Une requête bloquée (réseau, relais lent) ne retient pas la fiche plus de 30 s : verdict local, comme quand l'IA échoue.
+    const late = setTimeout(() => live() && this.unpend({ ...local, note: t('IA indisponible') }), 30000);
     try {
       const r = await aiGrade(plain(f.question), plain(f.expected), ans, strict, this.ctl.signal);
       if (!live()) return;
@@ -10066,7 +10116,15 @@ const Study = {
       Pro.refund?.('grade'); // l'IA n'a rien corrigé : la correction gratuite est rendue
       if (!live() || e?.code === 'cancelled') return;
       this.verdict = { ...local, note: AI.fail(e) ? t('IA indisponible') : local.note || '' };
-    }
+    } finally { clearTimeout(late); }
+    this.afterCheck();
+  },
+  /** Correction IA en attente abandonnée (« afficher la réponse », délai dépassé) : la requête est annulée, ce qui rend
+   *  la correction gratuite, et la fiche se retourne, avec le verdict v s'il y en a un. */
+  unpend(v = null) {
+    this.verdict = v; this.ctl?.abort();
+    const inp = $('#ans'); if (inp) inp.disabled = false;
+    $('#inkPad')?.classList.remove('busy'); const go = $('#inkGo'); if (go) go.disabled = false;
     this.afterCheck();
   },
   async checkInk() {
@@ -10076,9 +10134,10 @@ const Study = {
     const img = pad.image({ maxW: 1400 }); this.inkURL = pad.image({ bg: null, ink: '#1D1C18', maxW: 900 }).url;
     if (!AI.images) { this.verdict = null; Sound.play('flip'); return this.flip(); }
     if (!Pro.use('grade')) { this.verdict = null; toast(t('Corrections IA du jour épuisées : comparez vous-même, ou passez à Pro.'), 'crown'); Sound.play('flip'); return this.flip(); }
-    const wait = this.verdict = { pending: true, ink: true }, live = () => this.active && this.verdict === wait;
+    const wait = this.verdict = { pending: true, ink: true, at: Date.now() }, live = () => this.active && this.verdict === wait;
     $('#verdictBox').innerHTML = this.verdictHTML(); $('#inkPad')?.classList.add('busy'); const go = $('#inkGo'); if (go) go.disabled = true;
     this.ctl?.abort(); this.ctl = new AbortController();
+    const late = setTimeout(() => { if (live()) { toast(t("L'IA n'a pas répondu en 30 secondes."), 'sparkles'); this.unpend(); } }, 30000);
     try {
       const r = await aiGradeInk(plain(f.question), plain(f.expected), await img.blob(), S.profile.settings.strict, this.ctl.signal);
       if (!live()) return;
@@ -10089,7 +10148,7 @@ const Study = {
       if (!live() || e?.code === 'cancelled') return;
       // Sans l'IA, la personne compare elle-même son écriture à la réponse.
       this.verdict = null; toast(AI.fail(e) || t('IA indisponible'), 'sparkles');
-    }
+    } finally { clearTimeout(late); }
     this.afterCheck();
   },
   afterCheck() {
@@ -10109,7 +10168,8 @@ const Study = {
     if (g === 1) { this.fails[c.id] = (this.fails[c.id] || 0) + 1; if (leech) c.tags.push('leech'); this.stats.wrong.push(c.id); }
     const xp = logReview(g, now - this.t0, wasNew, d.id);
     this.stats.n++; this.stats.g[g]++; if (g >= 2) this.stats.ok++; this.stats.xp += xp;
-    this.history.push({ item: this.cur, before, logBefore, xpBefore, flagsBefore, g, xp, leech, queue: this.queue.slice(), learn: this.learn.slice() });
+    // at, after, day, logAfter : de quoi reporter cette note sur la version d'un autre onglet (rejoin).
+    this.history.push({ item: this.cur, before, logBefore, xpBefore, flagsBefore, g, xp, leech, queue: this.queue.slice(), learn: this.learn.slice(), at: now, after: { ...c.srs }, day: dayKey(), logAfter: JSON.parse(JSON.stringify(S.profile.log[dayKey()] || null)) });
     if (c.srs.due - now < 60 * MIN) this.learn.push({ item: this.cur, due: c.srs.due });
     Store.touchDeck(d); Store.touch('profile');
     haptic(g === 1 ? 25 : 12);
@@ -10202,7 +10262,7 @@ Explain the idea differently, in 4 sentences at most, with a concrete everyday a
   act(name, el) {
     if (!this.active) return;
     if (name === 'st-close') this.stats.n ? this.summary() : this.close();
-    else if (name === 'st-flip') { if (this.verdict?.pending) return; if (this.mode === 'type' && $('#ans')?.value.trim()) this.check(); else if (this.mode === 'ink' && this.pad && !this.pad.empty()) this.checkInk(); else this.flip(); }
+    else if (name === 'st-flip') { if (this.verdict?.pending) return this.unpend(); if (this.mode === 'type' && $('#ans')?.value.trim()) this.check(); else if (this.mode === 'ink' && this.pad && !this.pad.empty()) this.checkInk(); else this.flip(); }
     else if (name === 'st-inkcheck') this.checkInk();
     else if (name === 'st-scratch') this.scratch();
     else if (name === 'st-grade') this.grade(+el.dataset.g);
@@ -10231,7 +10291,8 @@ Explain the idea differently, in 4 sentences at most, with a concrete everyday a
     if (this.summaryOn) { if (k === ' ' || k === 'enter') { e.preventDefault(); this.close(); } return; }
     if (this.busy) { if ([' ', 'enter', '1', '2', '3', '4'].includes(k)) { e.preventDefault(); this.skip(); } return; }
     const [c] = this.cur;
-    if ((k === ' ' || k === 'enter') && !this.flipped) { e.preventDefault(); if (!['mcq', 'tf', 'order'].includes(c.type)) this.act('st-flip'); return; }
+    // Correction IA en route : un double appui (Entrée, Entrée) ne l'abandonne pas ; plus tard, la touche montre la réponse.
+    if ((k === ' ' || k === 'enter') && !this.flipped) { e.preventDefault(); if (!['mcq', 'tf', 'order'].includes(c.type) && !(Date.now() - this.verdict?.at < 1000)) this.act('st-flip'); return; }
     if (this.flipped && ['1', '2', '3', '4'].includes(k)) { e.preventDefault(); this.grade(+k); return; }
     if (this.flipped && (k === ' ' || k === 'enter')) { e.preventDefault(); this.grade(this.verdict?.grade || 3); return; }
     if (!this.flipped && c.type === 'mcq' && k.length === 1 && 'abcd'.includes(k)) { this.choose('abcd'.indexOf(k)); return; }
@@ -10284,7 +10345,7 @@ Explain the idea differently, in 4 sentences at most, with a concrete everyday a
       </div>`;
     if (redraw) return;
     if (s.n) { Sound.play('print'); setTimeout(() => this.summaryOn && Sound.play('stamp'), 1550); }
-    Store.touch('profile');
+    Store.touch('profile'); this.keep();
     setTimeout(() => checkBadges(), 1900);
     if (L.i > this.lvl0 && !S.demo) setTimeout(() => { Sound.play('seal'); toast(t('Niveau {i} atteint : {name}', { i: L.i + 1, name: L.name }), null, waxSeal({ id: 'lvl' + L.i, glyph: String(L.i + 1), color: '#7A4E14' }, 40, 'wax')); }, 2300);
   }
@@ -11105,18 +11166,22 @@ function matchFinish() {
 function buildExam() {
   const decks = Game.deckId ? [deckById(Game.deckId)].filter(Boolean) : S.decks;
   const pool = (Game.only || decks.flatMap(d => d.cards.map(c => [c, d]))).filter(([c]) => !['occlusion', 'order'].includes(c.type));
-  const ans = (Game.only ? S.decks.flatMap(d => d.cards.map(c => [c, d])) : pool).filter(([c]) => !['occlusion', 'order'].includes(c.type)).filter(([c]) => !['mcq', 'tf'].includes(c.type)).map(([c, d]) => [plain(cardFaces(c).expected), d]).filter(([x]) => x && x.length < 120);
+  // Les réponses à plusieurs trous (« Yamoussoukro … Abidjan ») sont mises en morceaux : les distracteurs en sont refaits.
+  const ans = (Game.only ? S.decks.flatMap(d => d.cards.map(c => [c, d])) : pool).filter(([c]) => !['occlusion', 'order'].includes(c.type)).filter(([c]) => !['mcq', 'tf'].includes(c.type)).flatMap(([c, d]) => plain(cardFaces(c).expected).split(' … ').map(x => [x, d])).filter(([x]) => x && x.length < 120);
   const qs = [];
   for (const [c, d] of shuffle(pool)) {
     if (qs.length >= Game.n) break;
     if (c.type === 'mcq') { qs.push({ c, d, q: c.front, opts: shuffle(c.options.map((x, i) => ({ t: x, ok: i === c.answer }))), expl: c.back }); continue; }
     if (c.type === 'tf') { qs.push({ c, d, q: c.front, opts: [{ t: trueLbl(), ok: !!c.answer }, { t: falseLbl(), ok: !c.answer }], expl: c.back }); continue; }
     const f = cardFaces(c); const right = plain(f.expected); if (!right || right.length > 120) continue;
+    // Un texte à plusieurs trous : chaque distracteur a autant de parties, sinon la bonne réponse se repère à son « … ».
+    const parts = right.split(' … '), n = parts.length;
     // Distracteurs crédibles : même paquet d'abord, même nature (date/chiffre ou texte), longueur proche.
-    const seen = new Set([normTxt(right)]); const digits = /\d/.test(right);
-    const score = ([x, dd]) => (dd === d ? 0 : 1000) + (/\d/.test(x) === digits ? 0 : 200) + Math.abs(x.length - right.length);
-    const others = ans.filter(([x]) => { const k = normTxt(x); if (seen.has(k)) return false; seen.add(k); return true; }).sort((a, b) => score(a) - score(b)).slice(0, 5).map(([x]) => x);
-    const picks = shuffle(others).slice(0, 3); if (!picks.length) continue;
+    const seen = new Set(parts.map(normTxt)); const digits = /\d/.test(right);
+    const score = ([x, dd]) => (dd === d ? 0 : 1000) + (/\d/.test(x) === digits ? 0 : 200) + Math.abs(x.length - right.length / n);
+    const others = shuffle(ans.filter(([x]) => { const k = normTxt(x); if (seen.has(k)) return false; seen.add(k); return true; }).sort((a, b) => score(a) - score(b)).slice(0, 5 * n).map(([x]) => x));
+    const picks = []; for (let i = 0; i + n <= others.length && picks.length < 3; i += n) picks.push(others.slice(i, i + n).join(' … '));
+    if (!picks.length) continue;
     qs.push({ c, d, q: plain(f.question), opts: shuffle([{ t: right, ok: true }, ...picks.map(x => ({ t: x, ok: false }))]), expl: c.extra || '' });
   }
   return qs;
@@ -16463,6 +16528,9 @@ TR = {
   "Prochain créneau": ["Next slot", "Próxima franja", "Nächstes Zeitfenster", "Próximo horário"],
   "Cette fonction de l'IA fait partie de Pro et Élite.": ["This AI feature is part of Pro and Elite.", "Esta función de la IA forma parte de Pro y Élite.", "Diese KI-Funktion gehört zu Pro und Elite.", "Este recurso da IA faz parte do Pro e do Elite."],
   "Vos fiches ont changé dans un autre onglet : rechargez cette page pour ne rien écraser.": ["Your cards changed in another tab: reload this page so nothing gets overwritten.","Tus tarjetas cambiaron en otra pestaña: recarga esta página para no sobrescribir nada.","Deine Karten wurden in einem anderen Tab geändert: Lade diese Seite neu, damit nichts überschrieben wird.","Seus cartões mudaram em outra aba: recarregue esta página para não sobrescrever nada."],
+  "correspondance quasi exacte": ["near-exact match","coincidencia casi exacta","fast exakte Übereinstimmung","correspondência quase exata"],
+  "Vos fiches ont changé dans un autre onglet : continuez la séance, vos notes seront ajoutées à la nouvelle version à la fin.": ["Your cards changed in another tab: keep going, your grades will be added to the new version at the end.","Tus tarjetas cambiaron en otra pestaña: sigue con la sesión, tus notas se añadirán a la nueva versión al final.","Deine Karten wurden in einem anderen Tab geändert: Mach mit der Sitzung weiter, deine Bewertungen werden am Ende in die neue Version übernommen.","Seus cartões mudaram em outra aba: continue a sessão, suas notas serão adicionadas à nova versão no final."],
+  "Notes de la séance enregistrées, avec les changements de l'autre onglet.": ["Session grades saved, along with the changes from the other tab.","Notas de la sesión guardadas, junto con los cambios de la otra pestaña.","Bewertungen der Sitzung gespeichert, zusammen mit den Änderungen aus dem anderen Tab.","Notas da sessão salvas, junto com as mudanças da outra aba."],
   "négation manquante": ["missing negation","falta la negación","Verneinung fehlt","falta a negação"],
   "négation en trop": ["extra negation","negación de más","überflüssige Verneinung","negação a mais"],
   "Pas de connexion : l'IA sera vérifiée au retour du réseau.": ["No connection: the AI will be checked when you're back online.","Sin conexión: la IA se comprobará cuando vuelva la conexión.","Keine Verbindung: Die KI wird geprüft, sobald das Netz zurück ist.","Sem conexão: a IA será verificada quando a conexão voltar."],
