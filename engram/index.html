@@ -2887,14 +2887,22 @@ function newAllowance(deckId) {
   }
   return Math.max(0, S.profile.settings.newPerDay - (l.n || 0));
 }
+/** Notes dont une fiche a déjà été notée aujourd'hui : leurs fiches « sœurs » nouvelles attendent demain. */
+function notesToday(decks = S.decks) {
+  const t0 = dayStart(), s = new Set();
+  for (const d of decks) for (const c of d.cards) if (c.note && c.srs.state > 0 && c.srs.last >= t0) s.add(c.note);
+  return s;
+}
 function todayCounts(deckId) {
   const decks = deckId ? [deckById(deckId)].filter(Boolean) : S.decks;
   const now = Date.now(), byPlan = !!planQuota();
   let nNew = 0, fresh = 0, nLearn = 0, nRev = 0;
+  // Comme Study.build : une seule nouvelle par note, aucune d'une note révisée aujourd'hui ou due en révision.
+  const seen = notesToday(decks);
+  for (const d of decks) for (const c of d.cards) { if (!isDue(c, now)) continue; if (c.srs.state === 2) { nRev++; if (c.note) seen.add(c.note); } else nLearn++; }
   for (const d of decks) {
-    const f = d.cards.filter(c => c.srs.state === 0 && !c.suspended).length;
+    const f = d.cards.filter(c => c.srs.state === 0 && !c.suspended && (!c.note || !seen.has(c.note) && !!seen.add(c.note))).length;
     if (byPlan) nNew += Math.min(f, newAllowance(d.id)); else fresh += f;
-    for (const c of d.cards) { if (!isDue(c, now)) continue; if (c.srs.state === 2) nRev++; else nLearn++; }
   }
   if (!byPlan) nNew = Math.min(fresh, newAllowance());
   return { nNew, nLearn, nRev, total: nNew + nLearn + nRev };
@@ -8005,19 +8013,22 @@ const Study = {
     const now = Date.now();
     const learning = cards.filter(([c]) => (c.srs.state === 1 || c.srs.state === 3) && isDue(c, now)).sort((a, b) => a[0].srs.due - b[0].srs.due);
     const reviews = shuffle(cards.filter(([c]) => c.srs.state === 2 && isDue(c, now))).sort((a, b) => FSRS.retrievability(a[0].srs) - FSRS.retrievability(b[0].srs));
-    let fresh;
-    if (planQuota()) fresh = decks.flatMap(d => d.cards.filter(c => c.srs.state === 0 && !c.suspended).slice(0, newAllowance(d.id)).map(c => [c, d]));
-    else fresh = cards.filter(([c]) => c.srs.state === 0).slice(0, newAllowance());
     // Une seule fiche « sœur » par note le même jour, comme dans Anki.
     const seen = new Set(); const dedupe = arr => arr.filter(([c]) => { if (!c.note) return true; if (seen.has(c.note)) return false; seen.add(c.note); return true; });
-    const rev = dedupe(reviews), nw = dedupe(fresh);
+    const rev = dedupe(reviews);
+    // Nouvelles : tri des sœurs avant la limite du jour, et rien d'une note déjà révisée aujourd'hui (même règle que todayCounts).
+    for (const n of notesToday(decks)) seen.add(n);
+    let nw;
+    if (planQuota()) nw = decks.flatMap(d => dedupe(d.cards.filter(c => c.srs.state === 0 && !c.suspended).map(c => [c, d])).slice(0, newAllowance(d.id)));
+    else nw = dedupe(cards.filter(([c]) => c.srs.state === 0)).slice(0, newAllowance());
     const mixed = []; let ni = 0;
     rev.forEach((x, i) => { mixed.push(x); if ((i + 1) % 4 === 0 && ni < nw.length) mixed.push(nw[ni++]); });
     while (ni < nw.length) mixed.push(nw[ni++]);
     return learning.concat(mixed);
   },
   start(o = {}) {
-    const items = o.items || this.build(o.deckId, o.cram, o.weak);
+    // Fiches préparées à l'avance (mission, Mentor, examen) : on reprend les fiches vivantes, une annulation a pu remplacer les objets.
+    const items = o.items ? o.items.map(([c]) => findCard(c?.id)).filter(x => x[0]) : this.build(o.deckId, o.cram, o.weak);
     if (!items.length) { toast(o.cram || o.weak ? t('Aucune fiche à réviser dans ce paquet.') : t('Rien à réviser pour le moment. Revenez plus tard !'), 'check'); return; }
     if (Mentor.isOpen) Mentor.close();
     this.active = true; this.summaryOn = false; this.queue = items.slice(); this.learn = []; this.cram = !!o.cram;
@@ -8232,7 +8243,7 @@ const Study = {
     if (HandsFree.on) HandsFree.cycle();
   },
   choose(i) {
-    const [c] = this.cur; if (this.flipped) return;
+    const [c] = this.cur; if (this.flipped || this.choice !== null) return; // le premier choix est définitif
     this.choice = i;
     const isRight = bi => c.type === 'tf' ? (bi === 1) === !!c.answer : bi === c.answer;
     $$('#card3d .front .opt').forEach(b => { const bi = +b.dataset.i; if (isRight(bi)) b.classList.add('right'); else if (bi === i) b.classList.add('wrong'); });
@@ -8328,10 +8339,11 @@ const Study = {
     const before = JSON.parse(JSON.stringify(c.srs)); const wasNew = c.srs.state === 0;
     const logBefore = JSON.parse(JSON.stringify(S.profile.log[dayKey()] || null)); const xpBefore = S.profile.xp, flagsBefore = { ...S.profile.flags };
     c.srs = FSRS.schedule(c.srs, g, now, S.profile.settings.retention);
-    if (g === 1) { this.fails[c.id] = (this.fails[c.id] || 0) + 1; if (isLeech(c) && !c.tags.includes('leech')) c.tags.push('leech'); this.stats.wrong.push(c.id); }
+    const leech = g === 1 && isLeech(c) && !c.tags.includes('leech'); // posée par cette note : l'annulation la retire
+    if (g === 1) { this.fails[c.id] = (this.fails[c.id] || 0) + 1; if (leech) c.tags.push('leech'); this.stats.wrong.push(c.id); }
     const xp = logReview(g, now - this.t0, wasNew, d.id);
     this.stats.n++; this.stats.g[g]++; if (g >= 2) this.stats.ok++; this.stats.xp += xp;
-    this.history.push({ item: this.cur, before, logBefore, xpBefore, flagsBefore, g, queue: this.queue.slice(), learn: this.learn.slice() });
+    this.history.push({ item: this.cur, before, logBefore, xpBefore, flagsBefore, g, xp, leech, queue: this.queue.slice(), learn: this.learn.slice() });
     if (c.srs.due - now < 60 * MIN) this.learn.push({ item: this.cur, due: c.srs.due });
     Store.touchDeck(d); Store.touch('profile');
     haptic(g === 1 ? 25 : 12);
@@ -8366,7 +8378,10 @@ const Study = {
     const [c, d] = h.item;
     c.srs = h.before; S.profile.xp = h.xpBefore; S.profile.flags = h.flagsBefore;
     if (h.logBefore) S.profile.log[dayKey()] = h.logBefore; else delete S.profile.log[dayKey()];
-    this.stats.n--; this.stats.g[h.g]--; if (h.g >= 2) this.stats.ok--;
+    this.stats.n--; this.stats.g[h.g]--; if (h.g >= 2) this.stats.ok--; this.stats.xp -= h.xp || 0;
+    // Un « À revoir » annulé ne compte plus comme oubli de la séance.
+    if (h.g === 1) { this.fails[c.id] = Math.max(0, (this.fails[c.id] || 0) - 1); const w = this.stats.wrong.lastIndexOf(c.id); if (w >= 0) this.stats.wrong.splice(w, 1); }
+    if (h.leech) c.tags = c.tags.filter(x => x !== 'leech');
     this.queue = h.queue; this.learn = h.learn; this.busy = false; this.tok++;
     this.cur = h.item; this.flipped = false; this.choice = null; this.verdict = null; this.typed = ''; this.t0 = Date.now();
     this.order = []; this.pool = c.type === 'order' ? shuffle((c.items || []).map((_, i) => i)) : [];
@@ -8430,6 +8445,8 @@ Explain the idea differently, in 4 sentences at most, with a concrete everyday a
     if (e.key === 'Escape') { e.preventDefault(); if (this.summaryOn) this.close(); else this.act('st-close'); return; }
     if (typing) return;
     const k = e.key.toLowerCase();
+    // Les raccourcis du navigateur (copier, chercher, tout sélectionner…) ne répondent pas à la fiche ; seul Ctrl/Cmd+Z annule.
+    if ((e.ctrlKey || e.metaKey || e.altKey) && k !== 'z') return;
     if (this.summaryOn) { if (k === ' ' || k === 'enter') { e.preventDefault(); this.close(); } return; }
     if (this.busy) { if ([' ', 'enter', '1', '2', '3', '4'].includes(k)) { e.preventDefault(); this.skip(); } return; }
     const [c] = this.cur;
@@ -8445,7 +8462,7 @@ Explain the idea differently, in 4 sentences at most, with a concrete everyday a
   },
   // Fin de séance : un bordereau s'imprime, puis le tampon « séance validée ».
   summary(redraw = false) {
-    this.summaryOn = true; this.cur = null; this.busy = false; Ambient.stop();
+    this.summaryOn = true; this.cur = null; this.busy = false; this.tok++; Ambient.stop(); // tok++ : les minuteries d'une note en vol n'affichent plus la fiche suivante
     const s = this.stats; const mins = Math.max(1, Math.round((Date.now() - s.t0) / 60000));
     const acc = s.n ? Math.round(s.ok / s.n * 100) : 0;
     if (!redraw) {
@@ -8927,7 +8944,7 @@ const Game = {
   // Examen
   n: 10, timed: true, qs: [], i: 0, picked: null, results: [], timer: 0, left: 0, per: 30,
   key(e, typing) {
-    if (App.route.v !== 'games' || typing) return false;
+    if (App.route.v !== 'games' || typing || e.ctrlKey || e.metaKey || e.altKey) return false; // Ctrl+C, Ctrl+A… ne répondent pas
     const k = e.key.toLowerCase();
     if (this.mode === 'exam-run') {
       if (this.picked === null && k.length === 1 && 'abcd'.includes(k) && this.qs[this.i]?.opts['abcd'.indexOf(k)]) { examPick('abcd'.indexOf(k)); return true; }
@@ -9218,9 +9235,11 @@ const Plan = {
     const cards = examCards(x); if (!cards.length) return null;
     const at = keyToDate(x.date).getTime() + 9 * HOUR;
     const idle = cards.reduce((a, c) => a + (c.srs.state === 0 ? 0 : FSRS.retrievability(c.srs, at)), 0) / cards.length;
-    const days = daysUntil(x.date), P = this.compute(Math.max(1, Math.min(28, days + 1)));
+    const days = daysUntil(x.date), H = Math.max(1, Math.min(28, days + 1)), P = this.compute(H);
     const ids = new Set(x.deckIds?.length ? x.deckIds : S.decks.map(d => d.id));
-    const planned = P.days.slice(0, Math.max(0, days - 1)).reduce((a, d) => a + Object.entries(d.quota).reduce((s, [id, n]) => s + (ids.has(id) ? n : 0), 0), 0);
+    let planned = P.days.slice(0, Math.max(0, days - 1)).reduce((a, d) => a + Object.entries(d.quota).reduce((s, [id, n]) => s + (ids.has(id) ? n : 0), 0), 0);
+    // Au-delà des jours simulés : un paquet d'examen voit de toute façon toutes ses nouvelles avant son jour J (quota hors budget).
+    if (days + 1 > H) for (const id of ids) { const d = deckById(id); if (d && this.deckDeadline(d)?.days <= days) planned += P.remaining[id] || 0; }
     const seen = cards.filter(c => c.srs.state > 0).length;
     const coverage = Math.min(1, (seen + planned) / cards.length);
     const follow = coverage * Math.min(0.98, S.profile.settings.retention + 0.03);
