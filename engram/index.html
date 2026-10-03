@@ -3066,7 +3066,7 @@ const TONES = {
   demanding: { label: N_('Exigeant'), desc: N_('Précis, sans complaisance, vise l\'excellence.'), ai: 'demanding and precise, no flattery; hold the student to a high standard and point out every imprecision' }
 };
 
-async function aiGrade(question, expected, answer, strict) {
+async function aiGrade(question, expected, answer, strict, signal) {
   const prompt = `You grade answers in a flashcard app. Decide whether the student's answer matches the expected answer, even when it is not word for word.
 
 Strictness chosen by the student — ${STRICT[strict].ai}
@@ -3078,15 +3078,15 @@ Student's answer: ${answer}
 Reply with only a JSON object of this shape:
 {"score": 0-100, "verdict": "correct" | "partial" | "incorrect", "missing": ["important element that is missing or wrong", "..."], "comment": "one short, kind sentence in ${aiLang()} that says what is right and what is missing", "grade": 1 | 2 | 3 | 4}
 "missing" holds at most 3 very short items, written in ${aiLang()} (empty list if nothing is missing). "grade": 1 = wrong, 2 = partial, 3 = right, 4 = perfect and complete.`;
-  const r = await AI.json(prompt, { modelTier: 'quick' });
+  const r = await AI.json(prompt, { modelTier: 'quick', signal });
   const score = clamp(Math.round(Number(r?.score) || 0), 0, 100);
   const v0 = String(r?.verdict || '').toLowerCase();
   const verdict = v0 === 'correct' ? 'correct' : v0 === 'partial' || v0 === 'partiel' ? 'partiel' : v0 === 'incorrect' ? 'incorrect' : score >= 70 ? 'correct' : score >= 40 ? 'partiel' : 'incorrect';
-  return { score, verdict, missing: (Array.isArray(r?.missing) ? r.missing : []).map(String).slice(0, 3), comment: String(r?.comment || ''), grade: clamp(Number(r?.grade) || (verdict === 'correct' ? 3 : verdict === 'partiel' ? 2 : 1), 1, 4), ai: true };
+  return { score, verdict, missing: (Array.isArray(r?.missing) ? r.missing : []).map(String).slice(0, 3), comment: String(r?.comment || ''), grade: clamp(Math.round(Number(r?.grade)) || (verdict === 'correct' ? 3 : verdict === 'partiel' ? 2 : 1), 1, 4), ai: true };
 }
 
 /** Réponse écrite à la main : l'IA lit l'écriture (formules et schémas compris), puis la corrige. */
-async function aiGradeInk(question, expected, image, strict) {
+async function aiGradeInk(question, expected, image, strict, signal) {
   const prompt = `You grade HANDWRITTEN answers in a flashcard app. The image shows what the student wrote by hand with a stylus or a finger: it may contain formulas, arrows, abbreviations, a small sketch, or crossed-out words (ignore crossed-out parts).
 First read the handwriting carefully. Then decide whether it matches the expected answer, even when it is not word for word.
 
@@ -3098,11 +3098,11 @@ Expected answer: ${expected}
 Reply with only a JSON object of this shape:
 {"transcription": "exactly what the student wrote, as plain text (formulas in plain notation, e.g. x^2, H2O, ->)", "legible": true | false, "score": 0-100, "verdict": "correct" | "partial" | "incorrect", "missing": ["important element that is missing or wrong", "..."], "comment": "one short, kind sentence in ${aiLang()} that says what is right and what is missing", "grade": 1 | 2 | 3 | 4}
 If you cannot read the handwriting, set "legible": false, score 0, verdict "incorrect", and say so kindly in "comment". "missing" holds at most 3 very short items, written in ${aiLang()}. "grade": 1 = wrong, 2 = partial, 3 = right, 4 = perfect and complete.`;
-  const r = await AI.json(prompt, { modelTier: 'quick', images: [image] });
+  const r = await AI.json(prompt, { modelTier: 'quick', images: [image], signal });
   const score = clamp(Math.round(Number(r?.score) || 0), 0, 100);
   const v0 = String(r?.verdict || '').toLowerCase();
   const verdict = v0 === 'correct' ? 'correct' : v0 === 'partial' || v0 === 'partiel' ? 'partiel' : v0 === 'incorrect' ? 'incorrect' : score >= 70 ? 'correct' : score >= 40 ? 'partiel' : 'incorrect';
-  return { score, verdict, missing: (Array.isArray(r?.missing) ? r.missing : []).map(String).slice(0, 3), comment: String(r?.comment || ''), grade: clamp(Number(r?.grade) || (verdict === 'correct' ? 3 : verdict === 'partiel' ? 2 : 1), 1, 4), ai: true, read: String(r?.transcription || '').trim(), illegible: r?.legible === false };
+  return { score, verdict, missing: (Array.isArray(r?.missing) ? r.missing : []).map(String).slice(0, 3), comment: String(r?.comment || ''), grade: clamp(Math.round(Number(r?.grade)) || (verdict === 'correct' ? 3 : verdict === 'partiel' ? 2 : 1), 1, 4), ai: true, read: String(r?.transcription || '').trim(), illegible: r?.legible === false };
 }
 
 /* ── 7. Correction sémantique locale (sans IA) ────────────────────── */
@@ -3111,6 +3111,12 @@ const STOP = new Set(('le la les l un une des de du d et ou au aux en dans par p
   'el los las lo unos unas del al y o en por para con sin que es son ser se su sus le les un una ' +
   'der die das den dem des ein eine einer eines und oder im in am an auf mit fur von zu ist sind sein es sie er wir nicht ' +
   'o os as um uma uns umas do da dos das no na nos nas e ou em por para com sem que e sao ser se seu sua').split(' '));
+/* Les négations sont des mots vides pour le recoupement, mais elles inversent le sens :
+   « le corps change » ne vaut pas « le corps ne change pas ». En portugais, « no » veut dire « dans le ». */
+const NEG = new Set(('ne pas jamais aucun aucune rien ni non not no never none nothing nobody neither nor cannot ' +
+  'nicht kein keine keinen keinem keiner keines nie niemals nichts niemand weder nunca jamas nada nadie ningun ninguno ninguna tampoco ' +
+  'nao nem nenhum nenhuma ninguem').split(' '));
+const hasNeg = (s, pt) => s.split(' ').some(w => NEG.has(w) && !(pt && w === 'no')) || /(?:^| )n (?=[aeiouyh])|(?:^| )(?:don|doesn|didn|isn|aren|wasn|weren|haven|hasn|hadn|won|wouldn|can|couldn|shouldn|mustn|needn) t(?= |$)/.test(s);
 const normTxt = s => String(s || '').toLowerCase().replace(/ß/g, 'ss').replace(/æ/g, 'ae').replace(/œ/g, 'oe').replace(/ø/g, 'o').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’']/g, ' ').replace(/[^a-z0-9,.\s]/g, ' ').replace(/(\d),(\d)/g, '$1.$2').replace(/[,]/g, ' ').replace(/\.(?!\d)/g, ' ').replace(/\s+/g, ' ').trim();
 const stem = w => w.length > 4 ? w.replace(/(issements|issement|ations|ation|ciones|cion|coes|cao|ungen|ung|heit|keit|ements|ement|ments|ment|mente|euses|euse|eurs|eur|ives|ive|ifs|if|lich|isch|ing|ies|es|en|er|s|x|e|a|o)$/, '') : w;
 function lev(a, b) {
@@ -3131,14 +3137,15 @@ function answerCore(expected) {
   const core = parts[0].replace(/[.!?]+$/, '').trim();
   return core && core.length <= s.length * 0.75 ? core : '';
 }
-function localGrade(answer, expected, strict = 'standard') {
-  const full = scoreAnswer(answer, expected, strict), core = strict === 'strict' ? '' : answerCore(expected);
+function localGrade(answer, expected, strict = 'standard', lang) {
+  const full = scoreAnswer(answer, expected, strict, lang), core = strict === 'strict' ? '' : answerCore(expected);
   if (!core) return full;
-  const c = scoreAnswer(answer, core, strict);
+  const c = scoreAnswer(answer, core, strict, lang);
   if (c.verdict !== 'correct' || c.score <= full.score) return full;
   return { ...c, score: Math.min(c.score, 94), grade: 3, note: t("l'essentiel y est") };
 }
-function scoreAnswer(answer, expected, strict) {
+/** lang : langue de la réponse (« pt-BR »…), à défaut celle de l'app. */
+function scoreAnswer(answer, expected, strict, lang) {
   const a = normTxt(answer), b = normTxt(expected);
   if (!a) return { score: 0, verdict: 'incorrect', missing: [], comment: '', grade: 1, ai: false };
   const words = String(expected).split(/[\s,;:()«»"'’.!?/]+/).filter(w => w && !STOP.has(normTxt(w)) && normTxt(w).length > 1);
@@ -3153,11 +3160,14 @@ function scoreAnswer(answer, expected, strict) {
   const nb = b.match(/\d+(\.\d+)?/g) || [], na = a.match(/\d+(\.\d+)?/g) || [];
   if (nb.length && !nb.every(n => na.includes(n))) score -= 0.3;
   if (strict === 'strict') score = Math.min(score, charSim + 0.05);
-  score = clamp(score, 0, 1);
   const th = STRICT[strict];
+  // Une négation en moins (ou en trop) dit le contraire : jamais « correct ».
+  const pt = /^pt/i.test(lang || LANG), neg = hasNeg(b, pt), flip = neg !== hasNeg(a, pt);
+  if (flip) score = Math.min(score, th.part - 0.01);
+  score = clamp(score, 0, 1);
   const verdict = score >= th.ok ? 'correct' : score >= th.part ? 'partiel' : 'incorrect';
   const missing = [...new Set(words.filter((w, i) => !matched[i]))].sort((x, y) => y.length - x.length).slice(0, 3);
-  return { score: Math.round(score * 100), verdict, missing: verdict === 'correct' ? [] : missing, comment: '', grade: verdict === 'correct' ? (score > 0.97 ? 4 : 3) : verdict === 'partiel' ? 2 : 1, ai: false };
+  return { score: Math.round(score * 100), verdict, missing: verdict === 'correct' ? [] : missing, comment: '', grade: verdict === 'correct' ? (score > 0.97 ? 4 : 3) : verdict === 'partiel' ? 2 : 1, ai: false, ...(flip ? { note: neg ? t('négation manquante') : t('négation en trop') } : {}) };
 }
 
 /* ── 8. Sons (synthétisés, aucun fichier) et ambiance ─────────────── */
@@ -3987,15 +3997,16 @@ function cardTitle(c) { return c.type === 'cloze' ? plain(c.text) : c.type === '
 function cardAnswer(c) { return c.type === 'cloze' ? renderCloze(c.text, c.n).ans : c.type === 'mcq' ? c.options?.[c.answer] : c.type === 'tf' ? (c.answer ? trueLbl() : falseLbl()) : c.type === 'occlusion' ? c.masks?.[c.maskIdx]?.label : c.type === 'order' ? (c.items || []).join(' → ') : c.back; }
 function renderCloze(text, n) {
   const re = /\{\{c(\d+)::([\s\S]*?)(?:::([\s\S]*?))?\}\}/g;
-  let f = '', b = '', q = '', last = 0, ans = '';
+  let f = '', b = '', q = '', last = 0; const ans = []; // tous les trous du même numéro, pas seulement le dernier
   for (const m of String(text).matchAll(re)) {
     const pre = text.slice(last, m.index); f += md(pre); b += md(pre); q += pre;
-    if (+m[1] === n) { ans = m[2]; f += `<span class="cloze">${m[3] ? esc(m[3]) : '[…]'}</span>`; b += `<mark class="cloze-ans">${esc(m[2])}</mark>`; q += '[…]'; }
+    if (+m[1] === n) { ans.push(m[2]); f += `<span class="cloze">${m[3] ? esc(m[3]) : '[…]'}</span>`; b += `<mark class="cloze-ans">${esc(m[2])}</mark>`; q += '[…]'; }
     else { f += esc(m[2]); b += esc(m[2]); q += m[2]; }
     last = m.index + m[0].length;
   }
   const tail = String(text).slice(last); f += md(tail); b += md(tail); q += tail;
-  return { f, b, q, ans };
+  // « … » comme les trous de la question (une virgule ferait du premier trou « l'essentiel » pour localGrade).
+  return { f, b, q, ans: [...new Set(ans)].join(' … ') };
 }
 /* Les deux faces d'une fiche. o.choice : réponse cliquée (QCM, vrai/faux) ; o.order : ordre proposé. */
 function cardFaces(c, o = {}) {
@@ -8255,44 +8266,50 @@ const Study = {
   },
   /** Vérifie la réponse écrite, ou dite (mains libres) quand `spoken` est donné. */
   async check(spoken) {
-    const inp = $('#ans'); if ((!inp && spoken == null) || this.flipped) return;
+    // Une correction déjà en route : un second Entrée (ou « Je ne sais pas ») ne la relance pas.
+    const inp = $('#ans'); if ((!inp && spoken == null) || this.flipped || this.verdict?.pending) return;
     const ans = String(spoken ?? inp.value).trim(); if (!ans) { this.flip(); return; }
     Dictation.stop();
-    const [c] = this.cur; const f = cardFaces(c); this.typed = ans;
+    const [c, d] = this.cur; const f = cardFaces(c); this.typed = ans;
     const strict = S.profile.settings.strict;
-    const local = localGrade(ans, f.expected, strict);
-    if (!AI.on || local.score >= 97) { this.verdict = { ...local, note: local.note || (AI.on ? t('correspondance exacte') : '') }; return this.afterCheck(); }
+    const local = localGrade(ans, f.expected, strict, cardLangs(c, d)[1]);
+    // Seule une réponse identique se passe de l'IA : un score local élevé peut cacher une négation oubliée.
+    const exact = normTxt(ans) === normTxt(f.expected);
+    if (!AI.on || exact) { this.verdict = { ...local, note: local.note || (AI.on ? t('correspondance exacte') : '') }; return this.afterCheck(); }
     if (!Pro.use('grade')) { this.verdict = { ...local, note: t('corrections IA du jour épuisées : correction locale') }; return this.afterCheck(); }
-    this.verdict = { pending: true };
+    // La réponse ne compte que si cette attente est toujours en cours (fiche suivante, annulation, séance fermée : on l'ignore).
+    const wait = this.verdict = { pending: true }, live = () => this.active && this.verdict === wait;
     $('#verdictBox').innerHTML = this.verdictHTML(); if (inp) inp.disabled = true;
-    const card = this.cur; this.ctl?.abort(); this.ctl = new AbortController();
+    this.ctl?.abort(); this.ctl = new AbortController();
     try {
-      const r = await aiGrade(plain(f.question), plain(f.expected), ans, strict);
-      if (this.cur !== card) return;
+      const r = await aiGrade(plain(f.question), plain(f.expected), ans, strict, this.ctl.signal);
+      if (!live()) return;
       this.verdict = r;
     } catch (e) {
-      if (this.cur !== card || e?.code === 'cancelled') return;
+      Pro.refund?.('grade'); // l'IA n'a rien corrigé : la correction gratuite est rendue
+      if (!live() || e?.code === 'cancelled') return;
       this.verdict = { ...local, note: AI.fail(e) ? t('IA indisponible') : local.note || '' };
     }
     this.afterCheck();
   },
   async checkInk() {
-    const pad = this.pad; if (!pad || this.flipped) return;
+    const pad = this.pad; if (!pad || this.flipped || this.verdict?.pending) return;
     if (pad.empty()) { this.flip(); return; }
-    const [c] = this.cur; const f = cardFaces(c); const card = this.cur;
+    const [c] = this.cur; const f = cardFaces(c);
     const img = pad.image({ maxW: 1400 }); this.inkURL = pad.image({ bg: null, ink: '#1D1C18', maxW: 900 }).url;
     if (!AI.images) { this.verdict = null; Sound.play('flip'); return this.flip(); }
     if (!Pro.use('grade')) { this.verdict = null; toast(t('Corrections IA du jour épuisées : comparez vous-même, ou passez à Pro.'), 'crown'); Sound.play('flip'); return this.flip(); }
-    this.verdict = { pending: true, ink: true };
+    const wait = this.verdict = { pending: true, ink: true }, live = () => this.active && this.verdict === wait;
     $('#verdictBox').innerHTML = this.verdictHTML(); $('#inkPad')?.classList.add('busy'); const go = $('#inkGo'); if (go) go.disabled = true;
     this.ctl?.abort(); this.ctl = new AbortController();
     try {
-      const r = await aiGradeInk(plain(f.question), plain(f.expected), await img.blob(), S.profile.settings.strict);
-      if (this.cur !== card) return;
+      const r = await aiGradeInk(plain(f.question), plain(f.expected), await img.blob(), S.profile.settings.strict, this.ctl.signal);
+      if (!live()) return;
       this.typed = r.read; this.verdict = r;
       if (r.illegible) this.verdict.note = t('écriture illisible');
     } catch (e) {
-      if (this.cur !== card || e?.code === 'cancelled') return;
+      Pro.refund?.('grade'); // l'IA n'a rien corrigé : la correction gratuite est rendue
+      if (!live() || e?.code === 'cancelled') return;
       // Sans l'IA, la personne compare elle-même son écriture à la réponse.
       this.verdict = null; toast(AI.fail(e) || t('IA indisponible'), 'sparkles');
     }
@@ -8305,7 +8322,7 @@ const Study = {
     this.flip();
   },
   grade(g) {
-    if (!this.cur || !this.flipped || this.busy) return;
+    g = Math.round(+g); if (![1, 2, 3, 4].includes(g) || !this.cur || !this.flipped || this.busy) return; // une note hors 1-4 casserait le calendrier
     this.busy = true; HandsFree.hush();
     const [c, d] = this.cur; const now = Date.now();
     const before = JSON.parse(JSON.stringify(c.srs)); const wasNew = c.srs.state === 0;
@@ -8389,7 +8406,7 @@ Explain the idea differently, in 4 sentences at most, with a concrete everyday a
   act(name, el) {
     if (!this.active) return;
     if (name === 'st-close') this.stats.n ? this.summary() : this.close();
-    else if (name === 'st-flip') { if (this.mode === 'type' && $('#ans')?.value.trim()) this.check(); else if (this.mode === 'ink' && this.pad && !this.pad.empty()) this.checkInk(); else this.flip(); }
+    else if (name === 'st-flip') { if (this.verdict?.pending) return; if (this.mode === 'type' && $('#ans')?.value.trim()) this.check(); else if (this.mode === 'ink' && this.pad && !this.pad.empty()) this.checkInk(); else this.flip(); }
     else if (name === 'st-inkcheck') this.checkInk();
     else if (name === 'st-scratch') this.scratch();
     else if (name === 'st-grade') this.grade(+el.dataset.g);
@@ -12505,6 +12522,8 @@ TR = {
   "Vos fiches ont changé dans un autre onglet : rechargez cette page pour ne rien écraser.": ["Your cards changed in another tab: reload this page so nothing gets overwritten.","Tus tarjetas cambiaron en otra pestaña: recarga esta página para no sobrescribir nada.","Deine Karten wurden in einem anderen Tab geändert: Lade diese Seite neu, damit nichts überschrieben wird.","Seus cartões mudaram em outra aba: recarregue esta página para não sobrescrever nada."],
   //
   // recette-30-09 D1 : nouvelles traductions ci-dessous
+  "négation manquante": ["missing negation","falta la negación","Verneinung fehlt","falta a negação"],
+  "négation en trop": ["extra negation","negación de más","überflüssige Verneinung","negação a mais"],
   //
   // recette-30-09 D2 : nouvelles traductions ci-dessous
   //
