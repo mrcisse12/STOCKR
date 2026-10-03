@@ -2713,9 +2713,11 @@ const Store = {
   /** Instantané complet (pour « Annuler » après une action de l'assistant). */
   snapshot() { return JSON.stringify({ decks: S.decks, images: S.images, profile: S.profile, demo: S.demo }); },
   restore(snap) {
-    const o = JSON.parse(snap); const before = new Set(S.decks.map(d => d.id));
+    const o = JSON.parse(snap); const before = new Set(S.decks.map(d => d.id)), imgs = new Set(Object.keys(S.images));
     S = normalizeState({ ...S, ...o });
     for (const id of before) this.dirty.add('deck:' + id);
+    // Images remises (fiches supprimées puis rétablies) ou retirées : le nuage suit aussi.
+    for (const k of new Set([...imgs, ...Object.keys(S.images)])) if (imgs.has(k) !== (k in S.images)) this.dirty.add('img:' + k);
     S.decks.forEach(d => this.dirty.add('deck:' + d.id)); this.dirty.add('profile');
     this.saveLocal(); if (!S.demo) this.schedule();
   }
@@ -2807,6 +2809,15 @@ const AI = {
     }
     await this.probeServer();
     this.changed();
+    // Lancement hors ligne ou réseau lent : le serveur est revérifié au retour du réseau, quand la page revient au premier plan, et une fois peu après.
+    addEventListener('online', () => this.recheck(true));
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') this.recheck(); });
+    if (this.netErr) setTimeout(() => this.recheck(true), 15000);
+  },
+  /** Nouvel essai quand le serveur IA n'a pas pu être joint (réseau absent ou trop lent), au plus toutes les 15 s sauf retour du réseau. */
+  async recheck(force) {
+    if (this.status !== 'off' || !this.netErr || (!force && Date.now() - this.probedAt < 15000)) return;
+    await this.probeServer(); if (this.status !== 'off') this.changed();
   },
   serverUrl() {
     const s = S.profile.settings.aiServer.trim();
@@ -2814,11 +2825,12 @@ const AI = {
     return location.protocol.startsWith('http') ? location.origin + '/api/ai' : '';
   },
   async probeServer() {
-    const url = this.serverUrl(); this.nokey = false;
+    const url = this.serverUrl(); this.nokey = false; this.netErr = false; this.probedAt = Date.now();
     if (!url) { this.status = 'off'; return; }
     try {
       const ctl = new AbortController(); setTimeout(() => ctl.abort(), 4000);
-      const r = await fetch(url + '/health', { signal: ctl.signal, headers: this.headers() });
+      // netErr : aucune réponse (hors ligne, délai dépassé), à distinguer d'un serveur qui répond mal.
+      const r = await fetch(url + '/health', { signal: ctl.signal, headers: this.headers() }).catch(e => { this.netErr = true; throw e; });
       const j = r.ok ? await r.json() : null;
       if (!j?.ok) { this.status = 'off'; return; }
       if (j.key === false) { this.status = 'off'; this.nokey = true; return; }
@@ -2827,7 +2839,8 @@ const AI = {
       this.status = j.locked && !S.profile.settings.aiCode ? 'locked' : 'on';
     } catch { this.status = 'off'; }
   },
-  headers() { const h = { 'content-type': 'application/json' }; const c = S?.profile.settings.aiCode; if (c) h['x-engram-code'] = c; return h; },
+  // Le code est encodé : un en-tête n'accepte pas les caractères hors Latin-1 (œ, €, ’…).
+  headers() { const h = { 'content-type': 'application/json' }; const c = S?.profile.settings.aiCode; if (c) h['x-engram-code'] = encodeURIComponent(c); return h; },
   changed() { App.refreshAI?.(); },
   fail(e) {
     const code = e?.code || 'upstream_error';
@@ -3728,6 +3741,15 @@ function clozeCards(text, extra = {}) {
   const ns = [...new Set([...text.matchAll(/\{\{c(\d+)::/g)].map(m => +m[1]))].sort((a, b) => a - b);
   const note = uid('n');
   return (ns.length ? ns : [1]).map(n => mkCard('cloze', { text, n, note, ...extra }));
+}
+/** Nouveau texte d'une note à trous (assistants, Mentor) : chaque fiche sœur est reprise par son numéro de trou, avec sa mémoire ;
+ *  celles dont le trou a disparu sont retirées, les nouveaux trous ont leur fiche. Renvoie la fiche qui remplace c. */
+function setClozeText(d, c, text) {
+  const sibs = d.cards.filter(x => x === c || (c.note && x.note === c.note)), note = c.note || uid('n');
+  const kept = clozeCards(text).map(f => { const old = sibs.find(s => (s.n || 1) === f.n); return old ? Object.assign(old, { text, note }) : { ...f, note, tags: [...(c.tags || [])], extra: c.extra, src: c.src }; });
+  const at = d.cards.indexOf(sibs[0]); d.cards = d.cards.filter(x => !sibs.includes(x));
+  d.cards.splice(at < 0 ? d.cards.length : Math.min(at, d.cards.length), 0, ...kept);
+  return kept.find(x => x.n === (c.n || 1)) || kept[0];
 }
 /** Transforme une ligne compacte des données d'exemple en fiche(s). */
 function demoCards(rows) {
@@ -5101,7 +5123,7 @@ function openEditor(cardId, deckId, preset) {
     root.querySelectorAll('[data-ans]').forEach(b => b.onclick = () => { read(); st.answer = +b.dataset.ans; draw(); });
     root.querySelectorAll('[data-sk-draw]').forEach(b => b.onclick = () => {
       read(); const side = b.dataset.skDraw;
-      openSketch({ title: side === 'fimg' ? t('Schéma du recto') : t('Schéma du verso'), done: im => { const id = uid('ink'); S.images[id] = im.url; Store.dirty.add('img:' + id); st[side] = id; draw(); } });
+      openSketch({ title: side === 'fimg' ? t('Schéma du recto') : t('Schéma du verso'), done: im => { const id = uid('ink'); S.images[id] = im.url; Store.dirty.add('img:' + id); drawn.push(id); st[side] = id; draw(); } });
     });
     root.querySelectorAll('[data-sk-rm]').forEach(b => b.onclick = () => { read(); st[b.dataset.skRm] = ''; draw(); });
     root.querySelector('#eTF')?.addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; read(); st.answer = b.dataset.v === '1'; draw(); });
@@ -5140,9 +5162,9 @@ function openEditor(cardId, deckId, preset) {
       if (!del.dataset.sure) { del.dataset.sure = 1; del.innerHTML = icon('trash', 'i-sm') + t('Confirmer la suppression'); return; }
       const gone = x => card.type === 'cloze' && card.note ? x.note === card.note : x === card;
       const was = deck.cards.map((x, i) => [x, i]).filter(([x]) => gone(x));
-      deck.cards = deck.cards.filter(x => !gone(x));
+      deck.cards = deck.cards.filter(x => !gone(x)); const imgs = dropUnusedImages(was.map(([x]) => x));
       Store.touchDeck(deck); Modal.close(); App.render();
-      toastUndo(t('Fiche supprimée'), () => { for (const [x, i] of was) if (!deck.cards.includes(x)) deck.cards.splice(Math.min(i, deck.cards.length), 0, x); Store.touchDeck(deck); App.render(); });
+      toastUndo(t('Fiche supprimée'), () => { for (const [x, i] of was) if (!deck.cards.includes(x)) deck.cards.splice(Math.min(i, deck.cards.length), 0, x); Object.assign(S.images, imgs); Object.keys(imgs).forEach(k => Store.dirty.add('img:' + k)); Store.touchDeck(deck); App.render(); });
     };
     root.querySelector('#eSave').onclick = save;
   };
@@ -5205,7 +5227,8 @@ function openEditor(cardId, deckId, preset) {
     Object.assign(st, { front: '', back: '', extra: '', text: '', options: ['', '', '', ''], items: '', answer: ty === 'tf' ? true : 0, fimg: '', bimg: '' });
     draw(); m.querySelector('#eFront, #eText')?.focus();
   };
-  Modal.onClose(m, () => { if (!Study.active && ['deck', 'today', 'library'].includes(App.route.v)) App.render(); });
+  const drawn = []; // schémas dessinés ici : ceux qu'aucune fiche n'a gardés sont retirés à la fermeture
+  Modal.onClose(m, () => { drawn.forEach(dropSketch); if (drawn.some(id => !S.images[id])) Store.touch(); if (!Study.active && ['deck', 'today', 'library'].includes(App.route.v)) App.render(); });
   draw();
 }
 
@@ -5215,6 +5238,12 @@ function dropSketch(id) {
   if (!id || !/^ink/.test(id) || !S.images[id]) return;
   if (S.decks.some(d => d.cards.some(c => c.fimg === id || c.bimg === id))) return;
   delete S.images[id]; Store.dirty.add('img:' + id);
+}
+/** Après la suppression de fiches : retire leurs images (photo, masquage, schémas) que plus aucune fiche n'utilise ; renvoie de quoi les remettre. */
+function dropUnusedImages(cards) {
+  const F = ['img', 'fimg', 'bimg'], out = {}, used = new Set(S.decks.flatMap(d => d.cards.flatMap(x => F.map(f => x[f]))));
+  for (const c of cards) for (const f of F) { const id = c[f]; if (id && id in S.images && !used.has(id)) { out[id] = S.images[id]; delete S.images[id]; Store.dirty.add('img:' + id); } }
+  return out;
 }
 
 /* ── Masquage d'image ──────────────────────────────────────────────── */
@@ -5832,6 +5861,11 @@ const Pro = {
     if (this.on) return true;
     const u = this.usage(); if ((u[kind] || 0) >= QUOTA[kind]) return false;
     u[kind] = (u[kind] || 0) + 1; Store.touch('profile'); return true;
+  },
+  /** Rend une utilisation décomptée quand l'appel à l'IA a échoué sans rien produire. */
+  refund(kind) {
+    if (this.on) return;
+    const u = this.usage(); if ((u[kind] || 0) > 0) { u[kind]--; Store.touch('profile'); }
   },
   /** o.trial : essai (14 jours, ou o.days) ; o.gift : le mois offert par un ami (son prénom, ou true). */
   start(plan, o = {}) {
@@ -6507,12 +6541,13 @@ class Mission {
       }
       d.cards.push(...made); Store.touchDeck(d);
     } else if (p.kind === 'delete') {
-      const ids = new Set(p.cardIds);
-      for (const dd of S.decks) { const n = dd.cards.length; dd.cards = dd.cards.filter(c => !ids.has(c.id)); if (dd.cards.length !== n) Store.touchDeck(dd); }
+      const ids = new Set(p.cardIds), gone = [];
+      for (const dd of S.decks) { const n = dd.cards.length; dd.cards = dd.cards.filter(c => !ids.has(c.id) || !gone.push(c)); if (dd.cards.length !== n) Store.touchDeck(dd); }
+      dropUnusedImages(gone);
     } else {
-      const [c, dd] = findCard(p.cardId); if (!c) { p.state = 'skip'; return; }
+      let [c, dd] = findCard(p.cardId); if (!c) { p.state = 'skip'; return; }
       const P = p.patch;
-      if (c.type === 'cloze' && P.text && /\{\{c\d+::.+?\}\}/.test(P.text)) { dd.cards.filter(x => x.note && x.note === c.note).forEach(x => x.text = P.text); c.text = P.text; }
+      if (c.type === 'cloze' && P.text && /\{\{c\d+::.+?\}\}/.test(P.text)) c = setClozeText(dd, c, P.text);
       if (P.front) c.front = P.front;
       if (P.back != null && c.type !== 'mcq') c.back = P.back;
       if (P.extra != null) c.extra = P.extra || undefined;
@@ -6543,11 +6578,14 @@ class Mission {
   async go() {
     const a = this.a;
     if (!AI.on && !a.local) return this.need();
-    if (AI.on && !Pro.on && !Pro.use('agent')) {
+    const paid = AI.on && !Pro.on;
+    if (paid && !Pro.use('agent')) {
       if (a.local) { toast(t('Missions avec l\'IA épuisées ce mois-ci : analyse locale.'), 'crown'); return this.run(false); }
       Modal.close(); return Pro.upsell('agent');
     }
-    return this.run(AI.on);
+    await this.run(AI.on);
+    // L'IA n'a rien apporté (panne, arrêt avant toute proposition, repli sur l'analyse locale) : la mission gratuite est rendue.
+    if (paid && this.failed && (!this.ai || !this.props.length && !this.actions.length)) Pro.refund('agent');
   }
   async run(useAI) {
     const a = this.a; this.ai = useAI;
@@ -6556,6 +6594,7 @@ class Mission {
     try {
       if (useAI) await AgentAI.run(this); else await AgentLocal[a.id](this);
     } catch (e) {
+      this.failed = true;
       if (e?.code === 'cancelled' || this.ctl.signal.aborted) this.step(t('Mission arrêtée')).err('');
       else {
         this.step(t('L\'IA ne répond pas')).err(AI.fail(e) || '');
@@ -6753,7 +6792,7 @@ const AgentAI = {
           if (f === 'due') list = list.filter(c => isDue(c)); else if (f === 'new') list = list.filter(c => c.srs.state === 0);
           else if (f === 'leech') list = list.filter(c => (c.srs.lapses || 0) >= 2).sort((a, b) => b.srs.lapses - a.srs.lapses);
           else if (f === 'weak') list = list.filter(c => c.srs.state > 0).sort((a, b) => FSRS.retrievability(a.srs) - FSRS.retrievability(b.srs) || b.srs.lapses - a.srs.lapses);
-          return { deck: d.name, lang: d.lang, total: d.cards.length, cards: list.slice(0, clamp(+i.limit || lim, 1, lim)).map(c => ({ id: c.id, type: c.type, q: plain(cardTitle(c)).slice(0, 200), a: plain(cardAnswer(c) || '').slice(0, 180), extra: c.extra ? plain(c.extra).slice(0, 160) : undefined, tags: c.tags?.length ? c.tags : undefined, state: FSRS.STATE[c.srs.state], lapses: c.srs.lapses, memory: c.srs.state === 2 ? Math.round(FSRS.retrievability(c.srs) * 100) + '%' : null })) };
+          return { deck: d.name, lang: d.lang, total: d.cards.length, cards: list.slice(0, clamp(+i.limit || lim, 1, lim)).map(c => ({ id: c.id, type: c.type, q: plain(cardTitle(c)).slice(0, 200), a: plain(cardAnswer(c) || '').slice(0, 180), ...(c.type === 'cloze' ? { text: c.text, gap: c.n } : {}), extra: c.extra ? plain(c.extra).slice(0, 160) : undefined, tags: c.tags?.length ? c.tags : undefined, state: FSRS.STATE[c.srs.state], lapses: c.srs.lapses, memory: c.srs.state === 2 ? Math.round(FSRS.retrievability(c.srs) * 100) + '%' : null })) };
         } },
       { name: 'get_week', description: 'Reviews, accuracy, minutes, new cards and active days for the last 7 days and the 7 days before, plus the current streak and deck-level leeches.', inputSchema: { type: 'object', properties: {} },
         execute: () => ({ this_week: weekStats(0), previous_week: weekStats(1), streak_days: streak(), decks: S.decks.map(d => ({ id: d.id, name: d.name, cards: d.cards.length, leeches: d.cards.filter(isLeech).length, ...maturity(d.cards) })) }) },
@@ -7385,6 +7424,9 @@ const Checkup = {
     if (!url) return { s: 'bad', d: t('Ouvert comme un fichier : pas de serveur IA.'), fix: t('Ouvrez Engram depuis son adresse en ligne.') };
     AI.status = 'checking'; await AI.probeServer(); AI.changed();
     if (AI.nokey) return { s: 'bad', d: t('Le serveur IA répond, mais il n\'a pas de clé d\'API.'), fix: t('Netlify, Site configuration, Environment variables : ajoutez ANTHROPIC_API_KEY, puis relancez un déploiement (Deploys, Trigger deploy).') };
+    // Pas de réponse du tout : l'appareil est hors ligne ou le réseau trop lent, la fonction Netlify n'y est pour rien.
+    if (AI.status === 'off' && !navigator.onLine) return { s: 'info', d: t('Pas de connexion : l\'IA sera vérifiée au retour du réseau.'), fix: t('Reconnectez l\'appareil à Internet, puis relancez le bilan.') };
+    if (AI.status === 'off' && AI.netErr && !custom) return { s: 'warn', d: t('Le serveur IA n\'a pas répondu à temps : connexion lente ou coupée.'), fix: t(this.NETLIFY_FN) };
     if (AI.status === 'off') return { s: 'bad', d: t('Aucun serveur IA ne répond à {u}.', { u: url }), fix: custom ? t('Vérifiez l\'adresse du serveur dans Réglages, IA et Mentor.') : t('Dans Netlify, la fonction « ai » doit apparaître dans Logs, Functions : relancez un déploiement.') };
     const code = [t('Saisir le code'), () => { closeModals(); App.go('settings', 'ai'); }];
     if (AI.status === 'locked') return { s: 'warn', d: t('Le serveur IA demande un code d\'accès.'), fix: t('Saisissez-le dans Réglages, IA et Mentor : la même valeur que ENGRAM_ACCESS_CODE.'), act: code };
@@ -8704,6 +8746,7 @@ async function runScan() {
     const msg = AI.fail(e); if (msg) Scan.err = msg;
   } finally {
     clearInterval(Scan.statusTimer); Scan.running = false; Scan.phase = 'review';
+    if (!Scan.results.length) Pro.refund('scan'); // aucune fiche : le scan gratuit n'est pas décompté
     if (!Scan.results.length && !Scan.err) Scan.err = t("L'IA n'a pas trouvé de contenu à transformer en fiches. Essayez une photo plus nette ou un autre passage.");
     if (Scan.results.length && !S.demo) S.profile.flags.scan = 1;
     App.render();
@@ -9253,7 +9296,7 @@ Object.assign(Actions, {
    de l'état : tout ce que Mentor a fait peut être annulé d'un geste.
    ════════════════════════════════════════════════════════════════════ */
 const Mentor = {
-  isOpen: false, turns: [], ctl: null, busy: false, deckId: null, KEY: 'engram.mentor.v1',
+  isOpen: false, turns: [], ctl: null, busy: false, live: null, deckId: null, KEY: 'engram.mentor.v1',
   load() { const o = LS.get(this.KEY); this.turns = Array.isArray(o?.turns) ? o.turns.slice(-30) : []; },
   save() { LS.set(this.KEY, { turns: this.turns.slice(-30), updated: Date.now() }); },
   suggestions(ctx = App.route.v) {
@@ -9321,6 +9364,8 @@ const Mentor = {
       </form>
       <div class="m-foot">${t('Mentor peut se tromper : relisez ses fiches. Chaque action peut être annulée.')}</div>`;
     this.bind();
+    // Redessiné pendant une réponse (fermé puis rouvert, IA coupée) : la bulle en cours revient, avec sa confirmation et ses boutons.
+    if (this.busy && this.live) { $('#mBody').append(this.live); const s = $('#mSend'); s.innerHTML = icon('stop'); s.setAttribute('aria-label', t('Arrêter')); }
     const b = $('#mBody'); b.scrollTop = b.scrollHeight;
   },
   introHTML(offline) {
@@ -9341,7 +9386,7 @@ const Mentor = {
   },
   bind() {
     $('#mClose').onclick = () => this.close();
-    $('#mNew').onclick = () => { this.ctl?.abort(); this.turns = []; this.save(); this.render(); };
+    $('#mNew').onclick = () => { this.ctl?.abort(); this.live = null; this.turns = []; this.save(); this.render(); };
     $('#mTier').onclick = () => { const order = ['quick', 'default', 'complex']; const s = S.profile.settings; let nx = order[(order.indexOf(s.mentorTier) + 1) % 3]; if (nx === 'complex' && !Pro.expert) { nx = 'quick'; toast(t('Le mode Expert fait partie de Pro Expert'), 'crown'); } s.mentorTier = nx; Store.touch('profile'); $('#mTier').innerHTML = icon('brain', 'i-sm') + this.tierLabel(); toast(t('Mentor : {x}', { x: this.tierLabel() }) + ' — ' + t(MENTOR_TIERS[s.mentorTier][1]), 'sparkles'); };
     $('#mSugg').onclick = e => {
       const q = e.target.closest('[data-q]'); if (q) { this.send(q.dataset.q); return; }
@@ -9351,7 +9396,8 @@ const Mentor = {
     };
     const inp = $('#mInput');
     inp.addEventListener('input', () => { inp.style.height = 'auto'; inp.style.height = Math.min(160, inp.scrollHeight) + 'px'; });
-    inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#mForm').requestSubmit(); } });
+    // Entrée qui valide une saisie en cours (japonais, chinois, coréen) : ce n'est pas un envoi.
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); $('#mForm').requestSubmit(); } });
     $('#mForm').onsubmit = e => { e.preventDefault(); if (this.busy) { this.ctl?.abort(); return; } const v = inp.value.trim(); if (v) { inp.value = ''; inp.style.height = 'auto'; this.send(v); } };
     $('#mMic')?.addEventListener('click', ev => {
       const b = ev.currentTarget; if (Dictation.rec) { Dictation.stop(); b.classList.remove('on'); return; }
@@ -9406,7 +9452,7 @@ ${JSON.stringify(this.snapshot())}`;
           if (f === 'due') list = list.filter(c => isDue(c)); else if (f === 'new') list = list.filter(c => c.srs.state === 0); else if (f === 'leech') list = list.filter(isLeech);
           else if (f === 'weak') list = list.filter(c => c.srs.state > 0).sort((a, b) => FSRS.retrievability(a.srs) - FSRS.retrievability(b.srs) || b.srs.lapses - a.srs.lapses);
           const q = str(i.query); if (q) { const keep = new Set(list); list = Seek.find(q, { deckId: d.id }).map(x => x.c).filter(c => keep.has(c)); }
-          return { deck: d.name, total: d.cards.length, cards: list.slice(0, clamp(+i.limit || 40, 1, 80)).map(c => ({ id: c.id, type: c.type, q: plain(cardTitle(c)).slice(0, 180), a: plain(cardAnswer(c) || '').slice(0, 160), tags: c.tags, state: FSRS.STATE[c.srs.state], lapses: c.srs.lapses, memory: c.srs.state === 2 ? Math.round(FSRS.retrievability(c.srs) * 100) + '%' : null })) };
+          return { deck: d.name, total: d.cards.length, cards: list.slice(0, clamp(+i.limit || 40, 1, 80)).map(c => ({ id: c.id, type: c.type, q: plain(cardTitle(c)).slice(0, 180), a: plain(cardAnswer(c) || '').slice(0, 160), ...(c.type === 'cloze' ? { text: c.text, gap: c.n } : c.type === 'mcq' ? { options: c.options, answer: c.answer } : {}), tags: c.tags, state: FSRS.STATE[c.srs.state], lapses: c.srs.lapses, memory: c.srs.state === 2 ? Math.round(FSRS.retrievability(c.srs) * 100) + '%' : null })) };
         } },
       { name: 'search_cards', description: 'Find the student\'s cards about a topic, by meaning, across all decks (or one deck). Put the student\'s words in query and, in related_terms, 5 to 20 precise terms, key names, synonyms and translations likely to be written on the cards: the search runs on the device over every card and ranks them. Use it before quizzing, explaining or reviewing a topic the student names.',
         inputSchema: { type: 'object', properties: { query: { type: 'string' }, related_terms: { type: 'array', items: { type: 'string' } }, deck_id: { type: 'string' }, limit: { type: 'number' } }, required: ['query'] },
@@ -9437,13 +9483,21 @@ ${JSON.stringify(this.snapshot())}`;
           d.cards.push(...made); Store.touchDeck(d); mark(); say(t('{x} dans « {deck} »', { x: plural(made.length, 'fiche ajoutée|fiches ajoutées'), deck: d.name }));
           return { added: made.length, deck_id: d.id, deck_total: d.cards.length };
         } },
-      { name: 'update_card', description: 'Edit one card (e.g. to reformulate a hard card). Only the given fields change.',
+      { name: 'update_card', description: 'Edit one card (e.g. to reformulate a hard card). Only the given fields change. cloze: the new text applies to the whole note (one card per {{cN::...}} number: keep the numbers of the gaps you keep). mcq: options with answer = 0-based index of the correct option.',
         inputSchema: { type: 'object', properties: { card_id: { type: 'string' }, front: { type: 'string' }, back: { type: 'string' }, text: { type: 'string', description: 'cloze text' }, extra: { type: 'string' }, options: { type: 'array', items: { type: 'string' } }, answer: {}, tags: { type: 'array', items: { type: 'string' } } }, required: ['card_id'] },
         execute: i => {
-          const [c, d] = findCard(str(i.card_id)); if (!c) throw new Error('Unknown card_id.');
-          if (c.type === 'cloze' && str(i.text)) { if (!/\{\{c\d+::.+?\}\}/.test(str(i.text))) throw new Error('Cloze text needs {{c1::...}}.'); d.cards.filter(x => x.note && x.note === c.note).forEach(x => x.text = str(i.text)); c.text = str(i.text); }
+          let [c, d] = findCard(str(i.card_id)); if (!c) throw new Error('Unknown card_id.');
+          const cz = c.type === 'cloze' && str(i.text); if (cz && !/\{\{c\d+::.+?\}\}/.test(cz)) throw new Error('Cloze text needs {{c1::...}}.');
+          // QCM : la bonne réponse est l'indice donné ou le texte d'une option ; sans « answer », la même option qu'avant si elle est toujours là. Rien n'est changé avant ces vérifications.
+          let opts = null, ans = -1;
+          if (c.type === 'mcq' && Array.isArray(i.options) && i.options.length >= 2) {
+            opts = i.options.map(str).filter(Boolean); const a = i.answer, at = v => opts.findIndex(x => normTxt(x) === normTxt(v));
+            ans = a == null || a === '' ? at(c.options?.[c.answer]) : typeof a === 'number' ? a : at(a) >= 0 ? at(a) : /^\d+$/.test(str(a)) ? +str(a) : -1;
+            if (opts.length < 2 || !(Number.isInteger(ans) && ans >= 0 && ans < opts.length)) throw new Error('mcq: give at least 2 options and answer = the 0-based index of the correct option.');
+          }
+          if (cz) c = setClozeText(d, c, cz);
           if (str(i.front)) c.front = str(i.front); if (i.back != null && c.type !== 'mcq') c.back = str(i.back); if (i.extra != null) c.extra = str(i.extra) || undefined;
-          if (c.type === 'mcq' && Array.isArray(i.options) && i.options.length >= 2) { c.options = i.options.map(str); c.answer = clamp(+i.answer || 0, 0, c.options.length - 1); }
+          if (opts) { c.options = opts; c.answer = ans; }
           if (c.type === 'tf' && typeof i.answer === 'boolean') c.answer = i.answer;
           if (Array.isArray(i.tags)) c.tags = i.tags.map(str).filter(Boolean);
           Store.touchDeck(d); mark(); say(t('Fiche reformulée : « {q} »', { q: plain(cardTitle(c)).slice(0, 60) })); return 'ok';
@@ -9455,7 +9509,7 @@ ${JSON.stringify(this.snapshot())}`;
           const ok = await ctx.confirm(t('Supprimer {x} ?', { x: plural(found.length, 'fiche|fiches') }) + (str(i.reason) ? ' — ' + str(i.reason) : ''), c.signal);
           if (!ok) return 'The student declined; nothing was deleted.';
           for (const d of S.decks) { const before = d.cards.length; d.cards = d.cards.filter(x => !ids.has(x.id)); if (d.cards.length !== before) Store.touchDeck(d); }
-          mark(); say(plural(found.length, 'fiche supprimée|fiches supprimées')); return { deleted: found.length };
+          dropUnusedImages(found); mark(); say(plural(found.length, 'fiche supprimée|fiches supprimées')); return { deleted: found.length };
         } },
       { name: 'set_exam', description: 'Create or update an exam (date YYYY-MM-DD, optional deck ids; none = all decks). The programme then paces new cards to be ready in time.',
         inputSchema: { type: 'object', properties: { exam_id: { type: 'string', description: 'to update an existing exam' }, name: { type: 'string' }, date: { type: 'string' }, deck_ids: { type: 'array', items: { type: 'string' } } }, required: ['name', 'date'] },
@@ -9559,37 +9613,52 @@ ${JSON.stringify(this.snapshot())}`;
     const max = AI.limits?.tools?.maxCount || tools.length;
     return tools.slice(0, max);
   },
+  /** Empreinte de ce que Mentor peut changer (paquets, profil hors compteurs) : « Annuler ces actions » ne s'applique que si elle n'a pas bougé depuis. */
+  print() { const { usage, cmd, updatedAt, ...p } = S.profile; return hash(JSON.stringify([S.decks, p, !!S.demo])); },
   async send(text) {
     if (this.busy || !text.trim()) return;
     if (!AI.on) { toast(t("Mentor a besoin de l'IA : ouvrez Engram dans l'app Claude."), 'sparkles'); return; }
     if (!Pro.use('mentor')) { Pro.upsell('mentor'); return; }
     $('#mSugg')?.setAttribute('hidden', '');
-    this.turns.push({ role: 'user', content: text }); this.save();
+    const turns = this.turns; // « Nouvelle conversation » pendant la réponse : la réponse n'y est pas ajoutée
+    turns.push({ role: 'user', content: text }); this.save();
     const body = $('#mBody'); body.querySelector('.m-intro')?.remove();
     body.insertAdjacentHTML('beforeend', this.msgHTML({ role: 'user', content: text }));
     body.insertAdjacentHTML('beforeend', `<div class="m-msg ai live"><div class="m-txt"><span class="thinking"><i></i><i></i><i></i></span></div><ul class="m-receipt"></ul><div class="m-acts"></div></div>`);
-    const bubble = body.lastElementChild, txt = bubble.querySelector('.m-txt'), rec = bubble.querySelector('.m-receipt'), acts = bubble.querySelector('.m-acts');
-    body.scrollTop = body.scrollHeight;
+    const bubble = this.live = body.lastElementChild, txt = bubble.querySelector('.m-txt'), rec = bubble.querySelector('.m-receipt'), acts = bubble.querySelector('.m-acts');
+    // Le panneau a pu être redessiné entre-temps (render y remet la bulle) : on fait défiler celui qui est affiché.
+    const scroll = () => { const b = $('#mBody'); if (b) b.scrollTop = b.scrollHeight; };
+    scroll();
     this.busy = true; this.ctl = new AbortController();
     $('#mSend').innerHTML = icon('stop'); $('#mSend').setAttribute('aria-label', t('Arrêter'));
-    const snap = Store.snapshot(), langBefore = LANG;
+    const langBefore = LANG;
     const ctx = {
-      changed: false, receipts: [], buttons: [], after: [],
-      receipt: line => { ctx.receipts.push(line); rec.insertAdjacentHTML('beforeend', `<li class="pop">${icon('check', 'i-sm')}<span>${esc(line)}</span></li>`); Sound.play('pop'); body.scrollTop = body.scrollHeight; },
+      changed: false, receipts: [], buttons: [], after: [], snap: Store.snapshot(), print: this.print(),
+      // Avant chaque action : si l'app a changé entre-temps (une fiche modifiée pendant la réponse), l'instantané est repris tant que Mentor n'a rien fait ; sinon l'annulation est bloquée pour ne pas effacer ce changement.
+      check: () => { const p = this.print(); if (p === ctx.print) return; if (ctx.changed) ctx.mixed = true; else ctx.snap = Store.snapshot(); ctx.print = p; },
+      receipt: line => { ctx.receipts.push(line); rec.insertAdjacentHTML('beforeend', `<li class="pop">${icon('check', 'i-sm')}<span>${esc(line)}</span></li>`); Sound.play('pop'); scroll(); },
       confirm: (msg, signal) => new Promise(res => {
         const box = document.createElement('div'); box.className = 'm-confirm';
         box.innerHTML = `<span>${esc(msg)}</span><button class="btn btn-sm btn-danger">${t('Confirmer')}</button><button class="btn btn-sm btn-ghost">${t('Annuler')}</button>`;
-        acts.append(box); body.scrollTop = body.scrollHeight;
-        const done = v => { box.remove(); res(v); };
+        acts.append(box); scroll();
+        let over = false;
+        const done = v => { if (over) return; over = true; box.remove(); ctx.check(); res(v); };
         const [yes, no] = box.querySelectorAll('button'); yes.onclick = () => done(true); no.onclick = () => done(false);
         signal?.addEventListener('abort', () => done(false));
       })
     };
-    const input = [{ role: 'user', content: this.rules() }, ...this.turns.slice(-16).map(x => ({ role: x.role, content: x.content }))];
+    // Chaque action de Mentor est encadrée par ctx.check (avant) et une nouvelle empreinte (après).
+    const track = x => ({ ...x, execute: (i, c) => {
+      ctx.check(); const post = () => { ctx.print = this.print(); };
+      let r; try { r = x.execute(i, c); } catch (e) { post(); throw e; }
+      if (r instanceof Promise) return r.finally(post);
+      post(); return r;
+    } });
+    const input = [{ role: 'user', content: this.rules() }, ...turns.slice(-16).map(x => ({ role: x.role, content: x.content }))];
     let out = '';
     try {
-      const opts = { signal: this.ctl.signal, modelTier: S.profile.settings.mentorTier === 'complex' && !Pro.expert ? 'default' : S.profile.settings.mentorTier, onText: ({ text: x }) => { out = x; txt.innerHTML = md(x); body.scrollTop = body.scrollHeight; } };
-      if (AI.tools) opts.tools = this.toolDefs(ctx); else opts.cache = false;
+      const opts = { signal: this.ctl.signal, modelTier: S.profile.settings.mentorTier === 'complex' && !Pro.expert ? 'default' : S.profile.settings.mentorTier, onText: ({ text: x }) => { out = x; txt.innerHTML = md(x); scroll(); } };
+      if (AI.tools) opts.tools = this.toolDefs(ctx).map(track); else opts.cache = false;
       const r = await AI.ask(input, opts);
       out = r.text;
       txt.innerHTML = md(out) + (r.truncated ? `<p class="muted">${t('(réponse coupée : demandez la suite)')}</p>` : '');
@@ -9599,22 +9668,36 @@ ${JSON.stringify(this.snapshot())}`;
       // Réponse déclinée : la partie déjà affichée est écartée.
       out = e?.code === 'refused' ? '' : e?.text || out;
       txt.innerHTML = md(out) + (msg ? `<p class="m-err">${esc(msg)}</p>` : '');
+      // Rien de produit (panne, refus, arrêt immédiat) : le message gratuit n'est pas décompté.
+      if (!out && !ctx.changed && !ctx.receipts.length && !ctx.buttons.length) Pro.refund('mentor');
     }
-    this.turns.push({ role: 'assistant', content: out || '…', receipt: ctx.receipts }); this.save();
+    if (ctx.changed) ctx.check();
+    turns.push({ role: 'assistant', content: out || '…', receipt: ctx.receipts }); this.save();
     bubble.classList.remove('live');
     for (const b of ctx.buttons) { const el = document.createElement('button'); el.className = 'btn btn-sm btn-brass'; el.innerHTML = icon(b.icon, 'i-sm') + esc(b.label); el.onclick = b.run; acts.append(el); }
+    let u = null;
     if (ctx.changed) {
-      const u = document.createElement('button'); u.className = 'btn btn-sm btn-ghost'; u.innerHTML = icon('undo', 'i-sm') + t('Annuler ces actions');
-      u.onclick = () => { Store.restore(snap); if (S.profile.settings.lang !== LANG) setLang(S.profile.settings.lang || langBefore); Custom.apply(); App.render(); u.disabled = true; u.innerHTML = icon('check', 'i-sm') + t('Actions annulées'); toast(t('Actions de Mentor annulées'), 'undo'); };
+      u = document.createElement('button'); u.className = 'btn btn-sm btn-ghost'; u.innerHTML = icon('undo', 'i-sm') + t('Annuler ces actions');
       acts.append(u);
       if (!Study.active) App.render();
       checkBadges();
     }
     ctx.after.forEach(fn => { try { fn(); } catch { } });
-    this.busy = false; this.ctl = null;
+    if (u) {
+      // État juste après ce message : l'annuler n'efface ni un changement plus récent (de Mentor ou de la personne), ni une annulation déjà faite.
+      const after = this.print();
+      u.onclick = () => {
+        if (u.disabled) return;
+        if (ctx.mixed || this.print() !== after) { toast(t("Impossible d'annuler : l'app a changé depuis ce message."), 'undo'); return; }
+        const { usage, cmd } = S.profile;
+        Store.restore(ctx.snap); Object.assign(S.profile, { usage, cmd }); Store.touch('profile');
+        if (S.profile.settings.lang !== LANG) setLang(S.profile.settings.lang || langBefore); Custom.apply(); App.render(); u.disabled = true; u.innerHTML = icon('check', 'i-sm') + t('Actions annulées'); toast(t('Actions de Mentor annulées'), 'undo');
+      };
+    }
+    this.busy = false; this.ctl = null; this.live = null;
     const send = $('#mSend'); if (send) { send.innerHTML = icon('send'); send.setAttribute('aria-label', t('Envoyer')); }
     if (LANG !== langBefore) this.render();
-    body.scrollTop = body.scrollHeight;
+    scroll();
   }
 };
 
@@ -12363,6 +12446,10 @@ TR = {
   // recette-30-09 D2 : nouvelles traductions ci-dessous
   //
   // recette-30-09 E : nouvelles traductions ci-dessous
+  "Pas de connexion : l'IA sera vérifiée au retour du réseau.": ["No connection: the AI will be checked when you're back online.","Sin conexión: la IA se comprobará cuando vuelva la conexión.","Keine Verbindung: Die KI wird geprüft, sobald das Netz zurück ist.","Sem conexão: a IA será verificada quando a conexão voltar."],
+  "Reconnectez l'appareil à Internet, puis relancez le bilan.": ["Reconnect the device to the internet, then run the check again.","Vuelve a conectar el dispositivo a internet y vuelve a lanzar la revisión.","Verbinde das Gerät wieder mit dem Internet und starte den Check erneut.","Reconecte o aparelho à internet e rode a verificação de novo."],
+  "Le serveur IA n'a pas répondu à temps : connexion lente ou coupée.": ["The AI server didn't answer in time: slow or dropped connection.","El servidor de IA no respondió a tiempo: conexión lenta o cortada.","Der KI-Server hat nicht rechtzeitig geantwortet: Verbindung langsam oder unterbrochen.","O servidor de IA não respondeu a tempo: conexão lenta ou interrompida."],
+  "Impossible d'annuler : l'app a changé depuis ce message.": ["Can't undo: the app has changed since this message.","No se puede deshacer: la app ha cambiado desde este mensaje.","Rückgängig machen nicht möglich: Die App hat sich seit dieser Nachricht geändert.","Não é possível desfazer: o app mudou desde esta mensagem."],
   //
   // recette-30-09 F : nouvelles traductions ci-dessous
   //
