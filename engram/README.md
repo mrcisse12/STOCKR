@@ -102,6 +102,11 @@ Pression du stylet, paume posée sans effet, gomme au bout du stylet, pointe vis
 
 ## Importer, exporter
 
+- **Caméra** : Scanner → « Scanner avec la caméra ». Les bords de la page sont repérés, la photo part seule quand la page ne bouge plus, la page est redressée (filtres Document, Couleur, Noir et blanc), plusieurs pages à la suite.
+- **Partager vers Engram** (app installée, Android et ordinateur) : depuis la galerie, un PDF, un navigateur ou une autre app, choisissez Engram : photos → scanner, PDF / Anki / CSV → import, texte ou lien → scanner.
+- **Page web** : Scanner → Texte → collez l'adresse, « Lire la page » (lue par le serveur, adresses internes refusées).
+- **Capture d'écran** : dans le scanner, Ctrl/⌘ V ajoute l'image copiée.
+
 Glissez un fichier n'importe où sur la page, ou passez par **Le fichier → Importer** : paquet Anki (`.apkg`, `.colpkg`, anciens et nouveaux formats, avec images et progression), liste copiée depuis Quizlet / Excel / Google Sheets / Notion, CSV / TSV / TXT, sauvegarde Engram, PDF de cours. Chaque paquet s'exporte en `.apkg` (Anki, AnkiDroid, AnkiMobile), en fiches à imprimer (PDF recto-verso), en CSV ou en JSON. Le programme s'ajoute à Google Agenda, Apple Calendar ou Outlook.
 
 ## Raccourcis

@@ -12,6 +12,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createEngram } from './core.mjs';
 import { createPay } from './pay.mjs';
+import { createReader } from './read.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const env = process.env;
@@ -20,6 +21,7 @@ const HOST = env.HOST || '0.0.0.0';
 const ROOT = env.ENGRAM_STATIC_DIR || path.join(here, '..');
 const engram = createEngram(env);
 const pay = createPay(env);
+const reader = createReader(env);
 
 const clientIp = req => (env.ENGRAM_TRUST_PROXY ? String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() : '') || req.socket.remoteAddress || '?';
 
@@ -81,6 +83,7 @@ const server = http.createServer(async (req, res) => {
   try {
     if (url.pathname.startsWith('/api/ai') && await relay(req, res)) return;
     if (url.pathname.startsWith('/api/pay') && await relay(req, res, pay)) return;
+    if (url.pathname === '/api/read' && await relay(req, res, reader)) return;
     // Les liens d'invitation mènent à la page de présentation : /decouvrir sans barre finale y mène aussi.
     if (url.pathname === '/decouvrir' && req.method === 'GET') { res.writeHead(301, { location: '/decouvrir/' + url.search }); return res.end(); }
     const file = STATIC[url.pathname];

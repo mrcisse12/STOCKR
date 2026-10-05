@@ -516,6 +516,7 @@ html.cam-on{overflow:hidden}
   --sh-panel:0 30px 60px -44px rgba(0,0,0,.3); --sh-pop:0 24px 60px -24px rgba(0,0,0,.35);
 }
 :root[data-skin="marbre"] body{background-image:linear-gradient(115deg,transparent 40%,rgba(120,120,120,.05) 41%,transparent 43%),linear-gradient(35deg,transparent 62%,rgba(150,140,120,.06) 63%,transparent 64.5%),linear-gradient(160deg,transparent 20%,rgba(110,110,110,.04) 21%,transparent 22.5%);background-attachment:fixed}
+.web-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}.web-row .input{flex:1;min-width:220px}
 .pay-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.pay-row .input{flex:1;min-width:200px;font-family:var(--f-type)}
 .order-list .ochip{flex-wrap:wrap;row-gap:2px}
 .ochip .you{flex-basis:100%;padding-left:23px;font:400 12px/1.3 var(--f-type);color:var(--pen);opacity:.9}
@@ -8619,7 +8620,8 @@ Views.scan = () => {
           ${Scan.pdf && Scan.pdf.text.trim().length > 40 ? `<details class="pdf-peek"><summary>${t('Voir le texte extrait')}</summary><div class="page">${esc(Scan.pdf.text.slice(0, 3000))}</div></details>` : ''}`
       : Scan.tab === 'topic' ? `<div class="field"><label for="scTopic">${t('Sujet')}</label><input class="input" id="scTopic" value="${esc(Scan.topic)}" placeholder="${esc(t('Ex. La Révolution française, les verbes irréguliers anglais, le cycle de Krebs…'))}">
           <span class="muted" style="font-size:12.5px">${t("Les fiches sont rédigées à partir des connaissances de l'IA : relisez-les avant de les garder.")}</span></div>`
-      : `<div class="field"><label for="scText">${t('Texte du cours')}</label><textarea class="textarea" id="scText" style="min-height:220px" placeholder="${esc(t('Collez ici votre cours, vos notes, un chapitre de manuel…'))}">${esc(Scan.text)}</textarea>
+      : `<div class="web-row"><input class="input" id="scWeb" type="url" inputmode="url" autocomplete="off" placeholder="${esc(t('Adresse d\'une page web (Wikipédia, cours en ligne…)'))}"><button class="btn" id="scWebGo">${icon('globe')}${t('Lire la page')}</button></div>
+        <div class="field"><label for="scText">${t('Texte du cours')}</label><textarea class="textarea" id="scText" style="min-height:220px" placeholder="${esc(t('Collez ici votre cours, vos notes, un chapitre de manuel…'))}">${esc(Scan.text)}</textarea>
           <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><span class="muted tnum" style="font:400 12px var(--f-type)" id="scCount">${t('{n} caractères', { n: Scan.text.length })}</span><button class="btn btn-ghost btn-sm" id="scSample">${icon('sparkles', 'i-sm')}${t('Essayer avec un exemple')}</button></div></div>`}
         <div class="two">
           <div class="field"><label for="scN">${t('Nombre de fiches')} · <b class="tnum" id="scNout" style="color:var(--text)">${Scan.n}</b></label><input type="range" id="scN" min="5" max="40" step="1" value="${Scan.n}"></div>
@@ -8915,6 +8917,10 @@ Hooks.scan = () => {
     redraw();
   };
   $('#scFile')?.addEventListener('change', e => addFiles(e.target.files));
+  $('#scWebGo')?.addEventListener('click', () => Inbox.web($('#scWeb').value));
+  $('#scWeb')?.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); Inbox.web(e.target.value); } });
+  // Une capture d'écran collée (Ctrl/⌘ V) devient une page du scan.
+  if (!Hooks._paste) { Hooks._paste = true; document.addEventListener('paste', e => { if (App.route.v !== 'scan' || e.target.closest?.('input,textarea')) return; const fl = [...(e.clipboardData?.files || [])].filter(f => /^image\//.test(f.type)); if (!fl.length) return; e.preventDefault(); Scan.tab = 'photo'; const max = AI.limits?.images?.maxCount || 5; for (const f of fl.slice(0, Math.max(0, max - Scan.files.length))) { Scan.files.push(f); Scan.urls.push(URL.createObjectURL(f)); } App.render(); toast(t('Capture ajoutée au scan'), 'image'); }); }
   $('#scCam')?.addEventListener('click', () => DocCam.open({ max: Math.max(1, (AI.limits?.images?.maxCount || 5) - Scan.files.length), done: addFiles }));
   $('#scInk')?.addEventListener('click', () => openSketch({
     title: t('Notes manuscrites'), sub: t('Écrivez comme sur une feuille : titres, définitions, flèches, schémas.'), paper: 'ruled', ph: t('Écrivez votre cours ici…'), ok: t('Ajouter la page'), bg: '#fff',
@@ -10701,6 +10707,58 @@ function calendarLinks() {
   return { google, outlook, exams, avg };
 }
 /* ── Glisser-déposer un fichier n'importe où ───────────────────────── */
+/* ════════════════════════════════════════════════════════════════════
+   ARRIVÉES : partage depuis une autre app, page web, capture collée
+   · « Partager vers Engram » (Android, ordinateur) : le service worker garde
+     les fichiers et le texte, la page les reprend au démarrage (?shared=1).
+   · Une adresse web devient un cours à transformer en fiches (/api/read).
+   ════════════════════════════════════════════════════════════════════ */
+const Inbox = {
+  async take() {
+    if (!/[?&]shared=1\b/.test(location.search)) return;
+    history.replaceState(null, '', location.pathname + location.hash);
+    if (!('caches' in window)) return;
+    const c = await caches.open('engram-share'), files = []; let text = '';
+    for (const k of await c.keys()) {
+      const r = await c.match(k);
+      if (/shared\/text$/.test(k.url)) text = await r.text();
+      else { const b = await r.blob(); files.push(new File([b], decodeURIComponent(r.headers.get('x-name') || 'fichier'), { type: b.type })); }
+    }
+    await caches.delete('engram-share');
+    this.route(files, text);
+  },
+  route(files, text = '') {
+    const imgs = files.filter(f => /^image\//.test(f.type)), rest = files.filter(f => !/^image\//.test(f.type));
+    if (imgs.length) {
+      App.go('scan'); Scan.tab = 'photo';
+      const max = AI.limits?.images?.maxCount || 5;
+      for (const f of imgs.slice(0, Math.max(0, max - Scan.files.length))) { Scan.files.push(f); Scan.urls.push(URL.createObjectURL(f)); }
+      App.render(); toast(plural(imgs.length, 'photo reçue|photos reçues') + ' · ' + t('prêtes à devenir des fiches'), 'camera');
+    }
+    rest.forEach(f => importFile(f));
+    const url = text.match(/https?:\/\/[^\s<>"']+/)?.[0];
+    if (!files.length && url && text.replace(url, '').trim().length < 160) { App.go('scan'); Scan.tab = 'text'; App.render(); this.web(url); }
+    else if (!files.length && text.trim()) { App.go('scan'); Scan.tab = 'text'; Scan.text = text.trim(); App.render(); toast(t('Texte reçu : choisissez les types de fiches, puis lancez.'), 'type'); }
+  },
+  /** Lit une page web par le serveur d'Engram et la pose dans l'onglet Texte du scanner. */
+  async web(url) {
+    url = String(url || '').trim(); if (!url) return;
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    const base = AI.serverUrl().replace(/\/api\/ai$/, '');
+    if (!base) { toast(t('La lecture de pages web passe par le serveur Engram : elle marche sur le site en ligne.'), 'globe'); return; }
+    const btn = $('#scWebGo'); if (btn) { btn.disabled = true; btn.innerHTML = icon('spin', 'spin') + t('Lecture…'); }
+    try {
+      const r = await fetch(base + '/api/read?url=' + encodeURIComponent(url)), j = await r.json().catch(() => ({}));
+      if (!r.ok) throw j;
+      Scan.tab = 'text'; Scan.text = (j.title ? j.title + '\n\n' : '') + j.text; Scan.webUrl = j.url;
+      App.render(); toast(t('Page lue : {n} caractères. Relisez, puis lancez.', { n: j.text.length }), 'globe');
+    } catch (e) {
+      toast(({ bad_url: t('Cette adresse ne peut pas être lue.'), not_text: t('Ce lien n\'est pas une page de texte (PDF ? déposez le fichier).'), empty: t('Pas assez de texte sur cette page.'), rate_limited: t('Beaucoup de demandes d\'un coup : réessayez dans un instant.') })[e?.code] || t('La page ne répond pas. Vérifiez l\'adresse.'), 'globe');
+      if (btn) { btn.disabled = false; btn.innerHTML = icon('globe') + t('Lire la page'); }
+    }
+  }
+};
+
 function bootDrop() {
   let depth = 0;
   addEventListener('dragenter', e => { if (![...(e.dataTransfer?.types || [])].includes('Files') || App.route.v === 'scan') return; depth++; document.body.classList.add('dropping'); });
@@ -12874,6 +12932,18 @@ TR = {
   "Thèmes Velours et Marbre, couleur d'accent sur mesure, rétention par paquet et intervalle maximal : Élite règle Engram à votre façon.": ["Velvet and Marble themes, a custom accent colour, retention per deck and a maximum interval: Elite tunes Engram your way.", "Temas Terciopelo y Mármol, color de acento a medida, retención por mazo e intervalo máximo: Élite ajusta Engram a tu manera.", "Themes Samt und Marmor, Akzentfarbe nach Maß, Behaltensrate pro Stapel und maximales Intervall: Elite stellt Engram auf dich ein.", "Temas Veludo e Mármore, cor de destaque sob medida, retenção por baralho e intervalo máximo: o Elite ajusta o Engram do seu jeito."],
   "Aucun": ["None", "Ninguno", "Keins", "Nenhum"],
   "6 mois": ["6 months", "6 meses", "6 Monate", "6 meses"],
+  "photo reçue|photos reçues": ["photo received|photos received", "foto recibida|fotos recibidas", "Foto empfangen|Fotos empfangen", "foto recebida|fotos recebidas"],
+  "prêtes à devenir des fiches": ["ready to become cards", "listas para convertirse en tarjetas", "bereit, Karten zu werden", "prontas para virar cartões"],
+  "Texte reçu : choisissez les types de fiches, puis lancez.": ["Text received: choose the card types, then start.", "Texto recibido: elige los tipos de tarjetas y empieza.", "Text empfangen: wähle die Kartentypen und starte.", "Texto recebido: escolha os tipos de cartões e comece."],
+  "La lecture de pages web passe par le serveur Engram : elle marche sur le site en ligne.": ["Reading web pages goes through the Engram server: it works on the live site.", "La lectura de páginas web pasa por el servidor de Engram: funciona en el sitio en línea.", "Webseiten werden über den Engram-Server gelesen: das klappt auf der Live-Seite.", "A leitura de páginas web passa pelo servidor do Engram: funciona no site publicado."],
+  "Page lue : {n} caractères. Relisez, puis lancez.": ["Page read: {n} characters. Check it, then start.", "Página leída: {n} caracteres. Revísala y empieza.", "Seite gelesen: {n} Zeichen. Kurz prüfen, dann starten.", "Página lida: {n} caracteres. Revise e comece."],
+  "Cette adresse ne peut pas être lue.": ["This address can't be read.", "Esta dirección no se puede leer.", "Diese Adresse kann nicht gelesen werden.", "Este endereço não pode ser lido."],
+  "Ce lien n'est pas une page de texte (PDF ? déposez le fichier).": ["This link isn't a text page (a PDF? drop the file instead).", "Este enlace no es una página de texto (¿un PDF? suelta el archivo).", "Dieser Link ist keine Textseite (ein PDF? Zieh die Datei hinein).", "Este link não é uma página de texto (um PDF? solte o arquivo)."],
+  "Pas assez de texte sur cette page.": ["Not enough text on this page.", "No hay suficiente texto en esta página.", "Zu wenig Text auf dieser Seite.", "Pouco texto nesta página."],
+  "La page ne répond pas. Vérifiez l'adresse.": ["The page isn't responding. Check the address.", "La página no responde. Comprueba la dirección.", "Die Seite antwortet nicht. Prüf die Adresse.", "A página não responde. Verifique o endereço."],
+  "Lire la page": ["Read the page", "Leer la página", "Seite lesen", "Ler a página"],
+  "Adresse d'une page web (Wikipédia, cours en ligne…)": ["Address of a web page (Wikipedia, online course…)", "Dirección de una página web (Wikipedia, curso en línea…)", "Adresse einer Webseite (Wikipedia, Online-Kurs…)", "Endereço de uma página web (Wikipédia, curso on-line…)"],
+  "Capture ajoutée au scan": ["Screenshot added to the scan", "Captura añadida al escaneo", "Screenshot zum Scan hinzugefügt", "Captura adicionada ao escaneamento"],
 };
 
 /* ── Démarrage ─────────────────────────────────────────────────────── */
@@ -12890,6 +12960,7 @@ async function boot() {
   if (!S.profile.onboarded) Onb.open();
   AI.init().then(() => setTimeout(() => Autopilot.check(), 1200));
   Pay.init();
+  Inbox.take();
   Store.connect();
   Dl.ready().then(() => { if (App.route.v === 'links') App.render(); });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') Autopilot.check(); });
