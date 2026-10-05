@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Dossier Engram</title>
-<meta name="description" content="Engram — le dossier du projet : produit, science, fiche technique, coûts de l'IA, budget et planning.">
+<meta name="description" content="Engram — le dossier du projet : produit, Mentor, programme, cinq langues, intégrations, science, fiche technique, coûts de l'IA, budget et planning.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Gloock&family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..600&display=swap">
 <style>
@@ -13,7 +13,7 @@
   --desk:#0D1411; --desk-2:#101915;
   --folder:#15201B; --folder-2:#1A2721; --folder-3:#213029; --folder-4:#2A3A32;
   --hair:rgba(214,190,140,.13); --hair-2:rgba(214,190,140,.24); --hair-3:rgba(214,190,140,.4);
-  --text:#EFE9DA; --text-2:#C2BBA8; --muted:#8A8474;
+  --text:#EFE9DA; --text-2:#C2BBA8; --muted:#9C9686;
   --brass:#C9A45C; --brass-hi:#EBD196; --brass-lo:#8A6A30; --brass-btn:#C9A45C; --on-brass:#1B1407; --brass-text:#DDBE7E;
   --brass-soft:rgba(201,164,92,.12); --brass-glow:rgba(222,184,110,.35);
   --green:#2C6A4D; --green-hi:#79BE9A;
@@ -267,6 +267,9 @@ pre{margin:0;padding:18px 20px;border-radius:12px;background:var(--desk-2);borde
 footer{padding-block:60px 80px;border-top:1px solid var(--hair);margin-top:40px}
 footer .wrap{display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}.art .card{opacity:1}.art .card.c2{transform:translate(20%,24%) rotate(3deg)}.art .card.c3{transform:translate(40%,48%) rotate(-3deg)}.art .stampx{opacity:1}}
+
+/* Le tampon du héros déborde volontairement de l’illustration : pas de défilement horizontal pour autant. */
+main{overflow-x:clip}
 </style>
 </head>
 <body>
@@ -279,7 +282,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-con
 <header class="top">
   <div class="wrap">
     <a class="brand" href="#top" aria-label="Engram"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18.6" fill="none" stroke="var(--brass)" stroke-width="1.2"/><circle cx="20" cy="20" r="15.4" fill="none" stroke="var(--brass)" stroke-width="1.2" stroke-dasharray="1.2 2.1"/><text x="20" y="27.6" text-anchor="middle" font-size="21" font-family="Gloock, Georgia, serif" fill="var(--brass-text)">E</text></svg><span>Engram</span></a>
-    <nav class="links" aria-label="Sections"><a href="#produit">Produit</a><a href="#science">Science</a><a href="#technique">Technique</a><a href="#couts">Coûts</a><a href="#budget">Budget</a><a href="#planning">Planning</a></nav>
+    <nav class="links" aria-label="Sections"><a href="#produit">Produit</a><a href="#v3">Nouveautés</a><a href="#science">Science</a><a href="#technique">Technique</a><a href="#couts">Coûts</a><a href="#budget">Budget</a><a href="#planning">Planning</a></nav>
     <a class="btn btn-brass" href="https://claude.ai/artifact/BDnQgsmhcYU9oEdsSCkapV" target="_blank" rel="noopener">Ouvrir le prototype</a>
   </div>
 </header>
@@ -290,7 +293,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-con
       <div class="hero-l">
         <div class="kicker">Dossier de projet · <b>septembre 2026</b></div>
         <h1 class="display"><span class="w">La</span> <span class="w" style="animation-delay:.05s">mémoire,</span> <span class="w" style="animation-delay:.1s">sans</span> <span class="w" style="animation-delay:.15s">la</span> <span class="w" style="animation-delay:.2s"><em>corvée.</em></span></h1>
-        <p class="lede">Engram transforme une photo de cours en paquet de fiches, décide avec l'algorithme FSRS du meilleur moment pour les revoir, et corrige vos réponses même quand elles ne sont pas mot pour mot. Anki, en plus rapide, en plus juste, et enfin beau.</p>
+        <p class="lede">Engram transforme une photo ou un PDF de cours en paquet de fiches, construit votre programme jusqu'au jour de l'examen, décide avec FSRS du meilleur moment pour revoir chaque fiche, et corrige vos réponses même quand elles ne sont pas mot pour mot. Avec Mentor, un assistant qui agit dans l'app. En cinq langues, et compatible Anki dans les deux sens.</p>
         <div class="cta">
           <a class="btn btn-brass" href="https://claude.ai/artifact/BDnQgsmhcYU9oEdsSCkapV" target="_blank" rel="noopener"><svg class="i" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg>Essayer le prototype</a>
           <a class="btn" href="#technique">Lire la fiche technique</a>
@@ -308,19 +311,19 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-con
     </section>
 
     <div class="band">
-      <div><b>0</b><span>saisie à la main pour créer un paquet</span></div>
-      <div><b>5</b><span>types de fiches générés : Q/R, trous, QCM, vrai/faux, ordre</span></div>
-      <div><b>3</b><span>niveaux d'exigence de correction, au choix</span></div>
+      <div><b>5</b><span>langues entièrement traduites : FR, EN, ES, DE, PT</span></div>
+      <div><b>18</b><span>actions que Mentor sait faire dans l'app, toutes annulables</span></div>
+      <div><b>7</b><span>types de fiches, et l'import / export Anki</span></div>
       <div><b>FSRS-5</b><span>l'algorithme de répétition le plus précis aujourd'hui</span></div>
     </div>
 
     <!-- Produit -->
     <section class="s" id="produit">
-      <div class="s-h reveal"><div class="kicker">01 · Le produit</div><h2 class="h2">De la page de cours à la mémoire longue, <em>en trois gestes.</em></h2><p class="lede">L'étudiant ne tape plus ses fiches. Il photographie, il trie, il révise ; l'application s'occupe du reste, y compris de le rappeler au bon moment.</p></div>
+      <div class="s-h reveal"><div class="kicker">01 · Le produit</div><h2 class="h2">De la page de cours à la mémoire longue, <em>en trois gestes.</em></h2><p class="lede">L'étudiant ne tape plus ses fiches. Il photographie, il trie, il révise ; l'application s'occupe du reste, y compris du programme et du bon moment pour revoir.</p></div>
       <div class="steps">
         <article class="step reveal">
           <div class="ill"><div class="mini-paper" style="left:12%;top:18px;width:120px;height:120px;transform:rotate(-6deg)"></div><div class="phone"></div></div>
-          <h3 class="h3">Photographier</h3><p>Une ou plusieurs pages, manuscrites ou imprimées. Ou un texte collé, ou simplement un sujet.</p>
+          <h3 class="h3">Photographier</h3><p>Une ou plusieurs pages, manuscrites ou imprimées. Ou un PDF, un paquet Anki, un texte collé, ou simplement un sujet.</p>
         </article>
         <article class="step reveal">
           <div class="ill"><div class="mini-paper" style="left:6%;top:30px;width:120px;height:78px;transform:rotate(-5deg)"></div><div class="mini-paper" style="left:28%;top:14px;width:120px;height:78px;transform:rotate(2deg)"></div><div class="mini-paper" style="left:50%;top:42px;width:120px;height:78px;transform:rotate(6deg)"></div></div>
@@ -333,31 +336,62 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-con
       </div>
 
       <div style="height:clamp(56px,7vw,90px)"></div>
-      <div class="s-h reveal"><div class="kicker">Tout ce que fait Engram</div><h2 class="h2">Quatre piliers, <em>des possibilités qui s'empilent.</em></h2><p class="lede">Les fonctions marquées « prototype » tournent déjà dans l'application de démonstration. Les autres sont au programme de la version mobile.</p></div>
+      <div class="s-h reveal"><div class="kicker">Tout ce que fait Engram</div><h2 class="h2">Quatre piliers, <em>des possibilités qui s'empilent.</em></h2><p class="lede">Les fonctions marquées « prototype » tournent déjà dans l'application de démonstration, dans les cinq langues. Les autres sont au programme de la version mobile.</p></div>
       <div class="pillars">
         <article class="pillar reveal"><div class="kicker"><b>Capturer</b></div><ul>
           <li><b>Photo multi-pages</b><span>Manuscrit ou imprimé, jusqu'à cinq pages par scan.</span><i class="st ok">prototype</i></li>
-          <li><b>Texte ou simple sujet</b><span>« Le cycle de Krebs, niveau lycée » suffit.</span><i class="st ok">prototype</i></li>
+          <li><b>PDF, texte ou simple sujet</b><span>Le polycopié entier, ou « le cycle de Krebs, niveau lycée ».</span><i class="st ok">prototype</i></li>
           <li><b>Masquage d'image</b><span>Les légendes d'un schéma deviennent des fiches ; l'IA les repère.</span><i class="st ok">prototype</i></li>
-          <li><b>PDF, diapositives, audio</b><span>Le polycopié et l'enregistrement de l'amphi.</span><i class="st next">prévu</i></li>
+          <li><b>Audio, vidéo, pages web</b><span>L'enregistrement de l'amphi, une vidéo de cours.</span><i class="st next">prévu</i></li>
         </ul></article>
         <article class="pillar reveal"><div class="kicker"><b>Retenir</b></div><ul>
           <li><b>FSRS-5, rétention réglable</b><span>De 80 à 97 % : l'utilisateur choisit l'effort.</span><i class="st ok">prototype</i></li>
           <li><b>Boîte de Leitner</b><span>On voit ses fiches passer de « nouvelles » à « acquises ».</span><i class="st ok">prototype</i></li>
-          <li><b>Examen en vue</b><span>Compte à rebours et nombre de fiches à voir chaque jour.</span><i class="st ok">prototype</i></li>
+          <li><b>Programme jusqu'au jour J</b><span>Plusieurs examens, votre temps jour par jour, la mémoire prévue le jour J.</span><i class="st ok">prototype</i></li>
           <li><b>Optimiseur personnel</b><span>FSRS entraîné sur l'historique de chaque élève.</span><i class="st next">prévu</i></li>
         </ul></article>
         <article class="pillar reveal"><div class="kicker"><b>Évaluer</b></div><ul>
           <li><b>Correction sémantique</b><span>Souple, standard ou strict ; synonymes acceptés.</span><i class="st ok">prototype</i></li>
           <li><b>Réponse dictée</b><span>On répond à voix haute, la réponse est corrigée.</span><i class="st ok">prototype</i></li>
-          <li><b>Examen blanc sur 20</b><span>QCM chronométré, mention, révision des erreurs.</span><i class="st ok">prototype</i></li>
+          <li><b>Examen blanc noté</b><span>Au barème du pays : sur 20, de 1,0 à 5,0, sur 10, en lettres.</span><i class="st ok">prototype</i></li>
           <li><b>Prédiction de note</b><span>« Si l'examen avait lieu demain : environ 14/20. »</span><i class="st next">prévu</i></li>
         </ul></article>
         <article class="pillar reveal"><div class="kicker"><b>Comprendre & motiver</b></div><ul>
-          <li><b>Prof virtuel</b><span>Explique autrement, avec une analogie ; discussion par paquet.</span><i class="st ok">prototype</i></li>
+          <li><b>Mentor</b><span>Explique, planifie, crée et reformule des fiches, règle l'app — à votre demande.</span><i class="st ok">prototype</i></li>
           <li><b>Fiche de synthèse</b><span>Le chapitre résumé sur une page, exportable.</span><i class="st ok">prototype</i></li>
           <li><b>Série, ex-libris, jeux</b><span>Jeu des paires, cachets de cire, image de progression à partager.</span><i class="st ok">prototype</i></li>
           <li><b>Groupes de classe</b><span>Un paquet partagé, un classement hebdomadaire.</span><i class="st next">prévu</i></li>
+        </ul></article>
+      </div>
+    </section>
+
+    <!-- Nouveautés v3 -->
+    <section class="s" id="v3">
+      <div class="s-h reveal"><div class="kicker">Nouveau · version 3</div><h2 class="h2">Un assistant qui agit, un programme qui s'adapte, <em>cinq langues.</em></h2><p class="lede">Tout ce qui suit tourne dans le prototype et a été vérifié par des tests automatisés, langue par langue.</p></div>
+      <div class="pillars">
+        <article class="pillar reveal"><div class="kicker"><b>Mentor</b></div><ul>
+          <li><b>Il fait, pas seulement il dit</b><span>Crée paquets et fiches, reformule les sangsues, programme un examen, règle l'app : 18 actions.</span><i class="st ok">prototype</i></li>
+          <li><b>Sous contrôle</b><span>Un reçu par action, un bouton Annuler, confirmation avant toute suppression.</span><i class="st ok">prototype</i></li>
+          <li><b>Il se souvient</b><span>Vos points faibles, vos dates, vos préférences, réutilisés partout.</span><i class="st ok">prototype</i></li>
+          <li><b>Trois niveaux, trois tons</b><span>Rapide, Standard, Expert (Claude Fable 5.1 sur le serveur Engram) ; bienveillant, coach, exigeant.</span><i class="st ok">prototype</i></li>
+        </ul></article>
+        <article class="pillar reveal"><div class="kicker"><b>Programme</b></div><ul>
+          <li><b>Calculé chaque jour</b><span>Examens, minutes disponibles pour chaque jour de la semaine, charge future simulée sur 28 jours.</span><i class="st ok">prototype</i></li>
+          <li><b>Prêt à temps</b><span>Nouvelles fiches dosées jusqu'à deux jours avant le jour J ; mémoire prévue affichée.</span><i class="st ok">prototype</i></li>
+          <li><b>Lettre de la semaine</b><span>Mentor écrit un bilan et le plan de la semaine, à la plume.</span><i class="st ok">prototype</i></li>
+          <li><b>Dans votre agenda</b><span>Google Agenda, Apple Calendar, Outlook.</span><i class="st ok">prototype</i></li>
+        </ul></article>
+        <article class="pillar reveal"><div class="kicker"><b>Cinq langues</b></div><ul>
+          <li><b>Tout est traduit</b><span>Interface, exemples, consignes de l'IA, voix, correction locale.</span><i class="st ok">prototype</i></li>
+          <li><b>Selon les usages locaux</b><span>Dates, pluriels, guillemets, barèmes de notes de chaque pays.</span><i class="st ok">prototype</i></li>
+          <li><b>Fiches dans la langue voulue</b><span>Un cours en anglais, des fiches en français : au choix.</span><i class="st ok">prototype</i></li>
+          <li><b>Une langue de plus</b><span>Une colonne au dictionnaire, rien d'autre à toucher.</span><i class="st next">prêt</i></li>
+        </ul></article>
+        <article class="pillar reveal"><div class="kicker"><b>Intégrations</b></div><ul>
+          <li><b>Anki, dans les deux sens</b><span>Import .apkg avec images et progression ; export relu par Anki.</span><i class="st ok">prototype</i></li>
+          <li><b>Quizlet, Excel, Notion</b><span>Un copier-coller, séparateur deviné, aperçu.</span><i class="st ok">prototype</i></li>
+          <li><b>Fiches à imprimer</b><span>PDF recto-verso, huit fiches par page, traits de coupe.</span><i class="st ok">prototype</i></li>
+          <li><b>Votre thème</b><span>7 thèmes, 6 accents, 3 typographies, taille du texte, papier des fiches.</span><i class="st ok">prototype</i></li>
         </ul></article>
       </div>
     </section>
@@ -393,11 +427,14 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-con
           <tr class="hi"><td><b>Créer un paquet</b></td><td class="no">À la main, fiche par fiche</td><td class="yes">Photo, texte ou sujet : fiches rédigées en moins d'une minute</td></tr>
           <tr class="hi"><td><b>Réponse tapée</b></td><td class="no">Comparée caractère par caractère</td><td class="yes">Corrigée sur le sens ; exigence choisie par l'élève</td></tr>
           <tr><td><b>Algorithme</b></td><td>SM-2, ou FSRS depuis la version 23.10</td><td>FSRS-5 par défaut</td></tr>
-          <tr><td><b>Quand on bloque</b></td><td class="mid">La carte revient, telle quelle</td><td class="yes">Le prof virtuel explique autrement</td></tr>
+          <tr><td><b>Quand on bloque</b></td><td class="mid">La carte revient, telle quelle</td><td class="yes">Mentor et le prof virtuel expliquent autrement, reformulent la carte</td></tr>
+          <tr class="hi"><td><b>Préparer un examen</b></td><td class="no">Aucun plan</td><td class="yes">Programme calculé chaque jour jusqu'au jour J, mémoire prévue affichée</td></tr>
+          <tr><td><b>Paquets Anki</b></td><td>Format natif</td><td class="yes">Import et export .apkg, avec images et progression</td></tr>
+          <tr><td><b>Langues</b></td><td>Interface traduite par la communauté</td><td>5 langues, jusqu'aux consignes de l'IA et aux barèmes de notes</td></tr>
           <tr><td><b>Types de fiches</b></td><td>Recto/verso, trous, masquage d'image</td><td>Les mêmes, plus QCM, vrai/faux, remise en ordre</td></tr>
-          <tr><td><b>Motivation</b></td><td class="mid">Statistiques</td><td class="yes">Série, jeux, examen blanc sur 20, ex-libris</td></tr>
-          <tr><td><b>Personnalisation</b></td><td class="yes">Totale : HTML, CSS, extensions</td><td class="mid">Limitée au lancement</td></tr>
-          <tr><td><b>Prix</b></td><td>Gratuit (iOS ≈ 25 $)</td><td>Gratuit, Pro à 6,99 €/mois</td></tr>
+          <tr><td><b>Motivation</b></td><td class="mid">Statistiques</td><td class="yes">Série, jeux, examen blanc noté, ex-libris, lettre de la semaine</td></tr>
+          <tr><td><b>Personnalisation</b></td><td class="yes">Totale : HTML, CSS, extensions</td><td>7 thèmes, 6 accents, 3 typographies, taille du texte, papier des fiches</td></tr>
+          <tr><td><b>Prix</b></td><td>Gratuit (iOS ≈ 25 $)</td><td>Gratuit, Pro à 7,99 €/mois</td></tr>
         </tbody>
       </table></div>
     </section>
@@ -445,7 +482,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-con
           <rect class="box" x="20" y="60" width="160" height="78" rx="10"/><text class="t" x="100" y="94" text-anchor="middle">Réponse</text><text class="lbl" x="100" y="118" text-anchor="middle">TAPÉE OU DICTÉE</text>
           <rect class="box" x="240" y="60" width="170" height="78" rx="10"/><text class="t" x="325" y="94" text-anchor="middle">1 · Locale</text><text class="lbl" x="325" y="118" text-anchor="middle">GRATUIT · INSTANTANÉ</text>
           <rect class="box" x="460" y="60" width="170" height="78" rx="10"/><text class="t" x="545" y="94" text-anchor="middle">2 · Vecteurs</text><text class="lbl" x="545" y="118" text-anchor="middle">QUASI GRATUIT</text>
-          <rect class="box key" x="680" y="60" width="140" height="78" rx="10"/><text class="t" x="750" y="94" text-anchor="middle">3 · Juge IA</text><text class="lbl" x="750" y="118" text-anchor="middle">≈ 0,0008 $</text>
+          <rect class="box key" x="680" y="60" width="140" height="78" rx="10"/><text class="t" x="750" y="94" text-anchor="middle">3 · Juge IA</text><text class="lbl" x="750" y="118" text-anchor="middle">≈ 0,001 $</text>
           <rect class="box" x="240" y="206" width="580" height="54" rx="10"/><text class="t" x="530" y="239" text-anchor="middle">Verdict, score, mots-clés manquants, note suggérée</text>
           <line class="line" x1="182" y1="99" x2="236" y2="99" marker-end="url(#ah2)"/>
           <line class="line" x1="412" y1="99" x2="456" y2="99" marker-end="url(#ah2)"/><text x="434" y="90" text-anchor="middle">doute</text>
@@ -468,34 +505,36 @@ scan_jobs    id · user_id · pages · model · tokens_in · tokens_out · cost_
 
     <!-- Coûts -->
     <section class="s" id="couts">
-      <div class="s-h reveal"><div class="kicker">04 · Ce que coûte l'IA</div><h2 class="h2">Quelques centimes par page, <em>à surveiller comme le loyer.</em></h2><p class="lede">Tarifs publics de l'API Claude en septembre 2026, en dollars par million de tokens. Une photo réduite à environ 1,2 mégapixel pèse près de 1 600 tokens.</p></div>
+      <div class="s-h reveal"><div class="kicker">04 · Ce que coûte l'IA</div><h2 class="h2">Quelques centimes par page, <em>à surveiller comme le loyer.</em></h2><p class="lede">Tarifs publics de l'API Claude en septembre 2026, en dollars par million de tokens. Une photo réduite à environ 1,2 mégapixel pèse près de 1 600 tokens ; les coûts incluent la réflexion du modèle.</p></div>
       <div class="tbl-wrap reveal"><table>
-        <thead><tr><th>Modèle</th><th class="num">Entrée</th><th class="num">Sortie</th><th class="num">Une page → 15 fiches</th><th>Rôle conseillé</th></tr></thead>
+        <thead><tr><th>Modèle</th><th class="num">Entrée</th><th class="num">Sortie</th><th class="num">Exemple</th><th>Rôle dans Engram</th></tr></thead>
         <tbody>
-          <tr class="hi"><td><b>Claude Opus 5</b></td><td class="num">5 $</td><td class="num">25 $</td><td class="num">≈ 0,05 $ (0,07 à 0,10 $ avec réflexion)</td><td>Lecture des photos, manuscrit difficile</td></tr>
-          <tr><td><b>Claude Sonnet 5</b></td><td class="num">2 $</td><td class="num">10 $</td><td class="num">≈ 0,02 $</td><td>Alternative à valider sur de vraies photos</td></tr>
-          <tr><td><b>Claude Haiku 4.5</b></td><td class="num">1 $</td><td class="num">5 $</td><td class="num">≈ 0,01 $</td><td>Correction des réponses (≈ 0,0008 $ l'une)</td></tr>
+          <tr><td><b>Claude Fable 5.1</b></td><td class="num">10 $</td><td class="num">50 $</td><td class="num">≈ 0,15 $ le message</td><td>Mentor Expert : plans complexes, explications difficiles</td></tr>
+          <tr class="hi"><td><b>Claude Opus 5</b></td><td class="num">5 $</td><td class="num">25 $</td><td class="num">≈ 0,07 $ la page</td><td>Photos et PDF → fiches, Mentor Standard (≈ 0,05 $ le message)</td></tr>
+          <tr><td><b>Claude Haiku 4.5</b></td><td class="num">1 $</td><td class="num">5 $</td><td class="num">≈ 0,001 $ la réponse</td><td>Option économique pour corriger les réponses</td></tr>
         </tbody>
       </table></div>
       <div style="height:22px"></div>
       <div class="scen">
-        <article class="sc reveal"><div class="kicker">Utilisateur gratuit</div><div class="price">≈ 0,25 $<small class="muted" style="font:400 14px var(--f-ui)"> / mois</small></div><p class="muted">3 scans par mois, correction locale.</p></article>
-        <article class="sc hi reveal"><div class="kicker"><b>Abonné Pro</b></div><div class="price">≈ 2,50 $<small class="muted" style="font:400 14px var(--f-ui)"> / mois</small></div><p class="muted">30 scans, 600 corrections dont la moitié tranchées localement, 20 explications.</p></article>
-        <article class="sc reveal"><div class="kicker">Usage intensif</div><div class="price">≈ 10 $<small class="muted" style="font:400 14px var(--f-ui)"> / mois</small></div><p class="muted">120 scans, 2 000 corrections : prévoir une limite « usage raisonnable ».</p></article>
+        <article class="sc reveal"><div class="kicker">Utilisateur gratuit</div><div class="price">≈ 1,20 $<small class="muted" style="font:400 14px var(--f-ui)"> / mois</small></div><p class="muted">3 scans et 20 messages à Mentor par mois, correction locale.</p></article>
+        <article class="sc hi reveal"><div class="kicker"><b>Abonné Pro</b></div><div class="price">≈ 5,50 – 7 $<small class="muted" style="font:400 14px var(--f-ui)"> / mois</small></div><p class="muted">30 scans, 600 corrections dont la moitié tranchées localement, 60 messages à Mentor, 4 lettres.</p></article>
+        <article class="sc reveal"><div class="kicker">Usage intensif</div><div class="price">≈ 23 – 28 $<small class="muted" style="font:400 14px var(--f-ui)"> / mois</small></div><p class="muted">120 scans, 2 000 corrections, 200 messages dont 30 en Expert : limite « usage raisonnable ».</p></article>
       </div>
-      <p class="muted reveal" style="margin-top:18px;font-size:14px;max-width:80ch">Leviers d'économie : Batch API (−50 % pour les imports de nuit), mise en cache des consignes fixes, correction en cascade. Le choix entre Opus 5 et Sonnet 5 pour les scans se tranche sur un jeu de 50 vraies photos de cours.</p>
+      <p class="muted reveal" style="margin-top:18px;font-size:14px;max-width:80ch">Leviers d'économie : mise en cache du début de conversation (déjà actif dans le serveur Engram), Haiku 4.5 pour les corrections, correction en cascade, Mentor Expert réservé à l'offre haute, Batch API (−50 %) pour les imports de nuit. Le choix des modèles se tranche sur un jeu de vraies photos de cours, dans chaque langue.</p>
     </section>
 
     <!-- Budget -->
     <section class="s" id="budget">
-      <div class="s-h reveal"><div class="kicker">05 · Budget</div><h2 class="h2">Trois façons de construire, <em>du plus sobre au plus rapide.</em></h2><p class="lede">Le prototype sert de cahier des charges vivant : il réduit le design et la spécification à presque rien, quel que soit le scénario.</p></div>
-      <div class="scen">
-        <article class="sc hi reveal"><div class="kicker"><b>A · Fondateur + IA</b></div><div class="price">1 000 – 4 000 €</div>
-          <dl><dt>Qui code</dt><dd>Vous, avec Claude Code</dd><dt>Durée</dt><dd>3 à 4 mois</dd><dt>Design</dt><dd>0 à 1 500 €</dd><dt>Risque</dt><dd>Votre temps</dd></dl></article>
-        <article class="sc reveal"><div class="kicker">B · Freelance senior</div><div class="price">30 000 – 55 000 €</div>
-          <dl><dt>Qui code</dt><dd>1 dev React Native</dd><dt>Durée</dt><dd>2 à 3 mois</dd><dt>Design</dt><dd>3 000 à 6 000 €</dd><dt>Risque</dt><dd>Dépendance</dd></dl></article>
-        <article class="sc reveal"><div class="kicker">C · Agence</div><div class="price">60 000 – 120 000 €</div>
-          <dl><dt>Qui code</dt><dd>Équipe complète</dd><dt>Durée</dt><dd>2 à 3 mois</dd><dt>Design</dt><dd>Inclus</dd><dt>Risque</dt><dd>Coût</dd></dl></article>
+      <div class="s-h reveal"><div class="kicker">05 · Budget</div><h2 class="h2">Quatre façons de construire, <em>du plus sobre au plus ambitieux.</em></h2><p class="lede">Le prototype sert de cahier des charges vivant : il réduit le design et la spécification à presque rien, quel que soit le scénario. Pour un lancement mondial, l'argent va d'abord à la qualité de l'IA, puis à l'import Anki, aux contenus natifs et, seulement ensuite, à l'acquisition.</p></div>
+      <div class="scen" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))">
+        <article class="sc hi reveal"><div class="kicker"><b>A · Fondateur + IA</b></div><div class="price">2 000 – 6 000 €</div>
+          <dl><dt>Qui code</dt><dd>Vous, avec Claude Code</dd><dt>Durée</dt><dd>4 à 5 mois</dd><dt>Traductions relues</dt><dd>800 à 2 000 €</dd><dt>Risque</dt><dd>Votre temps</dd></dl></article>
+        <article class="sc reveal"><div class="kicker">B · Freelance senior</div><div class="price">35 000 – 65 000 €</div>
+          <dl><dt>Qui code</dt><dd>1 dev React Native</dd><dt>Durée</dt><dd>3 à 4 mois</dd><dt>Design</dt><dd>3 000 à 6 000 €</dd><dt>Risque</dt><dd>Dépendance</dd></dl></article>
+        <article class="sc reveal"><div class="kicker">C · Agence</div><div class="price">75 000 – 145 000 €</div>
+          <dl><dt>Qui code</dt><dd>Équipe complète</dd><dt>Durée</dt><dd>3 mois</dd><dt>Design</dt><dd>Inclus</dd><dt>Risque</dt><dd>Coût</dd></dl></article>
+        <article class="sc reveal"><div class="kicker"><b>D · Studio produit</b></div><div class="price">0,8 – 1,5 M€</div>
+          <dl><dt>Équipe</dt><dd>7 à 9 personnes, 12 mois</dd><dt>Dont</dt><dd>ingénieur IA, 2 devs mobiles, designer motion</dd><dt>Contenus</dt><dd>enseignants dans 5 pays</dd><dt>Acquisition</dt><dd>150 000 à 400 000 €</dd></dl></article>
       </div>
       <div style="height:26px"></div>
       <div class="duo" style="align-items:start">
@@ -504,34 +543,36 @@ scan_jobs    id · user_id · pages · model · tokens_in · tokens_out · cost_
           <div class="receiptline"><span>Compte Apple Developer</span><span></span><span>99 $ / an</span></div>
           <div class="receiptline"><span>Compte Google Play</span><span></span><span>25 $ une fois</span></div>
           <div class="receiptline"><span>Supabase Pro</span><span></span><span>25 $ / mois</span></div>
-          <div class="receiptline"><span>Expo EAS</span><span></span><span>0 – 19 $ / mois</span></div>
+          <div class="receiptline"><span>Expo EAS</span><span></span><span>0 – 99 $ / mois</span></div>
+          <div class="receiptline"><span>Serveur Engram (IA)</span><span></span><span>5 – 25 € / mois</span></div>
           <div class="receiptline"><span>RevenueCat</span><span></span><span>gratuit &lt; 2 500 $/mois</span></div>
-          <div class="receiptline"><span>Marque INPI (1 classe)</span><span></span><span>≈ 190 €</span></div>
+          <div class="receiptline"><span>Marque INPI · EUIPO</span><span></span><span>≈ 190 € · ≈ 850 €</span></div>
           <div class="receiptline"><span>CGU, confidentialité, RGPD</span><span></span><span>500 – 1 500 €</span></div>
-          <div class="receiptline"><span>IA pour la bêta (200 testeurs)</span><span></span><span>50 – 150 $</span></div>
+          <div class="receiptline"><span>IA pour la bêta (500 testeurs)</span><span></span><span>500 – 1 500 $</span></div>
           <div class="receiptline"><span>Lancement (contenus, ambassadeurs)</span><span></span><span>500 – 5 000 €</span></div>
         </div>
         <div class="reveal">
           <h3 class="h3" style="margin-bottom:14px">Modèle économique</h3>
           <div class="plans" style="grid-template-columns:1fr">
-            <div class="plan"><div class="kicker">Découverte</div><div class="price">0 €</div><ul><li>3 scans par mois</li><li>Fiches illimitées, FSRS complet</li><li>Jeux, carnet, série</li></ul></div>
-            <div class="plan hi"><div class="kicker"><b>Pro</b></div><div class="price">6,99 € <small>/ mois</small></div><ul><li>Scans illimités (usage raisonnable)</li><li>Correction IA, prof virtuel, synthèses</li><li>Marge ≈ 3,60 € après commission de 15 % et IA</li></ul></div>
+            <div class="plan"><div class="kicker">Découverte</div><div class="price">0 €</div><ul><li>3 scans et 20 messages à Mentor par mois</li><li>FSRS, programme, import / export Anki</li><li>Jeux, carnet, série</li></ul></div>
+            <div class="plan hi"><div class="kicker"><b>Pro</b></div><div class="price">7,99 € <small>/ mois</small></div><ul><li>Scans et PDF (usage raisonnable)</li><li>Correction IA, Mentor Standard, lettre de la semaine</li><li>Marge ≈ 1,30 € après commission de 15 % et IA</li></ul></div>
+            <div class="plan"><div class="kicker"><b>Pro Expert</b></div><div class="price">14,99 € <small>/ mois</small></div><ul><li>Tout Pro + Mentor Expert (Claude Fable 5.1)</li><li>Examens blancs IA au format officiel</li><li>Marge ≈ 4,70 €</li></ul></div>
           </div>
-          <p class="muted" style="margin-top:14px;font-size:14px">Rentabilité du scénario A : environ 45 abonnés, soit 1 000 à 1 500 utilisateurs gratuits actifs avec 3 à 5 % de conversion.</p>
+          <p class="muted" style="margin-top:14px;font-size:14px">La marge Pro repose sur l'abonnement annuel (59 €), Haiku pour les corrections et une part d'utilisateurs peu intensifs : à mesurer dès la bêta. Prix adaptés par pays (≈ 4,99 $ au Brésil).</p>
         </div>
       </div>
     </section>
 
     <!-- Planning -->
     <section class="s" id="planning">
-      <div class="s-h reveal"><div class="kicker">06 · Planning</div><h2 class="h2">Du prototype à l'App Store <em>en un trimestre.</em></h2><p class="lede">Chaque étape a un livrable qu'on peut montrer. La première est déjà faite.</p></div>
+      <div class="s-h reveal"><div class="kicker">06 · Planning</div><h2 class="h2">Du prototype aux stores de cinq pays <em>en deux trimestres.</em></h2><p class="lede">Chaque étape a un livrable qu'on peut montrer. La première est déjà faite.</p></div>
       <div class="tl">
-        <div class="tl-i done reveal"><div class="when">Fait</div><div><h4>Prototype web</h4><p>L'application de démonstration : scan, révision, correction, jeux, carnet.</p></div></div>
-        <div class="tl-i reveal"><div class="when">Semaines 1 – 2</div><div><h4>Validation</h4><p>Vingt étudiants testent le prototype ; on collecte cinquante photos de cours réelles comme jeu d'évaluation.</p></div></div>
-        <div class="tl-i reveal"><div class="when">Semaine 3</div><div><h4>Réglage de l'IA</h4><p>Comparaison des modèles, consignes figées, coût réel par page mesuré.</p></div></div>
-        <div class="tl-i reveal"><div class="when">Semaines 4 – 11</div><div><h4>MVP mobile</h4><p>Expo : comptes, synchronisation, scan, révision, correction IA, paiement.</p></div></div>
-        <div class="tl-i reveal"><div class="when">Semaines 12 – 13</div><div><h4>Bêta</h4><p>100 à 200 testeurs, rétention à J1, J7 et J30, fiches des stores.</p></div></div>
-        <div class="tl-i reveal"><div class="when">Ensuite</div><div><h4>Lancement et itérations</h4><p>PDF, audio, groupes de classe, optimiseur FSRS : une nouveauté visible toutes les deux semaines.</p></div></div>
+        <div class="tl-i done reveal"><div class="when">Fait</div><div><h4>Prototype v3</h4><p>L'application de démonstration en cinq langues : scan et PDF, Mentor, programme, révision, correction, Anki, jeux, carnet, et le serveur IA prêt à déployer.</p></div></div>
+        <div class="tl-i reveal"><div class="when">Semaines 1 – 3</div><div><h4>Validation</h4><p>Trente étudiants par langue testent le prototype ; cent photos de cours par langue forment le jeu d'évaluation.</p></div></div>
+        <div class="tl-i reveal"><div class="when">Semaines 4 – 5</div><div><h4>Réglage de l'IA</h4><p>Comparaison des modèles, consignes figées, coût réel par page et par message mesuré ; relecture native des traductions.</p></div></div>
+        <div class="tl-i reveal"><div class="when">Semaines 6 – 17</div><div><h4>MVP mobile</h4><p>Expo : comptes, synchronisation, scan, PDF, Anki, révision, Mentor, programme, paiements.</p></div></div>
+        <div class="tl-i reveal"><div class="when">Semaines 18 – 20</div><div><h4>Bêta dans cinq pays</h4><p>500 testeurs, rétention à J1, J7 et J30, fiches des stores dans chaque langue.</p></div></div>
+        <div class="tl-i reveal"><div class="when">Ensuite</div><div><h4>Lancement et itérations</h4><p>Audio de cours, groupes de classe, paquets vérifiés par des enseignants, optimiseur FSRS : une nouveauté visible toutes les deux semaines.</p></div></div>
       </div>
 
       <div style="height:clamp(48px,6vw,80px)"></div>
@@ -541,8 +582,10 @@ scan_jobs    id · user_id · pages · model · tokens_in · tokens_out · cost_
         <tbody>
           <tr><td><b>L'IA invente une information</b></td><td>Consigne « rien hors de la source », validation par l'élève avant tout ajout, lien vers l'extrait d'origine.</td></tr>
           <tr><td><b>Les coûts d'IA dérapent</b></td><td>Quotas côté serveur, correction en cascade, Batch API, coût suivi par utilisateur.</td></tr>
-          <tr><td><b>Anki est gratuit</b></td><td>Se battre sur le temps gagné et l'expérience, pas sur les réglages ; importer les paquets Anki.</td></tr>
-          <tr><td><b>Mineurs et RGPD</b></td><td>Hébergement en Europe, suppression du compte en un geste, consentement parental sous 15 ans.</td></tr>
+          <tr><td><b>Mentor fait une action non voulue</b></td><td>Un reçu par action, annulation en un clic, confirmation avant suppression, journal des actions.</td></tr>
+          <tr><td><b>Traductions approximatives</b></td><td>Relecture par un locuteur natif par langue, captures d'écran par langue dans les tests.</td></tr>
+          <tr><td><b>Anki est gratuit</b></td><td>Import et export complets : essayer Engram ne coûte rien. Se battre sur le temps gagné et l'accompagnement.</td></tr>
+          <tr><td><b>Mineurs, RGPD, cinq pays</b></td><td>Hébergement en Europe, suppression du compte en un geste, consentement parental selon l'âge légal de chaque pays, CGU locales, LGPD au Brésil.</td></tr>
           <tr><td><b>Droits sur les cours</b></td><td>Paquets privés par défaut ; partage public réservé aux contenus dont l'auteur a les droits.</td></tr>
         </tbody>
       </table></div>
