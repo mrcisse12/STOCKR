@@ -11,6 +11,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createEngram } from './core.mjs';
+import { createPay } from './pay.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const env = process.env;
@@ -18,6 +19,7 @@ const PORT = +env.PORT || 8787;
 const HOST = env.HOST || '0.0.0.0';
 const ROOT = env.ENGRAM_STATIC_DIR || path.join(here, '..');
 const engram = createEngram(env);
+const pay = createPay(env);
 
 const clientIp = req => (env.ENGRAM_TRUST_PROXY ? String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() : '') || req.socket.remoteAddress || '?';
 
@@ -31,7 +33,7 @@ function readBody(req) {
 }
 
 /** Passe une requête Node au relais (objets Web standard) et recopie la réponse, en flux. */
-async function relay(req, res) {
+async function relay(req, res, target = engram) {
   const ac = new AbortController();
   res.on('close', () => { if (!res.writableFinished) ac.abort(); });
   let body;
@@ -45,7 +47,7 @@ async function relay(req, res) {
   const headers = new Headers();
   for (const [k, v] of Object.entries(req.headers)) if (typeof v === 'string') headers.set(k, v);
   const request = new Request('http://engram.local' + req.url, { method: req.method, headers, body, signal: ac.signal });
-  const response = await engram.handle(request, { ip: clientIp(req) });
+  const response = await target.handle(request, { ip: clientIp(req) });
   if (!response) return false;
   res.writeHead(response.status, Object.fromEntries(response.headers));
   if (response.body) {
@@ -78,6 +80,7 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://x');
   try {
     if (url.pathname.startsWith('/api/ai') && await relay(req, res)) return;
+    if (url.pathname.startsWith('/api/pay') && await relay(req, res, pay)) return;
     // Les liens d'invitation mènent à la page de présentation : /decouvrir sans barre finale y mène aussi.
     if (url.pathname === '/decouvrir' && req.method === 'GET') { res.writeHead(301, { location: '/decouvrir/' + url.search }); return res.end(); }
     const file = STATIC[url.pathname];

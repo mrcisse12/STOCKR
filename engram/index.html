@@ -443,6 +443,8 @@ button.ochip:hover{transform:translateY(-2px);border-color:var(--pen)}
 .ochip.right{border-color:#1F7A52;background:color-mix(in srgb,#1F7A52 11%,var(--paper))}.ochip.right b{color:#1F7A52}
 .ochip.wrong{border-color:var(--pen);background:color-mix(in srgb,var(--pen) 8%,var(--paper))}
 .ochip.placed{animation:popIn .35s var(--spring)}
+.pay-box{display:grid;gap:10px;padding:18px 20px}.pay-box p{margin:0;font-size:13.5px;line-height:1.5}
+.pay-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.pay-row .input{flex:1;min-width:200px;font-family:var(--f-type)}
 .order-list .ochip{flex-wrap:wrap;row-gap:2px}
 .ochip .you{flex-basis:100%;padding-left:23px;font:400 12px/1.3 var(--f-type);color:var(--pen);opacity:.9}
 @keyframes popIn{from{transform:scale(.85);opacity:.3}}
@@ -2829,7 +2831,7 @@ const AI = {
       this.status = j.locked && !S.profile.settings.aiCode ? 'locked' : 'on';
     } catch { this.status = 'off'; }
   },
-  headers() { const h = { 'content-type': 'application/json' }; const c = S?.profile.settings.aiCode; if (c) h['x-engram-code'] = c; return h; },
+  headers() { const h = { 'content-type': 'application/json' }; const L = S?.profile.pro?.paid && S.profile.pro.license; if (L) h['x-engram-license'] = L; const c = S?.profile.settings.aiCode; if (c) h['x-engram-code'] = c; return h; },
   changed() { App.refreshAI?.(); },
   fail(e) {
     const code = e?.code || 'upstream_error';
@@ -2845,7 +2847,8 @@ const AI = {
       invalid_json: t("La réponse de l'IA était mal formée. Réessayez."), prompt_too_large: t('Le texte est trop long : envoyez un chapitre à la fois.'),
       tools_unavailable: t("L'assistant ne peut pas agir dans l'app ici : il répond seulement."),
       budget: t("Le budget IA du serveur est atteint pour ce mois."),
-      server_key: t("Le serveur IA n'a pas de clé d'API valide (variable ANTHROPIC_API_KEY).")
+      server_key: t("Le serveur IA n'a pas de clé d'API valide (variable ANTHROPIC_API_KEY)."),
+      quota: t("Limite gratuite du jour atteinte pour l'IA. Passez à Pro pour continuer sans limite.")
     })[code] ?? t("Connexion à l'IA interrompue. Réessayez.");
   },
   ask(input, opts = {}) { return this.via === 'server' ? ServerAI.ask(input, opts) : this.fn(input, opts); },
@@ -4229,7 +4232,7 @@ const App = {
     $('#streak').innerHTML = icon('flame') + `<span class="tnum">${streak()}</span>`;
     $('#langBtn').textContent = UI_LANG_META[LANG].flag;
     const pb = $('#proBtn'); pb.classList.toggle('on', Pro.on);
-    pb.innerHTML = Pro.on ? `${icon('crown')}${Pro.expert ? 'Expert' : 'Pro'}` : 'Pro';
+    pb.innerHTML = Pro.on ? `${icon('crown')}${Pro.expert ? t('Élite') : 'Pro'}` : 'Pro';
     pb.dataset.tip = Pro.on ? (Pro.trial ? t(Pro.gift ? 'Cadeau · encore {n}' : 'Essai · encore {n}', { n: tp(Pro.daysLeft(), '{n} jour|{n} jours') }) : Pro.name()) : t('Découvrir Engram Pro');
     applyStatic($('#shell'));
   },
@@ -5805,7 +5808,7 @@ function changeLang(l) {
 const PLANS = {
   free: { name: N_('Découverte'), sub: N_('Pour réviser chaque jour et essayer l\'IA.'), m: 0, y: 0 },
   pro: { name: 'Pro', sub: N_('Scans, corrections et assistants sans limite.'), m: 7.99, y: 79.9 },
-  expert: { name: 'Pro Expert', sub: N_('Le modèle d\'IA le plus puissant, pour les concours et les longues études.'), m: 14.99, y: 149.9 }
+  expert: { name: N_('Élite'), sub: N_('Le modèle d\'IA le plus puissant, pour les concours et les longues études.'), m: 14.99, y: 149.9 }
 };
 const QUOTA = { scan: 3, mentor: 20, agent: 3, grade: 30 }; // par mois, sauf les corrections (par jour)
 const money = v => new Intl.NumberFormat(locale(), { style: 'currency', currency: 'EUR', minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 }).format(v);
@@ -5818,7 +5821,8 @@ function ago(ts) {
 }
 const Pro = {
   bill: 'year',
-  get plan() { const p = S.profile.pro; if (!p || !PLANS[p.plan] || p.plan === 'free') return 'free'; if (p.until && p.until < Date.now()) return 'free'; return p.plan; },
+  get plan() { const p = S.profile.pro; if (!p || !PLANS[p.plan] || p.plan === 'free') return 'free'; if (p.until && p.until + (p.paid ? 3 * DAY : 0) < Date.now()) return 'free'; return p.plan; },
+  get paid() { return this.on && !!S.profile.pro.paid; },
   get on() { return this.plan !== 'free'; },
   get expert() { return this.plan === 'expert'; },
   get trial() { return this.on && !!S.profile.pro.trial; },
@@ -5878,7 +5882,7 @@ const Pro = {
       scan: [t('Vos 3 scans du mois sont utilisés'), t('Avec Pro, photographiez autant de cours que vous voulez : pages manuscrites, PDF, notes au stylet.')],
       mentor: [t('Vos 20 messages à Mentor sont utilisés ce mois-ci'), t('Avec Pro, Mentor répond et agit pour vous sans limite.')],
       agent: [t('Vos 3 missions du mois sont utilisées'), t('Avec Pro, les six assistants travaillent pour vous sans limite. Les analyses sans IA restent libres.')],
-      expert: [t('Le mode Expert fait partie de Pro Expert'), t('Le modèle le plus puissant, pour les plans de concours et les raisonnements longs.')],
+      expert: [t('Le mode Expert fait partie d\'Élite'), t('Le modèle le plus puissant, pour les plans de concours et les raisonnements longs.')],
       autopilot: [t('L\'autopilote fait partie de Pro'), t('Chaque matin, le Planificateur prépare votre séance ; chaque lundi, le Chroniqueur fait le bilan de la semaine.')]
     }[kind] || [t('Cette fonction fait partie de Pro'), ''];
     const m = Modal.open(`<div class="up"><div class="up-card">${proCard({ sm: true })}</div><div><div class="kicker">Engram Pro</div><h2 class="h2" style="margin-top:8px">${L[0]}</h2><p class="muted" style="margin:10px 0 0;line-height:1.55">${L[1]}</p></div></div>
@@ -5890,6 +5894,88 @@ const Pro = {
 };
 
 /* La carte de lecteur, en cuir et dorure à chaud. */
+/* ════════════════════════════════════════════════════════════════════
+   PAIEMENTS (Stripe, par le serveur d'Engram : server/pay.mjs)
+   · Le bouton d'une formule ouvre la page de paiement Stripe ; au retour
+     (#paid=…), le serveur vérifie le paiement et remet un code
+     d'abonnement signé, gardé dans le profil et joint à chaque appel à l'IA.
+   · Le code se recopie sur un autre appareil ; le portail Stripe sert à
+     changer de formule, de carte, ou à arrêter.
+   · Sans serveur de paiement (aperçu, fichier ouvert seul), la page Pro
+     garde son fonctionnement de démonstration.
+   ════════════════════════════════════════════════════════════════════ */
+const Pay = {
+  on: false, mode: 'test', prices: null, busy: false,
+  base() { const s = AI.serverUrl(); return s ? s.replace(/\/api\/ai$/, '') + '/api/pay' : ''; },
+  async init() {
+    const b = this.base(); if (!b) return;
+    try {
+      const ctl = new AbortController(); setTimeout(() => ctl.abort(), 6000);
+      const j = await (await fetch(b + '/config', { signal: ctl.signal })).json();
+      if (j.enabled) { this.on = true; this.mode = j.mode; this.prices = j.prices; if (App.route.v === 'pro') App.render(); }
+    } catch { }
+    this.refresh();
+  },
+  async post(path, body) {
+    const r = await fetch(this.base() + path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw Object.assign(new Error(j.message || 'pay'), { code: j.code || 'pay_error' });
+    return j;
+  },
+  /** Prix affiché : celui de Stripe quand il est connu, sinon celui de la grille. */
+  price(k, bill) { const x = this.prices?.[k === 'expert' ? 'elite' : k]?.[bill]; return x ? x.amount : PLANS[k][bill === 'year' ? 'y' : 'm']; },
+  fail(e) {
+    this.busy = false;
+    toast(e?.code === 'not_paid' ? t('Le paiement n\'est pas encore confirmé. Réessayez dans un instant.') : e?.code === 'bad_license' ? t('Ce code d\'abonnement n\'est pas valable.') : t('Le service de paiement ne répond pas. Réessayez dans un instant.'), 'eye');
+  },
+  async checkout(plan) {
+    if (this.busy) return; this.busy = true;
+    toast(t('Ouverture de la page de paiement sécurisée…'), 'shield');
+    try { const { url } = await this.post('/checkout', { plan: plan === 'expert' ? 'elite' : 'pro', bill: Pro.bill, ref: S.profile.ref?.by || '' }); location.href = url; }
+    catch (e) { this.fail(e); }
+  },
+  async claim(session) {
+    try { const j = await this.post('/claim', { session }); this.save(j); Pro.welcome(false); }
+    catch (e) { this.fail(e); }
+  },
+  save(j) {
+    const prev = S.profile.pro || {};
+    S.profile.pro = { plan: j.plan === 'elite' ? 'expert' : 'pro', paid: true, license: j.license, until: j.until, ends: !!j.ends, billing: j.bill, email: j.email || prev.email || '', since: prev.paid && prev.since ? prev.since : Date.now(), checked: Date.now() };
+    Store.touch('profile'); App.chrome?.();
+  },
+  /** Revérifie l'abonnement auprès du serveur : au plus deux fois par jour, ou à l'approche de la fin de période. */
+  async refresh(force) {
+    const p = S.profile.pro; if (!p?.paid || !p.license || !this.base()) return;
+    if (!force && p.checked > Date.now() - 12 * HOUR && p.until > Date.now() + 2 * DAY) return;
+    try {
+      const j = await this.post('/status', { license: p.license });
+      if (j.plan === 'free') { S.profile.pro = { plan: 'free' }; S.profile.agents.autopilot = false; Store.touch('profile'); App.render(); toast(t('Votre abonnement est terminé. Vous êtes revenu à Découverte, rien n\'est perdu.'), 'eye'); }
+      else { this.save({ ...j, email: p.email }); if (force) App.render(); }
+    } catch { }
+  },
+  async portal() {
+    if (this.busy) return; this.busy = true;
+    try { const { url } = await this.post('/portal', { license: S.profile.pro.license }); location.href = url; }
+    catch (e) { this.fail(e); }
+  },
+  async restore(code) {
+    code = String(code || '').trim(); if (!code) return;
+    try {
+      const j = await this.post('/status', { license: code });
+      if (j.plan === 'free') { toast(t('Cet abonnement n\'est plus actif.'), 'eye'); return; }
+      this.save(j); App.render(); toast(t('Abonnement retrouvé : {p}.', { p: Pro.name() }), 'check');
+    } catch (e) { this.fail(e); }
+  }
+};
+function payHTML() {
+  if (!Pay.on) return '';
+  const p = S.profile.pro || {}, D = d => fmtDate(d, { day: 'numeric', month: 'long', year: 'numeric' });
+  if (Pro.paid) return `<section class="sec"><div class="sec-h"><div><h2 class="h2">${t('Votre abonnement')}</h2><p>${esc(p.ends ? t('{p} jusqu\'au {d}, puis retour à Découverte.', { p: Pro.name(), d: D(p.until) }) : t('{p}, renouvelé le {d}.', { p: Pro.name(), d: D(p.until) }))}</p></div></div>
+    <article class="panel pay-box rise"><div class="pay-row"><button class="btn btn-gilt" data-act="payPortal">${icon('settings')}${t('Gérer mon abonnement')}</button><button class="btn" data-act="payCopy">${icon('link')}${t('Copier mon code d\'abonnement')}</button></div>
+    <p class="muted">${t('Changer de formule, de carte bancaire, télécharger une facture ou arrêter : tout se fait sur la page sécurisée de Stripe. Pour utiliser votre abonnement sur un autre appareil, collez-y votre code d\'abonnement.')}</p></article></section>`;
+  return `<section class="sec"><article class="panel pay-box rise"><b>${t('Déjà abonné sur un autre appareil ?')}</b><p class="muted">${t('Collez ici votre code d\'abonnement (page Pro de l\'autre appareil, « Copier mon code d\'abonnement »).')}</p>
+    <div class="pay-row"><input class="input" id="payCode" autocomplete="off" spellcheck="false" placeholder="v1.…"><button class="btn" data-act="payRestore">${icon('check')}${t('Retrouver mon abonnement')}</button></div></article></section>`;
+}
 function proCard(o = {}) {
   const p = S.profile.pro || {}, name = S.profile.study.name;
   const no = String(hash('engram' + (p.since || S.profile.study.name || 'reader')) % 900000 + 100000);
@@ -5897,7 +5983,7 @@ function proCard(o = {}) {
   return `<div class="lcard leather ${o.sm ? 'sm' : ''} ${Pro.on ? 'on' : ''}" role="img" aria-label="${esc(t('Carte Engram Pro'))}">
     <span class="lc-sheen"></span><span class="lc-frame"></span>
     <div class="lc-top"><span class="foil lc-brand">Engram</span><span class="lc-no">${t('N°')} ${no}</span></div>
-    <div class="lc-mid"><span class="lc-kind">${t('Carte de lecteur')}</span><span class="foil lc-pro">${Pro.expert ? 'Expert' : 'Pro'}</span></div>
+    <div class="lc-mid"><span class="lc-kind">${t('Carte de lecteur')}</span><span class="foil lc-pro">${Pro.expert ? t('Élite') : 'Pro'}</span></div>
     <div class="lc-bot"><span>${esc(name || t('Votre nom'))}</span><span>${esc(line)}</span></div>
     ${Pro.on ? `<span class="lc-seal">${waxSeal({ id: 'pro-seal', glyph: 'E', color: '#7A1F17' }, 70)}</span>` : ''}
   </div>`;
@@ -5948,10 +6034,11 @@ const PRO_FAQ = [
 ];
 function tierHTML(k) {
   const P = PLANS[k], hi = k === 'pro', cur = Pro.plan === k, y = Pro.bill === 'year';
-  const price = k === 'free' ? money(0) : money(y ? P.y / 12 : P.m);
-  const note = k === 'free' ? t('Pour toujours') : y ? t('soit {x} par an', { x: money(P.y) }) : t('Sans engagement');
+  const price = k === 'free' ? money(0) : money(y ? Pay.price(k, 'year') / 12 : Pay.price(k, 'month'));
+  const note = k === 'free' ? t('Pour toujours') : y ? t('soit {x} par an', { x: money(Pay.price(k, 'year')) }) : t('Sans engagement');
   const feats = (k === 'pro' ? [t('Tout Découverte, et :')] : []).concat(PRO_FEATURES[k].map(x => t(x)));
-  const btn = cur ? `<button class="btn" disabled>${icon('check')}${t('Votre formule')}</button>`
+  const btn = cur && (Pro.paid || !Pay.on) ? `<button class="btn" disabled>${icon('check')}${t('Votre formule')}</button>`
+    : Pay.on && k !== 'free' ? `<button class="btn ${hi ? 'btn-gilt' : 'btn-brass'}" data-act="proPick" data-plan="${k}">${Pro.paid ? t('Passer à {p}', { p: Pro.name(k) }) : t('S\'abonner à {p}', { p: Pro.name(k) })}</button>`
     : k === 'free' ? `<button class="btn" data-act="proPick" data-plan="free">${t('Revenir à Découverte')}</button>`
     : `<button class="btn ${hi ? 'btn-gilt' : 'btn-brass'}" data-act="proPick" data-plan="${k}">${Pro.canTrial && !Pro.on ? t('Essayer 14 jours') : t('Choisir {p}', { p: P.name })}</button>`;
   return `<article class="tier ${hi ? 'hi leather' : ''} ${cur ? 'cur' : ''} rise" data-tier="${k}">
@@ -5978,7 +6065,7 @@ Views.pro = () => {
           ${Pro.on ? `<button class="btn btn-gilt btn-lg" data-act="go" data-v="agents">${icon('sparkles')}${t('Ouvrir les assistants')}</button>` : `<button class="btn btn-gilt btn-lg" data-act="proTrial">${icon('sparkles')}${Pro.canTrial ? t('Essayer 14 jours gratuitement') : t('Passer à Pro')}</button>`}
           <button class="btn btn-lg" data-jump="tiers">${t('Voir les formules')}</button>
         </div>
-        <div class="pro-fine rise" style="animation-delay:.4s">${Pro.on && Pro.trial ? t(Pro.gift ? 'Offert jusqu\'au {d} · tout est inclus' : 'Essai jusqu\'au {d} · tout est inclus', { d: fmtDate(p.until) }) : t('Sans engagement · prototype : aucun paiement demandé')}</div>
+        <div class="pro-fine rise" style="animation-delay:.4s">${Pro.on && Pro.trial ? t(Pro.gift ? 'Offert jusqu\'au {d} · tout est inclus' : 'Essai jusqu\'au {d} · tout est inclus', { d: fmtDate(p.until) }) : (Pay.on ? t('Sans engagement · paiement sécurisé par Stripe') : t('Sans engagement · prototype : aucun paiement demandé'))}</div>
       </div>
       <div class="pro-stage rise" style="animation-delay:.15s">${proCard()}</div>
     </section>
@@ -5998,14 +6085,15 @@ Views.pro = () => {
       <div class="sec-h"><div><h2 class="h2">${t('Comparer en détail')}</h2></div></div>
       <div class="cmp-wrap rise"><table class="cmp"><thead><tr><th></th>${['free', 'pro', 'expert'].map(k => `<th class="${k === 'pro' ? 'hi' : ''}">${Pro.name(k)}</th>`).join('')}</tr></thead>
         <tbody>${PRO_CMP.map(([l, a, b, c]) => `<tr><td>${t(l)}</td><td>${cell(a)}</td><td class="hi">${cell(b)}</td><td>${cell(c)}</td></tr>`).join('')}
-        <tr><td>${t('Prix')}</td><td>${money(0)}</td><td class="hi">${t('{m} / mois', { m: money(PLANS.pro.m) })}</td><td>${t('{m} / mois', { m: money(PLANS.expert.m) })}</td></tr></tbody></table></div>
+        <tr><td>${t('Prix')}</td><td>${money(0)}</td><td class="hi">${t('{m} / mois', { m: money(Pay.price('pro', 'month')) })}</td><td>${t('{m} / mois', { m: money(Pay.price('expert', 'month')) })}</td></tr></tbody></table></div>
     </section>
     <section class="sec">
       <div class="sec-h"><div><h2 class="h2">${t('Questions fréquentes')}</h2></div></div>
       <article class="panel faq rise">${PRO_FAQ.map(([q, a]) => `<details><summary>${t(q)}${icon('plus')}</summary><p>${t(a)}</p></details>`).join('')}</article>
     </section>
-    ${Pro.on ? `<section class="sec"><div class="sec-h"><div><h2 class="h2">${t('Votre abonnement')}</h2><p>${esc(Pro.gift ? t('Mois de {p} offert, jusqu\'au {d}.', { p: Pro.name(), d: fmtDate(p.until, { day: 'numeric', month: 'long', year: 'numeric' }) }) : Pro.trial ? t('Essai de Pro Expert jusqu\'au {d}.', { d: fmtDate(p.until, { day: 'numeric', month: 'long', year: 'numeric' }) }) : t('{p} depuis le {d}.', { p: Pro.name(), d: fmtDate(p.since, { day: 'numeric', month: 'long', year: 'numeric' }) }))}</p></div><button class="btn btn-sm btn-danger" data-act="proPick" data-plan="free">${t('Revenir à Découverte')}</button></div></section>` : ''}
-    <div class="pro-note rise">${icon('eye')}<span>${t('Prototype : les paiements ne sont pas branchés. Choisir une formule l\'active tout de suite sur cet appareil. À la mise en ligne, le paiement passera par Stripe sur le Web, et par l\'App Store et Google Play dans les applications.')}</span></div>`;
+    ${payHTML()}
+    ${Pro.on && !Pro.paid ? `<section class="sec"><div class="sec-h"><div><h2 class="h2">${t('Votre abonnement')}</h2><p>${esc(Pro.gift ? t('Mois de {p} offert, jusqu\'au {d}.', { p: Pro.name(), d: fmtDate(p.until, { day: 'numeric', month: 'long', year: 'numeric' }) }) : Pro.trial ? t('Essai d\'Élite jusqu\'au {d}.', { d: fmtDate(p.until, { day: 'numeric', month: 'long', year: 'numeric' }) }) : t('{p} depuis le {d}.', { p: Pro.name(), d: fmtDate(p.since, { day: 'numeric', month: 'long', year: 'numeric' }) }))}</p></div><button class="btn btn-sm btn-danger" data-act="proPick" data-plan="free">${t('Revenir à Découverte')}</button></div></section>` : ''}
+    <div class="pro-note rise">${icon(Pay.on ? 'shield' : 'eye')}<span>${Pay.on ? t('Paiement sécurisé par Stripe : Engram ne voit jamais votre carte. Sans engagement, vous arrêtez en un clic depuis « Gérer mon abonnement ».') + (Pay.mode === 'test' ? ' ' + t('Mode test : payez avec la carte 4242 4242 4242 4242, une date future et n\'importe quel code.') : '') : t('Prototype : les paiements ne sont pas branchés. Choisir une formule l\'active tout de suite sur cet appareil. À la mise en ligne, le paiement passera par Stripe sur le Web, et par l\'App Store et Google Play dans les applications.')}</span></div>`;
 };
 Hooks.pro = () => {
   const v = $('#view'); bindCardTilt(v);
@@ -6014,9 +6102,9 @@ Hooks.pro = () => {
     Pro.bill = b.dataset.bill; const y = Pro.bill === 'year';
     $('#bill').classList.toggle('y', y); $$('#bill button').forEach(x => x.classList.toggle('on', x === b));
     for (const k of ['pro', 'expert']) {
-      const el = $(`[data-price="${k}"]`), P = PLANS[k];
-      el.classList.remove('flip'); void el.offsetWidth; el.textContent = money(y ? P.y / 12 : P.m); el.classList.add('flip');
-      $(`[data-note="${k}"]`).textContent = y ? t('soit {x} par an', { x: money(P.y) }) : t('Sans engagement');
+      const el = $(`[data-price="${k}"]`);
+      el.classList.remove('flip'); void el.offsetWidth; el.textContent = money(y ? Pay.price(k, 'year') / 12 : Pay.price(k, 'month')); el.classList.add('flip');
+      $(`[data-note="${k}"]`).textContent = y ? t('soit {x} par an', { x: money(Pay.price(k, 'year')) }) : t('Sans engagement');
     }
     Sound.play('tick');
   });
@@ -7544,7 +7632,10 @@ const Actions = {
   boxFilter: el => { if (el.dataset.deck) { deckFilter = el.dataset.k; if (App.route.v === 'deck') { $$('#deckFilter button').forEach(x => x.classList.toggle('on', x.dataset.f === deckFilter)); Hooks.deck(el.dataset.deck); $('#deckCards')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); } } else { libFilter = el.dataset.k; App.go('library'); } },
   pro: () => openPro(),
   proTrial: () => { if (Pro.canTrial) Pro.start('expert', { trial: true }); else if (App.route.v === 'pro') $('#tiers')?.scrollIntoView({ behavior: 'smooth' }); else App.go('pro'); },
-  proPick: el => { const k = el.dataset.plan; if (k === 'free') return Pro.stop(); Pro.start(k, { trial: Pro.canTrial && !Pro.on }); },
+  payPortal: () => Pay.portal(),
+  payCopy: () => copyText(S.profile.pro?.license || '', t('Code d\'abonnement copié. Collez-le dans la page Pro de votre autre appareil.')),
+  payRestore: () => Pay.restore($('#payCode')?.value),
+  proPick: el => { const k = el.dataset.plan; if (Pay.on && k !== 'free') return Pro.paid ? Pay.portal() : Pay.checkout(k); if (Pay.on && k === 'free' && Pro.paid) return Pay.portal(); if (k === 'free') return Pro.stop(); Pro.start(k, { trial: Pro.canTrial && !Pro.on }); },
   agent: el => Agents.run(el.dataset.id, { deckId: el.dataset.deck }),
   briefGo: () => { const b = S.profile.agents.brief; const items = (b?.ids || []).map(id => findCard(id)).filter(x => x[0]); if (items.length) Study.start({ items, title: t('Séance du Planificateur') }); },
   briefHide: () => { const b = S.profile.agents.brief; if (b) { b.hidden = true; Store.touch('profile'); App.render(); } },
@@ -7681,7 +7772,7 @@ Views.settings = arg => {
 
     <section class="sec" id="sAI"><div class="sec-h"><div><h2 class="h2">${t('IA et Mentor')}</h2><p>${t('Création de fiches depuis une photo, correction des réponses, prof virtuel, fiches de synthèse, et Mentor, l\'assistant qui agit dans l\'app pour vous.')}</p></div></div>
     <article class="panel rise"><div class="settings">
-      ${setRow(t('Formule'), Pro.on ? (Pro.trial ? t('Essai de Pro Expert : encore {n}.', { n: tp(Pro.daysLeft(), '{n} jour|{n} jours') }) : t('Scans, corrections, Mentor et assistants sans limite.')) : t('Ce mois-ci : {a} sur 3, {b} sur 20 à Mentor, {c} sur 3.', { a: plural(Pro.usage().scan || 0, 'scan|scans'), b: plural(Pro.usage().mentor || 0, 'message|messages'), c: plural(Pro.usage().agent || 0, 'mission|missions') }), `<button class="btn btn-sm ${Pro.on ? '' : 'btn-gilt'}" data-act="go" data-v="pro">${icon('crown', 'i-sm')}${Pro.on ? esc(Pro.name()) : t('Découvrir Pro')}</button>`)}
+      ${setRow(t('Formule'), Pro.on ? (Pro.trial ? t('Essai d\'Élite : encore {n}.', { n: tp(Pro.daysLeft(), '{n} jour|{n} jours') }) : t('Scans, corrections, Mentor et assistants sans limite.')) : t('Ce mois-ci : {a} sur 3, {b} sur 20 à Mentor, {c} sur 3.', { a: plural(Pro.usage().scan || 0, 'scan|scans'), b: plural(Pro.usage().mentor || 0, 'message|messages'), c: plural(Pro.usage().agent || 0, 'mission|missions') }), `<button class="btn btn-sm ${Pro.on ? '' : 'btn-gilt'}" data-act="go" data-v="pro">${icon('crown', 'i-sm')}${Pro.on ? esc(Pro.name()) : t('Découvrir Pro')}</button>`)}
       ${setRow(t('Écoles et entreprises'), t("Kit de classe ou d'équipe, tarifs de groupe et tableau de bord."), `<button class="btn btn-sm" data-act="go" data-v="teams">${icon('users', 'i-sm')}${t('Découvrir')}</button>`)}
       ${setRow(t('État'), via, `<span class="pill ${AI.on ? 'on' : ''}"><i></i>${aiTxt}${AI.on ? (AI.images ? ' · ' + t('photos ✓') : ' · ' + t('texte seul')) + (AI.tools ? ' · ' + t('actions ✓') : '') : ''}</span>`)}
       ${setRow(t('Puissance de Mentor'), t(MENTOR_TIERS[s.mentorTier][1]), segCtl('mentorTier', Object.entries(MENTOR_TIERS).map(([k, v]) => [k, t(v[0])]), s.mentorTier))}
@@ -12402,6 +12493,32 @@ TR = {
   "Cochez la bonne réponse parmi les choix remplis.": ["Tick the right answer among the filled-in options.", "Marca la respuesta correcta entre las opciones rellenadas.", "Markiere die richtige Antwort unter den ausgefüllten Optionen.", "Marque a resposta certa entre as opções preenchidas."],
   "complément": ["extra", "complemento", "Ergänzung", "complemento"],
   "vous : {x}": ["you: {x}", "tú: {x}", "du: {x}", "você: {x}"],
+  "Élite": ["Elite", "Élite", "Elite", "Elite"],
+  "Le mode Expert fait partie d'Élite": ["Expert mode is part of Elite", "El modo Experto forma parte de Élite", "Der Expertenmodus gehört zu Elite", "O modo Especialista faz parte do Elite"],
+  "Essai d'Élite : encore {n}.": ["Elite trial: {n} left.", "Prueba de Élite: quedan {n}.", "Elite-Test: noch {n}.", "Teste do Elite: faltam {n}."],
+  "Essai d'Élite jusqu'au {d}.": ["Elite trial until {d}.", "Prueba de Élite hasta el {d}.", "Elite-Test bis {d}.", "Teste do Elite até {d}."],
+  "Le paiement n'est pas encore confirmé. Réessayez dans un instant.": ["The payment isn't confirmed yet. Try again in a moment.", "El pago aún no está confirmado. Inténtalo de nuevo en un momento.", "Die Zahlung ist noch nicht bestätigt. Versuch es gleich noch einmal.", "O pagamento ainda não foi confirmado. Tente de novo daqui a pouco."],
+  "Ce code d'abonnement n'est pas valable.": ["This subscription code isn't valid.", "Este código de suscripción no es válido.", "Dieser Abo-Code ist ungültig.", "Este código de assinatura não é válido."],
+  "Le service de paiement ne répond pas. Réessayez dans un instant.": ["The payment service isn't responding. Try again in a moment.", "El servicio de pago no responde. Inténtalo de nuevo en un momento.", "Der Zahlungsdienst antwortet nicht. Versuch es gleich noch einmal.", "O serviço de pagamento não responde. Tente de novo daqui a pouco."],
+  "Ouverture de la page de paiement sécurisée…": ["Opening the secure payment page…", "Abriendo la página de pago segura…", "Sichere Zahlungsseite wird geöffnet…", "Abrindo a página de pagamento segura…"],
+  "Votre abonnement est terminé. Vous êtes revenu à Découverte, rien n'est perdu.": ["Your subscription has ended. You're back on Discovery, nothing is lost.", "Tu suscripción ha terminado. Vuelves a Descubrimiento, no se pierde nada.", "Dein Abo ist beendet. Du bist zurück bei Entdecken, nichts geht verloren.", "Sua assinatura terminou. Você voltou ao Descoberta, nada se perde."],
+  "Cet abonnement n'est plus actif.": ["This subscription is no longer active.", "Esta suscripción ya no está activa.", "Dieses Abo ist nicht mehr aktiv.", "Esta assinatura não está mais ativa."],
+  "Abonnement retrouvé : {p}.": ["Subscription restored: {p}.", "Suscripción recuperada: {p}.", "Abo wiederhergestellt: {p}.", "Assinatura recuperada: {p}."],
+  "{p} jusqu'au {d}, puis retour à Découverte.": ["{p} until {d}, then back to Discovery.", "{p} hasta el {d}, luego vuelves a Descubrimiento.", "{p} bis {d}, danach zurück zu Entdecken.", "{p} até {d}, depois volta ao Descoberta."],
+  "{p}, renouvelé le {d}.": ["{p}, renews on {d}.", "{p}, se renueva el {d}.", "{p}, verlängert sich am {d}.", "{p}, renova em {d}."],
+  "Gérer mon abonnement": ["Manage my subscription", "Gestionar mi suscripción", "Mein Abo verwalten", "Gerenciar minha assinatura"],
+  "Copier mon code d'abonnement": ["Copy my subscription code", "Copiar mi código de suscripción", "Meinen Abo-Code kopieren", "Copiar meu código de assinatura"],
+  "Changer de formule, de carte bancaire, télécharger une facture ou arrêter : tout se fait sur la page sécurisée de Stripe. Pour utiliser votre abonnement sur un autre appareil, collez-y votre code d'abonnement.": ["Change plan or card, download an invoice or cancel: it all happens on Stripe's secure page. To use your subscription on another device, paste your subscription code there.", "Cambiar de plan o de tarjeta, descargar una factura o cancelar: todo se hace en la página segura de Stripe. Para usar tu suscripción en otro dispositivo, pega allí tu código de suscripción.", "Tarif oder Karte wechseln, eine Rechnung laden oder kündigen: alles auf der sicheren Seite von Stripe. Um dein Abo auf einem anderen Gerät zu nutzen, füge dort deinen Abo-Code ein.", "Mudar de plano ou de cartão, baixar uma fatura ou cancelar: tudo acontece na página segura da Stripe. Para usar sua assinatura em outro aparelho, cole lá seu código de assinatura."],
+  "Déjà abonné sur un autre appareil ?": ["Already subscribed on another device?", "¿Ya te suscribiste en otro dispositivo?", "Schon auf einem anderen Gerät abonniert?", "Já assinou em outro aparelho?"],
+  "Collez ici votre code d'abonnement (page Pro de l'autre appareil, « Copier mon code d'abonnement »).": ["Paste your subscription code here (Pro page on the other device, “Copy my subscription code”).", "Pega aquí tu código de suscripción (página Pro del otro dispositivo, «Copiar mi código de suscripción»).", "Füge hier deinen Abo-Code ein (Pro-Seite auf dem anderen Gerät, „Meinen Abo-Code kopieren“).", "Cole aqui seu código de assinatura (página Pro do outro aparelho, “Copiar meu código de assinatura”)."],
+  "Retrouver mon abonnement": ["Restore my subscription", "Recuperar mi suscripción", "Mein Abo wiederherstellen", "Recuperar minha assinatura"],
+  "Passer à {p}": ["Switch to {p}", "Cambiar a {p}", "Zu {p} wechseln", "Mudar para {p}"],
+  "S'abonner à {p}": ["Subscribe to {p}", "Suscribirse a {p}", "{p} abonnieren", "Assinar o {p}"],
+  "Sans engagement · paiement sécurisé par Stripe": ["No commitment · secure payment by Stripe", "Sin compromiso · pago seguro con Stripe", "Ohne Bindung · sichere Zahlung über Stripe", "Sem compromisso · pagamento seguro pela Stripe"],
+  "Paiement sécurisé par Stripe : Engram ne voit jamais votre carte. Sans engagement, vous arrêtez en un clic depuis « Gérer mon abonnement ».": ["Secure payment by Stripe: Engram never sees your card. No commitment, cancel in one click from “Manage my subscription”.", "Pago seguro con Stripe: Engram nunca ve tu tarjeta. Sin compromiso, cancelas con un clic desde «Gestionar mi suscripción».", "Sichere Zahlung über Stripe: Engram sieht deine Karte nie. Ohne Bindung, du kündigst mit einem Klick unter „Mein Abo verwalten“.", "Pagamento seguro pela Stripe: a Engram nunca vê seu cartão. Sem compromisso, cancele com um clique em “Gerenciar minha assinatura”."],
+  "Mode test : payez avec la carte 4242 4242 4242 4242, une date future et n'importe quel code.": ["Test mode: pay with card 4242 4242 4242 4242, any future date and any code.", "Modo de prueba: paga con la tarjeta 4242 4242 4242 4242, una fecha futura y cualquier código.", "Testmodus: zahle mit der Karte 4242 4242 4242 4242, einem zukünftigen Datum und beliebigem Code.", "Modo de teste: pague com o cartão 4242 4242 4242 4242, uma data futura e qualquer código."],
+  "Code d'abonnement copié. Collez-le dans la page Pro de votre autre appareil.": ["Subscription code copied. Paste it on the Pro page of your other device.", "Código de suscripción copiado. Pégalo en la página Pro de tu otro dispositivo.", "Abo-Code kopiert. Füge ihn auf der Pro-Seite deines anderen Geräts ein.", "Código de assinatura copiado. Cole-o na página Pro do seu outro aparelho."],
+  "Limite gratuite du jour atteinte pour l'IA. Passez à Pro pour continuer sans limite.": ["You've reached today's free AI limit. Upgrade to Pro to keep going without limits.", "Has alcanzado el límite gratuito de IA de hoy. Pásate a Pro para seguir sin límites.", "Das kostenlose KI-Limit für heute ist erreicht. Wechsle zu Pro, um ohne Limit weiterzumachen.", "Você atingiu o limite gratuito de IA de hoje. Passe para o Pro para continuar sem limites."],
 };
 
 /* ── Démarrage ─────────────────────────────────────────────────────── */
@@ -12417,6 +12534,7 @@ async function boot() {
   App.render();
   if (!S.profile.onboarded) Onb.open();
   AI.init().then(() => setTimeout(() => Autopilot.check(), 1200));
+  Pay.init();
   Store.connect();
   Dl.ready().then(() => { if (App.route.v === 'links') App.render(); });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') Autopilot.check(); });
@@ -12435,6 +12553,7 @@ async function boot() {
     else if (h === 'pro' || h === 'teams') App.go(h);
     else if (h === 'invite') { App.go('pro'); if (S.profile.onboarded) setTimeout(() => openInvite(), 400); }
     else if (h === 'bilan') setTimeout(() => openCheckup(), 300);
+    else if (/^paid=cs_(test|live)_\w+$/.test(h)) { App.go('pro'); Pay.claim(h.slice(5)); }
     else if (Share.land(h)) closeModals();
     history.replaceState(null, '', location.pathname + location.search);
   };

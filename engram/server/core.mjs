@@ -15,6 +15,7 @@
 
 import crypto from 'node:crypto';
 import Anthropic from '@anthropic-ai/sdk';
+import { licenseSecret, readLicense } from './pay.mjs';
 
 const SYSTEM = 'You are the AI engine inside Engram, a spaced-repetition flashcard app. The page sends you the full instructions for each task inside the conversation; follow them.';
 const JSON_RULE = 'Reply with valid JSON only: no prose before or after, no code fences.';
@@ -70,6 +71,22 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
     ...(env.ANTHROPIC_BASE_URL ? { baseURL: env.ANTHROPIC_BASE_URL } : {})
   });
 
+  /* ── Abonnements (Stripe) ────────────────────────────────────────── */
+  // Avec STRIPE_SECRET_KEY, l'IA s'ouvre à tous : les abonnés (code d'abonnement signé par pay.mjs) sans limite,
+  // les autres dans la limite gratuite du jour. Le modèle le plus puissant est réservé à Élite (et au code d'accès).
+  const PAY = !!env.STRIPE_SECRET_KEY, LIC = licenseSecret(env);
+  const FREE_DAILY = +env.ENGRAM_FREE_DAILY || 60;
+  const freeDays = new Map();
+  function licenseOf(headers) {
+    const d = readLicense(LIC, headers.get('x-engram-license') || '');
+    return d && !d.expired && (d.p === 'pro' || d.p === 'elite') ? d : null;
+  }
+  function overFree(ip) {
+    const day = new Date().toISOString().slice(0, 10), u = freeDays.get(ip);
+    if (!u || u.day !== day) { freeDays.set(ip, { day, n: 1 }); if (freeDays.size > 20000) freeDays.clear(); return false; }
+    return ++u.n > FREE_DAILY;
+  }
+
   /* ── Garde-fous ──────────────────────────────────────────────────── */
   const hits = new Map();
   function rateLimited(ip) {
@@ -106,12 +123,16 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
     if (!CORS) return {};
     const origin = request.headers.get('origin') || '';
     const allowed = CORS === '*' || CORS.split(',').map(s => s.trim()).includes(origin);
-    return allowed ? { 'access-control-allow-origin': CORS === '*' ? '*' : origin, 'access-control-allow-headers': 'content-type, x-engram-code', 'access-control-allow-methods': 'GET, POST, OPTIONS', vary: 'origin' } : {};
+    return allowed ? { 'access-control-allow-origin': CORS === '*' ? '*' : origin, 'access-control-allow-headers': 'content-type, x-engram-code, x-engram-license', 'access-control-allow-methods': 'GET, POST, OPTIONS', vary: 'origin' } : {};
   }
   const json = (request, status, obj) => new Response(JSON.stringify(obj), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...corsHeaders(request) } });
 
   async function handleAI(request, ip) {
-    if (!codeOk(request.headers)) return json(request, 401, { code: 'not_granted', message: 'access code' });
+    const lic = PAY ? licenseOf(request.headers) : null, owner = !!ACCESS_CODE && codeOk(request.headers);
+    if (!lic && !owner) {
+      if (PAY) { if (overFree(ip)) return json(request, 429, { code: 'quota', message: 'free daily limit' }); }
+      else if (ACCESS_CODE) return json(request, 401, { code: 'not_granted', message: 'access code' });
+    }
     if (rateLimited(ip)) return json(request, 429, { code: 'rate_limited', message: 'slow down' });
     if (+(request.headers.get('content-length') || 0) > MAX_BODY) return json(request, 413, { code: 'prompt_too_large', message: 'too large' });
     let body;
@@ -123,6 +144,8 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
     const bad = invalid(body);
     if (bad) return json(request, 400, { code: 'upstream_error', message: bad });
 
+    // Le modèle le plus puissant (« complex ») : Élite, ou le propriétaire du serveur.
+    if (PAY && body.modelTier === 'complex' && !(lic?.p === 'elite' || owner)) body.modelTier = 'default';
     const tier = TIERS[body.modelTier || 'default'];
     const tools = (body.tools || []).map(x => ({ name: x.name, description: String(x.description || '').slice(0, 4000), input_schema: x.input_schema || { type: 'object', properties: {} } }));
     const params = {
@@ -199,7 +222,7 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
       if (!pathname.startsWith('/api/ai')) return null;
       if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders(request) });
       if (pathname === '/api/ai/health' && request.method === 'GET') {
-        return json(request, 200, { ok: true, key: HAS_KEY, images: true, tools: true, locked: !!ACCESS_CODE, fallbacks: FALLBACKS, models: Object.fromEntries(Object.entries(TIERS).map(([k, v]) => [k, v.model])) });
+        return json(request, 200, { ok: true, key: HAS_KEY, images: true, tools: true, locked: !!ACCESS_CODE && !PAY, pay: PAY, plan: PAY ? licenseOf(request.headers)?.p || 'free' : null, fallbacks: FALLBACKS, models: Object.fromEntries(Object.entries(TIERS).map(([k, v]) => [k, v.model])) });
       }
       if (pathname === '/api/ai' && request.method === 'POST') return handleAI(request, ip);
       return json(request, 404, { code: 'upstream_error', message: 'not found' });

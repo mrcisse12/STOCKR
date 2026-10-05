@@ -47,6 +47,25 @@ Le site de STOCKR n'est pas touché : Engram a son propre site.
 
 Netlify limite la durée d'une fonction : si une très longue lecture (gros PDF scanné, Mentor Expert) est coupée, hébergez l'image Docker et indiquez son adresse dans **Réglages → IA et Mentor**.
 
+### Paiements (Stripe)
+
+Les formules **Pro** (7,99 €/mois ou 79,90 €/an) et **Élite** (14,99 €/mois ou 149,90 €/an) se paient par Stripe.
+
+1. Stripe → **Développeurs → Clés API** : copiez la **clé secrète** (`sk_test_…` pour essayer, `sk_live_…` pour de vrai).
+2. Netlify → **Environment variables** : ajoutez `STRIPE_SECRET_KEY` avec cette clé. Ne la mettez jamais dans le code ni dans un message.
+3. Redéployez. Au premier passage sur la page Pro, le serveur crée seul dans Stripe les produits « Engram Pro » et « Engram Élite », leurs quatre prix et le portail client. Rien à créer à la main.
+4. Essayez en mode test avec la carte `4242 4242 4242 4242`, une date future et n'importe quel code.
+
+Comment ça marche : après le paiement, le serveur vérifie la session Stripe et remet à l'app un **code d'abonnement** signé, joint ensuite à chaque appel à l'IA. Les abonnés n'ont pas besoin du code d'accès ; les autres ont `ENGRAM_FREE_DAILY` appels d'IA gratuits par jour (60 par défaut) ; le modèle le plus puissant est réservé à Élite. « Gérer mon abonnement » ouvre le portail Stripe (changer de formule ou de carte, factures, arrêt en fin de période). Sur un autre appareil, on colle son code d'abonnement dans la page Pro.
+
+| Variable | Rôle |
+|---|---|
+| `STRIPE_SECRET_KEY` | Active les paiements |
+| `ENGRAM_FREE_DAILY` | Appels d'IA gratuits par jour et par adresse (60) |
+| `ENGRAM_PRICE_PRO_MONTH`, `_PRO_YEAR`, `_ELITE_MONTH`, `_ELITE_YEAR` | Prix créés au premier lancement, en euros (7.99, 79.90, 14.99, 149.90) |
+| `STRIPE_TAX` | `on` : Stripe calcule la TVA (Stripe Tax doit être activé) |
+| `ENGRAM_LICENSE_SECRET` | Facultatif : secret des codes d'abonnement (sinon dérivé de la clé Stripe ; changer de clé Stripe invalide alors les anciens codes, qui se renouvellent seuls) |
+
 ### Installer l'app
 
 Sur iPad ou iPhone : Safari → Partager → **Sur l'écran d'accueil**. Sur Android, ordinateur : **Installer** dans le menu du navigateur. L'app s'ouvre en plein écran et fonctionne hors-ligne (seule l'IA demande le réseau).
