@@ -170,11 +170,14 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
           if (!ac.signal.aborted) {
             const status = e?.status, text = String(e?.message || '');
             // Plafond mensuel atteint (429 sans délai) ou limite fixée dans la console, crédit épuisé : ce n'est pas un simple « trop vite ».
-            const budget = e?.error?.error?.details?.error_code === 'enforced_spend_limit_reached' || /enforced_spend_limit_reached|specified (workspace )?API usage limits|credit balance/i.test(text);
+            // Carte refusée (402, billing_error) : même effet pour la personne qu'un crédit épuisé.
+            const budget = status === 402 || e?.error?.error?.details?.error_code === 'enforced_spend_limit_reached' || /enforced_spend_limit_reached|specified (workspace )?API usage limits|credit balance|billing_error/i.test(text);
+            // Une surcharge peut aussi arriver au milieu du flux, sans statut HTTP : seul le texte de l'erreur le dit.
             const code = budget ? 'budget'
               : status === 401 || status === 403 || /authentication|x-api-key/i.test(text) ? 'server_key'
-              : status === 429 || status === 529 ? 'rate_limited'
-              : status === 413 || /prompt is too long|too many tokens/i.test(text) ? 'prompt_too_large' : 'upstream_error';
+              : status === 429 || status === 529 || /overloaded_error|rate_limit_error/i.test(text) ? 'rate_limited'
+              : status === 413 || /prompt is too long|too many tokens/i.test(text) ? 'prompt_too_large'
+              : /image exceeds|image\.source|invalid image|could not process image/i.test(text) ? 'image_rejected' : 'upstream_error';
             console.error('[engram] API error', status || '', text || e);
             write({ type: 'error', code, message: code === 'server_key' ? 'server API key missing or invalid' : text.slice(0, 300) || 'error' });
           }

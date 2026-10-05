@@ -443,6 +443,8 @@ button.ochip:hover{transform:translateY(-2px);border-color:var(--pen)}
 .ochip.right{border-color:#1F7A52;background:color-mix(in srgb,#1F7A52 11%,var(--paper))}.ochip.right b{color:#1F7A52}
 .ochip.wrong{border-color:var(--pen);background:color-mix(in srgb,var(--pen) 8%,var(--paper))}
 .ochip.placed{animation:popIn .35s var(--spring)}
+.order-list .ochip{flex-wrap:wrap;row-gap:2px}
+.ochip .you{flex-basis:100%;padding-left:23px;font:400 12px/1.3 var(--f-type);color:var(--pen);opacity:.9}
 @keyframes popIn{from{transform:scale(.85);opacity:.3}}
 .card-hint{position:absolute;bottom:13px;right:18px;font:700 9.5px/1 var(--f-type);letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted);opacity:.7;z-index:1}
 .swipe-tint{position:absolute;inset:0;border-radius:5px;pointer-events:none;opacity:0;transition:opacity .2s;z-index:4;mix-blend-mode:multiply}
@@ -2835,14 +2837,14 @@ const AI = {
     if (code === 'images_unavailable' && this.limits) { this.limits = { ...this.limits, images: null }; this.changed(); }
     if (code === 'tools_unavailable' && this.limits) { this.limits = { ...this.limits, tools: null }; this.changed(); }
     return ({
-      cancelled: '', not_granted: this.via === 'server' ? t("Code d'accès au serveur IA manquant ou incorrect (Réglages → IA et Mentor).") : t("L'IA n'a pas été autorisée pour cette page. La correction locale prend le relais."),
+      cancelled: '', not_granted: this.via === 'server' ? t("Code d'accès au serveur IA manquant ou incorrect (Réglages → IA et Mentor).") : t("L'IA n'a pas été autorisée pour cette page."),
       sampling_disabled: t("L'IA Claude n'est pas disponible pour ce compte."), rate_limited: t("Beaucoup de demandes d'un coup : réessayez dans un instant."),
       session_expired: t("Reconnectez-vous à Claude pour utiliser l'IA."), image_rejected: t('Cette image est illisible ou trop lourde. Essayez une autre photo (JPEG ou PNG).'),
       images_unavailable: t('Les photos ne sont pas prises en charge ici. Collez le texte du cours à la place.'),
       refused: t("L'IA a refusé ce contenu. Reformulez ou essayez une autre source."), empty_completion: t("L'IA n'a rien renvoyé. Réessayez avec moins de contenu."),
       invalid_json: t("La réponse de l'IA était mal formée. Réessayez."), prompt_too_large: t('Le texte est trop long : envoyez un chapitre à la fois.'),
       tools_unavailable: t("L'assistant ne peut pas agir dans l'app ici : il répond seulement."),
-      budget: t("Le budget IA du serveur est atteint pour ce mois. La correction locale prend le relais."),
+      budget: t("Le budget IA du serveur est atteint pour ce mois."),
       server_key: t("Le serveur IA n'a pas de clé d'API valide (variable ANTHROPIC_API_KEY).")
     })[code] ?? t("Connexion à l'IA interrompue. Réessayez.");
   },
@@ -3903,7 +3905,7 @@ function cardFaces(c, o = {}) {
     const front = `<div class="q-text">${md(c.front)}</div>
       <div class="order-list">${picked.map((i, k) => `<span class="ochip placed"><b>${k + 1}</b>${esc(items[i])}</span>`).join('')}</div>
       <div class="order-pool">${pool.map(i => `<button class="ochip" data-act="orderPick" data-i="${i}">${esc(items[i])}</button>`).join('')}</div>`;
-    const back = `<div class="q-small">${md(c.front)}</div><div class="order-list">${items.map((x, k) => `<span class="ochip ${k < picked.length ? (picked[k] === k ? 'right' : 'wrong') : ''}"><b>${k + 1}</b>${esc(x)}</span>`).join('')}</div>${c.back ? `<div class="extra">${md(c.back)}</div>` : ''}`;
+    const back = `<div class="q-small">${md(c.front)}</div><div class="order-list">${items.map((x, k) => `<span class="ochip ${k < picked.length ? (picked[k] === k ? 'right' : 'wrong') : ''}"><b>${k + 1}</b>${esc(x)}${k < picked.length && picked[k] !== k ? `<small class="you">${esc(t('vous : {x}', { x: items[picked[k]] }))}</small>` : ''}</span>`).join('')}</div>${c.back ? `<div class="extra">${md(c.back)}</div>` : ''}`;
     return { question: c.front, expected: items.join(' → '), front, back };
   }
   if (c.type === 'occlusion') {
@@ -4053,6 +4055,7 @@ const Motion = {
     // Filet : si le navigateur tarde à photographier l'écran (appareil saturé, onglet en arrière-plan), la page change tout de suite, sans animation.
     const guard = setTimeout(() => { if (done) return; this.late++; try { vt.skipTransition(); } catch { } update(); }, 450);
     vt.updateCallbackDone.finally(() => clearTimeout(guard)).catch(() => { });
+    vt.ready.catch(() => { }); // transition sautée (filet ci-dessus, ou nouvelle page entre-temps) : rien à signaler
     vt.finished.finally(() => {
       if (tok !== this.tok) return;
       delete root.dataset.vt;
@@ -5053,7 +5056,7 @@ function openEditor(cardId, deckId, preset) {
   const sk = side => { const id = st[side], src = id && S.images[id];
     return `<div class="sk-row">${src ? `<img class="sk-thumb ${/^ink/.test(id) ? 'sketch' : ''}" src="${src}" alt=""><button class="btn btn-ghost btn-sm" data-sk-draw="${side}">${icon('nib', 'i-sm')}${t('Redessiner')}</button><button class="btn btn-ghost btn-sm" data-sk-rm="${side}">${icon('x', 'i-sm')}${t('Retirer')}</button>` : `<button class="btn btn-ghost btn-sm" data-sk-draw="${side}">${icon('nib', 'i-sm')}${t('Ajouter un schéma dessiné')}</button>`}</div>`; };
   if (st.type === 'tf' && typeof st.answer !== 'boolean') st.answer = true;
-  const m = Modal.open('<div id="edRoot"></div>', 'wide');
+  const m = Modal.open('<div id="edRoot"></div>', 'wide sticky-f');
   const fields = () => {
     const ty = st.type;
     if (ty === 'cloze') return `<div class="field"><label for="eText">${t('Texte')}</label><textarea class="textarea" id="eText" placeholder="${esc(t("La {{c1::mitochondrie}} produit l'{{c2::ATP}}."))}">${esc(st.text)}</textarea>
@@ -5168,6 +5171,9 @@ function openEditor(cardId, deckId, preset) {
     if (hasImg && !st.back.trim() && !st.bimg) { m.querySelector('#eBack')?.focus(); return; }
     const imgs = hasImg ? { fimg: st.fimg || undefined, bimg: st.bimg || undefined } : {};
     if (ty === 'mcq' && st.options.filter(o => o.trim()).length < 2) { toast(t('Donnez au moins deux choix.'), 'eye'); return; }
+    // Les choix vides disparaissent : la bonne réponse suit le choix coché, pas sa place d'origine.
+    const mcqKept = st.options.map((o, i) => [o.trim(), i]).filter(([o]) => o), mcqAns = mcqKept.findIndex(([, i]) => i === st.answer);
+    if (ty === 'mcq' && mcqAns < 0) { toast(t('Cochez la bonne réponse parmi les choix remplis.'), 'eye'); return; }
     if (ty === 'order' && items.length < 2) { toast(t('Donnez au moins deux éléments à ordonner.'), 'list'); return; }
     const base = { tags, extra: st.extra.trim() || undefined };
     if (card) {
@@ -5180,7 +5186,7 @@ function openEditor(cardId, deckId, preset) {
         const olds = [card.fimg, card.bimg];
         Object.assign(card, { front: st.front.trim(), back: st.back.trim(), ...base, ...imgs });
         if (hasImg) { if (!card.fimg) delete card.fimg; if (!card.bimg) delete card.bimg; olds.forEach(dropSketch); }
-        if (ty === 'mcq') { card.options = st.options.map(o => o.trim()).filter(Boolean); card.answer = clamp(st.answer, 0, card.options.length - 1); }
+        if (ty === 'mcq') { card.options = mcqKept.map(k => k[0]); card.answer = mcqAns; }
         if (ty === 'tf') card.answer = !!st.answer;
         if (ty === 'order') card.items = items;
         if (target !== deck) { deck.cards = deck.cards.filter(x => x !== card); target.cards.push(card); }
@@ -5193,7 +5199,7 @@ function openEditor(cardId, deckId, preset) {
     let made;
     if (ty === 'cloze') made = clozeCards(st.text, base);
     else if (ty === 'reverse') { const note = uid('n'); made = [mkCard('basic', { front: st.front.trim(), back: st.back.trim(), note, ...base, ...imgs }), mkCard('basic', { front: st.back.trim(), back: st.front.trim(), note, ...base, fimg: imgs.bimg, bimg: imgs.fimg })]; }
-    else if (ty === 'mcq') { const opts = st.options.map(o => o.trim()).filter(Boolean); made = [mkCard('mcq', { front: st.front.trim(), options: opts, answer: clamp(st.answer, 0, opts.length - 1), back: st.back.trim(), ...base })]; }
+    else if (ty === 'mcq') made = [mkCard('mcq', { front: st.front.trim(), options: mcqKept.map(k => k[0]), answer: mcqAns, back: st.back.trim(), ...base })];
     else if (ty === 'tf') made = [mkCard('tf', { front: st.front.trim(), answer: !!st.answer, back: st.back.trim(), ...base })];
     else if (ty === 'order') made = [mkCard('order', { front: st.front.trim(), items, back: st.back.trim(), ...base })];
     else made = [mkCard('basic', { front: st.front.trim(), back: st.back.trim(), ...base, ...imgs })];
@@ -8464,6 +8470,7 @@ function scanOutHTML() {
     ${Scan.meta ? `<div class="panel" style="padding:16px 18px"><div class="kicker">${esc(Scan.meta.subject || t('Cours'))}${Scan.local ? ' · ' + t('génération locale') : Scan.tab === 'topic' ? ' · ' + t("rédigé par l'IA, à vérifier") : ' · ' + t("lu par l'IA")}</div><div style="font:400 26px/1.15 var(--f-display);margin-top:8px">${esc(Scan.meta.title || t('Cours scanné'))}</div>${Scan.meta.summary ? `<p class="muted" style="margin:8px 0 0;font-size:14px">${esc(Scan.meta.summary)}</p>` : ''}</div>` : ''}
     ${Scan.phase === 'running' ? `<div class="scan-status"><span class="thinking"><i></i><i></i><i></i></span><span id="scStatus" style="flex:1">${t('Lecture de la page…')}</span><button class="btn btn-sm" id="scStop">${t('Arrêter')}</button></div>` : ''}
     ${Scan.err ? `<div class="scan-status" style="border-color:color-mix(in srgb,var(--again) 45%,transparent)">${icon('x')}<span style="flex:1">${esc(Scan.err)}</span></div>` : ''}
+    ${Scan.note && Scan.phase === 'review' ? `<div class="scan-status dup">${icon('sparkles')}<span style="flex:1">${esc(Scan.note)}</span></div>` : ''}
     ${Scan.phase === 'review' && dups ? `<div class="scan-status dup">${icon('layers')}<span style="flex:1">${plural(dups, 'fiche ressemble à une fiche que vous avez déjà : elle est décochée, cochez-la pour la garder quand même.|fiches ressemblent à des fiches que vous avez déjà : elles sont décochées, cochez-les pour les garder quand même.')}</span></div>` : ''}
     <div class="gen-list" id="genList">${Scan.results.map(genAny).join('')}</div>
     ${Scan.phase === 'review' ? `<div class="tray-actions"><button class="btn btn-brass btn-lg" id="scAdd" ${on ? '' : 'disabled'} style="flex:1">${icon('drawer')}${t('Ranger {x}', { x: plural(on, 'fiche|fiches') })}</button><button class="btn btn-lg" id="scAgain">${icon('flip')}${t('Recommencer')}</button></div>` : ''}`;
@@ -8665,7 +8672,7 @@ async function runScan() {
   const pdfText = Scan.tab === 'pdf' && Scan.pdf && Scan.pdf.text.trim().length > 40;
   const pdfImgs = Scan.tab === 'pdf' && Scan.pdf && !pdfText && Scan.pdf.images?.length;
   const srcText = Scan.tab === 'pdf' ? (Scan.pdf?.text || '') : Scan.text;
-  Scan.results = []; Scan.meta = null; Scan.err = ''; Scan.local = !AI.on;
+  Scan.results = []; Scan.meta = null; Scan.err = ''; Scan.note = ''; Scan.local = !AI.on;
   if (!AI.on) {
     if (photo || Scan.tab === 'topic' || pdfImgs) { Scan.err = t("Cette source nécessite l'IA. Collez le texte du cours à la place."); App.render(); return; }
     Scan.phase = 'running'; Scan.running = true; App.render();
@@ -8701,7 +8708,13 @@ async function runScan() {
     await AI.ask(prompt, opts);
     eat(pending);
   } catch (e) {
-    const msg = AI.fail(e); if (msg) Scan.err = msg;
+    const msg = AI.fail(e);
+    // Budget atteint, clé ou accès refusés… : un texte (collé ou PDF) devient quand même des fiches, par la génération locale.
+    if (msg && !Scan.results.length && !photo && !pdfImgs && Scan.tab !== 'topic' && srcText.trim().length > 40) {
+      const { meta, cards } = localGenerate(srcText, Scan.n, Scan.types);
+      Scan.local = true; Scan.meta = meta; cards.forEach(addGen);
+      if (Scan.results.length) Scan.note = msg + ' ' + t('Fiches créées sans IA, à relire.'); else Scan.err = msg;
+    } else if (msg) Scan.err = msg;
   } finally {
     clearInterval(Scan.statusTimer); Scan.running = false; Scan.phase = 'review';
     if (!Scan.results.length && !Scan.err) Scan.err = t("L'IA n'a pas trouvé de contenu à transformer en fiches. Essayez une photo plus nette ou un autre passage.");
@@ -8741,7 +8754,8 @@ function localGenerate(text, n, types) {
   const flat = lines.map(l => /[.!?]$/.test(l) ? l : l + '.').join(' ');
   const sentences = flat.split(/(?<=[.!?])\s+(?=[A-ZÀ-ÖØ-Ý0-9«¿¡„"])/).map(s => s.trim()).filter(s => s.length > 25 && s.length < 280);
   const defs = [];
-  for (const l of lines) { const m = l.match(/^[-•*\d.)\s]*([^:–—]{2,60}?)\s*[:–—]\s+(.{8,})$/); if (m) defs.push([m[1].trim(), m[2].trim().replace(/\.$/, '')]); }
+  // Seule une puce (« - », « • », « 3. », « 2) ») est retirée : le terme lui-même peut commencer par un nombre (« 1789 : … »).
+  for (const l of lines) { const m = l.match(/^(?:[-•*]\s+|\d{1,3}[.)]\s+)?([^:–—\s][^:–—]{1,59}?)\s*[:–—]\s+(.{8,})$/); if (m) defs.push([m[1].trim(), m[2].trim().replace(/\.$/, '')]); }
   const out = { basic: [], cloze: [], mcq: [], tf: [], order: [] };
   for (const [x, d] of defs) out.basic.push({ type: 'basic', front: t('Que désigne le terme « {t} » ?', { t: x }), back: cap(d) });
   const re = new RegExp(`^(.{3,70}?)\\s+(${DEF_VERBS})\\s+(.{6,})$`, 'i');
@@ -9847,9 +9861,11 @@ function parseImport(name, text) {
     const arr = Array.isArray(j) ? j : j.cards || [];
     return { images: {}, decks: [{ name: base, cards: arr.map(o => mkCard('basic', { front: htmlToText(o.front ?? o.question ?? o.q ?? o.term), back: htmlToText(o.back ?? o.answer ?? o.a ?? o.definition), src: 'import' })).filter(c => c.front && c.back) }] };
   }
-  const head = {}; for (const l of text.split(/\r?\n/)) { const m = l.match(/^#(\w[\w ]*):(.*)$/); if (m) head[m[1].trim().toLowerCase()] = m[2].trim(); }
+  // En-têtes d'un export Anki (« #separator:tab »…) : seulement le bloc du début, pour garder les fiches qui commencent par « # » (#include, #define…).
+  const all = text.split(/\r?\n/), head = {}; let k = 0;
+  for (; k < all.length; k++) { const m = all[k].match(/^#(\w[\w ]*):(.*)$/); if (!m) break; head[m[1].trim().toLowerCase()] = m[2].trim(); }
   const sepName = { tab: '\t', comma: ',', semicolon: ';', pipe: '|', colon: ':', space: ' ' }[head.separator?.toLowerCase()];
-  const rows = parseDelimited(text.split(/\r?\n/).filter(l => !l.startsWith('#')).join('\n'), sepName);
+  const rows = parseDelimited(all.slice(k).join('\n'), sepName);
   return { images: {}, decks: [{ name: base, cards: rowsToCards(rows) }] };
 }
 /** Découpe un texte délimité (guillemets CSV gérés) ; le séparateur est deviné s'il n'est pas donné. */
@@ -9863,7 +9879,7 @@ function parseDelimited(text, sep) {
   if (!sep) {
     // Le séparateur présent sur le plus de lignes l'emporte (dans cet ordre de préférence en cas d'égalité).
     const score = x => lines.slice(0, 30).filter(l => l.includes(x)).length;
-    const best = ['\t', ' - ', ' – ', ' — ', ';', ',', ' : ', ':', '='].map(x => [x, score(x)]).sort((a, b) => b[1] - a[1])[0];
+    const best = ['\t', ';', ' - ', ' – ', ' — ', ',', ' : ', ':', '='].map(x => [x, score(x)]).sort((a, b) => b[1] - a[1])[0];
     sep = best[1] ? best[0] : '\t';
   }
   if (sep.length > 1) return lines.map(l => { const i = l.indexOf(sep); return i < 0 ? [l] : [l.slice(0, i), l.slice(i + sep.length)]; });
@@ -9879,17 +9895,42 @@ function parseDelimited(text, sep) {
   row.push(cur); if (row.some(x => x.trim())) out.push(row);
   return out;
 }
+/* Ligne d'en-tête d'un tableau (« recto;verso;complément;étiquettes ») : chaque colonne est lue par son nom.
+   Elle n'est reconnue qu'en première ligne, et quand les deux premières colonnes ressemblent à des titres,
+   pour ne jamais perdre une fiche de vocabulaire dont le mot est « question » ou « Frage ». */
+const CSV_HEAD = {
+  a: ['front', 'recto', 'question', 'term', 'terme', 'pregunta', 'frage', 'pergunta', 'vorderseite', 'anverso', 'frente', 'word', 'mot'],
+  b: ['back', 'verso', 'answer', 'reponse', 'definition', 'respuesta', 'antwort', 'ruckseite', 'resposta', 'reverso', 'meaning', 'traduction', 'translation'],
+  extra: ['extra', 'note', 'notes', 'complement', 'explication', 'explanation', 'nota', 'notas', 'notiz', 'hinweis', 'erganzung', 'complemento'],
+  tags: ['tags', 'etiquettes', 'etiquetas', 'schlagworter', 'stichworter']
+};
+// Titres écrits par l'export d'Engram, dans chaque langue de l'interface.
+const CSV_OWN = { a: 'recto', b: 'verso', extra: 'complément', tags: 'étiquettes' };
+function csvHeader(r) {
+  if (!r || r.length < 2) return null;
+  const key = x => fold(htmlToText(x)).toLowerCase().trim();
+  const sets = Object.fromEntries(Object.keys(CSV_HEAD).map(k => [k, new Set([...CSV_HEAD[k], key(CSV_OWN[k]), ...(TR[CSV_OWN[k]] || []).map(key)])]));
+  const cells = r.map(key);
+  if (!sets.a.has(cells[0]) || !sets.b.has(cells[1])) return null;
+  const map = { extra: null, tags: null };
+  cells.forEach((c, i) => { if (i > 1) for (const k of ['extra', 'tags']) if (map[k] == null && sets[k].has(c)) map[k] = i; });
+  return map;
+}
 function rowsToCards(rows, o = {}) {
   const cards = [];
-  for (const r of rows) {
-    let [a, b, extra] = r.map(x => htmlToText(x));
+  const map = csvHeader(rows[0]);
+  for (const r of map ? rows.slice(1) : rows) {
+    const cell = i => i == null ? '' : htmlToText(r[i] ?? '');
+    let a = cell(0), b = cell(1); const extra = cell(map ? map.extra : 2);
+    const tags = map && map.tags != null ? cell(map.tags).split(/[\s,]+/).filter(Boolean) : [];
     a = (a || '').replace(/^(?:[-*•–—]|\d{1,3}[.)])\s+/, '');
-    if (!a || /^(front|recto|question|term|terme|pregunta|frage|pergunta|vorderseite)$/i.test(a)) continue;
-    if (/\{\{c\d+::/.test(a)) { cards.push(...clozeCards(a, { src: 'import', extra: b || undefined })); continue; }
+    if (!a) continue;
+    // Texte à trous : dans un export Engram, la 2e colonne répète la réponse ; le complément a sa propre colonne.
+    if (/\{\{c\d+::/.test(a)) { cards.push(...clozeCards(a, { src: 'import', tags, extra: (map ? extra : b) || undefined })); continue; }
     if (!b) continue;
     if (o.swap) [a, b] = [b, a];
-    if (o.both) { const note = uid('n'); cards.push(mkCard('basic', { front: a, back: b, note, src: 'import' }), mkCard('basic', { front: b, back: a, note, src: 'import' })); }
-    else cards.push(mkCard('basic', { front: a, back: b, extra: extra || undefined, src: 'import' }));
+    if (o.both) { const note = uid('n'); cards.push(mkCard('basic', { front: a, back: b, note, tags, src: 'import' }), mkCard('basic', { front: b, back: a, note, tags, src: 'import' })); }
+    else cards.push(mkCard('basic', { front: a, back: b, extra: extra || undefined, tags, src: 'import' }));
   }
   return cards;
 }
@@ -10135,7 +10176,10 @@ async function exportAnki(deckList) {
           const src = clozeNums ? sibs.find(x => x.n === ord + 1) || c : c; const s = src.srs;
           let type = 0, queue = src.suspended ? -1 : 0, due = nNotes, ivl = 0;
           if (s.state === 2) { type = 2; queue = src.suspended ? -1 : 2; due = Math.max(0, Math.round((s.due - crt * 1000) / DAY)); ivl = Math.max(1, Math.round((s.due - s.last) / DAY)); }
-          insC.run([++cid, id, did, ord, nowS, -1, type, queue, due, ivl, s.state === 2 ? Math.round(clamp(2500 - (s.d - 5) * 300, 1300, 3500)) : 0, s.reps || 0, s.lapses || 0, 0, 0, 0, 0, s.state === 2 ? JSON.stringify({ s: +s.s.toFixed(2), d: +s.d.toFixed(2) }) : '']);
+          // En apprentissage (1) ou en réapprentissage (3) : Anki attend une échéance en secondes, et garde l'intervalle d'avant l'oubli.
+          else if (s.state === 1 || s.state === 3) { type = s.state; queue = src.suspended ? -1 : 1; due = Math.floor((s.due || Date.now()) / 1000); ivl = s.state === 3 ? Math.max(1, Math.round(s.s || 1)) : 0; }
+          const mem = s.state >= 1 && s.s > 0;
+          insC.run([++cid, id, did, ord, nowS, -1, type, queue, due, ivl, mem ? Math.round(clamp(2500 - (s.d - 5) * 300, 1300, 3500)) : 0, s.reps || 0, s.lapses || 0, mem && s.state !== 2 ? 1001 : 0, 0, 0, 0, mem ? JSON.stringify({ s: +s.s.toFixed(2), d: +s.d.toFixed(2) }) : '']);
         }
       }
     }
@@ -10157,8 +10201,8 @@ async function exportAnki(deckList) {
 const csvEscape = s => { s = String(s ?? ''); return /[";\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
 function exportDeckCSV(decks) {
   decks = [].concat(decks); const many = decks.length > 1;
-  const rows = [[t('recto'), t('verso'), 'type', t('étiquettes'), ...(many ? [t('paquet')] : [])].join(';')];
-  for (const d of decks) for (const c of d.cards) { if (c.type === 'occlusion') continue; if (c.type === 'cloze' && d.cards.some(x => x.note === c.note && x.n < c.n)) continue; rows.push([c.type === 'cloze' ? c.text : c.front, cardAnswer(c), c.type, (c.tags || []).join(' '), ...(many ? [d.name] : [])].map(csvEscape).join(';')); }
+  const rows = [[t('recto'), t('verso'), t('complément'), t('étiquettes'), 'type', ...(many ? [t('paquet')] : [])].join(';')];
+  for (const d of decks) for (const c of d.cards) { if (c.type === 'occlusion') continue; if (c.type === 'cloze' && d.cards.some(x => x.note === c.note && x.n < c.n)) continue; rows.push([c.type === 'cloze' ? c.text : c.front, cardAnswer(c), c.extra || (['basic', 'cloze'].includes(c.type) ? '' : c.back) || '', (c.tags || []).join(' '), c.type, ...(many ? [d.name] : [])].map(csvEscape).join(';')); }
   return rows.join('\n');
 }
 
@@ -12352,6 +12396,12 @@ TR = {
   "{n} sur cet appareil.": ["{n} on this device.","{n} en este dispositivo.","{n} auf diesem Gerät.","{n} neste aparelho."],
   "À régler": ["To fix","Por resolver","Zu klären","A resolver"],
   "À savoir": ["Good to know","A saber","Gut zu wissen","Bom saber"],
+  "L'IA n'a pas été autorisée pour cette page.": ["AI was not allowed for this page.", "La IA no está autorizada en esta página.", "Die KI wurde für diese Seite nicht erlaubt.", "A IA não foi autorizada nesta página."],
+  "Le budget IA du serveur est atteint pour ce mois.": ["The AI server's budget is used up for this month.", "El presupuesto de IA del servidor se ha agotado este mes.", "Das KI-Budget des Servers ist für diesen Monat aufgebraucht.", "O orçamento de IA do servidor acabou este mês."],
+  "Fiches créées sans IA, à relire.": ["Cards made without AI, worth a quick check.", "Tarjetas creadas sin IA: revísalas.", "Karten ohne KI erstellt, bitte kurz prüfen.", "Cartões criados sem IA: revise-os."],
+  "Cochez la bonne réponse parmi les choix remplis.": ["Tick the right answer among the filled-in options.", "Marca la respuesta correcta entre las opciones rellenadas.", "Markiere die richtige Antwort unter den ausgefüllten Optionen.", "Marque a resposta certa entre as opções preenchidas."],
+  "complément": ["extra", "complemento", "Ergänzung", "complemento"],
+  "vous : {x}": ["you: {x}", "tú: {x}", "du: {x}", "você: {x}"],
 };
 
 /* ── Démarrage ─────────────────────────────────────────────────────── */
