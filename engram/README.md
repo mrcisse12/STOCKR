@@ -66,6 +66,10 @@ Comment ça marche : après le paiement, le serveur vérifie la session Stripe e
 | `STRIPE_TAX` | `on` : Stripe calcule la TVA (Stripe Tax doit être activé) |
 | `ENGRAM_LICENSE_SECRET` | Facultatif : secret des codes d'abonnement (sinon dérivé de la clé Stripe ; changer de clé Stripe invalide alors les anciens codes, qui se renouvellent seuls) |
 
+### Synchronisation entre appareils (Pro et Élite)
+
+Un abonné retrouve ses paquets et sa progression sur l'iPhone, l'iPad et l'ordinateur : il colle son code d'abonnement (page Pro) sur l'autre appareil. Chaque paquet, chaque image et le profil sont un document stocké sous son numéro de client Stripe : Netlify Blobs en ligne (magasin `engram-sync`, rien à régler), des fichiers dans `server/data/` avec le serveur Node (`ENGRAM_SYNC_DIR`). Pour un même paquet modifié sur deux appareils, la version la plus récente l'emporte ; un paquet supprimé ne revient pas d'un autre appareil. 2,5 Mo par document, 300 Mo par abonné. La synchronisation démarre seule quand les paiements sont actifs (`STRIPE_SECRET_KEY`).
+
 ### Installer l'app
 
 Sur iPad ou iPhone : Safari → Partager → **Sur l'écran d'accueil**. Sur Android, ordinateur : **Installer** dans le menu du navigateur. L'app s'ouvre en plein écran et fonctionne hors-ligne (seule l'IA demande le réseau).
