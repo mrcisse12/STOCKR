@@ -485,6 +485,37 @@ html.cam-on{overflow:hidden}
 .cr-bar .seg{background:rgba(255,255,255,.08)}.cr-bar .seg button{color:#F4EBD8}.cr-bar .seg button.on{color:#1B1407;background:#E8C77A}
 .cr-bar .btn:not(.btn-gilt){background:rgba(255,255,255,.08);color:#F4EBD8;border-color:rgba(255,255,255,.2)}
 @media (max-width:620px){.cam-done span{display:none}.cr-bar .btn{flex:1}.cr-bar .seg{width:100%}}
+.elite-tag{display:inline-block;margin-left:4px;padding:2px 6px;border-radius:4px;font:700 9.5px/1.25 var(--f-type);letter-spacing:.08em;text-transform:uppercase;background:linear-gradient(180deg,#FBE7B0,#C9A04E);color:#1B1407;vertical-align:2px}
+.accent-custom{position:relative;overflow:hidden;background:radial-gradient(circle,var(--a) 50%,transparent 53%),conic-gradient(#E0664F,#E2B04F,#3FAE7C,#6F8FE0,#B479B0,#E0664F)!important;display:grid;place-items:center;cursor:pointer}
+.accent-custom input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:0;padding:0}
+.accent-custom .i{width:12px;height:12px;color:#fff;filter:drop-shadow(0 1px 1px rgba(0,0,0,.5));pointer-events:none}
+/* Velours (Élite) : bordeaux profond et or */
+:root[data-skin="velours"]{
+  color-scheme: dark;
+  --desk:#160A0E; --desk-2:#1C0D12; --folder:#22111A; --folder-2:#2A1520; --folder-3:#331A27; --folder-4:#3F2131;
+  --hair:rgba(240,200,190,.12); --hair-2:rgba(240,200,190,.22); --hair-3:rgba(240,200,190,.38);
+  --text:#F5E9E4; --text-2:#D2BDB6; --muted:#A08A84;
+  --brass:#D4AF37; --brass-hi:#F1D77E; --brass-lo:#9C7A1E; --brass-btn:#D4AF37; --on-brass:#1B1206; --brass-text:#E5C463; --brass-soft:rgba(212,175,55,.13); --brass-glow:rgba(230,190,80,.35);
+  --again:#F07A6A; --hard:#E2B04F; --good:#5FCB9C; --easy:#8EAAF7; --st-n:#8E9CF2; --st-l:#E4668F; --st-y:#D7973A; --st-m:#3DB58C;
+  --paper:#F6EFE6; --paper-2:#EDE3D6; --paper-3:#DCCDBB; --p-ink:#24130F; --p-muted:#6E5A50; --p-rule:rgba(120,30,50,.16); --p-margin:rgba(170,40,60,.5);
+  --lamp:rgba(255,180,150,.10); --lamp-2:rgba(212,175,55,.06); --felt:.08;
+  --sh-card:0 1px 0 rgba(255,255,255,.45) inset,0 2px 2px rgba(0,0,0,.25),0 18px 30px -12px rgba(0,0,0,.65),0 40px 80px -30px rgba(0,0,0,.75);
+  --sh-panel:0 30px 60px -40px rgba(0,0,0,.85); --sh-pop:0 24px 60px -20px rgba(0,0,0,.8);
+}
+/* Marbre (Élite) : blanc veiné, encre noire et or */
+:root[data-skin="marbre"]{
+  color-scheme: light;
+  --desk:#ECEAE6; --desk-2:#F2F0EC; --folder:#FAF9F7; --folder-2:#FFFFFF; --folder-3:#F1EFEB; --folder-4:#E5E2DC;
+  --hair:rgba(20,20,20,.10); --hair-2:rgba(20,20,20,.18); --hair-3:rgba(20,20,20,.32);
+  --text:#141414; --text-2:#3C3A37; --muted:#6B6862;
+  --brass:#A8832E; --brass-hi:#D9B866; --brass-lo:#7A5C17; --brass-btn:#A8832E; --on-brass:#FFFFFF; --brass-text:#86661C; --brass-soft:rgba(168,131,46,.12); --brass-glow:rgba(200,160,70,.3);
+  --again:#C8463A; --hard:#B7841F; --good:#2F8F62; --easy:#3D63C9; --st-n:#4A6FD8; --st-l:#C8466E; --st-y:#B97A1C; --st-m:#2A9670;
+  --paper:#FFFFFF; --paper-2:#F6F4F0; --paper-3:#E7E3DC; --p-ink:#161616; --p-muted:#6A665E; --p-rule:rgba(30,30,30,.12); --p-margin:rgba(190,60,50,.45);
+  --lamp:rgba(255,250,240,0); --lamp-2:rgba(168,131,46,.05); --felt:.03;
+  --sh-card:0 1px 0 rgba(255,255,255,.8) inset,0 1px 2px rgba(0,0,0,.08),0 14px 28px -14px rgba(0,0,0,.25),0 30px 60px -30px rgba(0,0,0,.25);
+  --sh-panel:0 30px 60px -44px rgba(0,0,0,.3); --sh-pop:0 24px 60px -24px rgba(0,0,0,.35);
+}
+:root[data-skin="marbre"] body{background-image:linear-gradient(115deg,transparent 40%,rgba(120,120,120,.05) 41%,transparent 43%),linear-gradient(35deg,transparent 62%,rgba(150,140,120,.06) 63%,transparent 64.5%),linear-gradient(160deg,transparent 20%,rgba(110,110,110,.04) 21%,transparent 22.5%);background-attachment:fixed}
 .pay-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.pay-row .input{flex:1;min-width:200px;font-family:var(--f-type)}
 .order-list .ochip{flex-wrap:wrap;row-gap:2px}
 .ochip .you{flex-basis:100%;padding-left:23px;font:400 12px/1.3 var(--f-type);color:var(--pen);opacity:.9}
@@ -5012,16 +5043,22 @@ Hooks.stats = () => {
 };
 
 /* ── Paquets : création, réglages ──────────────────────────────────── */
+/** Rétention visée : celle du paquet (Élite), sinon celle des réglages. */
+const retFor = d => (Pro.expert && d?.retention) || S.profile.settings.retention;
+/** Intervalle maximal (Élite) : aucune fiche ne revient plus tard que ce délai. */
+const capMs = ms => { const m = Pro.expert && +S.profile.settings.maxIvl; return m > 0 ? Math.min(ms, m * DAY) : ms; };
+function capIvl(srs, now) { if (srs.due > now) srs.due = now + capMs(srs.due - now); return srs; }
 function deckForm(d = {}) {
   return `<div class="form">
     <div class="field"><label for="dName">${t('Nom')}</label><input class="input" id="dName" value="${esc(d.name || '')}" placeholder="${esc(t('Ex. Biologie — chapitre 3'))}" autofocus></div>
     <div class="field"><label for="dDesc">${t('Description')}</label><input class="input" id="dDesc" value="${esc(d.desc || '')}" placeholder="${esc(t('Facultatif'))}"></div>
+    ${d.id ? `<div class="field"><label for="dRet">${t('Rétention visée pour ce paquet')} <span class="elite-tag">${t('Élite')}</span></label><select class="input" id="dRet" ${Pro.expert ? '' : 'disabled'}><option value="">${t('Comme les réglages ({x})', { x: pct(S.profile.settings.retention) })}</option>${[0.8, 0.85, 0.88, 0.9, 0.92, 0.94, 0.95, 0.97].map(v => `<option value="${v}" ${d.retention === v ? 'selected' : ''}>${pct(v)}</option>`).join('')}</select></div>` : ''}
     <div class="two">
       <div class="field"><span class="flabel">${t("Couleur de l'étiquette")}</span><div class="chips" id="dColor">${Object.entries(DECK_COLORS).map(([k, v]) => `<button class="chip ${(d.color || 'brass') === k ? 'on' : ''}" data-c="${k}" aria-label="${k}"><i class="d" style="background:${v};width:14px;height:14px"></i></button>`).join('')}</div></div>
       <div class="field"><label for="dLang">${t('Langue des fiches')}</label><select class="select" id="dLang">${CARD_LANGS.map(k => `<option value="${k}" ${(d.lang || LANG) === k ? 'selected' : ''}>${esc(langName(k))}</option>`).join('')}</select></div>
     </div></div>`;
 }
-function readDeckForm(m) { return { name: m.querySelector('#dName').value.trim(), desc: m.querySelector('#dDesc').value.trim(), color: m.querySelector('#dColor .on')?.dataset.c || 'brass', lang: m.querySelector('#dLang').value }; }
+function readDeckForm(m) { const ret = m.querySelector('#dRet'); return { name: m.querySelector('#dName').value.trim(), desc: m.querySelector('#dDesc').value.trim(), color: m.querySelector('#dColor .on')?.dataset.c || 'brass', lang: m.querySelector('#dLang').value, ...(ret && Pro.expert ? { retention: +ret.value || undefined } : {}) }; }
 function bindColorChips(m) { m.querySelector('#dColor').addEventListener('click', e => { const b = e.target.closest('[data-c]'); if (!b) return; m.querySelectorAll('#dColor .chip').forEach(x => x.classList.toggle('on', x === b)); }); }
 function createDeck(o) {
   if (S.demo) Store.leaveDemo(false);
@@ -5551,7 +5588,7 @@ const Cmd = {
       C('settings', G.set, 'settings', t('Réglages'), go('settings'), { kw: 'reglages parametres preferences settings ajustes einstellungen configuracoes' }),
       C('checkup', G.set, 'shield', t('Bilan de l\'installation'), () => openCheckup(), { sub: t('IA, hors ligne, installation, mémoire'), kw: 'bilan verifier installation diagnostic sante mise en ligne netlify deploiement check health status diagnostico verificar prufen diagnose instalacao' }),
       C('keys', G.set, 'keyboard', t('Raccourcis clavier'), () => openShortcuts(), { key: '?', kw: 'raccourcis clavier touches aide shortcuts keyboard keys atajos teclado tastenkurzel tastatur atalhos' }),
-      ...Object.entries(SKINS).map(([k, v]) => C('skin-' + k, G.qk, 'palette', t('Thème : {x}', { x: t(v.name) }), () => { s.skin = k; Store.touch('profile'); Custom.apply(); toast(t('Thème : {x}', { x: t(v.name) }), 'palette'); }, { hide: true, on: s.skin === k, sw: v.sw, kw: 'theme mode couleur theme skin tema thema ' + (k === 'auto' ? 'automatique auto systeme system' : SKIN_DARK[k] ? 'sombre nuit noir dark night black oscuro noche dunkel nacht escuro noite' : 'clair jour blanc light day white claro dia hell tag') })),
+      ...Object.entries(SKINS).map(([k, v]) => C('skin-' + k, G.qk, 'palette', t('Thème : {x}', { x: t(v.name) }), () => { if (v.elite && !Pro.expert) return Pro.upsell('atelier'); s.skin = k; Store.touch('profile'); Custom.apply(); toast(t('Thème : {x}', { x: t(v.name) }), 'palette'); }, { hide: true, on: s.skin === k, sw: v.sw, kw: 'theme mode couleur theme skin tema thema ' + (k === 'auto' ? 'automatique auto systeme system' : SKIN_DARK[k] ? 'sombre nuit noir dark night black oscuro noche dunkel nacht escuro noite' : 'clair jour blanc light day white claro dia hell tag') })),
       C('sound', G.qk, 'volume', s.sound ? t('Couper les sons') : t('Activer les sons'), () => { s.sound = !s.sound; Store.touch('profile'); toast(s.sound ? t('Sons activés') : t('Sons coupés'), 'volume'); }, { hide: true, kw: 'sons son bruit silence sound mute audio sonido silencio ton stumm som' }),
       C('tts', G.qk, 'volume', s.tts ? t('Ne plus lire les fiches à voix haute') : t('Lire les fiches à voix haute'), () => { s.tts = !s.tts; Store.touch('profile'); toast(s.tts ? t('Les fiches seront lues à voix haute') : t('Lecture à voix haute coupée'), 'volume'); }, { hide: true, kw: 'voix lecture lire tts read aloud voice voz leer vorlesen stimme ler' }),
       ...Object.keys(AMBIENT_LABEL).map(k => C('amb-' + k, G.qk, 'music', t('Ambiance : {x}', { x: t(AMBIENT_LABEL[k]) }), () => { s.ambient = k; Store.touch('profile'); if (Study.active) Ambient.set(k); toast(t('Ambiance : {x}', { x: t(AMBIENT_LABEL[k]) }), 'music'); }, { hide: true, on: s.ambient === k, kw: 'ambiance musique fond pluie bibliotheque silence ambient music rain library ambiente musica lluvia musik regen chuva' })),
@@ -5924,6 +5961,7 @@ const Pro = {
       mentor: [t('Vos 20 messages à Mentor sont utilisés ce mois-ci'), t('Avec Pro, Mentor répond et agit pour vous sans limite.')],
       agent: [t('Vos 3 missions du mois sont utilisées'), t('Avec Pro, les six assistants travaillent pour vous sans limite. Les analyses sans IA restent libres.')],
       expert: [t('Le mode Expert fait partie d\'Élite'), t('Le modèle le plus puissant, pour les plans de concours et les raisonnements longs.')],
+      atelier: [t('Cet outil fait partie d\'Élite'), t('Thèmes Velours et Marbre, couleur d\'accent sur mesure, rétention par paquet et intervalle maximal : Élite règle Engram à votre façon.')],
       autopilot: [t('L\'autopilote fait partie de Pro'), t('Chaque matin, le Planificateur prépare votre séance ; chaque lundi, le Chroniqueur fait le bilan de la semaine.')]
     }[kind] || [t('Cette fonction fait partie de Pro'), ''];
     const m = Modal.open(`<div class="up"><div class="up-card">${proCard({ sm: true })}</div><div><div class="kicker">Engram Pro</div><h2 class="h2" style="margin-top:8px">${L[0]}</h2><p class="muted" style="margin:10px 0 0;line-height:1.55">${L[1]}</p></div></div>
@@ -6053,7 +6091,7 @@ function openPro() { App.go('pro'); }
 const PRO_FEATURES = {
   free: [N_('3 scans de cours par mois'), N_('30 corrections IA par jour'), N_('Mentor : 20 messages par mois'), N_('3 missions d\'assistants par mois'), N_('Fiches illimitées, FSRS, 5 langues'), N_('Import et export Anki')],
   pro: [N_('Scans illimités : photos, PDF, notes au stylet'), N_('Correction IA de chaque réponse'), N_('Mentor sans limite'), N_('Les six assistants, sans limite'), N_('Autopilote : le mot du matin, le bilan du lundi'), N_('Examens blancs sur mesure')],
-  expert: [N_('Tout Pro'), N_('Mentor et assistants avec le modèle le plus puissant'), N_('Des plans et des raisonnements plus poussés pour les concours'), N_('Les assistants relisent jusqu\'à 150 fiches par mission')]
+  expert: [N_('Tout Pro'), N_('Mentor et assistants avec le modèle le plus puissant'), N_('L\'atelier : thèmes Velours et Marbre, couleur sur mesure'), N_('Mémoire sur mesure : rétention par paquet, intervalle maximal'), N_('Des plans et des raisonnements plus poussés pour les concours'), N_('Les assistants relisent jusqu\'à 150 fiches par mission')]
 };
 const PRO_CMP = [
   [N_('Fiches, paquets, algorithme FSRS'), 1, 1, 1],
@@ -6064,7 +6102,9 @@ const PRO_CMP = [
   [N_('Mentor, l\'assistant qui agit'), N_('20 messages par mois'), N_('Illimité'), N_('Illimité')],
   [N_('Les six assistants'), N_('3 missions par mois'), N_('Illimités'), N_('Illimités')],
   [N_('Autopilote du matin et bilan du lundi'), 0, 1, 1],
-  [N_('Modèle d\'IA le plus puissant'), 0, 0, 1]
+  [N_('Modèle d\'IA le plus puissant'), 0, 0, 1],
+  [N_('Thèmes exclusifs et couleur sur mesure'), 0, 0, 1],
+  [N_('Rétention par paquet et intervalle maximal'), 0, 0, 1]
 ];
 const PRO_FAQ = [
   [N_('Les assistants modifient-ils mes fiches sans me demander ?'), N_('Jamais. Ils lisent, analysent et proposent. Chaque changement attend votre accord, et un seul bouton annule tout ce qui a été appliqué.')],
@@ -7779,8 +7819,8 @@ Views.settings = arg => {
     <article class="panel rise look">
       <div class="look-grid">
         <div class="settings">
-          <div class="set-row col"><div class="t"><b>${t('Thème')}</b></div><div class="skins" id="skins">${Object.entries(SKINS).map(([k, v]) => `<button class="skin ${s.skin === k ? 'on' : ''}" data-skin="${k}" style="--a:${v.sw[0]};--b:${v.sw[1]};--c:${v.sw[2]}"><span class="sk-prev"><i></i><i></i><i></i></span><b>${t(v.name)}</b><small>${t(v.desc)}</small></button>`).join('')}</div></div>
-          <div class="set-row col"><div class="t"><b>${t("Couleur d'accent")}</b></div><div class="accents" id="accents">${Object.entries(ACCENTS).map(([k, v]) => `<button class="accent ${s.accent === k ? 'on' : ''}" data-accent="${k}" style="--a:${v.sw}" aria-label="${esc(t(v.name))}" data-tip="${esc(t(v.name))}"></button>`).join('')}</div></div>
+          <div class="set-row col"><div class="t"><b>${t('Thème')}</b></div><div class="skins" id="skins">${Object.entries(SKINS).map(([k, v]) => `<button class="skin ${s.skin === k ? 'on' : ''}" data-skin="${k}" style="--a:${v.sw[0]};--b:${v.sw[1]};--c:${v.sw[2]}"><span class="sk-prev"><i></i><i></i><i></i></span><b>${t(v.name)}${v.elite ? ` <span class="elite-tag">${t('Élite')}</span>` : ''}</b><small>${t(v.desc)}</small></button>`).join('')}</div></div>
+          <div class="set-row col"><div class="t"><b>${t("Couleur d'accent")}</b></div><div class="accents" id="accents">${Object.entries(ACCENTS).map(([k, v]) => `<button class="accent ${s.accent === k ? 'on' : ''}" data-accent="${k}" style="--a:${v.sw}" aria-label="${esc(t(v.name))}" data-tip="${esc(t(v.name))}"></button>`).join('')}<label class="accent accent-custom ${s.accent === 'custom' && Pro.expert ? 'on' : ''}" data-tip="${esc(t('Sur mesure') + (Pro.expert ? '' : ' · ' + t('Élite')))}" style="--a:${s.accentHex || '#B08D57'}"><input type="color" id="accentHex" value="${s.accentHex || '#B08D57'}" aria-label="${esc(t('Sur mesure'))}">${Pro.expert ? '' : icon('crown')}</label></div></div>
           ${setRow(t('Typographie'), '', segCtl('font', Object.entries(FONTS).map(([k, v]) => [k, t(v.name)]), s.font))}
           ${setRow(t('Taille du texte'), '', segCtl('textSize', [[0.92, 'A−'], [1, 'A'], [1.1, 'A+'], [1.22, 'A++']], s.textSize))}
           ${setRow(t('Densité'), '', segCtl('density', [['comfy', t('Aérée')], ['compact', t('Compacte')]], s.density))}
@@ -7801,6 +7841,7 @@ Views.settings = arg => {
 
     <section class="sec" id="sStudy"><div class="sec-h"><div><h2 class="h2">${t('Révision')}</h2></div></div>
     <article class="panel rise"><div class="settings">
+      ${setRow(t('Intervalle maximal') + ` <span class="elite-tag">${t('Élite')}</span>`, t('Aucune fiche ne revient plus tard que ce délai : utile avant un concours, ou pour une matière à garder fraîche.'), `<div class="ctl"><select class="input" id="setMaxIvl" style="width:auto">${[[0, t('Aucun')], [30, t('1 mois')], [90, t('3 mois')], [180, t('6 mois')], [365, t('1 an')]].map(([v, l]) => `<option value="${v}" ${(+s.maxIvl || 0) === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>`)}
       ${setRow(t('Objectif de rétention'), t("La probabilité visée de vous souvenir d'une fiche le jour où elle revient. Plus c'est haut, plus il y a de révisions."), `<div class="ctl"><input type="range" min="0.8" max="0.97" step="0.01" value="${s.retention}" id="setRet"><b class="tnum" id="retOut" style="width:56px">${pct(s.retention)}</b></div>`)}
       ${setRow(t('Nouvelles fiches par jour'), s.followPlan ? t("Avec le programme : plafond quotidien pour les paquets sans examen. Aujourd'hui, le programme prévoit {n} nouvelles fiches au total.", { n: Plan.todayNewTotal() }) : t('Au-delà, elles attendent le lendemain.'), `<div class="ctl"><input type="range" min="0" max="100" step="5" value="${s.newPerDay}" id="setNew"><b class="tnum" id="newOut" style="width:56px">${s.newPerDay}</b></div>`)}
       ${setRow(t('Objectif quotidien'), t('Nombre de révisions pour remplir la jauge du jour.'), `<div class="ctl"><input type="range" min="10" max="300" step="10" value="${s.goal}" id="setGoal"><b class="tnum" id="goalOut" style="width:56px">${s.goal}</b></div>`)}
@@ -7875,7 +7916,12 @@ Hooks.settings = arg => {
   }));
   $$('[data-study]').forEach(seg => seg.addEventListener('click', e => { const b = e.target.closest('[data-val]'); if (!b) return; st[seg.dataset.study] = b.dataset.val; Store.touch('profile'); $$('button', seg).forEach(x => x.classList.toggle('on', x === b)); }));
   $$('[data-toggle]').forEach(x => x.addEventListener('click', () => { const k = x.dataset.toggle; s[k] = !s[k]; x.classList.toggle('on', s[k]); x.setAttribute('aria-pressed', s[k]); Store.touch('profile'); if (k === 'desk') Custom.apply(); if (k === 'followPlan') App.chrome(); }));
-  $('#skins')?.addEventListener('click', e => { const b = e.target.closest('[data-skin]'); if (!b) return; s.skin = b.dataset.skin; Store.touch('profile'); $$('#skins .skin').forEach(x => x.classList.toggle('on', x === b)); Custom.apply(); });
+  $('#setMaxIvl')?.addEventListener('change', e => { if (!Pro.expert) { e.target.value = '0'; Pro.upsell('atelier'); return; } s.maxIvl = +e.target.value; Store.touch('profile'); toast(t('Intervalle maximal : {x}', { x: e.target.selectedOptions[0].textContent }), 'clock'); });
+  const hex = $('#accentHex');
+  hex?.addEventListener('click', e => { if (!Pro.expert) { e.preventDefault(); Pro.upsell('atelier'); } });
+  hex?.addEventListener('input', e => { s.accent = 'custom'; s.accentHex = e.target.value; const lb = e.target.parentElement; lb.style.setProperty('--a', e.target.value); $$('#accents .accent').forEach(x => x.classList.toggle('on', x === lb)); Custom.apply(); });
+  hex?.addEventListener('change', () => Store.touch('profile'));
+  $('#skins')?.addEventListener('click', e => { const b = e.target.closest('[data-skin]'); if (!b) return; if (SKINS[b.dataset.skin]?.elite && !Pro.expert) return Pro.upsell('atelier'); s.skin = b.dataset.skin; Store.touch('profile'); $$('#skins .skin').forEach(x => x.classList.toggle('on', x === b)); Custom.apply(); });
   $('#accents')?.addEventListener('click', e => { const b = e.target.closest('[data-accent]'); if (!b) return; s.accent = b.dataset.accent; Store.touch('profile'); $$('#accents .accent').forEach(x => x.classList.toggle('on', x === b)); Custom.apply(); });
   $$('[data-setlang]').forEach(b => b.addEventListener('click', () => changeLang(b.dataset.setlang)));
   $('#stName')?.addEventListener('change', e => { st.name = e.target.value.trim().slice(0, 40); Store.touch('profile'); });
@@ -7938,7 +7984,7 @@ const Onb = {
       <div class="two" style="width:min(560px,100%);text-align:left"><div class="field"><label for="oExam">${t('Examen')}</label><input class="input" id="oExam" value="${esc(o.exam)}" placeholder="${esc(t('Ex. Bac de français'))}"></div><div class="field"><label for="oDate">${t('Date')}</label><input class="input" type="date" id="oDate" value="${esc(o.date)}" min="${dayKey()}"></div></div>
       ${nav()}${dots}`;
     else body = `<div class="kicker">${t('4 · votre salle')}</div><h1 class="display" style="font-size:clamp(34px,6vw,60px)">${words(t('Choisissez votre ambiance.'))}</h1>
-      <div class="skins onb-skins" data-grp="skin">${Object.entries(SKINS).map(([k, v]) => `<button class="skin ${o.skin === k ? 'on' : ''}" data-v="${k}" style="--a:${v.sw[0]};--b:${v.sw[1]};--c:${v.sw[2]}"><span class="sk-prev"><i></i><i></i><i></i></span><b>${t(v.name)}</b></button>`).join('')}</div>
+      <div class="skins onb-skins" data-grp="skin">${Object.entries(SKINS).filter(([, v]) => !v.elite).map(([k, v]) => `<button class="skin ${o.skin === k ? 'on' : ''}" data-v="${k}" style="--a:${v.sw[0]};--b:${v.sw[1]};--c:${v.sw[2]}"><span class="sk-prev"><i></i><i></i><i></i></span><b>${t(v.name)}</b></button>`).join('')}</div>
       <div class="kicker" style="margin-top:4px">${t('Ton de Mentor')}</div>
       <div class="onb-choices sm" data-grp="tone">${Object.entries(TONES).map(([k, v]) => `<button class="choice ${o.tone === k ? 'on' : ''}" data-v="${k}"><b>${t(v.label)}</b><small>${t(v.desc)}</small></button>`).join('')}</div>
       <div class="hero-actions" style="justify-content:center"><button class="btn btn-lg btn-ghost" data-onb="back">${t('Retour')}</button><button class="btn btn-brass btn-lg" data-onb="finish">${icon('check')}${t('Entrer dans la salle')}</button></div>${dots}`;
@@ -8144,7 +8190,7 @@ const Study = {
   bottomHTML(showInput) {
     const [c] = this.cur;
     if (this.flipped) {
-      const prev = FSRS.preview(c.srs, Date.now(), S.profile.settings.retention);
+      const prev = FSRS.preview(c.srs, Date.now(), retFor(this.cur?.[1])).map(capMs);
       return `<div class="grades">${[1, 2, 3, 4].map(g => `<button class="grade ${this.verdict && this.verdict.grade === g ? 'sugg' : ''}" data-act="st-grade" data-g="${g}" data-sugg="${esc(t('Suggéré'))}"><kbd>${g}</kbd><b>${t(GRADE_LABEL[g])}</b><span>${fmtIvl(prev[g - 1])}</span></button>`).join('')}</div>`;
     }
     if (c.type === 'order') return `<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><span class="muted" style="font-size:13.5px;align-self:center">${t('Touchez les éléments dans le bon ordre.')}</span><button class="btn btn-ghost btn-sm" data-act="st-flip">${t('Afficher la réponse')}</button></div>`;
@@ -8314,7 +8360,7 @@ const Study = {
     const [c, d] = this.cur; const now = Date.now();
     const before = JSON.parse(JSON.stringify(c.srs)); const wasNew = c.srs.state === 0;
     const logBefore = JSON.parse(JSON.stringify(S.profile.log[dayKey()] || null)); const xpBefore = S.profile.xp, flagsBefore = { ...S.profile.flags };
-    c.srs = FSRS.schedule(c.srs, g, now, S.profile.settings.retention);
+    c.srs = capIvl(FSRS.schedule(c.srs, g, now, retFor(d)), now);
     if (g === 1) { this.fails[c.id] = (this.fails[c.id] || 0) + 1; if (isLeech(c) && !c.tags.includes('leech')) c.tags.push('leech'); this.stats.wrong.push(c.id); }
     const xp = logReview(g, now - this.t0, wasNew, d.id);
     this.stats.n++; this.stats.g[g]++; if (g >= 2) this.stats.ok++; this.stats.xp += xp;
@@ -10679,7 +10725,9 @@ const SKINS = {
   midnight: { name: N_('Minuit'), desc: N_('Bleu nuit, encre et cuivre.'), sw: ['#0A0F1D', '#172038', '#D69366'] },
   atelier: { name: N_('Atelier'), desc: N_('Terre cuite, crème et olive.'), sw: ['#E9DFD1', '#FFFCF7', '#B0613A'] },
   ebony: { name: N_('Ébène'), desc: N_('Noir profond et or, pour les écrans OLED.'), sw: ['#030303', '#131313', '#D4AF37'] },
-  contrast: { name: N_('Contraste'), desc: N_('Noir sur blanc, lisibilité maximale.'), sw: ['#FFFFFF', '#EDEDED', '#0B4FC4'] }
+  contrast: { name: N_('Contraste'), desc: N_('Noir sur blanc, lisibilité maximale.'), sw: ['#FFFFFF', '#EDEDED', '#0B4FC4'] },
+  velours: { name: N_('Velours'), desc: N_('Bordeaux profond et or : réservé à Élite.'), sw: ['#160A0E', '#2A1520', '#D4AF37'], elite: true },
+  marbre: { name: N_('Marbre'), desc: N_('Blanc veiné, encre noire et or : réservé à Élite.'), sw: ['#ECEAE6', '#FFFFFF', '#A8832E'], elite: true }
 };
 const ACCENTS = {
   auto: { name: N_("Celui du thème"), sw: '' },
@@ -10699,8 +10747,16 @@ const Custom = {
   apply() {
     const s = S.profile.settings, r = document.documentElement;
     const set = (k, v) => { if (v == null || v === '') r.removeAttribute('data-' + k); else r.setAttribute('data-' + k, v); };
-    set('skin', s.skin === 'auto' ? null : s.skin);
-    set('accent', s.accent === 'auto' ? null : s.accent);
+    const elite = typeof Pro !== 'undefined' && Pro.expert;
+    set('skin', s.skin === 'auto' || (SKINS[s.skin]?.elite && !elite) ? null : s.skin);
+    set('accent', s.accent === 'auto' || s.accent === 'custom' ? null : s.accent);
+    // Couleur d'accent sur mesure (Élite) : toute la famille « laiton » dérive de la teinte choisie.
+    const AV = ['--brass', '--brass-hi', '--brass-lo', '--brass-btn', '--on-brass', '--brass-text', '--brass-soft', '--brass-glow'];
+    if (elite && s.accent === 'custom' && /^#[0-9a-f]{6}$/i.test(s.accentHex || '')) {
+      const h = s.accentHex, [rr, gg, bb] = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)), lum = (0.299 * rr + 0.587 * gg + 0.114 * bb) / 255;
+      const v = { '--brass': h, '--brass-hi': `color-mix(in srgb, ${h} 62%, white)`, '--brass-lo': `color-mix(in srgb, ${h} 68%, black)`, '--brass-btn': h, '--on-brass': lum > 0.6 ? '#1B1407' : '#FFFFFF', '--brass-text': `color-mix(in srgb, ${h} 72%, var(--text))`, '--brass-soft': `color-mix(in srgb, ${h} 13%, transparent)`, '--brass-glow': `color-mix(in srgb, ${h} 35%, transparent)` };
+      AV.forEach(k => r.style.setProperty(k, v[k]));
+    } else AV.forEach(k => r.style.removeProperty(k));
     set('font', s.font === 'classic' ? null : s.font);
     set('density', s.density === 'comfy' ? null : s.density);
     set('card', s.cardStyle === 'ruled' ? null : s.cardStyle);
@@ -12800,6 +12856,24 @@ TR = {
   "Reprendre": ["Retake", "Repetir", "Neu aufnehmen", "Refazer"],
   "Recadrer": ["Adjust corners", "Ajustar esquinas", "Ecken anpassen", "Ajustar cantos"],
   "Garder": ["Keep", "Conservar", "Behalten", "Manter"],
+  "Velours": ["Velvet", "Terciopelo", "Samt", "Veludo"],
+  "Bordeaux profond et or : réservé à Élite.": ["Deep burgundy and gold: Elite only.", "Burdeos profundo y oro: solo Élite.", "Tiefes Bordeaux und Gold: nur für Elite.", "Bordô profundo e ouro: só no Elite."],
+  "Marbre": ["Marble", "Mármol", "Marmor", "Mármore"],
+  "Blanc veiné, encre noire et or : réservé à Élite.": ["Veined white, black ink and gold: Elite only.", "Blanco veteado, tinta negra y oro: solo Élite.", "Geädertes Weiß, schwarze Tinte und Gold: nur für Elite.", "Branco rajado, tinta preta e ouro: só no Elite."],
+  "Sur mesure": ["Custom", "A medida", "Nach Maß", "Sob medida"],
+  "Intervalle maximal": ["Maximum interval", "Intervalo máximo", "Maximales Intervall", "Intervalo máximo"],
+  "Aucune fiche ne revient plus tard que ce délai : utile avant un concours, ou pour une matière à garder fraîche.": ["No card comes back later than this: useful before a competitive exam, or for a subject you want to keep fresh.", "Ninguna tarjeta vuelve más tarde que este plazo: útil antes de una oposición o para una materia que quieres mantener fresca.", "Keine Karte kommt später als nach dieser Frist zurück: nützlich vor einer Prüfung oder für ein Fach, das frisch bleiben soll.", "Nenhum cartão volta depois desse prazo: útil antes de um concurso ou para uma matéria que você quer manter fresca."],
+  "Intervalle maximal : {x}": ["Maximum interval: {x}", "Intervalo máximo: {x}", "Maximales Intervall: {x}", "Intervalo máximo: {x}"],
+  "Rétention visée pour ce paquet": ["Target retention for this deck", "Retención objetivo para este mazo", "Ziel-Behaltensrate für diesen Stapel", "Retenção desejada para este baralho"],
+  "Comme les réglages ({x})": ["Same as settings ({x})", "Como en los ajustes ({x})", "Wie in den Einstellungen ({x})", "Como nas configurações ({x})"],
+  "L'atelier : thèmes Velours et Marbre, couleur sur mesure": ["The workshop: Velvet and Marble themes, custom colour", "El taller: temas Terciopelo y Mármol, color a medida", "Die Werkstatt: Themes Samt und Marmor, Farbe nach Maß", "O ateliê: temas Veludo e Mármore, cor sob medida"],
+  "Mémoire sur mesure : rétention par paquet, intervalle maximal": ["Memory your way: retention per deck, maximum interval", "Memoria a medida: retención por mazo, intervalo máximo", "Gedächtnis nach Maß: Behaltensrate pro Stapel, maximales Intervall", "Memória sob medida: retenção por baralho, intervalo máximo"],
+  "Thèmes exclusifs et couleur sur mesure": ["Exclusive themes and custom colour", "Temas exclusivos y color a medida", "Exklusive Themes und Farbe nach Maß", "Temas exclusivos e cor sob medida"],
+  "Rétention par paquet et intervalle maximal": ["Retention per deck and maximum interval", "Retención por mazo e intervalo máximo", "Behaltensrate pro Stapel und maximales Intervall", "Retenção por baralho e intervalo máximo"],
+  "Cet outil fait partie d'Élite": ["This tool is part of Elite", "Esta herramienta forma parte de Élite", "Dieses Werkzeug gehört zu Elite", "Esta ferramenta faz parte do Elite"],
+  "Thèmes Velours et Marbre, couleur d'accent sur mesure, rétention par paquet et intervalle maximal : Élite règle Engram à votre façon.": ["Velvet and Marble themes, a custom accent colour, retention per deck and a maximum interval: Elite tunes Engram your way.", "Temas Terciopelo y Mármol, color de acento a medida, retención por mazo e intervalo máximo: Élite ajusta Engram a tu manera.", "Themes Samt und Marmor, Akzentfarbe nach Maß, Behaltensrate pro Stapel und maximales Intervall: Elite stellt Engram auf dich ein.", "Temas Veludo e Mármore, cor de destaque sob medida, retenção por baralho e intervalo máximo: o Elite ajusta o Engram do seu jeito."],
+  "Aucun": ["None", "Ninguno", "Keins", "Nenhum"],
+  "6 mois": ["6 months", "6 meses", "6 Monate", "6 meses"],
 };
 
 /* ── Démarrage ─────────────────────────────────────────────────────── */
