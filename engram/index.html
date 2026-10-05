@@ -516,6 +516,9 @@ html.cam-on{overflow:hidden}
   --sh-panel:0 30px 60px -44px rgba(0,0,0,.3); --sh-pop:0 24px 60px -24px rgba(0,0,0,.35);
 }
 :root[data-skin="marbre"] body{background-image:linear-gradient(115deg,transparent 40%,rgba(120,120,120,.05) 41%,transparent 43%),linear-gradient(35deg,transparent 62%,rgba(150,140,120,.06) 63%,transparent 64.5%),linear-gradient(160deg,transparent 20%,rgba(110,110,110,.04) 21%,transparent 22.5%);background-attachment:fixed}
+.dict-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}#scDictLive{flex:1;min-width:200px;font-size:13px;font-style:italic;line-height:1.4}
+#scDict.on{background:color-mix(in srgb,var(--again) 12%,var(--folder));border-color:var(--again);color:var(--again)}
+.rec-dot{width:10px;height:10px;border-radius:50%;background:var(--again);flex:none;animation:recPulse 1.2s ease-in-out infinite}@keyframes recPulse{50%{opacity:.35;transform:scale(.75)}}
 .web-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}.web-row .input{flex:1;min-width:220px}
 .sync-line{display:flex;align-items:center;gap:8px}.sync-line .i{width:16px;height:16px;color:var(--brass-text);flex:none}
 .pay-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.pay-row .input{flex:1;min-width:200px;font-family:var(--f-type)}
@@ -8662,7 +8665,8 @@ Views.scan = () => {
           ${Scan.pdf && Scan.pdf.text.trim().length > 40 ? `<details class="pdf-peek"><summary>${t('Voir le texte extrait')}</summary><div class="page">${esc(Scan.pdf.text.slice(0, 3000))}</div></details>` : ''}`
       : Scan.tab === 'topic' ? `<div class="field"><label for="scTopic">${t('Sujet')}</label><input class="input" id="scTopic" value="${esc(Scan.topic)}" placeholder="${esc(t('Ex. La Révolution française, les verbes irréguliers anglais, le cycle de Krebs…'))}">
           <span class="muted" style="font-size:12.5px">${t("Les fiches sont rédigées à partir des connaissances de l'IA : relisez-les avant de les garder.")}</span></div>`
-      : `<div class="web-row"><input class="input" id="scWeb" type="url" inputmode="url" autocomplete="off" placeholder="${esc(t('Adresse d\'une page web (Wikipédia, cours en ligne…)'))}"><button class="btn" id="scWebGo">${icon('globe')}${t('Lire la page')}</button></div>
+      : `<div class="dict-row"><button class="btn" id="scDict">${icon('mic')}${t('Dicter le cours')}</button><span class="muted" id="scDictLive"></span></div>
+        <div class="web-row"><input class="input" id="scWeb" type="url" inputmode="url" autocomplete="off" placeholder="${esc(t('Adresse d\'une page web (Wikipédia, cours en ligne…)'))}"><button class="btn" id="scWebGo">${icon('globe')}${t('Lire la page')}</button></div>
         <div class="field"><label for="scText">${t('Texte du cours')}</label><textarea class="textarea" id="scText" style="min-height:220px" placeholder="${esc(t('Collez ici votre cours, vos notes, un chapitre de manuel…'))}">${esc(Scan.text)}</textarea>
           <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><span class="muted tnum" style="font:400 12px var(--f-type)" id="scCount">${t('{n} caractères', { n: Scan.text.length })}</span><button class="btn btn-ghost btn-sm" id="scSample">${icon('sparkles', 'i-sm')}${t('Essayer avec un exemple')}</button></div></div>`}
         <div class="two">
@@ -8960,6 +8964,7 @@ Hooks.scan = () => {
   };
   $('#scFile')?.addEventListener('change', e => addFiles(e.target.files));
   $('#scWebGo')?.addEventListener('click', () => Inbox.web($('#scWeb').value));
+  $('#scDict')?.addEventListener('click', () => LiveDict.toggle()); LiveDict.paint();
   $('#scWeb')?.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); Inbox.web(e.target.value); } });
   // Une capture d'écran collée (Ctrl/⌘ V) devient une page du scan.
   if (!Hooks._paste) { Hooks._paste = true; document.addEventListener('paste', e => { if (App.route.v !== 'scan' || e.target.closest?.('input,textarea')) return; const fl = [...(e.clipboardData?.files || [])].filter(f => /^image\//.test(f.type)); if (!fl.length) return; e.preventDefault(); Scan.tab = 'photo'; const max = AI.limits?.images?.maxCount || 5; for (const f of fl.slice(0, Math.max(0, max - Scan.files.length))) { Scan.files.push(f); Scan.urls.push(URL.createObjectURL(f)); } App.render(); toast(t('Capture ajoutée au scan'), 'image'); }); }
@@ -10749,6 +10754,48 @@ function calendarLinks() {
   return { google, outlook, exams, avg };
 }
 /* ── Glisser-déposer un fichier n'importe où ───────────────────────── */
+/* Dicter un cours : écoute continue (elle redémarre seule après chaque silence), le texte s'écrit dans l'onglet Texte
+   du scanner, phrase par phrase. S'arrête si l'on quitte le scanner. */
+const LiveDict = {
+  on: false, rec: null, words: 0,
+  toggle() { this.on ? this.stop() : this.start(); },
+  start() {
+    const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!Rec) { toast(t('La dictée n\'est pas disponible dans ce navigateur : essayez Chrome, Edge ou Safari.'), 'mic'); return; }
+    this.on = true; this.words = 0; this.paint(); this.listen(Rec); haptic(15);
+  },
+  listen(Rec) {
+    const r = new Rec(); r.lang = speechLang(Scan.outLang && Scan.outLang !== 'auto' ? Scan.outLang : LANG); r.continuous = true; r.interimResults = true; r.maxAlternatives = 1;
+    r.onresult = e => {
+      if (App.route.v !== 'scan') return this.stop();
+      let live = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) { const x = e.results[i]; if (x.isFinal) this.add(x[0].transcript); else live += x[0].transcript; }
+      const el = $('#scDictLive'); if (el) el.textContent = live || t('À l\'écoute…');
+    };
+    r.onerror = e => { if (['not-allowed', 'service-not-allowed', 'audio-capture'].includes(e.error)) { this.stop(); toast(t('Micro refusé : autorisez-le dans les réglages du navigateur.'), 'mic'); } };
+    r.onend = () => { if (this.on && App.route.v === 'scan') setTimeout(() => this.on && this.listen(Rec), 250); else if (this.on) this.stop(); };
+    try { r.start(); this.rec = r; } catch { this.stop(); }
+  },
+  add(seg) {
+    seg = String(seg || '').trim(); if (!seg) return;
+    seg = cap(seg); if (!/[.!?…:;]$/.test(seg)) seg += '.';
+    Scan.text = (Scan.text.trim() ? Scan.text.trim() + ' ' : '') + seg; this.words += seg.split(/\s+/).length;
+    const ta = $('#scText'); if (ta) { ta.value = Scan.text; ta.dispatchEvent(new Event('input')); ta.scrollTop = ta.scrollHeight; }
+  },
+  stop() {
+    const was = this.on; this.on = false;
+    const r = this.rec; this.rec = null; try { r?.stop(); } catch { }
+    this.paint();
+    if (was && this.words) toast(t('{n} mots transcrits. Choisissez les types de fiches, puis lancez.', { n: this.words }), 'mic');
+  },
+  paint() {
+    const b = $('#scDict'), live = $('#scDictLive'); if (!b) return;
+    b.classList.toggle('on', this.on);
+    b.innerHTML = this.on ? `<span class="rec-dot"></span>${t('Arrêter la dictée')}` : icon('mic') + t('Dicter le cours');
+    if (live) live.textContent = this.on ? t('À l\'écoute…') : t('Parlez, ou posez le téléphone près du professeur : le cours s\'écrit ici.');
+  }
+};
+
 /* ════════════════════════════════════════════════════════════════════
    ARRIVÉES : partage depuis une autre app, page web, capture collée
    · « Partager vers Engram » (Android, ordinateur) : le service worker garde
@@ -12990,6 +13037,13 @@ TR = {
   "La synchronisation démarre dès que le serveur répond.": ["Sync starts as soon as the server responds.", "La sincronización empieza en cuanto responda el servidor.", "Die Synchronisierung startet, sobald der Server antwortet.", "A sincronização começa assim que o servidor responder."],
   "Vos paquets synchronisés sur tous vos appareils": ["Your decks synced across all your devices", "Tus mazos sincronizados en todos tus dispositivos", "Deine Stapel auf allen Geräten synchronisiert", "Seus baralhos sincronizados em todos os aparelhos"],
   "Synchronisation entre appareils": ["Sync between devices", "Sincronización entre dispositivos", "Synchronisierung zwischen Geräten", "Sincronização entre aparelhos"],
+  "Dicter le cours": ["Dictate the lesson", "Dictar la clase", "Kurs diktieren", "Ditar a aula"],
+  "Arrêter la dictée": ["Stop dictation", "Detener el dictado", "Diktat beenden", "Parar o ditado"],
+  "À l'écoute…": ["Listening…", "Escuchando…", "Hört zu…", "Ouvindo…"],
+  "Parlez, ou posez le téléphone près du professeur : le cours s'écrit ici.": ["Speak, or set the phone near the teacher: the lesson writes itself here.", "Habla, o deja el teléfono cerca del profesor: la clase se escribe aquí.", "Sprich, oder leg das Telefon in die Nähe der Lehrkraft: der Kurs schreibt sich hier.", "Fale, ou deixe o celular perto do professor: a aula se escreve aqui."],
+  "La dictée n'est pas disponible dans ce navigateur : essayez Chrome, Edge ou Safari.": ["Dictation isn't available in this browser: try Chrome, Edge or Safari.", "El dictado no está disponible en este navegador: prueba Chrome, Edge o Safari.", "Diktieren ist in diesem Browser nicht verfügbar: versuch Chrome, Edge oder Safari.", "O ditado não está disponível neste navegador: tente Chrome, Edge ou Safari."],
+  "Micro refusé : autorisez-le dans les réglages du navigateur.": ["Microphone blocked: allow it in your browser settings.", "Micrófono bloqueado: autorízalo en los ajustes del navegador.", "Mikrofon blockiert: erlaube es in den Browsereinstellungen.", "Microfone bloqueado: permita nas configurações do navegador."],
+  "{n} mots transcrits. Choisissez les types de fiches, puis lancez.": ["{n} words transcribed. Choose the card types, then start.", "{n} palabras transcritas. Elige los tipos de tarjetas y empieza.", "{n} Wörter erfasst. Wähle die Kartentypen und starte.", "{n} palavras transcritas. Escolha os tipos de cartões e comece."],
 };
 
 /* ── Démarrage ─────────────────────────────────────────────────────── */
