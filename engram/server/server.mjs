@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url';
 import { createEngram } from './core.mjs';
 import { createPay } from './pay.mjs';
 import { createReader } from './read.mjs';
+import { createSync } from './sync.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const env = process.env;
@@ -22,6 +23,7 @@ const ROOT = env.ENGRAM_STATIC_DIR || path.join(here, '..');
 const engram = createEngram(env);
 const pay = createPay(env);
 const reader = createReader(env);
+const sync = createSync(env);
 
 const clientIp = req => (env.ENGRAM_TRUST_PROXY ? String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() : '') || req.socket.remoteAddress || '?';
 
@@ -39,7 +41,7 @@ async function relay(req, res, target = engram) {
   const ac = new AbortController();
   res.on('close', () => { if (!res.writableFinished) ac.abort(); });
   let body;
-  if (req.method === 'POST') {
+  if (req.method === 'POST' || req.method === 'PUT') {
     try { body = await readBody(req); }
     catch (e) {
       res.writeHead(e.code === 'prompt_too_large' ? 413 : 400, { 'content-type': 'application/json; charset=utf-8' });
@@ -84,6 +86,7 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname.startsWith('/api/ai') && await relay(req, res)) return;
     if (url.pathname.startsWith('/api/pay') && await relay(req, res, pay)) return;
     if (url.pathname === '/api/read' && await relay(req, res, reader)) return;
+    if (url.pathname.startsWith('/api/sync') && await relay(req, res, sync)) return;
     // Les liens d'invitation mènent à la page de présentation : /decouvrir sans barre finale y mène aussi.
     if (url.pathname === '/decouvrir' && req.method === 'GET') { res.writeHead(301, { location: '/decouvrir/' + url.search }); return res.end(); }
     const file = STATIC[url.pathname];
