@@ -444,6 +444,47 @@ button.ochip:hover{transform:translateY(-2px);border-color:var(--pen)}
 .ochip.wrong{border-color:var(--pen);background:color-mix(in srgb,var(--pen) 8%,var(--paper))}
 .ochip.placed{animation:popIn .35s var(--spring)}
 .pay-box{display:grid;gap:10px;padding:18px 20px}.pay-box p{margin:0;font-size:13.5px;line-height:1.5}
+/* Scanner par caméra */
+.scan-cam{border-style:solid}.scan-cam .i{color:#1B1407}.scan-cam small{color:rgba(27,20,7,.72)}
+html.cam-on{overflow:hidden}
+.cam{position:fixed;inset:0;z-index:290;background:#0D0B08;color:#F4EBD8;display:grid;grid-template-rows:1fr auto;animation:fadeIn .25s ease both}
+.cam.out{opacity:0;transition:opacity .25s}
+.cam-stage{position:relative;overflow:hidden;min-height:0}
+.cam video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
+.cam-quad{position:absolute;pointer-events:none;overflow:visible}
+.cam-quad polygon{fill:rgba(216,176,96,.14);stroke:#E8C77A;stroke-width:3;stroke-linejoin:round;opacity:0;transition:opacity .25s}
+.cam.found .cam-quad polygon{opacity:1}
+.cam-hint{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);padding:8px 14px;border-radius:99px;background:rgba(13,11,8,.72);backdrop-filter:blur(8px);font:500 13.5px/1.2 var(--f-ui);white-space:nowrap}
+.cam-top{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:10px;padding:calc(12px + env(safe-area-inset-top,0px)) 14px 12px;background:linear-gradient(rgba(0,0,0,.55),transparent)}
+.cam-count{font:600 12px/1 var(--f-type);letter-spacing:.12em;text-transform:uppercase;color:#E8C77A}
+.cam-ic{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(255,255,255,.22);background:rgba(13,11,8,.55);color:#F4EBD8}
+.cam-ic.on{background:#E8C77A;color:#1B1407}
+.cam-pill{height:34px;padding:0 14px;border-radius:99px;border:1px solid rgba(255,255,255,.25);background:rgba(13,11,8,.55);color:#F4EBD8;font:600 12.5px var(--f-ui)}
+.cam-pill.on{background:#E8C77A;border-color:#E8C77A;color:#1B1407}
+.cam-bar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;padding:14px 16px calc(16px + env(safe-area-inset-bottom,0px));background:#0D0B08}
+.cam-tray{display:flex;gap:6px;overflow-x:auto;min-height:56px;align-items:center}
+.cam-tray img{height:56px;width:42px;object-fit:cover;border-radius:4px;border:1px solid rgba(232,199,122,.6);animation:popIn .35s var(--spring)}
+.cam-done{justify-self:end}
+.cam-shot{position:relative;width:76px;height:76px;border-radius:50%;border:0;background:transparent;display:grid;place-items:center}
+.cam-shot svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.cam-shot .r{fill:none;stroke:#E8C77A;stroke-width:4;stroke-dasharray:226;stroke-dashoffset:226;transition:stroke-dashoffset .16s linear}
+.cam-shot::before{content:'';position:absolute;inset:3px;border-radius:50%;border:2px solid rgba(255,255,255,.75)}
+.cam-shot i{width:58px;height:58px;border-radius:50%;background:#F4EBD8;transition:transform .15s}
+.cam-shot:active i{transform:scale(.9)}
+.cam.flash .cam-stage::after{content:'';position:absolute;inset:0;background:#fff;animation:fadeOut .22s ease both}
+@keyframes fadeOut{from{opacity:.85}to{opacity:0}}
+.cam-review{position:absolute;inset:0;z-index:2;display:grid;grid-template-rows:1fr auto;background:#0D0B08}
+.cr-stage{position:relative;display:grid;place-items:center;padding:calc(64px + env(safe-area-inset-top,0px)) 16px 12px;min-height:0}
+.cr-out{max-width:100%;max-height:100%;border-radius:4px;box-shadow:0 18px 50px rgba(0,0,0,.6)}
+.cr-img{position:relative;max-width:100%;max-height:100%;touch-action:none}
+.cr-img img{display:block;max-width:100%;max-height:calc(100dvh - 190px)}
+.cr-img svg{position:absolute;inset:0;width:100%;height:100%}
+.cr-img polygon{fill:rgba(216,176,96,.16);stroke:#E8C77A;stroke-width:2}
+.cr-h{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:rgba(232,199,122,.35);border:2px solid #E8C77A;touch-action:none;cursor:grab}
+.cr-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 16px calc(14px + env(safe-area-inset-bottom,0px))}
+.cr-bar .seg{background:rgba(255,255,255,.08)}.cr-bar .seg button{color:#F4EBD8}.cr-bar .seg button.on{color:#1B1407;background:#E8C77A}
+.cr-bar .btn:not(.btn-gilt){background:rgba(255,255,255,.08);color:#F4EBD8;border-color:rgba(255,255,255,.2)}
+@media (max-width:620px){.cam-done span{display:none}.cr-bar .btn{flex:1}.cr-bar .seg{width:100%}}
 .pay-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.pay-row .input{flex:1;min-width:200px;font-family:var(--f-type)}
 .order-list .ochip{flex-wrap:wrap;row-gap:2px}
 .ochip .you{flex-basis:100%;padding-left:23px;font:400 12px/1.3 var(--f-type);color:var(--pen);opacity:.9}
@@ -8518,6 +8559,7 @@ Views.scan = () => {
       <article class="panel rise" style="display:flex;flex-direction:column;gap:20px">
         <div class="seg" id="scTab">${canPhoto || AI.status === 'checking' ? `<button class="${Scan.tab === 'photo' ? 'on' : ''}" data-tab="photo">${icon('camera', 'i-sm')} ${t('Photo')}</button>` : ''}<button class="${Scan.tab === 'pdf' ? 'on' : ''}" data-tab="pdf">${icon('file', 'i-sm')} PDF</button><button class="${Scan.tab === 'text' ? 'on' : ''}" data-tab="text">${icon('type', 'i-sm')} ${t('Texte')}</button>${AI.on || AI.status === 'checking' ? `<button class="${Scan.tab === 'topic' ? 'on' : ''}" data-tab="topic">${icon('sparkles', 'i-sm')} ${t('Sujet')}</button>` : ''}</div>
         ${Scan.tab === 'photo' ? `
+          <button class="btn btn-gilt scan-ink scan-cam" id="scCam">${icon('camera')}<span><b>${t('Scanner avec la caméra')}</b><small>${t('Les bords de la page sont repérés, la page est redressée ; plusieurs pages à la suite.')}</small></span></button>
           <label class="drop" id="scDrop" for="scFile"><div class="ico">${icon('camera')}</div><b>${t('Déposez vos pages de cours')}</b>
             <span class="muted" style="font-size:13.5px">${t('ou cliquez pour choisir · jusqu\'à {n} pages · JPEG, PNG, WebP', { n: maxImg })}</span></label>
           <button class="btn scan-ink" id="scInk">${icon('nib')}<span><b>${t('Écrire mes notes à la main')}</b><small>${t('Sur iPad avec le stylet, ou au doigt : la page manuscrite devient des fiches.')}</small></span></button>
@@ -8598,6 +8640,223 @@ const genAny = (r, i) => r.type === 'occlusion' ? genOccHTML(r, i) : genHTML(r, 
 const scanCards = () => Scan.results.filter(r => r.on && !r.bad).reduce((a, r) => a + (r.type === 'occlusion' ? r.masks.length : 1), 0);
 function scanCount() { const on = scanCards(), add = $('#scAdd'); if (add) { add.disabled = !on; add.innerHTML = icon('drawer') + t('Ranger {x}', { x: plural(on, 'fiche|fiches') }); } }
 function refreshGen(i) { const el = $(`#genList [data-gi="${i}"]`); if (el) el.outerHTML = genAny(Scan.results[i], i); }
+/* ════════════════════════════════════════════════════════════════════
+   SCANNER PAR CAMÉRA
+   · Viseur en direct ; la page est repérée sur une image réduite (160 px) :
+     papier = pixels clairs et peu colorés, plus grande zone d'un seul tenant,
+     coins = points extrêmes selon les deux diagonales.
+   · Déclenchement automatique quand le cadre ne bouge plus (≈ 1 s), ou au
+     bouton. La page est redressée (homographie, échantillonnage bilinéaire),
+     puis passée au filtre « document » (niveaux étirés canal par canal).
+   · Coins réglables au doigt avant de garder la page ; plusieurs pages à
+     la suite ; lampe si l'appareil en a une.
+   · Sans caméra accessible : le sélecteur de photos du téléphone prend le relais.
+   ════════════════════════════════════════════════════════════════════ */
+const DocCam = {
+  /** Coins de la page dans une image réduite ; null si rien de fiable. Coordonnées 0..1, ordre : haut-gauche, haut-droit, bas-droit, bas-gauche. */
+  detect(data, W, H) {
+    const n = W * H, L = new Uint8Array(n), hist = new Uint32Array(256);
+    for (let i = 0, j = 0; i < n; i++, j += 4) {
+      const r = data[j], g = data[j + 1], b = data[j + 2], l = (r * 77 + g * 150 + b * 29) >> 8;
+      L[i] = Math.max(r, g, b) - Math.min(r, g, b) > 70 ? 0 : l; hist[L[i]]++;
+    }
+    // Seuil d'Otsu : sépare le papier du bureau.
+    let sum = 0; for (let i = 0; i < 256; i++) sum += i * hist[i];
+    let sB = 0, wB = 0, best = 0, thr = 128;
+    for (let i = 0; i < 256; i++) { wB += hist[i]; if (!wB) continue; const wF = n - wB; if (!wF) break; sB += i * hist[i]; const mB = sB / wB, mF = (sum - sB) / wF, v = wB * wF * (mB - mF) ** 2; if (v > best) { best = v; thr = i; } }
+    thr = Math.max(thr, 90);
+    // Plus grande zone claire d'un seul tenant.
+    const lab = new Int32Array(n), stack = new Int32Array(n); let bestLab = 0, bestN = 0, cur = 0;
+    for (let s0 = 0; s0 < n; s0++) {
+      if (lab[s0] || L[s0] <= thr) continue;
+      cur++; let top = 0, cnt = 0; stack[top++] = s0; lab[s0] = cur;
+      while (top) {
+        const q = stack[--top], x = q % W; cnt++;
+        if (x > 0 && !lab[q - 1] && L[q - 1] > thr) { lab[q - 1] = cur; stack[top++] = q - 1; }
+        if (x < W - 1 && !lab[q + 1] && L[q + 1] > thr) { lab[q + 1] = cur; stack[top++] = q + 1; }
+        if (q >= W && !lab[q - W] && L[q - W] > thr) { lab[q - W] = cur; stack[top++] = q - W; }
+        if (q < n - W && !lab[q + W] && L[q + W] > thr) { lab[q + W] = cur; stack[top++] = q + W; }
+      }
+      if (cnt > bestN) { bestN = cnt; bestLab = cur; }
+    }
+    if (bestN < n * 0.12) return null;
+    let tl = [0, 0, Infinity], tr = [0, 0, -Infinity], br = [0, 0, -Infinity], bl = [0, 0, Infinity];
+    for (let q = 0; q < n; q++) {
+      if (lab[q] !== bestLab) continue;
+      const x = q % W, y = (q / W) | 0, a = x + y, d = x - y;
+      if (a < tl[2]) tl = [x, y, a]; if (a > br[2]) br = [x, y, a];
+      if (d > tr[2]) tr = [x, y, d]; if (d < bl[2]) bl = [x, y, d];
+    }
+    const quad = [tl, tr, br, bl].map(([x, y]) => [(x + 0.5) / W, (y + 0.5) / H]);
+    const area = Math.abs(quad.reduce((acc, [x, y], i) => { const [x2, y2] = quad[(i + 1) % 4]; return acc + x * y2 - x2 * y; }, 0)) / 2;
+    // Une zone qui ne ressemble pas à un quadrilatère (main, ombre) : on ne propose rien.
+    if (area < 0.1 || bestN / n > area * 1.25 || bestN / n < area * 0.72) return null;
+    return quad;
+  },
+  /** Homographie qui envoie le rectangle (0,0)-(w,h) sur le quadrilatère q (pixels). */
+  homography(w, h, q) {
+    const P = [[0, 0], [w, 0], [w, h], [0, h]], A = [], B = [];
+    for (let i = 0; i < 4; i++) {
+      const [x, y] = P[i], [u, v] = q[i];
+      A.push([x, y, 1, 0, 0, 0, -u * x, -u * y]); B.push(u);
+      A.push([0, 0, 0, x, y, 1, -v * x, -v * y]); B.push(v);
+    }
+    for (let c = 0; c < 8; c++) {
+      let piv = c; for (let r = c + 1; r < 8; r++) if (Math.abs(A[r][c]) > Math.abs(A[piv][c])) piv = r;
+      [A[c], A[piv]] = [A[piv], A[c]]; [B[c], B[piv]] = [B[piv], B[c]];
+      for (let r = 0; r < 8; r++) { if (r === c) continue; const f = A[r][c] / A[c][c]; for (let k = c; k < 8; k++) A[r][k] -= f * A[c][k]; B[r] -= f * B[c]; }
+    }
+    return B.map((b, i) => b / A[i][i]);
+  },
+  /** Redresse la page : quad en coordonnées 0..1 de l'image source. */
+  warp(src, quad, max = 2000) {
+    const SW = src.width, SH = src.height, q = quad.map(([x, y]) => [x * SW, y * SH]);
+    const d = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+    let w = Math.max(d(q[0], q[1]), d(q[3], q[2])), h = Math.max(d(q[0], q[3]), d(q[1], q[2]));
+    const k = Math.min(1, max / Math.max(w, h)); w = Math.max(1, Math.round(w * k)); h = Math.max(1, Math.round(h * k));
+    const H = this.homography(w, h, q);
+    const sd = src.getContext('2d').getImageData(0, 0, SW, SH).data;
+    const out = document.createElement('canvas'); out.width = w; out.height = h;
+    const ox = out.getContext('2d'), img = ox.createImageData(w, h), od = img.data;
+    for (let y = 0, o = 0; y < h; y++) for (let x = 0; x < w; x++, o += 4) {
+      const z = H[6] * x + H[7] * y + 1, u = (H[0] * x + H[1] * y + H[2]) / z, v = (H[3] * x + H[4] * y + H[5]) / z;
+      const x0 = Math.min(SW - 2, Math.max(0, u | 0)), y0 = Math.min(SH - 2, Math.max(0, v | 0)), fx = Math.min(1, Math.max(0, u - x0)), fy = Math.min(1, Math.max(0, v - y0));
+      const i00 = (y0 * SW + x0) * 4, i10 = i00 + 4, i01 = i00 + SW * 4, i11 = i01 + 4;
+      for (let c = 0; c < 3; c++) od[o + c] = (sd[i00 + c] * (1 - fx) + sd[i10 + c] * fx) * (1 - fy) + (sd[i01 + c] * (1 - fx) + sd[i11 + c] * fx) * fy;
+      od[o + 3] = 255;
+    }
+    ox.putImageData(img, 0, 0);
+    return out;
+  },
+  /** Filtres : « doc » (papier blanc, encre nette), « bw » (noir et blanc), « color » (tel quel). */
+  filter(cv, mode) {
+    const out = document.createElement('canvas'); out.width = cv.width; out.height = cv.height;
+    const ox = out.getContext('2d'); ox.drawImage(cv, 0, 0); if (mode === 'color') return out;
+    const img = ox.getImageData(0, 0, out.width, out.height), d = img.data, n = d.length / 4;
+    const lo = [], hi = [];
+    for (let c = 0; c < 3; c++) {
+      const h = new Uint32Array(256); for (let i = c; i < d.length; i += 4) h[d[i]]++;
+      let a = 0, k = 0; while (k < 255 && (a += h[k]) < n * 0.02) k++; lo[c] = k;
+      a = 0; k = 255; while (k > 0 && (a += h[k]) < n * 0.08) k--; hi[c] = Math.max(lo[c] + 30, k);
+    }
+    for (let i = 0; i < d.length; i += 4) {
+      let r = (d[i] - lo[0]) / (hi[0] - lo[0]), g = (d[i + 1] - lo[1]) / (hi[1] - lo[1]), b = (d[i + 2] - lo[2]) / (hi[2] - lo[2]);
+      if (mode === 'bw') { const l = Math.min(1, Math.max(0, 0.3 * r + 0.59 * g + 0.11 * b)) ** 1.8; r = g = b = l; }
+      else { r = Math.min(1, Math.max(0, r)) ** 1.25; g = Math.min(1, Math.max(0, g)) ** 1.25; b = Math.min(1, Math.max(0, b)) ** 1.25; }
+      d[i] = r * 255; d[i + 1] = g * 255; d[i + 2] = b * 255;
+    }
+    ox.putImageData(img, 0, 0);
+    return out;
+  },
+  /** Ouvre le scanner. o.max : pages au plus ; o.done(files) reçoit les pages gardées (JPEG). */
+  async open(o = {}) {
+    const max = o.max || 5;
+    if (!navigator.mediaDevices?.getUserMedia) return this.fallback(o);
+    const el = document.createElement('div'); el.className = 'cam'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', t('Scanner avec la caméra'));
+    el.innerHTML = `<div class="cam-stage"><video playsinline muted autoplay></video><svg class="cam-quad" viewBox="0 0 1 1" preserveAspectRatio="none"><polygon vector-effect="non-scaling-stroke"/></svg><div class="cam-hint">${t('Cadrez une page de cours…')}</div></div>
+      <div class="cam-top"><button class="cam-ic" data-c="close" aria-label="${esc(t('Fermer'))}">${icon('x')}</button><span class="cam-count"></span><span style="flex:1"></span><button class="cam-ic" data-c="torch" hidden aria-label="${esc(t('Lampe'))}">${icon('bulb')}</button><button class="cam-pill on" data-c="auto">${t('Auto')}</button></div>
+      <div class="cam-bar"><div class="cam-tray"></div><button class="cam-shot" data-c="shot" aria-label="${esc(t('Prendre la page'))}"><svg viewBox="0 0 80 80"><circle class="r" cx="40" cy="40" r="36"/></svg><i></i></button><button class="btn btn-gilt cam-done" data-c="done" disabled>${icon('check')}<span>${t('Terminé')}</span></button></div>
+      <div class="cam-review" hidden></div>`;
+    document.body.append(el); document.documentElement.classList.add('cam-on');
+    const video = el.querySelector('video'), poly = el.querySelector('polygon'), hint = el.querySelector('.cam-hint'), ring = el.querySelector('.cam-shot .r');
+    const pages = []; let stream = null, track = null, auto = true, quad = null, still = 0, raf = 0, last = 0, busy = false, torch = false, closed = false;
+    const close = () => { if (closed) return; closed = true; cancelAnimationFrame(raf); stream?.getTracks().forEach(x => x.stop()); el.classList.add('out'); document.documentElement.classList.remove('cam-on'); setTimeout(() => el.remove(), 260); };
+    const count = () => { el.querySelector('.cam-count').textContent = pages.length ? t('{n} sur {m}', { n: pages.length, m: max }) : t('Page 1'); el.querySelector('[data-c="done"]').disabled = !pages.length; el.querySelector('.cam-tray').innerHTML = pages.map((p, i) => `<img src="${p.url}" alt="${esc(t('Page {n}', { n: i + 1 }))}">`).join(''); };
+    count();
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: 'environment' }, width: { ideal: 2560 }, height: { ideal: 1920 } } });
+    } catch (e) {
+      close();
+      if (e?.name === 'NotAllowedError') toast(t('Accès à la caméra refusé : autorisez-le dans les réglages du navigateur, ou choisissez des photos.'), 'camera');
+      return this.fallback(o);
+    }
+    if (closed) { stream.getTracks().forEach(x => x.stop()); return; }
+    video.srcObject = stream; track = stream.getVideoTracks()[0];
+    try { if (track.getCapabilities?.().torch) el.querySelector('[data-c="torch"]').hidden = false; } catch { }
+    await video.play().catch(() => { });
+    // Le cadre suit l'image affichée (object-fit: contain).
+    const fit = () => { const st = el.querySelector('.cam-stage'), sw = st.clientWidth, sh = st.clientHeight, vr = (video.videoWidth || 4) / (video.videoHeight || 3); let w = sw, h = sw / vr; if (h > sh) { h = sh; w = sh * vr; } const svg = el.querySelector('.cam-quad'); Object.assign(svg.style, { width: w + 'px', height: h + 'px', left: (sw - w) / 2 + 'px', top: (sh - h) / 2 + 'px' }); };
+    video.addEventListener('loadedmetadata', fit); addEventListener('resize', fit); fit();
+    const small = document.createElement('canvas'), sx = small.getContext('2d', { willReadFrequently: true });
+    const tick = ts => {
+      if (closed) return; raf = requestAnimationFrame(tick);
+      if (busy || ts - last < 160 || !video.videoWidth) return; last = ts;
+      small.width = 160; small.height = Math.round(160 * video.videoHeight / video.videoWidth);
+      sx.drawImage(video, 0, 0, small.width, small.height);
+      const qd = this.detect(sx.getImageData(0, 0, small.width, small.height).data, small.width, small.height);
+      const moved = qd && quad ? Math.max(...qd.map((p, i) => Math.hypot(p[0] - quad[i][0], p[1] - quad[i][1]))) : 1;
+      quad = qd ? (quad && moved < 0.05 ? qd.map((p, i) => [quad[i][0] * 0.5 + p[0] * 0.5, quad[i][1] * 0.5 + p[1] * 0.5]) : qd) : null;
+      poly.setAttribute('points', quad ? quad.map(p => p.join(',')).join(' ') : '');
+      el.classList.toggle('found', !!quad);
+      still = quad && moved < 0.015 ? still + 1 : 0;
+      hint.textContent = !quad ? t('Cadrez une page de cours…') : auto ? (still > 2 ? t('Ne bougez plus…') : t('Page trouvée')) : t('Page trouvée : appuyez pour la prendre');
+      ring.style.strokeDashoffset = auto && quad ? String(226 * (1 - Math.min(1, still / 7))) : '226';
+      if (auto && quad && still >= 7 && pages.length < max) shoot();
+    };
+    raf = requestAnimationFrame(tick);
+    const frame = () => { const c = document.createElement('canvas'); c.width = video.videoWidth; c.height = video.videoHeight; c.getContext('2d').drawImage(video, 0, 0); return c; };
+    const shoot = async () => {
+      if (busy || pages.length >= max || !video.videoWidth) return; busy = true; still = 0;
+      el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 220); Sound.play('flip'); haptic(18);
+      const src = frame(); await this.review(el, src, quad || [[0, 0], [1, 0], [1, 1], [0, 1]], async (cv, mode, q) => {
+        const blob = await new Promise(r => this.filter(cv, mode).toBlob(r, 'image/jpeg', 0.9));
+        pages.push({ file: new File([blob], `page-${pages.length + 1}.jpg`, { type: 'image/jpeg' }), url: URL.createObjectURL(blob) }); count();
+        if (pages.length >= max) { toast(t('{n} pages maximum par scan', { n: max }), 'camera'); }
+      });
+      busy = false;
+    };
+    el.addEventListener('click', e => {
+      const c = e.target.closest('[data-c]')?.dataset.c; if (!c) return;
+      if (c === 'close') { pages.forEach(p => URL.revokeObjectURL(p.url)); close(); }
+      else if (c === 'shot') shoot();
+      else if (c === 'auto') { auto = !auto; e.target.closest('button').classList.toggle('on', auto); still = 0; }
+      else if (c === 'torch') { torch = !torch; track?.applyConstraints({ advanced: [{ torch }] }).catch(() => { }); e.target.closest('button').classList.toggle('on', torch); }
+      else if (c === 'done') { const fl = pages.map(p => p.file); pages.forEach(p => URL.revokeObjectURL(p.url)); close(); o.done?.(fl); }
+    });
+    el.addEventListener('keydown', e => { if (e.key === 'Escape') { close(); } });
+  },
+  /** Aperçu de la page prise : coins réglables, filtre, puis « Garder » ou « Reprendre ». */
+  review(el, src, quad, keep) {
+    return new Promise(resolve => {
+      const box = el.querySelector('.cam-review'); let q = quad.map(p => p.slice()), mode = 'doc', adjust = false, warped = null;
+      const modes = [['doc', t('Document')], ['color', t('Couleur')], ['bw', t('Noir et blanc')]];
+      const paint = () => {
+        if (!adjust) warped = this.warp(src, q);
+        box.innerHTML = adjust
+          ? `<div class="cr-stage"><div class="cr-img"><img src="${src.toDataURL('image/jpeg', 0.8)}" alt=""><svg viewBox="0 0 1 1" preserveAspectRatio="none"><polygon points="${q.map(p => p.join(',')).join(' ')}" vector-effect="non-scaling-stroke"/></svg>${q.map((p, i) => `<span class="cr-h" data-h="${i}" style="left:${p[0] * 100}%;top:${p[1] * 100}%"></span>`).join('')}</div></div>
+            <div class="cr-bar"><span class="muted">${t('Faites glisser les coins sur ceux de la page.')}</span><button class="btn btn-gilt" data-r="apply">${icon('check')}${t('Appliquer')}</button></div>`
+          : `<div class="cr-stage"><img class="cr-out" alt="${esc(t('Page redressée'))}"></div>
+            <div class="cr-bar"><div class="seg">${modes.map(([k, l]) => `<button class="${k === mode ? 'on' : ''}" data-m="${k}">${l}</button>`).join('')}</div>
+            <span style="flex:1"></span><button class="btn btn-ghost" data-r="again">${icon('undo')}${t('Reprendre')}</button><button class="btn" data-r="crop">${icon('target')}${t('Recadrer')}</button><button class="btn btn-gilt" data-r="keep">${icon('check')}${t('Garder')}</button></div>`;
+        if (!adjust) box.querySelector('.cr-out').src = this.filter(warped, mode).toDataURL('image/jpeg', 0.85);
+        else {
+          const wrap = box.querySelector('.cr-img'), pol = wrap.querySelector('polygon');
+          box.querySelectorAll('.cr-h').forEach(h => h.addEventListener('pointerdown', ev => {
+            ev.preventDefault(); h.setPointerCapture(ev.pointerId); const i = +h.dataset.h;
+            const mv = e2 => { const r = wrap.getBoundingClientRect(); q[i] = [Math.min(1, Math.max(0, (e2.clientX - r.left) / r.width)), Math.min(1, Math.max(0, (e2.clientY - r.top) / r.height))]; h.style.left = q[i][0] * 100 + '%'; h.style.top = q[i][1] * 100 + '%'; pol.setAttribute('points', q.map(p => p.join(',')).join(' ')); };
+            const up = () => { h.removeEventListener('pointermove', mv); h.removeEventListener('pointerup', up); };
+            h.addEventListener('pointermove', mv); h.addEventListener('pointerup', up);
+          }));
+        }
+      };
+      box.hidden = false; el.classList.add('reviewing'); paint();
+      box.onclick = async e => {
+        const m = e.target.closest('[data-m]'); if (m) { mode = m.dataset.m; paint(); return; }
+        const r = e.target.closest('[data-r]')?.dataset.r; if (!r) return;
+        if (r === 'crop') { adjust = true; paint(); return; }
+        if (r === 'apply') { adjust = false; paint(); return; }
+        if (r === 'keep') await keep(warped, mode, q);
+        box.hidden = true; box.innerHTML = ''; el.classList.remove('reviewing'); resolve();
+      };
+    });
+  },
+  /** Sans caméra accessible : l'appareil photo du téléphone, ou le choix de photos. */
+  fallback(o) {
+    const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.multiple = true; inp.setAttribute('capture', 'environment');
+    inp.onchange = () => o.done?.([...inp.files]); inp.click();
+  }
+};
+
 Hooks.scan = () => {
   const redraw = () => App.render();
   $('#scTab')?.addEventListener('click', e => { const b = e.target.closest('[data-tab]'); if (!b) return; Scan.tab = b.dataset.tab; redraw(); });
@@ -8610,6 +8869,7 @@ Hooks.scan = () => {
     redraw();
   };
   $('#scFile')?.addEventListener('change', e => addFiles(e.target.files));
+  $('#scCam')?.addEventListener('click', () => DocCam.open({ max: Math.max(1, (AI.limits?.images?.maxCount || 5) - Scan.files.length), done: addFiles }));
   $('#scInk')?.addEventListener('click', () => openSketch({
     title: t('Notes manuscrites'), sub: t('Écrivez comme sur une feuille : titres, définitions, flèches, schémas.'), paper: 'ruled', ph: t('Écrivez votre cours ici…'), ok: t('Ajouter la page'), bg: '#fff',
     done: async im => { const b = await im.blob(); addFiles([new File([b], `notes-${Scan.files.length + 1}.png`, { type: 'image/png' })]); }
@@ -12519,6 +12779,27 @@ TR = {
   "Mode test : payez avec la carte 4242 4242 4242 4242, une date future et n'importe quel code.": ["Test mode: pay with card 4242 4242 4242 4242, any future date and any code.", "Modo de prueba: paga con la tarjeta 4242 4242 4242 4242, una fecha futura y cualquier código.", "Testmodus: zahle mit der Karte 4242 4242 4242 4242, einem zukünftigen Datum und beliebigem Code.", "Modo de teste: pague com o cartão 4242 4242 4242 4242, uma data futura e qualquer código."],
   "Code d'abonnement copié. Collez-le dans la page Pro de votre autre appareil.": ["Subscription code copied. Paste it on the Pro page of your other device.", "Código de suscripción copiado. Pégalo en la página Pro de tu otro dispositivo.", "Abo-Code kopiert. Füge ihn auf der Pro-Seite deines anderen Geräts ein.", "Código de assinatura copiado. Cole-o na página Pro do seu outro aparelho."],
   "Limite gratuite du jour atteinte pour l'IA. Passez à Pro pour continuer sans limite.": ["You've reached today's free AI limit. Upgrade to Pro to keep going without limits.", "Has alcanzado el límite gratuito de IA de hoy. Pásate a Pro para seguir sin límites.", "Das kostenlose KI-Limit für heute ist erreicht. Wechsle zu Pro, um ohne Limit weiterzumachen.", "Você atingiu o limite gratuito de IA de hoje. Passe para o Pro para continuar sem limites."],
+  "Scanner avec la caméra": ["Scan with the camera", "Escanear con la cámara", "Mit der Kamera scannen", "Escanear com a câmera"],
+  "Les bords de la page sont repérés, la page est redressée ; plusieurs pages à la suite.": ["The page edges are found and the page is straightened; several pages in a row.", "Se detectan los bordes y se endereza la página; varias páginas seguidas.", "Die Seitenränder werden erkannt und die Seite begradigt; mehrere Seiten nacheinander.", "As bordas da página são detectadas e a página é endireitada; várias páginas seguidas."],
+  "Cadrez une page de cours…": ["Frame a page of your notes…", "Encuadra una página de apuntes…", "Richte die Kamera auf eine Seite…", "Enquadre uma página do curso…"],
+  "Lampe": ["Torch", "Linterna", "Taschenlampe", "Lanterna"],
+  "Auto": ["Auto", "Auto", "Auto", "Auto"],
+  "Prendre la page": ["Take the page", "Tomar la página", "Seite aufnehmen", "Tirar a página"],
+  "Terminé": ["Done", "Listo", "Fertig", "Pronto"],
+  "{n} sur {m}": ["{n} of {m}", "{n} de {m}", "{n} von {m}", "{n} de {m}"],
+  "Page 1": ["Page 1", "Página 1", "Seite 1", "Página 1"],
+  "Accès à la caméra refusé : autorisez-le dans les réglages du navigateur, ou choisissez des photos.": ["Camera access denied: allow it in your browser settings, or choose photos.", "Acceso a la cámara denegado: autorízalo en los ajustes del navegador o elige fotos.", "Kamerazugriff verweigert: erlaube ihn in den Browsereinstellungen oder wähle Fotos.", "Acesso à câmera negado: permita nas configurações do navegador ou escolha fotos."],
+  "Ne bougez plus…": ["Hold still…", "No te muevas…", "Nicht bewegen…", "Não se mexa…"],
+  "Page trouvée": ["Page found", "Página encontrada", "Seite erkannt", "Página encontrada"],
+  "Page trouvée : appuyez pour la prendre": ["Page found: tap to take it", "Página encontrada: toca para tomarla", "Seite erkannt: tippe zum Aufnehmen", "Página encontrada: toque para tirar"],
+  "Document": ["Document", "Documento", "Dokument", "Documento"],
+  "Couleur": ["Colour", "Color", "Farbe", "Cor"],
+  "Noir et blanc": ["Black & white", "Blanco y negro", "Schwarzweiß", "Preto e branco"],
+  "Faites glisser les coins sur ceux de la page.": ["Drag the corners onto the page's corners.", "Arrastra las esquinas sobre las de la página.", "Zieh die Ecken auf die Ecken der Seite.", "Arraste os cantos até os cantos da página."],
+  "Page redressée": ["Straightened page", "Página enderezada", "Begradigte Seite", "Página endireitada"],
+  "Reprendre": ["Retake", "Repetir", "Neu aufnehmen", "Refazer"],
+  "Recadrer": ["Adjust corners", "Ajustar esquinas", "Ecken anpassen", "Ajustar cantos"],
+  "Garder": ["Keep", "Conservar", "Behalten", "Manter"],
 };
 
 /* ── Démarrage ─────────────────────────────────────────────────────── */
