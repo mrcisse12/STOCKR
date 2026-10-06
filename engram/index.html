@@ -379,7 +379,7 @@ input[type=range]{width:100%;accent-color:var(--brass)}
 @keyframes cardIn{from{opacity:0;transform:translateY(46px) scale(.95)}}
 /* Papier lignée commun à toutes les fiches : marge rouge, double filet sous l'en-tête, lignes bleues
    espacées de --rule. Le texte est ensuite posé sur les lignes (Ruling, dans le script). */
-:is(.face,.pile-card,.mini-card,.lp-card){--p-head:var(--p-margin);background-color:var(--paper);
+:is(.face,.pile-card,.mini-card,.lp-card,.pp){--p-head:var(--p-margin);background-color:var(--paper);
   background-image:
     radial-gradient(300px circle at var(--hx,30%) var(--hy,20%),rgba(255,255,255,.5),transparent 60%),
     linear-gradient(90deg,transparent var(--ml),var(--p-margin) var(--ml),var(--p-margin) calc(var(--ml) + 1.5px),transparent calc(var(--ml) + 1.5px)),
@@ -409,6 +409,7 @@ input[type=range]{width:100%;accent-color:var(--brass)}
 .face-head .no{flex:none}
 .face-head .no{color:var(--pen)}
 .face-body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px;padding:12px 0 6px;min-height:0;overflow:auto;position:relative;z-index:1;scrollbar-width:thin}
+.face-body{justify-content:safe center}.face-body>*{flex-shrink:0}
 .face-body.ruled{padding-top:0;gap:10px}
 .face.back .q-small{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;flex:none}
 .face.back .opt{padding:7px 12px}
@@ -416,6 +417,29 @@ input[type=range]{width:100%;accent-color:var(--brass)}
 .q-small{font:400 14px/1.45 var(--f-type);color:var(--p-muted)}
 .a-text{font:400 clamp(23px,2.6vw,29px)/1.22 var(--f-display);letter-spacing:-.01em;text-wrap:balance}
 .extra{font-size:15px;line-height:1.5;color:color-mix(in srgb,var(--p-ink) 78%,var(--paper));border-left:2px solid color-mix(in srgb,var(--p-margin) 70%,transparent);padding-left:12px}
+/* Tableaux des fiches (« | a | b | ») : filets fins comme dans un livre, en-tête en petites capitales,
+   chiffres calés à droite, zébrure à peine visible. Trop large, le tableau défile dans la fiche. */
+.c-tbl{--tb-rule:color-mix(in srgb,currentColor 34%,transparent);--tb-hair:color-mix(in srgb,currentColor 12%,transparent);max-width:100%;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;margin:.45em 0 .55em;scrollbar-width:thin;scrollbar-color:var(--tb-hair) transparent;text-wrap:pretty;letter-spacing:normal}
+.c-tbl.more{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 34px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 34px),transparent)}
+.c-table{width:100%;border-collapse:separate;border-spacing:0;font:400 15px/1.4 var(--f-ui);text-align:left;color:inherit;font-variant-numeric:lining-nums}
+.c-table :is(th,td){padding:.42em .8em;vertical-align:baseline}
+.c-table th{font:600 max(.9em,12.5px)/1.4 var(--f-type);font-variant-caps:all-small-caps;letter-spacing:.07em;color:color-mix(in srgb,currentColor 66%,transparent);box-shadow:inset 0 1px 0 var(--tb-rule),inset 0 -1px 0 var(--tb-rule)}
+.c-table td{box-shadow:inset 0 -1px 0 var(--tb-hair)}
+.c-table tbody tr:last-child>td{box-shadow:inset 0 -1px 0 var(--tb-rule)}
+.c-table tbody tr:nth-child(even)>td{background:color-mix(in srgb,currentColor 4%,transparent)}
+.c-table :is(.al-r,.al-n){text-align:right}.c-table .al-c{text-align:center}
+.c-table .al-n{font-variant-numeric:tabular-nums lining-nums;white-space:nowrap;width:1%}
+.c-table code{font-size:.9em}
+.face .c-table{font-size:clamp(14.5px,1.45vw,16.5px)}
+:is(.mini-card,.lp-card) .c-table{font-size:13px}
+.extra .c-table{font-size:inherit}
+.c-tbl-flat{font-style:normal}
+@media (max-width:620px){.face .c-table{font-size:14px}.c-table :is(th,td){padding-inline:.62em}}
+/* Papier lignée : chaque rangée prend exactement un interligne et les lignes du papier servent de filets
+   (Ruling cale le haut du tableau sur une ligne, puis le texte qui suit retombe sur les siennes). */
+:root:is(:not([data-card]),[data-card="ruled"],[data-card="slate"],[data-card="seyes"]) :is(.face,.mini-card,.lp-card) .c-tbl{margin:0}
+:root:is(:not([data-card]),[data-card="ruled"],[data-card="slate"],[data-card="seyes"]) :is(.face,.mini-card,.lp-card) .c-table :is(th,td){padding-block:0;line-height:var(--rule);box-shadow:none}
+:root:is(:not([data-card]),[data-card="ruled"],[data-card="slate"],[data-card="seyes"]) :is(.face,.mini-card,.lp-card) .c-table th{box-shadow:inset 0 -1.5px 0 var(--tb-rule)}
 .cloze{display:inline-block;min-width:3em;padding:0 .35em;line-height:1.1;border-bottom:2px solid var(--pen);color:var(--pen);font-family:var(--f-type);font-weight:700;text-align:center}
 .cloze-ans{background:linear-gradient(180deg,transparent 58%,rgba(245,200,90,.7) 58%) 0 0/100% 100% no-repeat;padding:0 .12em;color:inherit;font-weight:600}
 .pen{font:700 25px/1.12 var(--f-pen);color:var(--pen);transform:rotate(-1.4deg);transform-origin:left}
@@ -1182,15 +1206,85 @@ kbd.sym{font:600 11px/1 system-ui,-apple-system,sans-serif;min-width:18px;text-a
 :root[data-desk="off"] .desk::after{opacity:0}
 :root[data-desk="off"] .desk{background:var(--desk)}
 /* Papier des fiches */
-:root[data-card="plain"] :is(.face,.pile-card,.mini-card,.lp-card){background-image:radial-gradient(300px circle at var(--hx,30%) var(--hy,20%),rgba(255,255,255,.4),transparent 60%)!important}
-:root[data-card="grid"] :is(.face,.pile-card,.mini-card,.lp-card){background-image:radial-gradient(300px circle at var(--hx,30%) var(--hy,20%),rgba(255,255,255,.45),transparent 60%),linear-gradient(90deg,var(--p-rule) 1px,transparent 1px),linear-gradient(180deg,var(--p-rule) 1px,transparent 1px)!important;background-size:auto,18px 18px,18px 18px!important;background-position:0 0,0 0,0 0!important;background-repeat:no-repeat,repeat,repeat!important}
-:root[data-card="slate"] :is(.face,.pile-card,.mini-card,.lp-card,.slip,.receipt){--paper:#1F2A25;--paper-2:#26332D;--p-ink:#EEF2EC;--p-muted:#9FB0A6;--p-rule:rgba(255,255,255,.06);--p-margin:rgba(255,255,255,.14);--pen:#F4A99A}
+:root[data-card="plain"] :is(.face,.pile-card,.mini-card,.lp-card),.pp-plain{background-image:radial-gradient(300px circle at var(--hx,30%) var(--hy,20%),rgba(255,255,255,.4),transparent 60%)!important}
+:root[data-card="grid"] :is(.face,.pile-card,.mini-card,.lp-card),.pp-grid{background-image:radial-gradient(300px circle at var(--hx,30%) var(--hy,20%),rgba(255,255,255,.45),transparent 60%),linear-gradient(90deg,var(--p-rule) 1px,transparent 1px),linear-gradient(180deg,var(--p-rule) 1px,transparent 1px)!important;background-size:auto,18px 18px,18px 18px!important;background-position:0 0,0 0,0 0!important;background-repeat:no-repeat,repeat,repeat!important}
+:root[data-card="slate"] :is(.face,.pile-card,.mini-card,.lp-card,.slip,.receipt),.pp-slate{--paper:#1F2A25;--paper-2:#26332D;--p-ink:#EEF2EC;--p-muted:#9FB0A6;--p-rule:rgba(255,255,255,.06);--p-margin:rgba(255,255,255,.14);--pen:#F4A99A}
 :root[data-card="slate"] :is(.face,.pile-card,.mini-card,.lp-card) .q-text{font-family:var(--f-pen);font-size:1.3em;font-weight:500}
+/* Sur la fiche elle-même, la question manuscrite garde la taille d'une vraie question (1,3em la rendait minuscule sur iPad). */
+:root[data-card="slate"] .face .q-text{font-size:clamp(24px,2.7vw,30px);letter-spacing:0}
 :root[data-card="slate"] .face::after{opacity:.25;mix-blend-mode:screen}
-:root[data-card="slate"] .face :is(.opt,.ochip,.exam-opt){background:color-mix(in srgb,#fff 6%,var(--paper));border-color:rgba(255,255,255,.16);color:var(--p-ink)}
-:root[data-card="slate"] .face :is(.opt,.exam-opt) b{border-color:rgba(255,255,255,.3)}
-:root[data-card="slate"] .face .opt.right{background:color-mix(in srgb,#62BD8F 16%,var(--paper));border-color:#62BD8F}:root[data-card="slate"] .face .opt.right b{background:#2E8F62;border-color:#2E8F62}
-:root[data-card="slate"] .face .opt.wrong{background:color-mix(in srgb,#F4A99A 12%,var(--paper))}
+:root:is([data-card="slate"],[data-card="chalk"]) .face :is(.opt,.ochip,.exam-opt){background:color-mix(in srgb,#fff 6%,var(--paper));border-color:rgba(255,255,255,.16);color:var(--p-ink)}
+:root:is([data-card="slate"],[data-card="chalk"]) .face :is(.opt,.exam-opt) b{border-color:rgba(255,255,255,.3)}
+:root:is([data-card="slate"],[data-card="chalk"]) .face .opt.right{background:color-mix(in srgb,#62BD8F 16%,var(--paper));border-color:#62BD8F}:root:is([data-card="slate"],[data-card="chalk"]) .face .opt.right b{background:#2E8F62;border-color:#2E8F62}
+:root:is([data-card="slate"],[data-card="chalk"]) .face .opt.wrong{background:color-mix(in srgb,#F4A99A 12%,var(--paper))}
+/* ── Papiers : feuille A4, Seyès, tableau noir, tableau blanc, kraft ─────────────────────────
+   Chaque papier habille aussi son échantillon des réglages (.pp-…) : une seule source pour son allure. */
+:root{--chalk-grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='170' height='170'><filter id='g' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' seed='5' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.4 2.1'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");--chalk-dust:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='d' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3' seed='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 4 -2.8'/></filter><rect width='100%' height='100%' filter='url(%23d)'/></svg>") 0 0/220px 220px,url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='640' height='640'><filter id='c' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='.006 .012' numOctaves='3' seed='11' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .9  0 0 0 0 .95  0 0 0 0 .92  0 0 0 .7 -.26'/></filter><rect width='100%' height='100%' filter='url(%23c)'/></svg>") 0 0/640px 640px;--fibres:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='m' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='.02' numOctaves='3' seed='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .36  0 0 0 0 .2  0 0 0 0 .08  0 0 0 .75 -.24'/></filter><filter id='a' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='.1 .8' numOctaves='2' seed='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .25  0 0 0 0 .14  0 0 0 0 .05  0 0 0 5 -3.45'/></filter><filter id='b' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='.8 .1' numOctaves='2' seed='8' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .25  0 0 0 0 .14  0 0 0 0 .05  0 0 0 5 -3.5'/></filter><rect width='100%' height='100%' filter='url(%23m)'/><rect width='100%' height='100%' filter='url(%23a)' opacity='.55'/><rect width='100%' height='100%' filter='url(%23b)' opacity='.45'/></svg>");--ghost:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 380' preserveAspectRatio='xMidYMid slice'><g fill='none' stroke-linecap='round' stroke-linejoin='round'><path d='M64 92c8-20 22-22 26-2s10 24 22 4 18-20 24 0 12 18 26-2 20-14 28 4' stroke='rgba(60,78,105,.045)' stroke-width='5'/><path d='M58 128q96 10 196-4' stroke='rgba(60,78,105,.038)' stroke-width='4'/><path d='M372 70q74 12 112 74m-18-4 18 4 4-19' stroke='rgba(38,82,180,.045)' stroke-width='5'/><path d='M430 262c-36-30 12-62 58-44s34 58-18 60-60-14-40-30' stroke='rgba(60,78,105,.038)' stroke-width='4'/><path d='M96 268l26 38m0-38-26 38M140 262q8-12 16 0t-16 18h18M196 286h28m-14-14v28M250 268q14-8 20 6t-14 30q20 4 24-8' stroke='rgba(60,78,105,.04)' stroke-width='4.5'/><path d='M300 186h120' stroke='rgba(60,78,105,.028)' stroke-width='16'/></g></svg>")}
+/* Feuille A4 : papier d'imprimante, filet de marge gris, grain fin, feuille libre qui se soulève à peine. */
+:root[data-card="a4"] :is(.face,.pile-card,.mini-card,.lp-card,.inkpad .ink-paper),.pp-a4{--paper:#FEFEFC;--paper-2:#F0F0EE;--p-ink:#1C1C1B;--p-muted:#6E6E6B;--p-rule:rgba(28,28,30,.1);--p-margin:rgba(28,28,30,.18);--pen:#C3342A}
+:root[data-card="a4"] :is(.face,.pile-card,.mini-card,.lp-card),.pp-a4{background-image:linear-gradient(90deg,transparent var(--ml),var(--p-margin) var(--ml),var(--p-margin) calc(var(--ml) + 1px),transparent calc(var(--ml) + 1px)),linear-gradient(180deg,transparent calc(var(--head) - 1px),var(--p-rule) calc(var(--head) - 1px),var(--p-rule) var(--head),transparent var(--head)),linear-gradient(170deg,#FFFFFF,var(--paper) 50%,#F7F7F5)!important;background-size:100% 100%!important;background-repeat:no-repeat!important;background-position:0 0!important;border-radius:2px}
+:root[data-card="a4"] .face{--ml:50px;padding-left:72px;box-shadow:var(--sh-card),0 24px 18px -20px rgba(0,0,0,.24)}
+:root[data-card="a4"] .face::before{background:linear-gradient(177deg,transparent 66%,rgba(30,30,40,.022)),radial-gradient(55% 30% at 100% 100%,rgba(30,30,40,.04),transparent 72%);box-shadow:inset 0 0 0 1px rgba(0,0,0,.05),inset 0 1px 0 #fff}
+:root[data-card="a4"] .face::after{opacity:.6;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='p' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .4  0 0 0 0 .4  0 0 0 0 .43  0 0 0 .16 0'/></filter><rect width='100%' height='100%' filter='url(%23p)'/></svg>")}
+.st-main.a4-sheet :is(.answer-box,.verdict,.tutor){width:min(var(--cardw),100%)}
+/* Seyès : grands carreaux d'écolier, réglure fine tous les quarts, ligne forte où le texte se pose, marge rose. */
+:root[data-card="seyes"] :is(.face,.pile-card,.mini-card,.lp-card,.inkpad .ink-paper),.pp-seyes{--paper:#FDFCF8;--paper-2:#F1EFE8;--p-ink:#1B1F35;--p-muted:#66687C;--p-rule:rgba(88,82,184,.5);--p-fine:rgba(108,116,206,.24);--p-margin:rgba(226,78,112,.66);--pen:#C8323A}
+:root[data-card="seyes"] .face{--rule:32px}
+:root[data-card="seyes"] :is(.pile-card,.mini-card,.lp-card){--rule:24px}
+:root[data-card="seyes"] :is(.face,.pile-card,.mini-card,.lp-card),.pp-seyes{background-image:radial-gradient(300px circle at var(--hx,30%) var(--hy,20%),rgba(255,255,255,.5),transparent 60%),linear-gradient(90deg,transparent var(--ml),var(--p-margin) var(--ml),var(--p-margin) calc(var(--ml) + 1.5px),transparent calc(var(--ml) + 1.5px)),linear-gradient(var(--paper),var(--paper)),linear-gradient(180deg,transparent calc(var(--rule) - 1px),var(--p-rule) calc(var(--rule) - 1px)),linear-gradient(180deg,transparent calc(var(--rule) / 4 - 1px),var(--p-fine) calc(var(--rule) / 4 - 1px)),linear-gradient(90deg,transparent calc(var(--rule) - 1px),var(--p-fine) calc(var(--rule) - 1px))!important;background-size:100% 100%,100% 100%,100% var(--head),100% var(--rule),100% calc(var(--rule) / 4),var(--rule) 100%!important;background-repeat:no-repeat,no-repeat,no-repeat,repeat-y,repeat-y,repeat-x!important;background-position:0 0,0 0,0 0,0 var(--head),0 var(--head),var(--ml) 0!important}
+:root[data-card="seyes"] .face::after{opacity:.35}
+:root[data-card="seyes"] .inkpad .ink-paper.ruled{background-image:linear-gradient(90deg,transparent 46px,var(--p-margin) 46px,var(--p-margin) 47.5px,transparent 47.5px),repeating-linear-gradient(180deg,transparent 0 31px,var(--p-rule) 31px 32px),repeating-linear-gradient(180deg,transparent 0 7px,var(--p-fine) 7px 8px),repeating-linear-gradient(90deg,transparent 0 31px,var(--p-fine) 31px 32px);background-position:0 0,0 22px,0 22px,46px 0}
+/* Tableaux : cadre (bois ou aluminium) posé par-dessus, rebord plus épais en bas, ombre portée du cadre sur la surface. */
+:root:is([data-card="chalk"],[data-card="whiteboard"]) :is(.face,.pile-card,.mini-card,.lp-card){--frame:6px}
+:root:is([data-card="chalk"],[data-card="whiteboard"]) .face{--frame:9px;--head:56px;padding:0 calc(var(--frame) + 26px) calc(var(--frame) * 1.5 + 22px) calc(var(--frame) + 40px)}
+:root:is([data-card="chalk"],[data-card="whiteboard"]) :is(.face,.pile-card,.lp-card){box-shadow:var(--sh-card),inset 0 0 20px calc(var(--frame) + 2px) var(--in)}
+:root:is([data-card="chalk"],[data-card="whiteboard"]) .mini-card{box-shadow:0 1px 2px rgba(0,0,0,.2),0 12px 20px -14px rgba(0,0,0,.5),inset 0 0 14px calc(var(--frame) + 2px) var(--in)}
+.pp:is(.pp-chalk,.pp-whiteboard){box-shadow:0 1px 1px rgba(0,0,0,.2),0 7px 12px -7px rgba(0,0,0,.55),inset 0 0 6px calc(var(--frame) + 1px) var(--in)}
+:root:is([data-card="chalk"],[data-card="whiteboard"]) :is(.face,.pile-card,.mini-card,.lp-card)::before,.pp:is(.pp-chalk,.pp-whiteboard)::before{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;padding:var(--frame) var(--frame) calc(var(--frame) * 1.5);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+:root:is([data-card="chalk"],[data-card="whiteboard"]) .card-hint{bottom:calc(var(--frame) * 1.5 + 9px);right:calc(var(--frame) + 14px)}
+:root:is([data-card="chalk"],[data-card="whiteboard"]) .face :is(.q-text,.a-text){font-family:var(--f-pen);letter-spacing:0}
+:root:is([data-card="chalk"],[data-card="whiteboard"]) .face .q-text{font-size:clamp(25px,2.8vw,31px);font-weight:600;line-height:1.12}
+:root:is([data-card="chalk"],[data-card="whiteboard"]) .face .a-text{font-size:clamp(27px,3vw,33px);font-weight:700;line-height:1.1}
+:root:is([data-card="chalk"],[data-card="whiteboard"]) :is(.pile-card,.mini-card,.lp-card) :is(.q-text,.a-text,.pc-q){font-family:var(--f-pen);font-size:1.3em;font-weight:600;letter-spacing:0;line-height:1.12}
+/* Tableau noir : ardoise vert profond, traces d'éponge, poussière de craie, cadre de chêne, écriture à la craie. */
+:root[data-card="chalk"] :is(.face,.pile-card,.mini-card,.lp-card,.slip,.receipt,.inkpad .ink-paper),.pp-chalk{--paper:#1A2721;--paper-2:#22312A;--p-ink:#F1F2EB;--p-muted:#A6B6AC;--p-rule:rgba(255,255,255,.07);--p-margin:rgba(255,255,255,.15);--pen:#F4AC9A;--in:rgba(0,0,0,.45)}
+:root[data-card="chalk"] :is(.face,.pile-card,.mini-card,.lp-card),.pp-chalk{background-image:radial-gradient(300px circle at var(--hx,30%) var(--hy,20%),rgba(255,255,255,.04),transparent 60%),radial-gradient(38% 22% at 26% 34%,rgba(214,232,222,.075),transparent 72%),radial-gradient(30% 18% at 72% 62%,rgba(214,232,222,.06),transparent 72%),radial-gradient(55% 12% at 46% 84%,rgba(214,232,222,.055),transparent 70%),linear-gradient(174deg,transparent 14%,rgba(220,236,226,.045) 21%,transparent 29%,transparent 50%,rgba(220,236,226,.04) 57%,transparent 66%),radial-gradient(130% 110% at 50% 38%,transparent 48%,rgba(0,0,0,.32))!important;background-size:100% 100%!important;background-repeat:no-repeat!important;background-position:0 0!important;border-radius:4px}
+:root[data-card="chalk"] .face::after,.pp-chalk::after{opacity:.5;mix-blend-mode:normal;background:var(--chalk-dust)}
+:root[data-card="chalk"] :is(.face,.pile-card,.mini-card,.lp-card)::before,.pp-chalk::before{background:linear-gradient(0deg,rgba(18,9,2,.6) 1px,transparent 1px) 0 0/100% var(--frame) no-repeat,linear-gradient(180deg,rgba(18,9,2,.6) 1px,transparent 1px) 0 100%/100% calc(var(--frame) * 1.5) no-repeat,linear-gradient(270deg,rgba(18,9,2,.6) 1px,transparent 1px) 0 0/var(--frame) 100% no-repeat,linear-gradient(90deg,rgba(18,9,2,.6) 1px,transparent 1px) 100% 0/var(--frame) 100% no-repeat,repeating-linear-gradient(180deg,rgba(40,18,4,.26) 0 1px,transparent 1px 3px,rgba(255,214,160,.09) 3px 4px,transparent 4px 5px) 0 0/100% var(--frame) no-repeat,repeating-linear-gradient(180deg,rgba(40,18,4,.26) 0 1px,transparent 1px 3px,rgba(255,214,160,.09) 3px 4px,transparent 4px 5px) 0 100%/100% calc(var(--frame) * 1.5) no-repeat,repeating-linear-gradient(90deg,rgba(40,18,4,.26) 0 1px,transparent 1px 3px,rgba(255,214,160,.09) 3px 4px,transparent 4px 5px) 0 0/var(--frame) 100% no-repeat,repeating-linear-gradient(90deg,rgba(40,18,4,.26) 0 1px,transparent 1px 3px,rgba(255,214,160,.09) 3px 4px,transparent 4px 5px) 100% 0/var(--frame) 100% no-repeat,linear-gradient(155deg,#9C6B40,#73492A 28%,#8A5A31 52%,#623D21 78%,#7B502C);box-shadow:inset 0 0 0 1px rgba(20,10,2,.55),inset 0 2px 0 -1px rgba(255,222,176,.3)}
+:root[data-card="chalk"] :is(.face,.pile-card,.mini-card,.lp-card) :is(.q-text,.a-text,.pc-q),.pp-chalk em{color:#F4F5EF;text-shadow:0 0 1px rgba(255,255,255,.45),0 0 9px rgba(255,255,255,.08);-webkit-mask:var(--chalk-grain);mask:var(--chalk-grain)}
+:root:is([data-card="slate"],[data-card="chalk"]) .stampmark svg{filter:url(#ink) brightness(1.6) saturate(1.15)}
+:root:is([data-card="slate"],[data-card="chalk"]) .cloze-ans{background-image:linear-gradient(180deg,transparent 62%,rgba(242,210,118,.42) 62%,rgba(242,210,118,.42) 92%,transparent 92%);color:#F7E4A8}
+/* Tableau blanc : surface laquée qui accroche la lumière, fantômes de feutre mal effacés, cadre d'aluminium. */
+:root[data-card="whiteboard"] :is(.face,.pile-card,.mini-card,.lp-card,.inkpad .ink-paper),.pp-whiteboard{--paper:#F4F7F9;--paper-2:#E8EDF1;--p-ink:#171D29;--p-muted:#6B7685;--p-rule:rgba(60,80,110,.09);--p-margin:rgba(60,80,110,.14);--pen:#C8262C;--marker:#1D4CB0;--in:rgba(40,56,78,.16)}
+:root[data-card="whiteboard"] :is(.face,.pile-card,.mini-card,.lp-card),.pp-whiteboard{background-image:radial-gradient(260px circle at var(--hx,30%) var(--hy,20%),rgba(255,255,255,.95),transparent 62%),linear-gradient(115deg,transparent 16%,rgba(255,255,255,.8) 26%,rgba(255,255,255,0) 35%,transparent 55%,rgba(255,255,255,.55) 61%,transparent 68%),var(--ghost),linear-gradient(178deg,#F9FBFC,#EAEFF3)!important;background-size:100% 100%,100% 100%,560px auto,100% 100%!important;background-repeat:no-repeat!important;background-position:0 0,0 0,62% 72%,0 0!important;border-radius:8px}
+.pp-whiteboard{border-radius:4px}
+:root[data-card="whiteboard"] .face::after{opacity:.14}
+:root[data-card="whiteboard"] :is(.face,.pile-card,.mini-card,.lp-card)::before,.pp-whiteboard::before{background:linear-gradient(0deg,rgba(70,80,92,.5) 1px,transparent 1px) 0 0/100% var(--frame) no-repeat,linear-gradient(180deg,rgba(70,80,92,.5) 1px,transparent 1px) 0 100%/100% calc(var(--frame) * 1.5) no-repeat,linear-gradient(270deg,rgba(70,80,92,.5) 1px,transparent 1px) 0 0/var(--frame) 100% no-repeat,linear-gradient(90deg,rgba(70,80,92,.5) 1px,transparent 1px) 100% 0/var(--frame) 100% no-repeat,linear-gradient(180deg,#FDFDFE,#D5DAE0 40%,#B6BDC6 72%,#D9DDE2) 0 0/100% var(--frame) no-repeat,linear-gradient(0deg,#EEF0F3,#C3C9D0 40%,#A8B0BA 75%,#C9CED5) 0 100%/100% calc(var(--frame) * 1.5) no-repeat,linear-gradient(90deg,#F7F8FA,#CFD4DA 42%,#B4BBC4 74%,#DADEE3) 0 0/var(--frame) 100% no-repeat,linear-gradient(270deg,#F7F8FA,#CFD4DA 42%,#B4BBC4 74%,#DADEE3) 100% 0/var(--frame) 100% no-repeat;box-shadow:inset 0 0 0 1px rgba(96,106,118,.55)}
+:root[data-card="whiteboard"] :is(.face,.pile-card,.mini-card,.lp-card) :is(.q-text,.a-text,.pc-q){text-shadow:0 0 .7px currentColor}
+:root[data-card="whiteboard"] :is(.face,.pile-card,.mini-card,.lp-card) .a-text,.pp-whiteboard em{color:var(--marker)}
+/* Kraft : papier brun aux fibres visibles, encre sombre. */
+:root[data-card="kraft"] :is(.face,.pile-card,.mini-card,.lp-card,.inkpad .ink-paper),.pp-kraft{--paper:#C49C70;--paper-2:#B78E62;--p-ink:#1E140A;--p-muted:#4A331F;--p-rule:rgba(62,36,14,.2);--p-margin:rgba(74,42,16,.34);--pen:#7A170F}
+:root[data-card="kraft"] :is(.face,.pile-card,.mini-card,.lp-card),.pp-kraft{background-image:radial-gradient(300px circle at var(--hx,30%) var(--hy,20%),rgba(255,236,204,.2),transparent 60%),linear-gradient(90deg,transparent var(--ml),var(--p-margin) var(--ml),var(--p-margin) calc(var(--ml) + 1px),transparent calc(var(--ml) + 1px)),radial-gradient(130% 100% at 40% 28%,transparent 52%,rgba(82,46,16,.2)),var(--fibres)!important;background-size:100% 100%,100% 100%,100% 100%,260px 260px!important;background-repeat:no-repeat,no-repeat,no-repeat,repeat!important;background-position:0 0!important}
+:root[data-card="kraft"] .face::after{opacity:.6}
+:root[data-card="kraft"] .face::before{box-shadow:inset 0 0 0 1px rgba(60,32,10,.12),inset 0 0 40px rgba(90,50,18,.16)}
+:root[data-card="kraft"] .cloze-ans{background-image:linear-gradient(180deg,transparent 58%,rgba(255,226,138,.78) 58%)}
+:root[data-card="kraft"] .face :is(.opt,.ochip,.exam-opt){border-color:rgba(50,28,10,.26)}
+/* Échantillons de papier (réglages) */
+.papers{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;width:100%}
+.paper{display:flex;flex-direction:column;gap:7px;padding:7px 7px 9px;border-radius:10px;border:1px solid var(--hair-2);background:var(--folder-2);color:inherit;text-align:left;transition:border-color .25s var(--ease),transform .25s var(--ease),box-shadow .25s var(--ease)}
+.paper:hover{border-color:var(--hair-3);transform:translateY(-1px)}
+.paper.on{border-color:var(--brass);box-shadow:0 0 0 1px var(--brass) inset}
+.paper b{display:block;padding:0 2px;font-weight:600;font-size:13px;line-height:1.3}
+.pp-desk{position:relative;display:grid;place-items:center;height:74px;border-radius:7px;background:var(--desk);box-shadow:inset 0 0 0 1px rgba(128,128,128,.22);overflow:hidden}
+.pp{--hx:-500px;--hy:-500px;--rule:10px;--head:12px;--ml:14px;--frame:3px;position:relative;width:74%;height:72%;border-radius:3px;overflow:hidden;transform:rotate(-2deg);transition:transform .35s var(--spring);box-shadow:0 1px 1px rgba(0,0,0,.2),0 7px 12px -7px rgba(0,0,0,.55)}
+.paper:hover .pp,.paper.on .pp{transform:rotate(0deg) translateY(-1px)}
+.pp::before,.pp::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit}
+.pp em{position:absolute;z-index:1;left:calc(var(--ml) + 5px);top:calc(var(--head) + var(--rule) * 2 - 13px);font:600 13px/1 var(--f-ui);font-style:normal;color:var(--p-ink);letter-spacing:-.01em}
+.pp.pp-grid{background-size:auto,8px 8px,8px 8px!important}
+.pp-a4{width:auto;height:86%;aspect-ratio:1/1.414}
+.pp-seyes{--rule:12px}
+.pp:is(.pp-slate,.pp-chalk,.pp-whiteboard) em{font:600 17px/1 var(--f-pen);top:calc(var(--head) + 6px)}
+.pp:is(.pp-chalk,.pp-whiteboard) em{left:calc(var(--frame) + 9px)}
 /* Aucune animation */
 :root[data-motion="none"] *,:root[data-motion="none"] *::before,:root[data-motion="none"] *::after{animation-duration:.001ms!important;animation-delay:0ms!important;transition-duration:.001ms!important}
 
@@ -1356,6 +1450,38 @@ body.studying .mentor-fab,body.mentor-on .mentor-fab,#onb:not([hidden])~.mentor-
 .accent:hover{transform:scale(1.08)}
 .accent.on{box-shadow:inset 0 0 0 2px rgba(255,255,255,.4),0 0 0 3px var(--folder),0 0 0 5px var(--a)}
 .accent[data-accent="auto"]{background:conic-gradient(#C9A45C,#E0664F,#7D9BEA,#4FBF8B,#C48BC0,#C9A45C)}
+/* Thèmes sonores (réglages) : une bande de papier porte la signature du son, un bouton rond le fait écouter. */
+.set-row.snd{border-top:0;padding-top:0;transition:opacity .3s var(--ease)}
+.set-row.snd.mute{opacity:.42}
+.sthemes{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;width:100%}
+.stheme{position:relative;display:flex}
+.st-pick{flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:10px 10px 12px;border-radius:10px;border:1px solid var(--hair-2);background:var(--folder-2);color:inherit;text-align:left;transition:border-color .25s var(--ease),transform .25s var(--ease),box-shadow .25s var(--ease)}
+.st-pick:hover{border-color:var(--hair-3);transform:translateY(-1px)}
+.stheme.on .st-pick{border-color:var(--brass);box-shadow:0 0 0 1px var(--brass) inset}
+.st-pick b{font-weight:600;font-size:13.5px}
+.st-pick small{font-size:11.5px;color:var(--muted);line-height:1.35}
+.st-strip{position:relative;display:block;width:100%;height:46px;border-radius:7px;background:var(--paper);color:var(--p-ink);box-shadow:inset 0 0 0 1px rgba(128,128,128,.22),inset 0 -10px 16px -12px rgba(60,40,10,.22);overflow:hidden}
+.st-strip::before{content:"";position:absolute;left:10px;right:50px;top:50%;border-top:1px dashed var(--p-rule)}
+.st-strip svg{position:absolute;left:10px;top:9px;width:calc(100% - 60px);height:28px;overflow:visible}
+.st-strip path{fill:none;stroke:currentColor;stroke-width:1.35;stroke-linejoin:round;stroke-linecap:round;opacity:.6;transition:opacity .25s var(--ease)}
+.stheme.on .st-strip path,.st-pick:hover .st-strip path{opacity:.95}
+.st-strip::after{content:"";position:absolute;top:7px;bottom:7px;left:10px;width:2px;border-radius:1px;background:var(--brass);opacity:0}
+.stheme.playing .st-strip::after{animation:st-head 2.25s linear forwards}
+@keyframes st-head{0%{left:10px;opacity:1}90%{opacity:1}100%{left:calc(100% - 50px);opacity:0}}
+.st-play{position:absolute;top:19px;right:19px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--p-ink);color:var(--paper);box-shadow:0 3px 8px -3px rgba(0,0,0,.45);transition:transform .3s var(--spring),background-color .25s var(--ease)}
+.st-play:hover{transform:scale(1.08)}
+.st-play:active{transform:scale(.94)}
+.st-play::before{content:"";position:absolute;inset:-7px;border-radius:50%}
+.st-play svg{width:12px;height:12px;margin-left:2px;fill:currentColor;stroke:none}
+.stheme.playing .st-play{background:var(--brass);color:var(--on-brass)}
+.snd-vol{display:flex;align-items:center;justify-content:space-between;gap:10px 18px;flex-wrap:wrap}
+.snd-vol label{font-weight:600}
+.snd-vol .ctl{flex:1;max-width:360px;color:var(--muted)}
+.snd-vol .ctl b{width:48px;flex:none;text-align:right;color:var(--text)}
+:root[data-motion="none"] .st-strip::after{display:none}
+@media (prefers-reduced-motion:reduce){.st-strip::after{display:none}}
+/* Téléphone : une liste compacte, la bande sonore en vignette à gauche. */
+@media (max-width:560px){.sthemes{grid-template-columns:1fr;gap:8px}.st-pick{display:grid;grid-template-columns:104px minmax(0,1fr);column-gap:12px;row-gap:3px;align-items:center;padding:9px 12px 9px 9px}.st-strip{grid-row:1/3}.st-pick b{align-self:end}.st-pick small{align-self:start}.st-play{top:50%;margin-top:-15px;right:auto;left:76px}}
 .lang-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
 .lang-opt{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 16px;border-radius:10px;border:1px solid var(--hair-2);background:var(--folder-2);color:inherit;transition:all .25s var(--ease)}
 .lang-opt b{font:400 20px/1 var(--f-display)}
@@ -1488,7 +1614,7 @@ body.dropping::after{content:attr(data-drop);position:fixed;inset:14px;z-index:5
 @keyframes inkRead{from{background-position:130% 0}to{background-position:-130% 0}}
 .st-main.ink-on{gap:14px}
 .st-main.ink-on .card3d{min-height:clamp(200px,30vh,360px)}
-:root[data-card="slate"] .inkpad{--ink-c:#EEF2EC}
+:root:is([data-card="slate"],[data-card="chalk"]) .inkpad{--ink-c:#EEF2EC}
 :root[data-card="slate"] .inkpad .ink-paper{--paper:#1F2A25;--p-rule:rgba(255,255,255,.07);--p-margin:rgba(255,255,255,.14);--p-muted:#9FB0A6}
 @media (min-width:1000px) and (orientation:landscape){
   .st-main.ink-on{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);align-content:center;align-items:stretch;gap:18px 26px}
@@ -1502,7 +1628,7 @@ body.dropping::after{content:attr(data-drop);position:fixed;inset:14px;z-index:5
 .your-ink img{display:block;max-width:100%;max-height:96px;width:auto;align-self:flex-start;mix-blend-mode:multiply}
 .your-ink img.wrong{opacity:.75;background:linear-gradient(180deg,transparent 48%,rgba(195,52,42,.55) 48%,rgba(195,52,42,.55) 53%,transparent 53%)}
 .your-ink small{font:400 12.5px/1.4 var(--f-type);color:var(--p-muted)}
-:root[data-card="slate"] .your-ink img{filter:invert(1) hue-rotate(180deg);mix-blend-mode:screen}
+:root:is([data-card="slate"],[data-card="chalk"]) .your-ink img{filter:invert(1) hue-rotate(180deg);mix-blend-mode:screen}
 /* Brouillon posé sur la table */
 #study > .scratch{position:absolute;inset:0;z-index:30;--ink-c:var(--text);animation:fadeIn .25s both}
 #study > .scratch.out{opacity:0;transition:opacity .2s}
@@ -1521,7 +1647,7 @@ body.dropping::after{content:attr(data-drop);position:fixed;inset:14px;z-index:5
 .sk-row .btn{height:36px;padding:0 12px;font-size:13px}
 .sk-thumb{height:56px;max-width:150px;object-fit:contain;border-radius:6px;background:var(--paper);border:1px solid var(--hair-2);padding:4px}
 .c-img.sketch{box-shadow:none;background:transparent;max-height:220px}
-:root[data-card="slate"] .c-img.sketch{filter:invert(1) hue-rotate(180deg)}
+:root:is([data-card="slate"],[data-card="chalk"]) .c-img.sketch{filter:invert(1) hue-rotate(180deg)}
 .scan-ink{justify-content:flex-start;gap:14px;height:auto;padding:14px 16px;text-align:left;border-style:dashed;white-space:normal;min-width:0}
 .scan-ink .i{width:26px;height:26px;color:var(--brass-text);flex:none}
 .scan-ink b{display:block;font-size:14.5px}
@@ -1810,7 +1936,7 @@ button,a,label,select,.chip,.opt,.ochip{touch-action:manipulation}
 .agent .btn{color:var(--p-ink);border-color:rgba(0,0,0,.18)}
 .agent .btn:hover{background:rgba(0,0,0,.04)}
 .agent .btn-brass{color:var(--on-brass);border:0}
-:root[data-card="slate"] .agent{background-image:none}
+:root:is([data-card="slate"],[data-card="chalk"]) .agent{background-image:none}
 .autopilot{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:18px;align-items:center;padding:20px 22px;border-radius:16px;position:relative;overflow:hidden}
 .autopilot .ap-dial{position:relative;width:64px;height:64px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(227,196,126,.4);box-shadow:inset 0 0 0 5px rgba(0,0,0,.18),inset 0 0 0 6px rgba(227,196,126,.18)}
 .autopilot .ap-dial .i{width:26px;height:26px;color:var(--gilt)}
@@ -2354,13 +2480,98 @@ const bigNum = n => LANG === 'fr' ? cap(numFr(n)) : num(n);
 function hash(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
 function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let x = Math.imul(seed ^ seed >>> 15, 1 | seed); x = x + Math.imul(x ^ x >>> 7, 61 | x) ^ x; return ((x ^ x >>> 14) >>> 0) / 4294967296; }; }
 
-// Mise en forme minimale et sûre : **gras**, *italique*, `code`, retours à la ligne.
-function md(s) {
-  return esc(s)
-    .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
-    .replace(/(^|[^*])\*(?!\s)(.+?)\*(?!\*)/g, '$1<i>$2</i>')
-    .replace(/`(.+?)`/g, '<code>$1</code>')
-    .replace(/\n/g, '<br>');
+// Mise en forme minimale et sûre : **gras**, *italique*, `code`, retours à la ligne, tableaux.
+const mdInline = h => h
+  .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+  .replace(/(^|[^*])\*(?!\s)(.+?)\*(?!\*)/g, '$1<i>$2</i>')
+  .replace(/`(.+?)`/g, '<code>$1</code>');
+/* Tableaux à la GitHub : une ligne d'en-tête, une ligne de tirets (« : » pour aligner), puis les lignes.
+   Le texte se découpe en blocs (texte, tableau, texte…) ; une colonne de nombres se cale à droite. */
+const Tbl = {
+  SEP: /^\s*\|?\s*:?-+:?\s*(?:\|\s*:?-+:?\s*)*\|?\s*$/,
+  NUM: /^[-+−–]?[$€£¥]?\s?\d[\d\s.,'’\u00a0\u202f]*(?:\s?(?:%|‰|€|\$|£|¥|°C?|°F|k?m|cm|mm|k?g|mg|m?l|s|ms|h|min|[kMG]o))?$/,
+  pipe: l => /(^|[^\\])\|/.test(l),
+  row(line) {
+    let s = line.trim().replace(/\\\|/g, '\uE002');
+    if (s.startsWith('|')) s = s.slice(1);
+    if (s.endsWith('|')) s = s.slice(0, -1);
+    return s.split('|').map(x => x.replace(/\uE002/g, '|').trim());
+  },
+  blocks(s) {
+    s = String(s ?? '');
+    if (!s.includes('|') || !s.includes('-')) return [{ text: s }];
+    const L = s.split('\n'), out = []; let buf = [];
+    for (let i = 0; i < L.length; i++) {
+      if (i + 1 < L.length && this.pipe(L[i]) && this.pipe(L[i + 1]) && this.SEP.test(L[i + 1])) {
+        const head = this.row(L[i]), al = this.row(L[i + 1]).map(c => c.endsWith(':') ? (c.startsWith(':') ? 'c' : 'r') : c.startsWith(':') ? 'l' : '');
+        if (head.length === al.length) {
+          const rows = []; let j = i + 2;
+          for (; j < L.length && L[j].trim() && this.pipe(L[j]); j++) { const r = this.row(L[j]); rows.push(head.map((_, k) => r[k] ?? '')); }
+          al.forEach((a, k) => { const v = rows.map(r => r[k]).filter(Boolean); if ((!a || a === 'r') && v.length && v.every(x => this.NUM.test(x))) al[k] = 'n'; });
+          if (buf.length) out.push({ text: buf.join('\n') });
+          out.push({ head, al, rows }); buf = []; i = j - 1; continue;
+        }
+      }
+      buf.push(L[i]);
+    }
+    if (buf.length) out.push({ text: buf.join('\n') });
+    return out;
+  },
+  /** Le tableau en HTML : enveloppé pour défiler dans la fiche, ou nu (alignements en ligne) pour Anki. */
+  html(b, anki) {
+    const cell = c => anki ? esc(c) : mdInline(esc(c));
+    const at = a => !a ? '' : anki ? (a === 'l' ? '' : ` style="text-align:${a === 'c' ? 'center' : 'right'}"`) : ` class="al-${a}"`;
+    const tr = (r, tag) => `<tr>${r.map((c, k) => `<${tag}${at(b.al[k])}>${cell(c)}</${tag}>`).join('')}</tr>`;
+    const tb = `<table class="c-table"><thead>${tr(b.head, 'th')}</thead>${b.rows.length ? `<tbody>${b.rows.map(r => tr(r, 'td')).join('')}</tbody>` : ''}</table>`;
+    return anki ? tb : `<div class="c-tbl">${tb}</div>`;
+  },
+  /** Un tableau plus large que la fiche s'estompe à droite tant qu'il reste de quoi faire défiler. */
+  fade(x) {
+    const f = () => x.classList.toggle('more', x.scrollLeft + x.clientWidth < x.scrollWidth - 2);
+    f(); if (!x._fade) { x._fade = true; x.addEventListener('scroll', f, { passive: true }); }
+  },
+  /** Le texte, tableaux mis à plat (« a · b » par rangée) : voix, impression, recherche, listes. */
+  text(s, sep = '\n') {
+    const bl = this.blocks(s); if (bl.length === 1 && !bl[0].head) return bl[0].text;
+    return bl.map(b => b.head ? [b.head, ...b.rows].map(r => r.filter(Boolean).join(' · ')).filter(Boolean).join(sep) : b.text).join(sep === '\n' ? '\n' : ' ');
+  },
+  /** Un tableau Markdown bien aligné ; la première rangée sert d'en-tête. */
+  md(rows, al = []) {
+    const n = Math.max(0, ...rows.map(r => r.length)); if (!n) return '';
+    const R = rows.map(r => Array.from({ length: n }, (_, k) => String(r[k] ?? '').replace(/\|/g, '\\|')));
+    const w = Array.from({ length: n }, (_, k) => Math.max(3, ...R.map(r => r[k].length)));
+    const line = r => '| ' + r.map((c, k) => al[k] === 'r' ? c.padStart(w[k]) : c.padEnd(w[k])).join(' | ') + ' |';
+    const sep = '| ' + w.map((x, k) => al[k] === 'c' ? ':' + '-'.repeat(x - 2) + ':' : al[k] === 'r' ? '-'.repeat(x - 1) + ':' : '-'.repeat(x)).join(' | ') + ' |';
+    return [line(R[0]), sep, ...R.slice(1).map(line)].join('\n');
+  },
+  /** Cellules copiées d'un tableur (Excel, Sheets, Numbers) : tabulations, guillemets autour des cellules à retours. */
+  tsv(s) {
+    s = String(s || '').replace(/\r\n?/g, '\n').replace(/\n+$/, '');
+    const rows = [[]]; let cur = '', q = false;
+    for (let i = 0; i < s.length; i++) {
+      const ch = s[i];
+      if (q) { if (ch !== '"') cur += ch; else if (s[i + 1] === '"') { cur += '"'; i++; } else q = false; continue; }
+      if (ch === '"' && !cur) q = true;
+      else if (ch === '\t' || ch === '\n') { rows[rows.length - 1].push(cur); cur = ''; if (ch === '\n') rows.push([]); }
+      else cur += ch;
+    }
+    if (q) return s.split('\n').map(l => l.split('\t').map(c => c.trim()));
+    rows[rows.length - 1].push(cur);
+    return rows.map(r => r.map(c => c.replace(/\s+/g, ' ').trim()));
+  },
+  /** Une <table> HTML (Anki, page web) → tableau Markdown. */
+  fromTable(tb) {
+    const rows = [...tb.rows].map(r => [...r.cells].map(c => c.textContent.replace(/\s+/g, ' ').trim())).filter(r => r.some(Boolean));
+    if (!rows.length) return '';
+    const al = [...tb.rows[0].cells].map((c, k) => { const a = (c.getAttribute('align') || c.style.textAlign || tb.rows[1]?.cells[k]?.style.textAlign || '').toLowerCase(); return a === 'right' ? 'r' : a === 'center' ? 'c' : ''; });
+    return this.md(rows, al);
+  }
+};
+/** o.flat : un tableau devient une ligne (son en-tête), pour le rappel de la question au verso. */
+function md(s, o = {}) {
+  return Tbl.blocks(s).map(b => !b.head ? mdInline(esc(b.text)).replace(/\n/g, '<br>')
+    : o.flat ? `<span class="c-tbl-flat">${(b.head.some(Boolean) ? b.head : b.rows[0] || []).filter(Boolean).map(c => mdInline(esc(c))).join(' · ')}</span>`
+    : Tbl.html(b)).join(o.flat ? '<br>' : '');
 }
 const LS = {
   get(k) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch { return null; } },
@@ -2410,6 +2621,7 @@ const I = {
   music: '<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
   chat: '<path d="M4 5h16v11H9l-5 4z"/>',
   share: '<path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 13v7h14v-7"/>',
+  table: '<rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M3 9.5h18M3 14.75h18M9.5 9.5V20"/>',
   grid: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
   cal: '<rect x="3" y="5" width="18" height="16" rx="1.5"/><path d="M3 10h18M8 3v4M16 3v4"/>',
   list: '<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01"/>',
@@ -2502,7 +2714,7 @@ const FSRS = (() => {
    données de chaque personne sont aussi synchronisées dans son espace
    privé du stockage de l'artefact (data/users/<id>/…). */
 const DEFAULT_SETTINGS = {
-  lang: null, retention: 0.9, newPerDay: 20, goal: 60, answerMode: 'flip', strict: 'standard', tts: false, sound: true, ambient: 'off', anim: 'full',
+  lang: null, retention: 0.9, newPerDay: 20, goal: 60, answerMode: 'flip', strict: 'standard', tts: false, sound: true, soundTheme: 'classic', soundVolume: 70, ambient: 'off', anim: 'full',
   skin: 'auto', accent: 'auto', font: 'classic', textSize: 1, density: 'comfy', cardStyle: 'ruled', desk: true,
   mentorTier: 'default', tone: 'gentle', followPlan: true, aiServer: '', aiCode: ''
 };
@@ -3164,38 +3376,166 @@ const Audio_ = {
   ctx: null,
   get() { try { this.ctx = this.ctx || new (window.AudioContext || window.webkitAudioContext)(); if (this.ctx.state === 'suspended') this.ctx.resume(); return this.ctx; } catch { return null; } }
 };
+/* Thèmes sonores : cinq familles synthétisées, sans aucun fichier. Cristal et Rétro sont réservés à Élite :
+   quand l'abonnement s'arrête, Classique reprend (le choix est gardé). */
+const SOUND_THEMES = {
+  classic: { name: N_('Classique@@sons'), desc: N_("Tampon, papier et petites notes : les sons d'origine.") },
+  paper: { name: N_('Papier et encre'), desc: N_('Feuilles qui glissent, crayon, tampon feutré.') },
+  wood: { name: N_('Bois'), desc: N_('Marimba et blocs de bois, tout en chaleur.') },
+  crystal: { name: N_('Cristal'), desc: N_('Clochettes de verre, légères et aériennes.'), elite: true },
+  retro: { name: N_('Rétro'), desc: N_('Petites notes 8 bits, tout en douceur.'), elite: true }
+};
+const soundThemeOn = s => { const th = SOUND_THEMES[s?.soundTheme]; return th && (!th.elite || (typeof Pro !== 'undefined' && Pro.expert)) ? s.soundTheme : 'classic'; };
+/* Chaque thème joue les mêmes gestes : flip (retourner), stamp (tampon), good, easy, hard, again (notes), print (bordereau),
+   done (fin de séance), seal (sceau, niveau), tick (petit choix), pop (ajout). Les fêtes restent douces et brèves (moins de 1,2 s). */
+const SOUND_KITS = {
+  classic: {
+    flip: k => k.noise(0, 0.07, 0.25, 3200, 'bandpass'),
+    stamp: k => { k.noise(0, 0.12, 0.9, 700); k.tone(92, 0, 0.16, 0.12); },
+    good: k => { k.tone(659.3, 0.02, 0.35, 0.045); k.tone(987.8, 0.09, 0.5, 0.035); },
+    easy: k => { k.tone(659.3, 0.02, 0.3, 0.04); k.tone(987.8, 0.08, 0.35, 0.035); k.tone(1318.5, 0.14, 0.6, 0.03); },
+    again: k => k.tone(196, 0.02, 0.4, 0.05, 'triangle'),
+    hard: k => k.tone(392, 0.02, 0.3, 0.04, 'triangle'),
+    print: k => { for (let i = 0; i < 16; i++) k.noise(i * 0.085, 0.03, 0.18, 2400, 'bandpass'); },
+    done: k => [523.3, 659.3, 784, 1046.5].forEach((f, i) => k.tone(f, i * 0.1, 0.8, 0.04)),
+    seal: k => { k.noise(0, 0.2, 0.5, 400); k.tone(130, 0, 0.3, 0.09); k.tone(784, 0.15, 0.7, 0.03); },
+    tick: k => k.tone(1760, 0, 0.05, 0.02),
+    pop: k => { k.tone(880, 0, 0.12, 0.03); k.tone(1320, 0.05, 0.16, 0.02); }
+  },
+  // Papier et encre : feuilles qui glissent, coups de crayon, tampon feutré ; une note très douce dit « réussi ».
+  paper: (() => {
+    const slide = (k, at, dur, vol, f0, f1) => k.noise(at, dur, vol, f0, 'bandpass', { q: 0.9, to: f1, swell: 0.6 });
+    const tap = (k, at, vol) => { k.noise(at, 0.022, vol, 3400, 'bandpass', { q: 1.6 }); k.tone(2600, at, 0.03, vol * 0.025, 'sine', { a: 0.002 }); };
+    const thud = (k, at, vol = 1) => { k.noise(at, 0.13, 0.75 * vol, 320); k.tone(78, at, 0.2, 0.13 * vol, 'sine', { a: 0.004, to: 52 }); };
+    const stroke = (k, at, vol) => slide(k, at, 0.07, vol, 2600, 4200);
+    const hint = (k, f, at, vol, dur = 0.45) => k.tone(f, at, dur, vol, 'sine', { a: 0.02 });
+    return {
+      flip: k => slide(k, 0, 0.13, 0.18, 1500, 3400),
+      tick: k => tap(k, 0, 0.14),
+      pop: k => { tap(k, 0, 0.15); tap(k, 0.07, 0.11); },
+      stamp: k => thud(k, 0),
+      good: k => { stroke(k, 0, 0.1); stroke(k, 0.075, 0.14); hint(k, 784, 0.06, 0.024); },
+      easy: k => { stroke(k, 0, 0.1); stroke(k, 0.075, 0.14); hint(k, 784, 0.06, 0.02); hint(k, 1174.7, 0.15, 0.017, 0.5); },
+      again: k => { slide(k, 0, 0.09, 0.14, 900, 700); slide(k, 0.1, 0.09, 0.11, 850, 650); hint(k, 196, 0.02, 0.03, 0.4); },
+      hard: k => { slide(k, 0, 0.16, 0.14, 1400, 1900); hint(k, 392, 0.04, 0.022, 0.35); },
+      print: k => { for (let i = 0; i < 12; i++) stroke(k, i * 0.09 + (i % 3) * 0.012, 0.09 + (i % 2) * 0.04); },
+      done: k => { slide(k, 0, 0.26, 0.2, 1100, 3200); thud(k, 0.3, 0.8); hint(k, 523.3, 0.34, 0.024, 0.7); hint(k, 784, 0.42, 0.02, 0.7); },
+      seal: k => { thud(k, 0, 1.1); hint(k, 659.3, 0.16, 0.022, 0.65); }
+    };
+  })(),
+  // Bois : marimba (fondamentale et partiel au quadruple) et blocs de bois secs.
+  wood: (() => {
+    const mar = (k, f, at, vol = 0.05, dur = 0.55) => { k.tone(f, at, dur, vol, 'sine', { a: 0.004 }); k.tone(f * 3.93, at, dur * 0.22, vol * 0.3, 'sine', { a: 0.002 }); k.noise(at, 0.012, vol * 2.2, f * 2, 'bandpass', { q: 2 }); };
+    const block = (k, f, at, vol = 0.04) => { k.tone(f, at, 0.07, vol, 'sine', { a: 0.002 }); k.tone(f * 2.4, at, 0.03, vol * 0.4, 'sine', { a: 0.001 }); k.noise(at, 0.015, vol * 3, f * 1.6, 'bandpass', { q: 3 }); };
+    return {
+      flip: k => block(k, 820, 0, 0.045),
+      tick: k => block(k, 1250, 0, 0.025),
+      pop: k => { mar(k, 880, 0, 0.032, 0.3); mar(k, 1318.5, 0.06, 0.026, 0.35); },
+      stamp: k => { k.tone(170, 0, 0.14, 0.12, 'sine', { a: 0.003, to: 140 }); k.noise(0, 0.05, 0.45, 650); block(k, 420, 0, 0.03); },
+      good: k => { mar(k, 587.3, 0.02, 0.05); mar(k, 880, 0.1, 0.042, 0.6); },
+      easy: k => { mar(k, 587.3, 0.02, 0.045, 0.4); mar(k, 880, 0.09, 0.04, 0.45); mar(k, 1174.7, 0.16, 0.034, 0.65); },
+      again: k => { mar(k, 246.9, 0.02, 0.06, 0.4); mar(k, 196, 0.11, 0.06, 0.55); },
+      hard: k => mar(k, 392, 0.02, 0.05, 0.45),
+      print: k => { for (let i = 0; i < 12; i++) block(k, i % 2 ? 1180 : 1420, i * 0.09, 0.016); },
+      done: k => [523.3, 659.3, 784, 1046.5].forEach((f, i) => mar(k, f, i * 0.09, 0.045, i === 3 ? 0.8 : 0.5)),
+      seal: k => { k.tone(150, 0, 0.18, 0.12, 'sine', { a: 0.003, to: 120 }); k.noise(0, 0.06, 0.4, 600); mar(k, 784, 0.14, 0.038, 0.7); }
+    };
+  })(),
+  // Cristal : clochettes de verre (partiels inharmoniques) et souffle aérien.
+  crystal: (() => {
+    const bell = (k, f, at, vol = 0.024, dur = 0.9) => { k.tone(f, at, dur, vol, 'sine', { a: 0.003 }); k.tone(f * 2.756, at, dur * 0.5, vol * 0.4, 'sine', { a: 0.002 }); k.tone(f * 5.404, at, dur * 0.25, vol * 0.16, 'sine', { a: 0.001 }); };
+    const air = (k, at, dur, vol) => k.noise(at, dur, vol, 7000, 'highpass', { swell: 0.8 });
+    return {
+      flip: k => { air(k, 0, 0.1, 0.07); k.tone(2349.3, 0, 0.14, 0.008, 'sine', { a: 0.003 }); },
+      tick: k => k.tone(3136, 0, 0.07, 0.012, 'sine', { a: 0.002 }),
+      pop: k => { bell(k, 1568, 0, 0.016, 0.4); bell(k, 2093, 0.05, 0.012, 0.45); },
+      stamp: k => { k.tone(1244.5, 0, 0.12, 0.018, 'sine', { a: 0.002 }); k.noise(0, 0.05, 0.3, 900); k.tone(140, 0, 0.12, 0.07, 'sine', { a: 0.003 }); },
+      good: k => { bell(k, 1318.5, 0.02, 0.026, 0.7); bell(k, 1975.5, 0.1, 0.019, 0.8); },
+      easy: k => { bell(k, 1318.5, 0.02, 0.02, 0.6); bell(k, 1975.5, 0.08, 0.016, 0.7); bell(k, 2637, 0.15, 0.012, 0.9); air(k, 0.12, 0.4, 0.03); },
+      again: k => bell(k, 440, 0.02, 0.035, 0.6),
+      hard: k => bell(k, 740, 0.02, 0.026, 0.5),
+      print: k => { const P = [2093, 2349.3, 2637, 3136, 3520]; for (let i = 0; i < 12; i++) k.tone(P[(i * 3) % 5], i * 0.09, 0.14, 0.009, 'sine', { a: 0.002 }); },
+      done: k => { [1046.5, 1318.5, 1568, 2093].forEach((f, i) => bell(k, f, i * 0.08, 0.02, 0.85)); air(k, 0.05, 0.6, 0.035); },
+      seal: k => { k.tone(140, 0, 0.14, 0.07, 'sine', { a: 0.003 }); k.noise(0, 0.06, 0.3, 700); bell(k, 784, 0.12, 0.026, 0.95); bell(k, 1174.7, 0.18, 0.016, 0.9); }
+    };
+  })(),
+  // Rétro : petites notes carrées et triangulaires, adoucies par un filtre, jamais criardes.
+  retro: (() => {
+    const sq = (k, f, at, dur, vol = 0.016, x = {}) => k.tone(f, at, dur, vol, 'square', { a: 0.003, lp: 3200, ...x });
+    const tri = (k, f, at, dur, vol = 0.06, x = {}) => k.tone(f, at, dur, vol, 'triangle', { a: 0.003, ...x });
+    return {
+      flip: k => sq(k, 520, 0, 0.06, 0.016, { to: 1040, glide: 0.05 }),
+      tick: k => sq(k, 1568, 0, 0.035, 0.013),
+      pop: k => { sq(k, 1046.5, 0, 0.05, 0.017); sq(k, 1568, 0.05, 0.09, 0.016); },
+      stamp: k => { tri(k, 140, 0, 0.12, 0.11, { to: 55 }); k.noise(0, 0.05, 0.22, 1400); },
+      good: k => { sq(k, 784, 0.02, 0.07, 0.02); sq(k, 1174.7, 0.08, 0.16, 0.019); },
+      easy: k => [784, 987.8, 1174.7, 1568].forEach((f, i) => sq(k, f, 0.02 + i * 0.055, i === 3 ? 0.18 : 0.06, 0.018)),
+      again: k => tri(k, 330, 0.02, 0.26, 0.07, { to: 196, glide: 0.2 }),
+      hard: k => tri(k, 392, 0.02, 0.16, 0.06),
+      print: k => { for (let i = 0; i < 12; i++) sq(k, i % 2 ? 1046.5 : 1318.5, i * 0.08, 0.03, 0.007); },
+      done: k => { [523.3, 659.3, 784].forEach((f, i) => sq(k, f, i * 0.08, 0.08, 0.018)); sq(k, 1046.5, 0.24, 0.42, 0.018); tri(k, 261.6, 0.24, 0.45, 0.06); },
+      seal: k => { tri(k, 196, 0, 0.18, 0.08, { to: 98 }); [784, 987.8, 1174.7].forEach((f, i) => sq(k, f, 0.12 + i * 0.06, i === 2 ? 0.3 : 0.06, 0.016)); }
+    };
+  })()
+};
 const Sound = {
-  play(kind) {
-    if (!S?.profile.settings.sound) return;
+  bus: null, prev: null,
+  /** Gain général : 70 % (le réglage par défaut) rend le niveau d'origine, 0 % coupe tout. */
+  gain(v = S?.profile.settings.soundVolume) { v = +v; if (!Number.isFinite(v)) v = 70; v = clamp(v, 0, 100) / 100; return v <= 0 ? 0 : Math.round(1500 * Math.pow(v, 1.137)) / 1000; },
+  out(ctx) {
+    if (!this.bus || this.bus.context !== ctx) { this.bus = ctx.createGain(); this.bus.connect(ctx.destination); }
+    const g = this.gain(); this.bus.gain.cancelScheduledValues(ctx.currentTime); this.bus.gain.value = g; return g;
+  },
+  /** Le curseur de volume agit tout de suite, même sur un son en cours. */
+  volume() { const ctx = Audio_.ctx; if (this.bus && ctx) { this.bus.gain.cancelScheduledValues(ctx.currentTime); this.bus.gain.setTargetAtTime(this.gain(), ctx.currentTime, 0.03); } },
+  /** Coupe net ce qui joue encore (sons coupés, page cachée). */
+  hush() { const ctx = Audio_.ctx; if (this.bus && ctx) { this.bus.gain.cancelScheduledValues(ctx.currentTime); this.bus.gain.setTargetAtTime(0, ctx.currentTime, 0.02); } },
+  /** Instruments de base, posés à l'instant t0 vers la sortie dest. */
+  kit(ctx, t0, dest) {
+    const tone = (f, at, dur, vol = 0.06, type = 'sine', x = {}) => {
+      const o = ctx.createOscillator(), g = ctx.createGain(), a = x.a ?? 0.012, s0 = t0 + at;
+      o.type = type; o.frequency.setValueAtTime(f, s0);
+      if (x.to) o.frequency.exponentialRampToValueAtTime(x.to, s0 + (x.glide || dur));
+      g.gain.setValueAtTime(0, s0); g.gain.linearRampToValueAtTime(vol, s0 + a); g.gain.exponentialRampToValueAtTime(0.0001, s0 + dur);
+      let n = o.connect(g);
+      if (x.lp) { const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = x.lp; n = n.connect(lp); }
+      n.connect(dest); o.start(s0); o.stop(s0 + dur + 0.05);
+    };
+    const noise = (at, dur, vol, freq, type = 'lowpass', x = {}) => {
+      const len = Math.max(1, Math.floor(ctx.sampleRate * dur)), buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0), sw = x.swell, s0 = t0 + at;
+      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (sw ? Math.sin(Math.PI * Math.pow(i / len, sw)) : Math.pow(1 - i / len, 3));
+      const src = ctx.createBufferSource(); src.buffer = buf; const f = ctx.createBiquadFilter(); f.type = type; f.frequency.value = freq;
+      if (x.q) f.Q.value = x.q;
+      if (x.to) { f.frequency.setValueAtTime(freq, s0); f.frequency.exponentialRampToValueAtTime(x.to, s0 + dur); }
+      const g = ctx.createGain(); g.gain.value = vol;
+      src.connect(f).connect(g).connect(dest); src.start(s0);
+    };
+    return { tone, noise };
+  },
+  play(kind, o = {}) {
+    const s = S?.profile.settings;
+    if (!s?.sound || document.hidden) return;
     const ctx = Audio_.get(); if (!ctx) return;
     try {
-      const t0 = ctx.currentTime;
-      const tone = (f, at, dur, vol = 0.06, type = 'sine') => {
-        const o = ctx.createOscillator(), g = ctx.createGain();
-        o.type = type; o.frequency.setValueAtTime(f, t0 + at);
-        g.gain.setValueAtTime(0, t0 + at); g.gain.linearRampToValueAtTime(vol, t0 + at + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t0 + at + dur);
-        o.connect(g).connect(ctx.destination); o.start(t0 + at); o.stop(t0 + at + dur + 0.05);
-      };
-      const noise = (at, dur, vol, freq, type = 'lowpass') => {
-        const len = Math.floor(ctx.sampleRate * dur); const buf = ctx.createBuffer(1, len, ctx.sampleRate); const d = buf.getChannelData(0);
-        for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
-        const src = ctx.createBufferSource(); src.buffer = buf; const f = ctx.createBiquadFilter(); f.type = type; f.frequency.value = freq; const g = ctx.createGain(); g.gain.value = vol;
-        src.connect(f).connect(g).connect(ctx.destination); src.start(t0 + at);
-      };
-      if (kind === 'flip') noise(0, 0.07, 0.25, 3200, 'bandpass');
-      else if (kind === 'stamp') { noise(0, 0.12, 0.9, 700); tone(92, 0, 0.16, 0.12); }
-      else if (kind === 'good') { tone(659.3, 0.02, 0.35, 0.045); tone(987.8, 0.09, 0.5, 0.035); }
-      else if (kind === 'easy') { tone(659.3, 0.02, 0.3, 0.04); tone(987.8, 0.08, 0.35, 0.035); tone(1318.5, 0.14, 0.6, 0.03); }
-      else if (kind === 'again') tone(196, 0.02, 0.4, 0.05, 'triangle');
-      else if (kind === 'hard') tone(392, 0.02, 0.3, 0.04, 'triangle');
-      else if (kind === 'print') for (let i = 0; i < 16; i++) noise(i * 0.085, 0.03, 0.18, 2400, 'bandpass');
-      else if (kind === 'done') [523.3, 659.3, 784, 1046.5].forEach((f, i) => tone(f, i * 0.1, 0.8, 0.04));
-      else if (kind === 'seal') { noise(0, 0.2, 0.5, 400); tone(130, 0, 0.3, 0.09); tone(784, 0.15, 0.7, 0.03); }
-      else if (kind === 'tick') tone(1760, 0, 0.05, 0.02);
-      else if (kind === 'pop') { tone(880, 0, 0.12, 0.03); tone(1320, 0.05, 0.16, 0.02); }
+      if (!this.out(ctx)) return;
+      const fn = SOUND_KITS[SOUND_THEMES[o.theme] ? o.theme : soundThemeOn(s)][kind];
+      if (fn) fn(this.kit(ctx, ctx.currentTime + (o.at || 0), o.dest || this.bus));
     } catch { }
+  },
+  /** Écoute d'un thème : une fiche qu'on retourne, une bonne réponse, la fin de séance. Rend la durée en ms (0 si rien ne joue). */
+  preview(theme) {
+    const s = S?.profile.settings; if (!s?.sound || document.hidden || !SOUND_THEMES[theme]) return 0;
+    const ctx = Audio_.get(); if (!ctx) return 0;
+    try {
+      if (!this.out(ctx)) return 0;
+      const old = this.prev; if (old) { old.gain.setTargetAtTime(0, ctx.currentTime, 0.02); setTimeout(() => { try { old.disconnect(); } catch { } }, 250); }
+      const dest = this.prev = ctx.createGain(); dest.connect(this.bus);
+      [['flip', 0], ['good', 0.42], ['done', 1.05]].forEach(([k, at]) => this.play(k, { theme, at, dest }));
+      return 2250;
+    } catch { return 0; }
   }
 };
+document.addEventListener('visibilitychange', () => { if (document.hidden) Sound.hush(); });
 // Ambiance de travail : « bibliothèque » (bruit brun, feutré) ou « pluie » (bruit rose filtré).
 const Ambient = {
   src: null, gain: null, mode: 'off',
@@ -3981,20 +4321,22 @@ function drawer(d, i = 0) {
   </article>`;
 }
 const cardNo = c => String(hash(c.id) % 9000 + 1000);
-function plain(s) { return String(s || '').replace(/\{\{c\d+::(.*?)(?:::.*?)?\}\}/g, '$1').replace(/\*\*|`/g, ''); }
-function cardTitle(c) { return c.type === 'cloze' ? plain(c.text) : c.type === 'occlusion' ? (c.front || t('Image')) + ' — ' + (c.masks?.[c.maskIdx]?.label || '') : c.front; }
+function plain(s) { return Tbl.text(s || '').replace(/\{\{c\d+::(.*?)(?:::.*?)?\}\}/g, '$1').replace(/\*\*|`/g, ''); }
+function cardTitle(c) { return c.type === 'cloze' ? plain(Tbl.text(c.text, ' / ')) : c.type === 'occlusion' ? (c.front || t('Image')) + ' — ' + (c.masks?.[c.maskIdx]?.label || '') : Tbl.text(c.front, ' / '); }
 function cardAnswer(c) { return c.type === 'cloze' ? renderCloze(c.text, c.n).ans : c.type === 'mcq' ? c.options?.[c.answer] : c.type === 'tf' ? (c.answer ? trueLbl() : falseLbl()) : c.type === 'occlusion' ? c.masks?.[c.maskIdx]?.label : c.type === 'order' ? (c.items || []).join(' → ') : c.back; }
 function renderCloze(text, n) {
-  const re = /\{\{c(\d+)::([\s\S]*?)(?:::([\s\S]*?))?\}\}/g;
-  let f = '', b = '', q = '', last = 0, ans = '';
-  for (const m of String(text).matchAll(re)) {
-    const pre = text.slice(last, m.index); f += md(pre); b += md(pre); q += pre;
-    if (+m[1] === n) { ans = m[2]; f += `<span class="cloze">${m[3] ? esc(m[3]) : '[…]'}</span>`; b += `<mark class="cloze-ans">${esc(m[2])}</mark>`; q += '[…]'; }
-    else { f += esc(m[2]); b += esc(m[2]); q += m[2]; }
+  const re = /\{\{c(\d+)::([\s\S]*?)(?:::([\s\S]*?))?\}\}/g, holes = [];
+  text = String(text ?? ''); let q = '', last = 0, ans = '';
+  for (const m of text.matchAll(re)) {
+    q += text.slice(last, m.index) + (+m[1] === n ? '[…]' : m[2]);
+    if (+m[1] === n) ans = m[2];
     last = m.index + m[0].length;
   }
-  const tail = String(text).slice(last); f += md(tail); b += md(tail); q += tail;
-  return { f, b, q, ans };
+  q += text.slice(last);
+  // Les trous deviennent des repères le temps de la mise en forme : un trou peut ainsi tomber dans un tableau.
+  const html = md(text.replace(re, (_, k, a, hint) => { holes.push([+k, a, hint]); return '\uE000' + (holes.length - 1) + '\uE001'; }));
+  const put = rev => html.replace(/\uE000(\d+)\uE001/g, (_, i) => { const [k, a, hint] = holes[i]; return k !== n ? esc(a) : rev ? `<mark class="cloze-ans">${esc(a)}</mark>` : `<span class="cloze">${hint ? esc(hint) : '[…]'}</span>`; });
+  return { f: put(false), b: put(true), q, ans };
 }
 /* Les deux faces d'une fiche. o.choice : réponse cliquée (QCM, vrai/faux) ; o.order : ordre proposé. */
 function cardFaces(c, o = {}) {
@@ -4006,13 +4348,13 @@ function cardFaces(c, o = {}) {
   if (c.type === 'mcq') {
     const opts = (c.options || []).map((x, i) => `<button class="opt" data-act="choose" data-i="${i}"><b>${'ABCDEF'[i]}</b><span>${md(x)}</span></button>`).join('');
     const back = (c.options || []).map((x, i) => `<div class="opt ${i === c.answer ? 'right' : i === o.choice ? 'wrong' : ''}"><b>${i === c.answer ? '✓' : 'ABCDEF'[i]}</b><span>${md(x)}</span></div>`).join('');
-    return { question: c.front, expected: c.options?.[c.answer] || '', front: `<div class="q-text">${md(c.front)}</div><div class="opts">${opts}</div>`, back: `<div class="q-small">${md(c.front)}</div><div class="opts">${back}</div>${c.back ? `<div class="extra">${md(c.back)}</div>` : ''}` };
+    return { question: c.front, expected: c.options?.[c.answer] || '', front: `<div class="q-text">${md(c.front)}</div><div class="opts">${opts}</div>`, back: `<div class="q-small">${md(c.front, { flat: true })}</div><div class="opts">${back}</div>${c.back ? `<div class="extra">${md(c.back)}</div>` : ''}` };
   }
   if (c.type === 'tf') {
     return {
       question: c.front, expected: c.answer ? trueLbl() : falseLbl(),
       front: `<div class="q-text">${md(c.front)}</div><div class="tf"><button class="opt" data-act="choose" data-i="1"><b>${esc(trueLbl()[0])}</b>${trueLbl()}</button><button class="opt" data-act="choose" data-i="0"><b>${esc(falseLbl()[0])}</b>${falseLbl()}</button></div>`,
-      back: `<div class="q-small">${md(c.front)}</div><div class="a-text">${c.answer ? trueLbl() : falseLbl()}</div>${c.back ? `<div class="extra">${md(c.back)}</div>` : ''}`
+      back: `<div class="q-small">${md(c.front, { flat: true })}</div><div class="a-text">${c.answer ? trueLbl() : falseLbl()}</div>${c.back ? `<div class="extra">${md(c.back)}</div>` : ''}`
     };
   }
   if (c.type === 'order') {
@@ -4021,7 +4363,7 @@ function cardFaces(c, o = {}) {
     const front = `<div class="q-text">${md(c.front)}</div>
       <div class="order-list">${picked.map((i, k) => `<span class="ochip placed"><b>${k + 1}</b>${esc(items[i])}</span>`).join('')}</div>
       <div class="order-pool">${pool.map(i => `<button class="ochip" data-act="orderPick" data-i="${i}">${esc(items[i])}</button>`).join('')}</div>`;
-    const back = `<div class="q-small">${md(c.front)}</div><div class="order-list">${items.map((x, k) => `<span class="ochip ${k < picked.length ? (picked[k] === k ? 'right' : 'wrong') : ''}"><b>${k + 1}</b>${esc(x)}${k < picked.length && picked[k] !== k ? `<small class="you">${esc(t('vous : {x}', { x: items[picked[k]] }))}</small>` : ''}</span>`).join('')}</div>${c.back ? `<div class="extra">${md(c.back)}</div>` : ''}`;
+    const back = `<div class="q-small">${md(c.front, { flat: true })}</div><div class="order-list">${items.map((x, k) => `<span class="ochip ${k < picked.length ? (picked[k] === k ? 'right' : 'wrong') : ''}"><b>${k + 1}</b>${esc(x)}${k < picked.length && picked[k] !== k ? `<small class="you">${esc(t('vous : {x}', { x: items[picked[k]] }))}</small>` : ''}</span>`).join('')}</div>${c.back ? `<div class="extra">${md(c.back)}</div>` : ''}`;
     return { question: c.front, expected: items.join(' → '), front, back };
   }
   if (c.type === 'occlusion') {
@@ -4037,7 +4379,7 @@ function cardFaces(c, o = {}) {
   }
   const cimg = id => id && S.images[id] ? `<img class="c-img ${/^ink/.test(id) ? 'sketch' : ''}" src="${S.images[id]}" alt="">` : '';
   const fi = cimg(c.fimg), bi = cimg(c.bimg);
-  return { question: c.front, expected: c.back, front: `${fi}<div class="q-text">${md(c.front)}</div>`, back: `<div class="q-small">${md(c.front)}</div>${bi}<div class="a-text">${md(c.back)}</div>${extra}` };
+  return { question: c.front, expected: c.back, front: `${fi}<div class="q-text">${md(c.front)}</div>`, back: `<div class="q-small">${md(c.front, { flat: true })}</div>${bi}<div class="a-text">${md(c.back)}</div>${extra}` };
 }
 
 /* Fiches lignées : la ligne de base de chaque texte tombe sur une ligne du papier, comme à la main.
@@ -4045,7 +4387,7 @@ function cardFaces(c, o = {}) {
    de texte jusqu'à la ligne suivante ; le centrage vertical se fait par multiples de l'interligne. */
 const Ruling = {
   TEXT: ':scope > :is(.q-text,.a-text,.q-small,.extra,.your:not(.your-ink),.pen,.pc-q)',
-  on() { const v = document.documentElement.dataset.card; return !v || v === 'ruled' || v === 'slate'; },
+  on() { const v = document.documentElement.dataset.card; return !v || v === 'ruled' || v === 'slate' || v === 'seyes'; },
   top(el, root) {
     let y = 0;
     for (let n = el; n && n !== root;) { y += n.offsetTop; const p = n.offsetParent; if (!p) return NaN; if (p !== root) y -= p.scrollTop; n = p; }
@@ -4058,15 +4400,28 @@ const Ruling = {
   snap(root, body = root, center = true) {
     if (!root || !body) return 0;
     const blocks = [...body.querySelectorAll(this.TEXT)];
-    body.style.paddingTop = ''; blocks.forEach(b => b.style.marginTop = ''); body.classList.remove('ruled');
+    body.style.paddingTop = ''; blocks.forEach(b => b.style.marginTop = ''); body.querySelectorAll('.c-tbl').forEach(x => { x.style.marginTop = x.style.marginBottom = ''; Tbl.fade(x); }); body.classList.remove('ruled');
     if (!this.on() || !root.offsetHeight) return 0;
     const cs = getComputedStyle(root), R = parseFloat(cs.getPropertyValue('--rule')), H = parseFloat(cs.getPropertyValue('--head')) || 0;
     if (!R || !blocks.length) return 0;
     body.classList.add('ruled');
     for (const b of blocks) {
-      const y = this.baseline(b, root); if (!isFinite(y)) continue;
-      const target = H + Math.max(1, Math.ceil((y + 2 - H) / R)) * R - 2;
+      // Un bloc qui s'ouvre sur un tableau se pose par le haut du tableau, sur la première ligne libre.
+      const lead = !!b.firstChild?.classList?.contains('c-tbl');
+      const y = lead ? this.top(b, root) : this.baseline(b, root); if (!isFinite(y)) continue;
+      const target = lead ? H + Math.max(0, Math.ceil((y - H - .5) / R)) * R : H + Math.max(1, Math.ceil((y + 2 - H) / R)) * R - 2;
       if (target - y > .5) b.style.marginTop = (parseFloat(getComputedStyle(b).marginTop) || 0) + target - y + 'px';
+      // Un tableau a des rangées d'un interligne : son haut se cale sur une ligne, et le texte qui le suit retombe sur les siennes.
+      for (const x of b.querySelectorAll('.c-tbl')) {
+        const ty = this.top(x, root); if (!isFinite(ty)) continue;
+        let d = ((H - ty) % R + R) % R; if (d > R - .5) d = 0;
+        if (d > .5) x.style.marginTop = (parseFloat(getComputedStyle(x).marginTop) || 0) + d + 'px';
+        if (!x.nextSibling) continue;
+        const probe = document.createElement('span'); probe.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline';
+        x.after(probe); const yb = this.top(probe, root); probe.remove(); if (!isFinite(yb)) continue;
+        const e = H + Math.ceil((yb + 2 - H) / R) * R - 2 - yb;
+        if (e > .5) x.style.marginBottom = (parseFloat(getComputedStyle(x).marginBottom) || 0) + e + 'px';
+      }
     }
     if (!center) return R;
     const bs = getComputedStyle(body), pt = parseFloat(bs.paddingTop) || 0, pb = parseFloat(bs.paddingBottom) || 0;
@@ -4678,7 +5033,7 @@ function cardRow(c, d, o = {}) {
   const r = FSRS.retrievability(c.srs);
   return `<button class="crow" data-act="editCard" data-id="${c.id}">
     <span class="no"><i style="background:${ST_COLORS[compOf(c)]}"></i>${cardNo(c)}</span>
-    <div style="min-width:0"><div class="q">${Seek.mark(cardTitle(c), o.hl)}</div><div class="a">${Seek.mark(plain(cardAnswer(c)), o.hl)}${d && App.route.v !== 'deck' ? ` · ${esc(d.name)}` : ''}</div>${o.why?.length ? `<div class="why">${icon('sparkles', 'i-sm')}<span>${esc(t('Parle de {x}', { x: o.why.slice(0, 3).join(', ') }))}</span></div>` : ''}</div>
+    <div style="min-width:0"><div class="q">${Seek.mark(cardTitle(c), o.hl)}</div><div class="a">${Seek.mark(plain(Tbl.text(cardAnswer(c), ' / ')), o.hl)}${d && App.route.v !== 'deck' ? ` · ${esc(d.name)}` : ''}</div>${o.why?.length ? `<div class="why">${icon('sparkles', 'i-sm')}<span>${esc(t('Parle de {x}', { x: o.why.slice(0, 3).join(', ') }))}</span></div>` : ''}</div>
     <span class="tags">${isLeech(c) ? `<span class="tag red" data-tip="${esc(t('Fiche oubliée 4 fois ou plus'))}">${t('Sangsue')}</span>` : ''}<span class="tag">${typeLabel(c.type)}</span></span>
     <span><span class="due">${c.srs.state === 0 ? t('nouvelle') : fmtDue(c.srs.due)}</span>${c.srs.state === 2 ? `<span class="rbar" data-tip="${esc(t('Mémoire estimée : {p}', { p: pct(r) }))}"><i style="width:${r * 100}%;background:${r > .85 ? 'var(--good)' : r > .7 ? 'var(--hard)' : 'var(--again)'}"></i></span>` : ''}</span>
   </button>`;
@@ -5177,19 +5532,20 @@ function openEditor(cardId, deckId, preset) {
   if (card && card.type === 'occlusion') return openOcclusion(deck.id, card);
   if (!deck) { openNewDeck(d => openEditor(null, d.id)); return; }
   const st = { type: card ? card.type : (preset || 'basic'), front: card?.front || '', back: card?.back || '', extra: card?.extra || '', text: card?.text || '', options: card?.options ? [...card.options] : ['', '', '', ''], answer: card?.answer ?? 0, items: (card?.items || []).join('\n'), tags: (card?.tags || []).join(', '), fimg: card?.fimg || '', bimg: card?.bimg || '' };
+  const tblBtn = id => `<button class="btn btn-ghost btn-sm" data-tbl="${id}">${icon('table', 'i-sm')}${t('Insérer un tableau')}</button>`;
   const sk = side => { const id = st[side], src = id && S.images[id];
-    return `<div class="sk-row">${src ? `<img class="sk-thumb ${/^ink/.test(id) ? 'sketch' : ''}" src="${src}" alt=""><button class="btn btn-ghost btn-sm" data-sk-draw="${side}">${icon('nib', 'i-sm')}${t('Redessiner')}</button><button class="btn btn-ghost btn-sm" data-sk-rm="${side}">${icon('x', 'i-sm')}${t('Retirer')}</button>` : `<button class="btn btn-ghost btn-sm" data-sk-draw="${side}">${icon('nib', 'i-sm')}${t('Ajouter un schéma dessiné')}</button>`}</div>`; };
+    return `<div class="sk-row">${src ? `<img class="sk-thumb ${/^ink/.test(id) ? 'sketch' : ''}" src="${src}" alt=""><button class="btn btn-ghost btn-sm" data-sk-draw="${side}">${icon('nib', 'i-sm')}${t('Redessiner')}</button><button class="btn btn-ghost btn-sm" data-sk-rm="${side}">${icon('x', 'i-sm')}${t('Retirer')}</button>` : `<button class="btn btn-ghost btn-sm" data-sk-draw="${side}">${icon('nib', 'i-sm')}${t('Ajouter un schéma dessiné')}</button>`}${tblBtn(side === 'fimg' ? 'eFront' : 'eBack')}</div>`; };
   if (st.type === 'tf' && typeof st.answer !== 'boolean') st.answer = true;
   const m = Modal.open('<div id="edRoot"></div>', 'wide sticky-f');
   const fields = () => {
     const ty = st.type;
     if (ty === 'cloze') return `<div class="field"><label for="eText">${t('Texte')}</label><textarea class="textarea" id="eText" placeholder="${esc(t("La {{c1::mitochondrie}} produit l'{{c2::ATP}}."))}">${esc(st.text)}</textarea>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn btn-sm" id="eWrap">${icon('eye', 'i-sm')}${t('Masquer la sélection')}</button><span class="muted" style="font-size:12.5px">${t('Sélectionnez un mot puis cliquez : il devient un trou. Chaque trou numéroté donne une fiche.')}</span></div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn btn-sm" id="eWrap">${icon('eye', 'i-sm')}${t('Masquer la sélection')}</button>${tblBtn('eText')}<span class="muted" style="font-size:12.5px">${t('Sélectionnez un mot puis cliquez : il devient un trou. Chaque trou numéroté donne une fiche.')}</span></div></div>
       <div class="field"><label for="eExtra">${t('Complément (facultatif)')}</label><input class="input" id="eExtra" value="${esc(st.extra)}"></div>`;
-    if (ty === 'mcq') return `<div class="field"><label for="eFront">${t('Question')}</label><textarea class="textarea" id="eFront" style="min-height:80px">${esc(st.front)}</textarea></div>
+    if (ty === 'mcq') return `<div class="field"><label for="eFront">${t('Question')}</label><textarea class="textarea" id="eFront" style="min-height:80px">${esc(st.front)}</textarea><div class="sk-row">${tblBtn('eFront')}</div></div>
       <div class="field"><span class="flabel">${t('Choix — cochez la bonne réponse')}</span>${st.options.map((o, i) => `<div style="display:flex;gap:8px;align-items:center"><button class="check dark ${st.answer === i ? 'on' : ''}" data-ans="${i}" aria-label="${esc(t('Bonne réponse {n}', { n: i + 1 }))}">${icon('check')}</button><input class="input" data-opt="${i}" value="${esc(o)}" placeholder="${esc(t('Choix {x}', { x: 'ABCD'[i] }))}"></div>`).join('')}</div>
       <div class="field"><label for="eBack">${t('Explication (facultatif)')}</label><input class="input" id="eBack" value="${esc(st.back)}"></div>`;
-    if (ty === 'tf') return `<div class="field"><label for="eFront">${t('Affirmation')}</label><textarea class="textarea" id="eFront" style="min-height:80px">${esc(st.front)}</textarea></div>
+    if (ty === 'tf') return `<div class="field"><label for="eFront">${t('Affirmation')}</label><textarea class="textarea" id="eFront" style="min-height:80px">${esc(st.front)}</textarea><div class="sk-row">${tblBtn('eFront')}</div></div>
       <div class="field"><span class="flabel">${t('Elle est…')}</span><div class="seg" id="eTF"><button class="${st.answer ? 'on' : ''}" data-v="1">${t('Vraie')}</button><button class="${!st.answer ? 'on' : ''}" data-v="0">${t('Fausse')}</button></div></div>
       <div class="field"><label for="eBack">${t('Explication (facultatif)')}</label><input class="input" id="eBack" value="${esc(st.back)}"></div>`;
     if (ty === 'order') return `<div class="field"><label for="eFront">${t('Consigne')}</label><input class="input" id="eFront" value="${esc(st.front)}" placeholder="${esc(t("Remettez dans l'ordre…"))}"></div>
@@ -5237,6 +5593,28 @@ function openEditor(cardId, deckId, preset) {
       const n = Math.max(0, ...[...ta.value.matchAll(/\{\{c(\d+)::/g)].map(x => +x[1])) + 1;
       ta.value = ta.value.slice(0, a) + `{{c${n}::${ta.value.slice(a, b)}}}` + ta.value.slice(b); read(); prev();
     });
+    // Tableaux : « Insérer un tableau » pose un modèle à trois colonnes ; des cellules copiées d'un tableur deviennent un tableau.
+    const putTbl = (ta, s) => {
+      const v = ta.value; let a = ta.selectionStart, b = ta.selectionEnd;
+      if (!v.trim()) { a = 0; b = v.length; } else if (!a && !b && document.activeElement !== ta) a = b = v.length;
+      const pre = a && v[a - 1] !== '\n' ? '\n' : '', ins = pre + s + (b < v.length && v[b] !== '\n' ? '\n' : '');
+      ta.focus(); ta.setSelectionRange(a, b);
+      let ok = false; try { ok = document.execCommand('insertText', false, ins); } catch { }
+      if (!ok || ta.value.slice(a, a + ins.length) !== ins) { ta.value = v; ta.setRangeText(ins, a, b, 'end'); ta.dispatchEvent(new Event('input', { bubbles: true })); }
+      return a + pre.length;
+    };
+    root.querySelectorAll('[data-tbl]').forEach(btn => btn.onclick = () => {
+      const ta = root.querySelector('#' + btn.dataset.tbl); if (!ta) return;
+      const h = [1, 2, 3].map(n => t('Colonne {n}', { n }));
+      const p = putTbl(ta, Tbl.md([h, ['', '', ''], ['', '', '']]));
+      ta.setSelectionRange(p + 2, p + 2 + h[0].length);
+    });
+    root.querySelectorAll('textarea:is(#eFront,#eBack,#eText)').forEach(ta => ta.addEventListener('paste', e => {
+      const txt = e.clipboardData?.getData('text/plain') || ''; if (!txt.includes('\t')) return;
+      const rows = Tbl.tsv(txt).filter(r => r.some(Boolean));
+      if (rows.length < 2 || rows[0].length < 2 || rows.some(r => r.length !== rows[0].length)) return;
+      e.preventDefault(); putTbl(ta, Tbl.md(rows)); toast(t('Tableau collé'), 'table');
+    }));
     const srcTxt = () => st.type === 'cloze' ? `Cloze text (syntax {{c1::…}}): ${st.text}` : st.type === 'mcq' ? `Multiple choice. Question: ${st.front}. Options: ${st.options.join(' | ')}. Right answer: ${st.options[st.answer]}` : st.type === 'order' ? `Instruction: ${st.front}\nItems in order: ${st.items.split('\n').join(' | ')}` : `Question: ${st.front}\nAnswer: ${st.back}`;
     root.querySelector('#eAI')?.addEventListener('click', async ev => {
       read(); const btn = ev.currentTarget, out = root.querySelector('#eAIout');
@@ -6004,7 +6382,7 @@ const Pro = {
       mentor: [t('Vos 20 messages à Mentor sont utilisés ce mois-ci'), t('Avec Pro, Mentor répond et agit pour vous sans limite.')],
       agent: [t('Vos 3 missions du mois sont utilisées'), t('Avec Pro, les six assistants travaillent pour vous sans limite. Les analyses sans IA restent libres.')],
       expert: [t('Le mode Expert fait partie d\'Élite'), t('Le modèle le plus puissant, pour les plans de concours et les raisonnements longs.')],
-      atelier: [t('Cet outil fait partie d\'Élite'), t('Thèmes Velours et Marbre, couleur d\'accent sur mesure, rétention par paquet et intervalle maximal : Élite règle Engram à votre façon.')],
+      atelier: [t('Cet outil fait partie d\'Élite'), t('Thèmes Velours et Marbre, papiers Tableau noir, Tableau blanc et Kraft, couleur d\'accent sur mesure, rétention par paquet et intervalle maximal : Élite règle Engram à votre façon.')],
       autopilot: [t('L\'autopilote fait partie de Pro'), t('Chaque matin, le Planificateur prépare votre séance ; chaque lundi, le Chroniqueur fait le bilan de la semaine.')]
     }[kind] || [t('Cette fonction fait partie de Pro'), ''];
     const m = Modal.open(`<div class="up"><div class="up-card">${proCard({ sm: true })}</div><div><div class="kicker">Engram Pro</div><h2 class="h2" style="margin-top:8px">${L[0]}</h2><p class="muted" style="margin:10px 0 0;line-height:1.55">${L[1]}</p></div></div>
@@ -6136,7 +6514,7 @@ function openPro() { App.go('pro'); }
 const PRO_FEATURES = {
   free: [N_('3 scans de cours par mois'), N_('30 corrections IA par jour'), N_('Mentor : 20 messages par mois'), N_('3 missions d\'assistants par mois'), N_('Fiches illimitées, FSRS, 5 langues'), N_('Import et export Anki')],
   pro: [N_('Vos paquets synchronisés sur tous vos appareils'), N_('Scans illimités : photos, PDF, notes au stylet'), N_('Correction IA de chaque réponse'), N_('Mentor sans limite'), N_('Les six assistants, sans limite'), N_('Autopilote : le mot du matin, le bilan du lundi'), N_('Examens blancs sur mesure')],
-  expert: [N_('Tout Pro'), N_('Mentor et assistants avec le modèle le plus puissant'), N_('L\'atelier : thèmes Velours et Marbre, couleur sur mesure'), N_('Mémoire sur mesure : rétention par paquet, intervalle maximal'), N_('Des plans et des raisonnements plus poussés pour les concours'), N_('Les assistants relisent jusqu\'à 150 fiches par mission')]
+  expert: [N_('Tout Pro'), N_('Mentor et assistants avec le modèle le plus puissant'), N_('L\'atelier : thèmes Velours et Marbre, papiers d\'exception, couleur sur mesure'), N_('Mémoire sur mesure : rétention par paquet, intervalle maximal'), N_('Des plans et des raisonnements plus poussés pour les concours'), N_('Les assistants relisent jusqu\'à 150 fiches par mission')]
 };
 const PRO_CMP = [
   [N_('Fiches, paquets, algorithme FSRS'), 1, 1, 1],
@@ -7838,6 +8216,20 @@ const setRow = (title, desc, ctl, id = '') => `<div class="set-row" ${id ? `id="
 const segCtl = (key, opts, cur, attr = 'data-seg') => `<div class="seg" ${attr}="${key}">${opts.map(([k, l]) => `<button class="${String(cur) === String(k) ? 'on' : ''}" data-val="${k}">${l}</button>`).join('')}</div>`;
 const sw = (key, on, label) => `<button class="switch ${on ? 'on' : ''}" data-toggle="${key}" aria-label="${esc(label)}" aria-pressed="${!!on}"></button>`;
 
+/* Signature de chaque thème sonore, tracée à l'encre sur une bande de papier. */
+const sndWave = k => {
+  if (k === 'retro') { let d = 'M0 14'; for (let i = 0; i < 12; i++) { const a = Math.max(2, Math.round(10 * Math.exp(-i / 7))); d += `V${14 + (i % 2 ? a : -a)}H${(i + 1) * 10}`; } return d + 'V14'; }
+  let r = 11; const rnd = () => (r = (r * 9301 + 49297) % 233280) / 233280, pts = [];
+  for (let x = 0; x <= 120; x += k === 'paper' ? 2 : k === 'crystal' ? 0.5 : 1) {
+    let y;
+    if (k === 'paper') y = (rnd() * 2 - 1) * 10 * Math.sin(Math.PI * Math.pow(x / 120, 0.6));
+    else if (k === 'wood') { const hits = [6, 46, 86].filter(p => x >= p), p = hits.pop(); y = p == null ? 0 : Math.sin((x - p) * 0.8) * (11 - hits.length * 2) * Math.exp(-(x - p) / 7); }
+    else if (k === 'crystal') y = (Math.sin(x * 0.8) * 0.75 + Math.sin(x * 2.2) * 0.25) * 9 * Math.exp(-x / 70);
+    else y = Math.sin(x * 0.42) * 11 * Math.exp(-x / 50);
+    pts.push(`${x} ${(14 - y).toFixed(1)}`);
+  }
+  return 'M' + pts.join('L');
+};
 Views.settings = arg => {
   const s = S.profile.settings, st = S.profile.study;
   const aiTxt = { on: t('Connectée'), off: t('Non disponible ici'), denied: t('Non autorisée'), locked: t("Code d'accès requis"), checking: t('Vérification…') }[AI.status];
@@ -7870,7 +8262,7 @@ Views.settings = arg => {
           ${setRow(t('Typographie'), '', segCtl('font', Object.entries(FONTS).map(([k, v]) => [k, t(v.name)]), s.font))}
           ${setRow(t('Taille du texte'), '', segCtl('textSize', [[0.92, 'A−'], [1, 'A'], [1.1, 'A+'], [1.22, 'A++']], s.textSize))}
           ${setRow(t('Densité'), '', segCtl('density', [['comfy', t('Aérée')], ['compact', t('Compacte')]], s.density))}
-          ${setRow(t('Papier des fiches'), '', segCtl('cardStyle', [['ruled', t('Bristol ligné')], ['plain', t('Uni')], ['grid', t('Quadrillé')], ['slate', t('Ardoise')]], s.cardStyle))}
+          <div class="set-row col"><div class="t"><b>${t('Papier des fiches')}</b></div><div class="papers" id="papers">${Object.entries(PAPERS).map(([k, v]) => `<button type="button" class="paper ${paperOn(s) === k ? 'on' : ''}" data-paper="${k}" aria-pressed="${paperOn(s) === k}"><span class="pp-desk" aria-hidden="true"><span class="pp pp-${k}"><em>Aa</em></span></span><b>${t(v.name)}${v.elite ? ` <span class="elite-tag">${t('Élite')}</span>` : ''}</b></button>`).join('')}</div></div>
           ${setRow(t('Animations'), t('« Complètes » : pages qui glissent, tampon, envol vers la boîte, bordereau imprimé. « Rapides » : l\'essentiel. « Aucune » : immobile.'), segCtl('anim', [['full', t('Complètes')], ['fast', t('Rapides')], ['none', t('Aucune')]], s.anim))}
           ${setRow(t('Grain du bureau'), t('La texture de feutre et la lumière de lampe.'), sw('desk', s.desk, t('Grain du bureau')))}
         </div>
@@ -7895,7 +8287,11 @@ Views.settings = arg => {
       ${setRow(t('Exigence de la correction'), t(STRICT[s.strict].desc) + '. ' + t('La correction accepte synonymes et reformulations selon le niveau choisi.'), segCtl('strict', Object.entries(STRICT).map(([k, v]) => [k, t(v.label)]), s.strict))}
       ${setRow(t('Ambiance de travail'), t('Un fond sonore discret pendant la séance.'), segCtl('ambient', [['off', t('Silence')], ['library', t('Bibliothèque')], ['rain', t('Pluie')]], s.ambient))}
       ${setRow(t('Lecture à voix haute'), t('Lit chaque question automatiquement pendant la séance.'), sw('tts', s.tts, t('Lecture à voix haute')))}
-      ${setRow(t('Sons'), t('Tampon, papier, petites notes de réussite.'), sw('sound', s.sound, t('Sons')))}
+      ${setRow(t('Sons'), t('Choisissez une famille de sons discrets et réglez leur volume.'), sw('sound', s.sound, t('Sons')))}
+      <div class="set-row col snd ${s.sound ? '' : 'mute'}" id="sndBox" ${s.sound ? '' : 'inert'}>
+        <div class="sthemes" id="sthemes">${Object.entries(SOUND_THEMES).map(([k, v]) => `<div class="stheme ${soundThemeOn(s) === k ? 'on' : ''}" data-st="${k}"><button type="button" class="st-pick" data-stheme="${k}" aria-pressed="${soundThemeOn(s) === k}"><span class="st-strip" aria-hidden="true"><svg viewBox="0 0 120 28" preserveAspectRatio="none"><path d="${sndWave(k)}" vector-effect="non-scaling-stroke"/></svg></span><b>${t(v.name)}${v.elite ? ` <span class="elite-tag">${t('Élite')}</span>` : ''}</b><small>${t(v.desc)}</small></button><button type="button" class="st-play" data-preview="${k}" aria-label="${esc(t('Écouter : {x}', { x: t(v.name) }))}" data-tip="${esc(t('Écouter'))}">${icon('play', 'i-sm')}</button></div>`).join('')}</div>
+        <div class="snd-vol"><label for="setVol">${t('Volume')}</label><div class="ctl">${icon('volume', 'i-sm')}<input type="range" min="0" max="100" step="5" value="${clamp(+s.soundVolume || 0, 0, 100)}" id="setVol"><b class="tnum" id="volOut">${pct(clamp(+s.soundVolume || 0, 0, 100) / 100)}</b></div></div>
+      </div>
     </div></article></section>
 
     <section class="sec" id="sAI"><div class="sec-h"><div><h2 class="h2">${t('IA et Mentor')}</h2><p>${t('Création de fiches depuis une photo, correction des réponses, prof virtuel, fiches de synthèse, et Mentor, l\'assistant qui agit dans l\'app pour vous.')}</p></div></div>
@@ -7961,14 +8357,34 @@ Hooks.settings = arg => {
     if (['mentorTier', 'tone', 'strict'].includes(k)) { const row = seg.closest('.set-row'); const sp = row?.querySelector('.t span'); if (sp) sp.textContent = k === 'mentorTier' ? t(MENTOR_TIERS[s[k]][1]) : k === 'tone' ? t(TONES[s[k]].desc) : t(STRICT[s[k]].desc) + '. ' + t('La correction accepte synonymes et reformulations selon le niveau choisi.'); }
   }));
   $$('[data-study]').forEach(seg => seg.addEventListener('click', e => { const b = e.target.closest('[data-val]'); if (!b) return; st[seg.dataset.study] = b.dataset.val; Store.touch('profile'); $$('button', seg).forEach(x => x.classList.toggle('on', x === b)); }));
-  $$('[data-toggle]').forEach(x => x.addEventListener('click', () => { const k = x.dataset.toggle; s[k] = !s[k]; x.classList.toggle('on', s[k]); x.setAttribute('aria-pressed', s[k]); Store.touch('profile'); if (k === 'desk') Custom.apply(); if (k === 'followPlan') App.chrome(); }));
+  $$('[data-toggle]').forEach(x => x.addEventListener('click', () => { const k = x.dataset.toggle; s[k] = !s[k]; x.classList.toggle('on', s[k]); x.setAttribute('aria-pressed', s[k]); Store.touch('profile'); if (k === 'desk') Custom.apply(); if (k === 'followPlan') App.chrome(); if (k === 'sound') { const bx = $('#sndBox'); bx?.classList.toggle('mute', !s[k]); bx?.toggleAttribute('inert', !s[k]); if (s[k]) Sound.play('pop'); else Sound.hush(); } }));
   $('#setMaxIvl')?.addEventListener('change', e => { if (!Pro.expert) { e.target.value = '0'; Pro.upsell('atelier'); return; } s.maxIvl = +e.target.value; Store.touch('profile'); toast(t('Intervalle maximal : {x}', { x: e.target.selectedOptions[0].textContent }), 'clock'); });
   const hex = $('#accentHex');
   hex?.addEventListener('click', e => { if (!Pro.expert) { e.preventDefault(); Pro.upsell('atelier'); } });
   hex?.addEventListener('input', e => { s.accent = 'custom'; s.accentHex = e.target.value; const lb = e.target.parentElement; lb.style.setProperty('--a', e.target.value); $$('#accents .accent').forEach(x => x.classList.toggle('on', x === lb)); Custom.apply(); });
   hex?.addEventListener('change', () => Store.touch('profile'));
   $('#skins')?.addEventListener('click', e => { const b = e.target.closest('[data-skin]'); if (!b) return; if (SKINS[b.dataset.skin]?.elite && !Pro.expert) return Pro.upsell('atelier'); s.skin = b.dataset.skin; Store.touch('profile'); $$('#skins .skin').forEach(x => x.classList.toggle('on', x === b)); Custom.apply(); });
+  $('#papers')?.addEventListener('click', e => { const b = e.target.closest('[data-paper]'); if (!b) return; const k = b.dataset.paper; if (PAPERS[k]?.elite && !Pro.expert) return Pro.upsell('atelier'); s.cardStyle = k; Store.touch('profile'); $$('#papers .paper').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); }); Custom.apply(); requestAnimationFrame(() => Ruling.scan()); });
   $('#accents')?.addEventListener('click', e => { const b = e.target.closest('[data-accent]'); if (!b) return; s.accent = b.dataset.accent; Store.touch('profile'); $$('#accents .accent').forEach(x => x.classList.toggle('on', x === b)); Custom.apply(); });
+  // Sons : thème (Cristal et Rétro réservés à Élite, mais chacun peut les écouter), écoute, volume.
+  $('#sndBox')?.addEventListener('click', e => {
+    const pv = e.target.closest('[data-preview]');
+    if (pv) {
+      const card = pv.closest('.stheme'), ms = Sound.preview(pv.dataset.preview);
+      $$('#sthemes .stheme').forEach(x => { x.classList.remove('playing'); clearTimeout(x._pt); });
+      if (ms) { void card.offsetWidth; card.classList.add('playing'); card._pt = setTimeout(() => card.classList.remove('playing'), ms); }
+      return;
+    }
+    const b = e.target.closest('[data-stheme]'); if (!b) return;
+    const k = b.dataset.stheme;
+    if (SOUND_THEMES[k]?.elite && !Pro.expert) return Pro.upsell('atelier');
+    s.soundTheme = k; Store.touch('profile');
+    $$('#sthemes .stheme').forEach(x => { const on = x.dataset.st === k; x.classList.toggle('on', on); x.querySelector('.st-pick')?.setAttribute('aria-pressed', on); });
+    Sound.play('good');
+  });
+  const vol = $('#setVol');
+  vol?.addEventListener('input', () => { s.soundVolume = clamp(+vol.value, 0, 100); $('#volOut').textContent = pct(s.soundVolume / 100); Sound.volume(); Store.touch('profile'); });
+  vol?.addEventListener('change', () => Sound.play('pop'));
   $$('[data-setlang]').forEach(b => b.addEventListener('click', () => changeLang(b.dataset.setlang)));
   $('#stName')?.addEventListener('change', e => { st.name = e.target.value.trim().slice(0, 40); Store.touch('profile'); });
   $('#stAim')?.addEventListener('change', e => { st.aim = e.target.value; Store.touch('profile'); });
@@ -8216,17 +8632,30 @@ const Study = {
   layout() {
     const card = $('#card3d'), main = $('#study .st-main'); if (!card || !main) return;
     const faces = [...card.querySelectorAll('.face')];
-    card.style.height = ''; card.style.minHeight = '';
+    card.style.height = ''; card.style.minHeight = ''; card.style.width = ''; main.classList.remove('a4-sheet');
     faces.forEach(f => Ruling.snap(f, f.querySelector('.face-body'), false));
-    const need = Math.max(...faces.map(f => { const b = f.querySelector('.face-body'); return b ? f.clientHeight - b.clientHeight + b.scrollHeight + 2 : 0; }));
+    const need = Math.max(...faces.map(f => { const b = f.querySelector('.face-body'); return b ? f.clientHeight - b.clientHeight + this.bodyNeed(b) + 2 : 0; }));
     const items = [...main.children].flatMap(k => getComputedStyle(k).display === 'contents' ? [...k.children] : [k]).filter(k => k.offsetHeight);
     const ms = getComputedStyle(main), gap = parseFloat(ms.rowGap) || 0;
     const used = items.reduce((a, k) => a + k.offsetHeight, 0) + gap * Math.max(0, items.length - 1) + (parseFloat(ms.paddingTop) || 0) + (parseFloat(ms.paddingBottom) || 0);
     const base = card.offsetHeight, room = base + main.clientHeight - used;
     const h = Math.max(Math.min(Math.max(base, need), room), 220);
     if (Math.abs(h - base) > 1) { card.style.minHeight = '0px'; card.style.height = h + 'px'; }
+    this.sheet(card, main, faces, room);
     faces.forEach(f => Ruling.snap(f, f.querySelector('.face-body')));
     card.querySelectorAll('img').forEach(im => { if (!im.complete) im.addEventListener('load', () => this.layout(), { once: true }); });
+  },
+  bodyNeed(b) { const j = b.style.justifyContent; b.style.justifyContent = 'flex-start'; const h = b.scrollHeight; b.style.justifyContent = j; return h; },
+  /* Feuille A4 : sur tablette et ordinateur, la fiche prend les proportions d'une feuille portrait (1 : 1,414)
+     quand la place le permet ; si la hauteur manque ou si le contenu ne tient pas, elle reste une fiche ordinaire. */
+  sheet(card, main, faces, room) {
+    if (document.documentElement.dataset.card !== 'a4' || innerWidth < 700 || main.classList.contains('ink-on')) return;
+    const w0 = card.offsetWidth, hA = Math.floor(Math.min(room, w0 * 1.414)), w = Math.round(clamp(hA / 1.414, Math.min(360, w0), w0));
+    if (!(hA >= w * 1.25)) return;
+    const prev = [card.style.width, card.style.height, card.style.minHeight];
+    card.style.width = w + 'px'; card.style.minHeight = '0px'; card.style.height = hA + 'px';
+    if (faces.some(f => { const b = f.querySelector('.face-body'); return b && this.bodyNeed(b) > b.clientHeight + 1; })) { [card.style.width, card.style.height, card.style.minHeight] = prev; return; }
+    main.classList.add('a4-sheet'); main.style.setProperty('--cardw', w + 'px');
   },
   backHTML(f) {
     const v = this.verdict;
@@ -8287,10 +8716,10 @@ const Study = {
     });
     stage.addEventListener('pointerleave', () => { card.style.setProperty('--rx', '0deg'); card.style.setProperty('--ry', '0deg'); });
     // Glisser : droite = Acquis, gauche = À revoir (une fois la fiche retournée).
-    let sx = null, sy = 0, moved = false;
-    card.addEventListener('pointerdown', e => { if (e.target.closest('button,input,a')) return; sx = e.clientX; sy = e.clientY; moved = false; });
+    let sx = null, sy = 0, moved = false, pan = false;
+    card.addEventListener('pointerdown', e => { if (e.target.closest('button,input,a')) return; sx = e.clientX; sy = e.clientY; moved = false; const tw = e.target.closest('.c-tbl'); pan = !!tw && tw.scrollWidth > tw.clientWidth + 1; });
     card.addEventListener('pointermove', e => {
-      if (sx === null || !this.flipped || this.busy) return;
+      if (sx === null || pan || !this.flipped || this.busy) return;
       const dx = e.clientX - sx; if (Math.abs(dx) < 8 && !moved) return;
       if (!moved && Math.abs(e.clientY - sy) > Math.abs(dx)) { sx = null; return; }
       moved = true; card.classList.add('dragging'); card.setPointerCapture?.(e.pointerId);
@@ -9948,8 +10377,8 @@ ${JSON.stringify(this.snapshot())}`;
           if (i.target_retention != null) { s.retention = clamp(+i.target_retention, 0.8, 0.97); done.push(t('rétention visée')); }
           Store.touch('profile'); mark(); say(t('Profil mis à jour : {x}', { x: done.join(', ') || '—' })); return 'ok';
         } },
-      { name: 'change_settings', description: 'Change app settings and appearance. language: fr|en|es|de|pt. theme: ' + Object.keys(SKINS).join('|') + '. accent: ' + Object.keys(ACCENTS).join('|') + '. font: ' + Object.keys(FONTS).join('|') + '. text_size: 0.92–1.22. density: comfy|compact. card_paper: ruled|plain|grid|slate. animations: full|fast|none. strictness: souple|standard|strict. answer_mode: flip|type. ambient: off|library|rain. tone: ' + Object.keys(TONES).join('|') + '.',
-        inputSchema: { type: 'object', properties: { language: { type: 'string', enum: UI_LANGS }, theme: { type: 'string', enum: Object.keys(SKINS) }, accent: { type: 'string', enum: Object.keys(ACCENTS) }, font: { type: 'string', enum: Object.keys(FONTS) }, text_size: { type: 'number' }, density: { type: 'string', enum: ['comfy', 'compact'] }, card_paper: { type: 'string', enum: ['ruled', 'plain', 'grid', 'slate'] }, animations: { type: 'string', enum: ['full', 'fast', 'none'] }, sounds: { type: 'boolean' }, read_aloud: { type: 'boolean' }, ambient: { type: 'string', enum: ['off', 'library', 'rain'] }, strictness: { type: 'string', enum: Object.keys(STRICT) }, answer_mode: { type: 'string', enum: ['flip', 'type', 'ink'] }, tone: { type: 'string', enum: Object.keys(TONES) } } },
+      { name: 'change_settings', description: 'Change app settings and appearance. language: fr|en|es|de|pt. theme: ' + Object.keys(SKINS).join('|') + '. accent: ' + Object.keys(ACCENTS).join('|') + '. font: ' + Object.keys(FONTS).join('|') + '. text_size: 0.92–1.22. density: comfy|compact. card_paper: ' + Object.keys(PAPERS).join('|') + ' (kraft, chalk, whiteboard: Elite plan only). animations: full|fast|none. strictness: souple|standard|strict. answer_mode: flip|type. ambient: off|library|rain. sound_theme: ' + Object.keys(SOUND_THEMES).join('|') + ' (crystal, retro: Elite plan only). sound_volume: 0–100. tone: ' + Object.keys(TONES).join('|') + '.',
+        inputSchema: { type: 'object', properties: { language: { type: 'string', enum: UI_LANGS }, theme: { type: 'string', enum: Object.keys(SKINS) }, accent: { type: 'string', enum: Object.keys(ACCENTS) }, font: { type: 'string', enum: Object.keys(FONTS) }, text_size: { type: 'number' }, density: { type: 'string', enum: ['comfy', 'compact'] }, card_paper: { type: 'string', enum: Object.keys(PAPERS) }, animations: { type: 'string', enum: ['full', 'fast', 'none'] }, sounds: { type: 'boolean' }, sound_theme: { type: 'string', enum: Object.keys(SOUND_THEMES) }, sound_volume: { type: 'number' }, read_aloud: { type: 'boolean' }, ambient: { type: 'string', enum: ['off', 'library', 'rain'] }, strictness: { type: 'string', enum: Object.keys(STRICT) }, answer_mode: { type: 'string', enum: ['flip', 'type', 'ink'] }, tone: { type: 'string', enum: Object.keys(TONES) } } },
         execute: i => {
           const s = S.profile.settings, done = [];
           const set = (k, v, ok, label) => { if (v != null && ok) { s[k] = v; done.push(label); } };
@@ -9958,9 +10387,11 @@ ${JSON.stringify(this.snapshot())}`;
           set('font', str(i.font), FONTS[str(i.font)], t('typographie'));
           if (i.text_size != null) set('textSize', clamp(+i.text_size, 0.92, 1.22), true, t('taille du texte'));
           set('density', str(i.density), ['comfy', 'compact'].includes(str(i.density)), t('densité'));
-          set('cardStyle', str(i.card_paper), ['ruled', 'plain', 'grid', 'slate'].includes(str(i.card_paper)), t('papier des fiches'));
+          set('cardStyle', str(i.card_paper), !!PAPERS[str(i.card_paper)] && (!PAPERS[str(i.card_paper)].elite || Pro.expert), t('papier des fiches'));
           set('anim', str(i.animations), ['full', 'fast', 'none'].includes(str(i.animations)), t('animations'));
           if (typeof i.sounds === 'boolean') set('sound', i.sounds, true, t('sons'));
+          set('soundTheme', str(i.sound_theme), !!SOUND_THEMES[str(i.sound_theme)] && (!SOUND_THEMES[str(i.sound_theme)].elite || Pro.expert), t('thème sonore'));
+          if (i.sound_volume != null && Number.isFinite(+i.sound_volume)) set('soundVolume', clamp(Math.round(+i.sound_volume), 0, 100), true, t('volume des sons'));
           if (typeof i.read_aloud === 'boolean') set('tts', i.read_aloud, true, t('lecture à voix haute'));
           set('ambient', str(i.ambient), ['off', 'library', 'rain'].includes(str(i.ambient)), t('ambiance'));
           set('strict', str(i.strictness), STRICT[str(i.strictness)], t('exigence de correction'));
@@ -10121,6 +10552,7 @@ async function unzstd(u) { if (!isZstd(u)) return u; const z = await lib('zstd')
 function htmlToText(s) {
   const src = String(s || '').replace(/\[sound:[^\]]*\]/g, '').replace(/<br\s*\/?>/gi, '\n').replace(/<\/(div|p|li|h\d)>/gi, '\n').replace(/<img[^>]*>/gi, '');
   const doc = new DOMParser().parseFromString(src, 'text/html');
+  doc.body.querySelectorAll('table').forEach(tb => tb.replaceWith('\n' + Tbl.fromTable(tb) + '\n'));
   return (doc.body.textContent || '').replace(/\u00a0/g, ' ').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
 }
 const imgSrcs = s => [...String(s || '').matchAll(/<img[^>]+src=["']?([^"'>\s]+)/gi)].map(m => { try { return decodeURIComponent(m[1]); } catch { return m[1]; } });
@@ -10578,7 +11010,11 @@ const ANKI_CSS = `.card { font-family: "Iowan Old Style", Georgia, serif; font-s
 .nightMode.card, .card.nightMode { color: #EFE9DA; background: #15201B; }
 hr#answer { border: 0; border-top: 1.5px dashed #C3342A; margin: 18px 0; }
 .cloze { font-weight: 700; color: #2F55B0; } .extra { font-size: 16px; color: #6E695C; margin-top: 12px; }
-img { max-width: 100%; border-radius: 6px; }`;
+img { max-width: 100%; border-radius: 6px; }
+table.c-table { border-collapse: collapse; margin: 12px auto; font-size: 17px; line-height: 1.35; }
+.c-table th, .c-table td { padding: 5px 12px; text-align: left; border-bottom: 1px solid rgba(29, 28, 24, .14); }
+.c-table th { font-variant: small-caps; letter-spacing: .04em; color: #6E695C; border-bottom: 1.5px solid rgba(29, 28, 24, .45); }
+.nightMode .c-table td { border-color: rgba(239, 233, 218, .16); } .nightMode .c-table th { color: #B9B2A2; border-color: rgba(239, 233, 218, .45); }`;
 const ankiGuid = s => { const A = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&()*+,-./:;<=>?@[]^_`{|}~'; let h = BigInt('0x' + hash(s).toString(16) + hash(s + '#').toString(16)), out = ''; while (h > 0n) { out = A[Number(h % 91n)] + out; h /= 91n; } return out || 'a'; };
 async function ankiCsum(s) { try { const buf = await crypto.subtle.digest('SHA-1', new TextEncoder().encode(s)); return parseInt([...new Uint8Array(buf).slice(0, 4)].map(b => b.toString(16).padStart(2, '0')).join(''), 16); } catch { return 0; } }
 async function exportAnki(deckList) {
@@ -10602,7 +11038,7 @@ async function exportAnki(deckList) {
     const conf = { activeDecks: [1], curDeck: 1, newSpread: 0, collapseTime: 1200, timeLim: 0, estTimes: true, dueCounts: true, curModel: String(MB), nextPos: 1, sortType: 'noteFld', sortBackwards: false, addToCur: true };
     const media = {}; let mi = 0; const mediaFiles = [];
     const addMedia = (imgId, ext) => { const u = S.images[imgId]; if (!u) return ''; const name = `engram-${imgId}.${ext}`; if (!Object.values(media).includes(name)) { media[mi] = name; mediaFiles.push([String(mi), dataUrlToBlob(u)]); mi++; } return `<img src="${name}">`; };
-    const h = s => esc(s).replace(/\n/g, '<br>');
+    const h = s => Tbl.blocks(s).map(b => b.head ? Tbl.html(b, true) : esc(b.text).replace(/\n/g, '<br>')).join('');
     let nid = now * 10, cid = now * 10, nNotes = 0;
     const insN = db.prepare('INSERT INTO notes VALUES (?,?,?,?,?,?,?,?,?,?,?)'), insC = db.prepare('INSERT INTO cards VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
     for (const d of deckList) {
@@ -10889,6 +11325,19 @@ const FONTS = {
   editorial: { name: N_('Éditoriale'), css: 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..700,0..100&family=Instrument+Sans:wght@400..700&display=swap' },
   readable: { name: N_('Très lisible'), css: 'https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap' }
 };
+/* Papiers des fiches. Les papiers Élite retombent sur le bristol ligné quand l'abonnement s'arrête (le choix est gardé). */
+const PAPERS = {
+  ruled: { name: N_('Bristol ligné') },
+  plain: { name: N_('Uni') },
+  grid: { name: N_('Quadrillé') },
+  slate: { name: N_('Ardoise') },
+  a4: { name: N_('Feuille A4') },
+  seyes: { name: N_('Seyès') },
+  kraft: { name: N_('Kraft'), elite: true },
+  chalk: { name: N_('Tableau noir'), elite: true },
+  whiteboard: { name: N_('Tableau blanc'), elite: true }
+};
+const paperOn = s => { const p = PAPERS[s.cardStyle]; return p && (!p.elite || (typeof Pro !== 'undefined' && Pro.expert)) ? s.cardStyle : 'ruled'; };
 const Custom = {
   loaded: new Set(),
   apply() {
@@ -10906,7 +11355,7 @@ const Custom = {
     } else AV.forEach(k => r.style.removeProperty(k));
     set('font', s.font === 'classic' ? null : s.font);
     set('density', s.density === 'comfy' ? null : s.density);
-    set('card', s.cardStyle === 'ruled' ? null : s.cardStyle);
+    const pap = paperOn(s); set('card', pap === 'ruled' ? null : pap);
     set('desk', s.desk ? null : 'off');
     set('motion', s.anim === 'none' ? 'none' : null);
     r.style.setProperty('--ts', String(clamp(+s.textSize || 1, 0.85, 1.3)));
@@ -13013,12 +13462,12 @@ TR = {
   "Intervalle maximal : {x}": ["Maximum interval: {x}", "Intervalo máximo: {x}", "Maximales Intervall: {x}", "Intervalo máximo: {x}"],
   "Rétention visée pour ce paquet": ["Target retention for this deck", "Retención objetivo para este mazo", "Ziel-Behaltensrate für diesen Stapel", "Retenção desejada para este baralho"],
   "Comme les réglages ({x})": ["Same as settings ({x})", "Como en los ajustes ({x})", "Wie in den Einstellungen ({x})", "Como nas configurações ({x})"],
-  "L'atelier : thèmes Velours et Marbre, couleur sur mesure": ["The workshop: Velvet and Marble themes, custom colour", "El taller: temas Terciopelo y Mármol, color a medida", "Die Werkstatt: Themes Samt und Marmor, Farbe nach Maß", "O ateliê: temas Veludo e Mármore, cor sob medida"],
+  "L'atelier : thèmes Velours et Marbre, papiers d'exception, couleur sur mesure": ["The workshop: Velvet and Marble themes, signature papers, custom colour", "El taller: temas Terciopelo y Mármol, papeles exclusivos, color a medida", "Die Werkstatt: Themes Samt und Marmor, besondere Papiere, Farbe nach Maß", "O ateliê: temas Veludo e Mármore, papéis exclusivos, cor sob medida"],
   "Mémoire sur mesure : rétention par paquet, intervalle maximal": ["Memory your way: retention per deck, maximum interval", "Memoria a medida: retención por mazo, intervalo máximo", "Gedächtnis nach Maß: Behaltensrate pro Stapel, maximales Intervall", "Memória sob medida: retenção por baralho, intervalo máximo"],
   "Thèmes exclusifs et couleur sur mesure": ["Exclusive themes and custom colour", "Temas exclusivos y color a medida", "Exklusive Themes und Farbe nach Maß", "Temas exclusivos e cor sob medida"],
   "Rétention par paquet et intervalle maximal": ["Retention per deck and maximum interval", "Retención por mazo e intervalo máximo", "Behaltensrate pro Stapel und maximales Intervall", "Retenção por baralho e intervalo máximo"],
   "Cet outil fait partie d'Élite": ["This tool is part of Elite", "Esta herramienta forma parte de Élite", "Dieses Werkzeug gehört zu Elite", "Esta ferramenta faz parte do Elite"],
-  "Thèmes Velours et Marbre, couleur d'accent sur mesure, rétention par paquet et intervalle maximal : Élite règle Engram à votre façon.": ["Velvet and Marble themes, a custom accent colour, retention per deck and a maximum interval: Elite tunes Engram your way.", "Temas Terciopelo y Mármol, color de acento a medida, retención por mazo e intervalo máximo: Élite ajusta Engram a tu manera.", "Themes Samt und Marmor, Akzentfarbe nach Maß, Behaltensrate pro Stapel und maximales Intervall: Elite stellt Engram auf dich ein.", "Temas Veludo e Mármore, cor de destaque sob medida, retenção por baralho e intervalo máximo: o Elite ajusta o Engram do seu jeito."],
+  "Thèmes Velours et Marbre, papiers Tableau noir, Tableau blanc et Kraft, couleur d'accent sur mesure, rétention par paquet et intervalle maximal : Élite règle Engram à votre façon.": ["Velvet and Marble themes, Blackboard, Whiteboard and Kraft papers, a custom accent colour, retention per deck and a maximum interval: Elite tunes Engram your way.", "Temas Terciopelo y Mármol, papeles Pizarra de tiza, Pizarra blanca y Kraft, color de acento a medida, retención por mazo e intervalo máximo: Élite ajusta Engram a tu manera.", "Themes Samt und Marmor, Papiere Kreidetafel, Whiteboard und Kraftpapier, Akzentfarbe nach Maß, Behaltensrate pro Stapel und maximales Intervall: Elite stellt Engram auf dich ein.", "Temas Veludo e Mármore, papéis Quadro-negro, Quadro branco e Kraft, cor de destaque sob medida, retenção por baralho e intervalo máximo: o Elite ajusta o Engram do seu jeito."],
   "Aucun": ["None", "Ninguno", "Keins", "Nenhum"],
   "6 mois": ["6 months", "6 meses", "6 Monate", "6 meses"],
   "photo reçue|photos reçues": ["photo received|photos received", "foto recibida|fotos recibidas", "Foto empfangen|Fotos empfangen", "foto recebida|fotos recebidas"],
@@ -13044,6 +13493,29 @@ TR = {
   "La dictée n'est pas disponible dans ce navigateur : essayez Chrome, Edge ou Safari.": ["Dictation isn't available in this browser: try Chrome, Edge or Safari.", "El dictado no está disponible en este navegador: prueba Chrome, Edge o Safari.", "Diktieren ist in diesem Browser nicht verfügbar: versuch Chrome, Edge oder Safari.", "O ditado não está disponível neste navegador: tente Chrome, Edge ou Safari."],
   "Micro refusé : autorisez-le dans les réglages du navigateur.": ["Microphone blocked: allow it in your browser settings.", "Micrófono bloqueado: autorízalo en los ajustes del navegador.", "Mikrofon blockiert: erlaube es in den Browsereinstellungen.", "Microfone bloqueado: permita nas configurações do navegador."],
   "{n} mots transcrits. Choisissez les types de fiches, puis lancez.": ["{n} words transcribed. Choose the card types, then start.", "{n} palabras transcritas. Elige los tipos de tarjetas y empieza.", "{n} Wörter erfasst. Wähle die Kartentypen und starte.", "{n} palavras transcritas. Escolha os tipos de cartões e comece."],
+  "Feuille A4": ["A4 sheet","Hoja A4","A4-Blatt","Folha A4"],
+  "Seyès": ["French ruled","Cuadrovía","Seyès-Lineatur","Pauta Seyès"],
+  "Kraft": ["Kraft paper","Papel kraft","Kraftpapier","Papel kraft"],
+  "Tableau noir": ["Blackboard","Pizarra de tiza","Kreidetafel","Quadro-negro"],
+  "Tableau blanc": ["Whiteboard","Pizarra blanca","Whiteboard","Quadro branco"],
+  "Classique@@sons": ["Classic","Clásico","Klassisch","Clássico"],
+  "Papier et encre": ["Paper and ink","Papel y tinta","Papier und Tinte","Papel e tinta"],
+  "Bois": ["Wood","Madera","Holz","Madeira"],
+  "Cristal": ["Crystal","Cristal","Kristall","Cristal"],
+  "Rétro": ["Retro","Retro","Retro","Retrô"],
+  "Tampon, papier et petites notes : les sons d'origine.": ["Stamp, paper and little notes: the original sounds.","Sello, papel y pequeñas notas: los sonidos de siempre.","Stempel, Papier und kleine Töne: die ursprünglichen Klänge.","Carimbo, papel e pequenas notas: os sons de sempre."],
+  "Feuilles qui glissent, crayon, tampon feutré.": ["Sliding sheets, pencil taps, a muffled stamp.","Hojas que se deslizan, lápiz, sello amortiguado.","Gleitende Blätter, Bleistift, gedämpfter Stempel.","Folhas que deslizam, lápis, carimbo abafado."],
+  "Marimba et blocs de bois, tout en chaleur.": ["Marimba and wood blocks, warm and round.","Marimba y bloques de madera, todo calidez.","Marimba und Holzblöcke, ganz warm.","Marimba e blocos de madeira, cheios de calor."],
+  "Clochettes de verre, légères et aériennes.": ["Glass bells, light and airy.","Campanillas de cristal, ligeras y etéreas.","Glasglöckchen, leicht und luftig.","Sininhos de vidro, leves e etéreos."],
+  "Petites notes 8 bits, tout en douceur.": ["Gentle little 8-bit notes.","Pequeñas notas de 8 bits, muy suaves.","Kleine 8-Bit-Töne, ganz sanft.","Pequenas notas de 8 bits, bem suaves."],
+  "Choisissez une famille de sons discrets et réglez leur volume.": ["Pick a family of subtle sounds and set their volume.","Elige una familia de sonidos discretos y ajusta su volumen.","Wähle eine Familie dezenter Klänge und stelle ihre Lautstärke ein.","Escolha uma família de sons discretos e ajuste o volume."],
+  "Volume": ["Volume","Volumen","Lautstärke","Volume"],
+  "Écouter : {x}": ["Listen: {x}","Escuchar: {x}","Anhören: {x}","Ouvir: {x}"],
+  "thème sonore": ["sound theme","tema de sonido","Klangthema","tema sonoro"],
+  "volume des sons": ["sound volume","volumen de los sonidos","Lautstärke der Töne","volume dos sons"],
+  "Insérer un tableau": ["Insert a table","Insertar una tabla","Tabelle einfügen","Inserir uma tabela"],
+  "Colonne {n}": ["Column {n}","Columna {n}","Spalte {n}","Coluna {n}"],
+  "Tableau collé": ["Table pasted","Tabla pegada","Tabelle eingefügt","Tabela colada"],
 };
 
 /* ── Démarrage ─────────────────────────────────────────────────────── */
