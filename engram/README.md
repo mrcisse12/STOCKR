@@ -93,7 +93,8 @@ L'app détecte seule le serveur qui la sert. Si l'app est hébergée ailleurs (N
 | `ANTHROPIC_API_KEY` | — | Clé de l'API Claude |
 | `ENGRAM_ACCESS_CODE` | — | Code d'accès à saisir dans Réglages (conseillé pour un serveur public) |
 | `ENGRAM_MODEL_QUICK` / `_DEFAULT` / `_COMPLEX` | `claude-sonnet-5-5` / `claude-opus-5-5` / `claude-fable-5-1` | Modèles des niveaux Rapide, Standard et Expert |
-| `ENGRAM_EFFORT_QUICK` / `_DEFAULT` / `_COMPLEX` | `low` / `medium` / `high` | Effort de réflexion |
+| `ENGRAM_EFFORT_QUICK` / `_DEFAULT` / `_COMPLEX` | `low` / `medium` / `high` | Effort de réflexion quand la page n'en demande pas |
+| `ENGRAM_EFFORT_TOP` | `max` | Effort le plus haut permis à Élite (la page le demande selon la tâche et la filière ; Pro est plafonné à `high`, Découverte à `low`). `xhigh` réduit nettement le coût d'Élite |
 | `ENGRAM_RATE_PER_MIN` | `30` | Requêtes par minute et par adresse |
 | `ENGRAM_FALLBACKS` | activé | Repli automatique sur le modèle recommandé si une requête est déclinée (`off` pour couper) |
 | `ENGRAM_CORS_ORIGIN` | — | Origines autorisées (`*` ou liste séparée par des virgules) |
@@ -106,6 +107,17 @@ Obtenir la clé : créez un compte sur [platform.claude.com](https://platform.cl
 ## Mentor
 
 Bouton en bas à droite, **Ctrl/⌘ J** ou **/**. Exemples : « Prépare-moi pour mon bac de SVT du 17 juin », « Crée 15 fiches sur la Révolution française », « Reformule mes cartes les plus oubliées », « Je n'ai que 10 minutes le mardi ». Chaque action laisse un reçu et peut être annulée d'un clic ; les suppressions demandent confirmation.
+
+- **Selon votre filière** : la filière et l'exigence (Réglages → Profil) règlent les fiches, les corrections, les exercices et les explications. En prépa, Mentor donne des exercices façon DS ou colle et des indices avant la solution.
+- **Fichiers** (Pro : 5 par demande ; Élite : 20) : trombone, glisser-déposer ou coller. PDF, Word, PowerPoint, Excel, CSV, OpenDocument, EPUB, images, ZIP. Les gros cours sont lus morceau par morceau (en entier en Élite).
+- **Fiche de cours** : « Fiche de cours détaillée » rédige notions, définitions, formules (LaTeX, dessinées par MathJax), méthodes, pièges, exemples, démonstrations et « À retenir », dans une liseuse plein écran ; elle se range dans le paquet, et « Créer les fiches » en tire les cartes.
+- **Pages web** (Pro et Élite) : collez un lien, Mentor lit la page et en explique le fond.
+
+## Planning heure par heure (Élite)
+
+Programme → **Planning heure par heure** : vos révisions posées dans vos créneaux libres (blocs de 25 min, pauses, le plus exigeant à votre meilleur moment, fiche de cours avant les nouvelles, examen blanc à J−3). « Composer ma semaine avec l'IA » laisse le modèle le plus puissant organiser la semaine. Rappels : notification et son à l'heure de chaque séance quand Engram est ouvert, et **alarmes dans l'agenda** (.ics) même app fermée.
+
+**Raccourcis Apple et Siri** : l'adresse du site suivie de `#now` ouvre la séance du moment (Raccourcis → « Ouvrir les URL » → « Dis Siri, ma séance Engram ») ; `#agenda` ouvre le planning.
 
 ## Au stylet (iPad, Android, Surface)
 

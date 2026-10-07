@@ -16,6 +16,9 @@ Ce document accompagne le prototype livré dans ce dossier (`engram/index.html` 
    - [Des animations qui guident](#1-nonies-des-animations-qui-guident)
    - [Vitesse et confort](#1-decies-vitesse-et-confort)
    - [Mise en ligne vérifiée](#1-undecies-mise-en-ligne-vérifiée)
+   - [L'IA selon la filière et la formule](#1-duodecies-lia-selon-la-filière-et-la-formule)
+   - [Mentor lit vos fichiers, la fiche de cours](#1-terdecies-mentor-lit-vos-fichiers-la-fiche-de-cours)
+   - [Le planning heure par heure d'Élite](#1-quaterdecies-le-planning-heure-par-heure-délite)
 2. [Anki : ce qu'il fait bien, ce qu'il fait mal](#2-anki--ce-quil-fait-bien-ce-quil-fait-mal)
 3. [Ce que le prototype fait](#3-ce-que-le-prototype-fait)
 4. [Cinq langues, entièrement traduites](#4-cinq-langues-entièrement-traduites)
@@ -233,6 +236,56 @@ Ce que le lot ajoute :
 - **Serveur Node et Docker** : la page de présentation (`/decouvrir/`, où mènent les liens d'invitation) est servie aussi.
 
 Code : `Install` (inscription, version servie, avis de mise à jour, installation), `Checkup` et `openCheckup` (le bilan), `toastAct` (message avec un bouton), `BUILD`. Côté site : `engram/package.json`, `netlify.toml` (`npm ci && node netlify/build.mjs`), `netlify/build.mjs` (écrit `BUILD` et `SITE`), `sw.js` (délai de 3 s, réponse à la question de version).
+
+## 1 duodecies. L'IA selon la filière et la formule
+
+**La filière.** Le profil porte maintenant une filière (14 choix, proposés selon le niveau : prépa scientifique, économique ou littéraire, médecine et santé, droit, école d'ingénieurs, sciences, lettres, concours…), une précision libre (« MPSI », « PASS », « Terminale spé maths-physique ») et une **exigence de 1 à 5** : Douce, Essentielle, Approfondie, Exigeante, Concours. Par défaut elle se déduit du niveau et de la filière (prépa et médecine : Concours) ; on peut la choisir dans Réglages → Profil. L'accueil du premier lancement la demande, Mentor peut la changer.
+
+**Ce que l'exigence change.** Chaque demande à l'IA reçoit une consigne pédagogique propre à la tâche (`Brain.brief`) : fiches rédigées (en Concours, 25 à 40 % de fiches qui demandent de démontrer, établir ou énoncer avec les hypothèses exactes, et leur réponse donne les étapes de la preuve), corrections (en prépa : « comme un correcteur de DS », une hypothèse manquante rend la réponse partielle), Mentor (exercices façon DS ou colle, plusieurs questions liées, **sans donner la solution** : des indices pas à pas, puis une correction notée sur 20), le prof en séance (l'idée clé et un indice avant la réponse), les assistants, les examens blancs et les fiches de cours. En médecine : précision exhaustive, chiffres, classifications, QCM aux distracteurs proches.
+
+**La puissance selon la formule** (`Brain.opts`). Découverte : modèle rapide, réflexion courte. Pro : modèle standard, réflexion poussée (haute pour les filières exigeantes). Élite : le modèle le plus puissant et la réflexion maximale sur les grosses tâches (fiches de cours, planning), « très haute » pour Mentor et les assistants ; l'IA d'Élite reçoit en plus la consigne d'aller au fond des idées, de relier les chapitres et, devant une source confuse (page web dense, article d'encyclopédie, cours mal fichu), de reconstruire le raisonnement et de le dire clairement. La page envoie l'effort au serveur, qui garde le plafond de chaque formule quoi qu'on lui demande (vérifié : un Pro qui demande « max » sur le plus gros modèle reçoit le standard en « high »). Mentor a un réglage **Auto** (par défaut) qui suit cette règle.
+
+**La carte « L'intelligence de votre IA »** (Réglages → IA et Mentor) montre le modèle, la réflexion et l'exigence, en cuir et or pour Élite.
+
+**Mentor lit les pages web** (Pro et Élite) : Wikipédia, cours en ligne, documentation ; Élite les lit en entier (jusqu'à 120 000 signes) et en explique le fond.
+
+**Scanner IA réservé à Pro et Élite.** Photo, caméra, notes au stylet, PDF scanné et fiches sur un simple sujet demandent Pro ; Découverte garde la génération locale (texte collé, PDF de texte, et maintenant documents Word, PowerPoint ou Excel) et voit une offre claire à la place des boutons. Le serveur refuse lui aussi le scan et les fiches de cours en gratuit (402, expliqué dans l'app).
+
+Code : `TRACKS`, `RIGOR`, `Brain` (`rigor`, `brief`, `opts`, `power`), `brainHTML`, `Scan.locked`. Serveur : `core.mjs` (plafonds par formule, refus `plan_required`).
+
+## 1 terdecies. Mentor lit vos fichiers, la fiche de cours
+
+**Joindre des fichiers à Mentor** : trombone, glisser-déposer sur Mentor (ou n'importe où pour un Word ou un PowerPoint), coller. Formats lus **dans l'appareil**, rien ne part avant l'envoi : PDF (texte, ou pages scannées photographiées pour l'IA), Word (titres, listes, tableaux, équations, images), PowerPoint (chaque diapositive et ses notes d'orateur), Excel (chaque feuille en tableau), CSV, OpenDocument (texte, classeur, présentation), EPUB (chapitres dans l'ordre du livre), RTF, HTML, texte, images (converties en JPEG lisible), et les ZIP qui en contiennent. Un ancien `.doc` est expliqué (« enregistrez en .docx ou en PDF »). Pro : 5 fichiers par demande ; Élite : 20.
+
+**Les gros cours lus en entier.** Ce qui tient dans une demande part tel quel (Pro : 140 000 signes avec le serveur ; Élite : 360 000). Au-delà, le cours est lu morceau par morceau et chaque morceau condensé en notes fidèles (définitions, théorèmes et hypothèses, formules, chiffres, exemples, méthodes) : 6 morceaux en Pro, tout le cours en Élite. Les pages scannées en trop sont transcrites par lots de 8 (Élite). Les documents restent dans la conversation : Mentor peut les relire (`read_document`) sans qu'on les renvoie ; leur texte n'est jamais enregistré dans l'historique.
+
+**La fiche de cours.** « Fiche de cours détaillée » (ou une demande de résumé à Mentor, ou la fiche de synthèse d'un paquet en Pro) produit une vraie fiche : titre et ligne de description, sections numérotées, encadrés **Définition, Formule, Théorème, Méthode, Piège, Exemple, Démonstration** (repliée : on cherche avant de regarder), **À retenir** et **Pour s'entraîner** (questions d'examen sans réponse). Les formules sont en LaTeX : lisibles tout de suite (conversion en caractères Unicode), puis dessinées par MathJax en SVG quand il est chargé ; les tableaux comparatifs aussi. La fiche s'écrit en direct dans **la liseuse** (plein écran, papier à marge rouge, sommaire, impression, export .md, copie), se **range dans le paquet** (un paquet est créé à son nom s'il le faut) et se relit depuis ses notes. **« Créer les fiches »** l'envoie au scanner, qui rédige les cartes du même paquet : on trie, on range.
+
+**Scanner : « Importer un document »** (onglet Texte) : Word, PowerPoint, Excel, OpenDocument… deviennent du texte à transformer en fiches, avec ou sans IA.
+
+Code : `Docs` (lecture des formats), `DocRead` (budget, lecture par morceaux), `docHTML` et `TeX` (mise en page, formules), `CourseSheet` (consigne, rédaction, liseuse, rangement, fiches), `Mentor.attach`, `Mentor.sheetFromFiles`, outils `read_document` et `write_course_sheet`.
+
+## 1 quaterdecies. Le planning heure par heure d'Élite
+
+**Quoi réviser, à quelle heure.** Le planning (Programme → « Planning heure par heure », la palette, Mentor, ou `#agenda`) pose le travail du programme dans des **créneaux libres** : déduits du temps disponible et du moment préféré, ou réglés jour par jour (jusqu'à trois créneaux). Le planificateur suit des règles issues des sciences cognitives, et chaque bloc dit pourquoi il est là :
+
+- blocs de travail de **25 minutes au plus**, séparés de **pauses de 5 minutes** ;
+- les **révisions dues d'abord** (elles sont à leur point d'oubli) ;
+- le **plus exigeant au meilleur moment** de la journée, d'après le carnet (réussite par moment de la journée) ; les révisions vont dans les autres créneaux ;
+- la **fiche de cours relue** juste avant les nouvelles fiches de son paquet ;
+- les **matières alternées** ; les petites révisions de plusieurs paquets regroupées en un bloc utile ;
+- un **examen blanc à J−3**, **rien de nouveau la veille** d'un examen, une **révision éclair le soir** (le sommeil consolide) ;
+- ce qui n'entre pas dans les créneaux est signalé, avec quoi faire.
+
+**L'IA compose la semaine** (« Composer ma semaine avec l'IA ») avec le modèle le plus puissant : elle reçoit les créneaux, la charge, les examens, la réussite par moment de la journée et par paquet, les fiches de cours, et rend la semaine avec sa stratégie (« La stratégie de la semaine »). Tout est vérifié avant d'être gardé : bloc hors créneau, chevauchement, paquet inconnu, type inconnu ou heure passée sont écartés ; « Revenir au calcul automatique » annule.
+
+**Rappels et alarmes.** Rappel à chaque séance : notification et son à l'heure (ou 5 ou 10 minutes avant), avec « Commencer » et « +15 min », tant qu'Engram est ouvert, même en arrière-plan ; toucher la notification lance la séance du moment. **Même app fermée** : « Alarmes dans mon agenda » exporte chaque bloc (.ics) avec son alarme vers Calendrier, Google Agenda ou Outlook. Un vrai réveil, app fermée, sans agenda, demanderait des notifications push (serveur et abonnement Web Push) : c'est la prochaine étape naturelle.
+
+**Raccourcis Apple et Siri.** `#now` ouvre la séance du moment (le bloc en cours, ou le prochain dans l'heure) : guides pas à pas pour « Dis Siri, ma séance Engram » (action « Ouvrir les URL »), une automatisation à l'heure de chaque créneau, et le mode Concentration pendant les révisions. Sur Android et ordinateur, l'app installée a deux raccourcis : « Ma séance du moment » et « Mon planning ». L'accueil montre la prochaine séance.
+
+Pro et Découverte voient leur journée en aperçu, avec l'offre Élite.
+
+Code : `Agenda` (`windows`, `tasks`, `build`, `day`, `start`, `startNow`, `arm`, `ring`, `icsText`, `optimize`, `check`), `Views.agenda`, `agRail`, `openAgWindows`, `agendaNextHTML`, outil de Mentor `plan_schedule`. `sw.js` : clic sur une notification.
 
 ---
 
@@ -503,6 +556,12 @@ Opus 5.5 remplace Opus 5 : plus récent et 20 % moins cher (Opus 5 coûtait 5 $ 
 | Mission en **Expert**, 150 fiches lues (Fable 5.1, cache) | ≈ 46 000 (la moitié en cache) / 3 000 | ≈ 0,39 $ |
 | Note du matin de l'autopilote (Sonnet 5.5, sans outils) | ≈ 1 500 / 200 | ≈ 0,005 $ |
 | Bilan du lundi, analyses locales des assistants | calcul sur l'appareil | 0 $ |
+| **Fiche de cours** d'un PDF de 30 pages, Pro (Opus 5.5, réflexion haute) | ≈ 15 000 / 7 000 | ≈ 0,20 $ |
+| **Fiche de cours** Élite, exhaustive (Fable 5.1, réflexion maximale) | ≈ 15 000 / 16 000 | ≈ 0,95 $ |
+| Message à Mentor avec 3 documents joints (Opus 5.5) | ≈ 40 000 / 2 000 | ≈ 0,20 $ |
+| Gros cours de 250 pages lu par morceaux, Élite (Opus 5.5 pour les morceaux) | ≈ 160 000 / 40 000 | ≈ 1,45 $ |
+| **Semaine composée par l'IA**, Élite (Fable 5.1, réflexion maximale) | ≈ 10 000 / 12 000 | ≈ 0,70 $ |
+| Planning calculé, rappels, alarmes, Raccourcis | sur l'appareil | 0 $ |
 
 La cascade de correction (locale d'abord, IA seulement si ambigu) évite environ la moitié des appels.
 
@@ -514,8 +573,11 @@ La cascade de correction (locale d'abord, IA seulement si ambigu) évite environ
 | Pro, usage normal | 30 scans, 600 corrections, 60 messages Mentor, 4 lettres, 12 missions, 30 notes du matin | ≈ 7,05 $ | ≈ 6,20 $ | **≈ 5,45 $** |
 | Pro, usage intensif | 120 scans, 2 000 corrections, 200 messages, 40 missions | ≈ 23,70 $ | ≈ 21,30 $ | ≈ 18,70 $ → « usage raisonnable » |
 | Pro Expert, usage normal | comme Pro normal, dont 30 messages et 8 missions en Expert | ≈ 12,35 $ | ≈ 11,50 $ | **≈ 11,15 $** |
+| **Élite, usage normal (lot 22-24)** | comme ci-dessus, réflexion plus haute, plus 4 fiches de cours et 4 semaines composées par mois | — | ≈ 18,90 $ | **≈ 16,40 $** avec `ENGRAM_EFFORT_TOP=xhigh` |
 
 **Réglage par défaut du serveur** (`server/core.mjs`) : Sonnet 5.5 pour le niveau rapide, Opus 5.5 pour le niveau standard, Fable 5.1 pour Expert. **Configuration recommandée** : ce réglage, plus Mentor qui répond avec Sonnet 5.5 aux questions simples (environ 2 messages sur 3) et passe à Opus 5.5 dès qu'il doit agir avec des outils ; Découverte entièrement sur Sonnet 5.5. À usage égal, c'est environ 20 % de moins qu'avec Opus 5, le modèle des versions précédentes de cette fiche.
+
+**Attention à Élite (lots 22 à 24).** La réflexion maximale coûte surtout en tokens de sortie. Au réglage par défaut, un abonné Élite normal coûte environ 18,90 $ par mois, plus que son abonnement (14,99 €, soit environ 16,30 $). Deux leviers, à combiner : plafonner l'effort à « xhigh » (`ENGRAM_EFFORT_TOP=xhigh` : environ 16,40 $, à l'équilibre ; la différence de qualité est faible sur ces tâches) et **passer Élite à 19,99 € par mois** (environ 21,70 $), ce qui redonne environ 25 % de marge brute sur l'abonné moyen. Garder aussi un œil sur les gros cours lus par morceaux, la tâche la plus chère (environ 1,45 $ pour 250 pages).
 
 C'est plus cher qu'en v2 parce que Mentor et les assistants lisent l'état de l'app : c'est ce qui les rend utiles. Autres leviers : cache (déjà actif ; sur Opus 5.5, une lecture en cache coûte 5 % du prix d'entrée), résumé de conversation après 16 échanges, Batch API (−50 %) pour l'autopilote et les imports lourds de nuit, et, si le jeu d'évaluation montre la même qualité, la lecture des photos sur Sonnet 5.5 : Pro normal passe alors à ≈ 4,55 $.
 
@@ -681,6 +743,11 @@ Scripts automatisés (Chromium sans interface), tous au vert sur la version livr
 - **Mise en ligne réelle** (46 vérifications, lot 12) sur le site construit et servi par la Netlify CLI, branché sur une fausse API Claude : version et adresse écrites au déploiement, en-têtes, rien du serveur publié, SDK Claude présent dans le paquet de la fonction, IA en flux ; sur ordinateur et téléphone : service worker actif, copie hors ligne, bilan « Tout est prêt » ouvert par `#bilan`, rapport sans secret, app ouverte sans réseau et bilan qui le dit ; nouvelle version publiée pendant que l'app est ouverte (avis, puis Recharger prend la nouvelle version sans rien perdre) ; site sans clé, code d'accès demandé, bon et mauvais code, crédit épuisé, clé refusée, serveur saturé. **Réseau lent et panne** (6 vérifications) : l'app installée s'ouvre en 3 s au plus sur un réseau qui traîne (9 s avant), tout de suite quand le serveur répond 503 (avant : la page d'erreur), et la copie hors ligne reste bonne. **Bilan** (165 vérifications) dans les 5 langues × ordinateur, iPad et téléphone, et dans l'aperçu de l'app Claude.
 - **Vitesse et confort** (89 vérifications sur ordinateur, iPad et téléphone, et 96 pour les textes en 5 langues) : 20 000 fiches et 10 photos gardées au rechargement, `localStorage` réduit à un repère ; rechargé aussitôt après une modification, rien n'est perdu (petite et grande collection) ; anciennes données et photos passées dans IndexedDB ; sans IndexedDB, tout dans `localStorage` ; IndexedDB illisible : rien écrit par-dessus ; transition de page que le navigateur ne lance pas : la page change quand même en moins d'une demi-seconde ; tout effacer vide aussi IndexedDB ; note d'une fiche sous 20 ms ; retour au Fichier à la même hauteur avec la plaque, tiroirs affichés tout de suite ; Annuler et Ctrl+Z pour un paquet, une fiche, une note, gardés au rechargement ; liste de 1 200 fiches par tranches ; mémoire utilisée affichée ; « Annuler » traduit Undo, Deshacer, Rückgängig, Desfazer (et non Cancel).
 - **Animations** (82 vérifications sur ordinateur, iPad et téléphone) : sens du glissé entre onglets, en-tête immobile, retour en haut de page ; plaque du tiroir qui voyage à l'ouverture d'un paquet et au retour ; fin propre (aucun nom de transition laissé) ; navigation rapide, dernière page gagnante ; même page redessinée sans remonter ; mode « Rapides » sans glissé. Blocs du bas en attente puis tous levés en descendant, compteur lancé à l'écran. Fenêtres : fermeture animée puis retirée, retirée tout de suite sans animation, rouverte aussitôt avec ses propres champs, Échap ; poignée sur téléphone seulement ; petit tiré qui revient, grand tiré qui ferme, rien depuis un bouton, rien quand le contenu est défilé, rien sur la palette ; iPad : fenêtre centrée qui ne se tire pas. Toutes les suites des lots précédents repassées.
+- **L'IA selon la filière et la formule** (10 parcours × téléphone, iPad et ordinateur, IA simulée) : Découverte voit le scanner IA verrouillé, génère localement depuis un texte sans appeler l'IA, et reçoit l'offre Pro pour un sujet ; Pro et Élite scannent avec la consigne prépa (MPSI, fiches de démonstration), le bon niveau de modèle, une correction « correcteur de DS », Mentor en « Auto » avec la filière dans l'état ; réglages (carte d'intelligence, filière, exigence) ; accueil (filières selon le niveau, précision gardée). Serveur (7 vérifications sur une fausse API) : modèle et effort plafonnés par formule, scan et fiche de cours refusés en gratuit (402).
+- **Fichiers et fiches de cours** (11 parcours) : lecture de 12 fichiers réels (Word avec titres, liste, tableau et image ; PowerPoint avec notes ; Excel à deux feuilles ; ODT ; EPUB dans l'ordre du livre ; CSV ; PDF de texte ; PDF scanné en 3 images ; image ; ZIP avec dossiers, sans `__MACOSX` ; ancien `.doc` expliqué ; PDF de 60 pages) ; rendu d'une fiche (encadrés, sommaire, formules en Unicode puis MathJax, tableaux) ; dans Mentor sur 3 écrans et 2 formules : limite de fichiers, retrait, envoi avec les documents (texte jamais enregistré dans l'historique), relecture par l'outil, fiche de cours rangée dans un nouveau paquet, liseuse, « Créer les fiches », réouverture depuis le paquet, Échap, fiche lancée par Mentor, gros PDF lu par morceaux (niveau de modèle selon la formule) ; scanner sans IA qui importe un Word.
+- **Planning d'Élite** (7 parcours) : placement sur deux créneaux (aucun bloc hors créneau ni chevauchement, 25 min au plus, pauses, nouvelles au meilleur moment et révisions dans l'autre créneau, fiche de cours avant ses nouvelles, révision éclair en dernier, rien de nouveau la veille d'un examen, examen blanc à J−3, créneaux par défaut, .ics avec une alarme par bloc et lignes de 75 octets au plus) ; sur 3 écrans : aperçu verrouillé en Pro, page Élite, changement de jour, rappels (autorisation, minuteurs, sonnerie, « Commencer » qui lance la séance et marque le bloc fait), `#now`, semaine composée par l'IA et vérifiée (4 blocs fautifs écartés sur 6), retour au calcul automatique, créneaux réglés par Mentor, prochaine séance sur l'accueil, accès depuis le Programme.
+- **Cinq langues** (lots 22 à 24) : scanner, réglages, planning, programme, Pro, accueil, liseuse, Mentor avec un fichier, scanner et planning en Découverte, en français, anglais, espagnol, allemand et portugais, sur téléphone et ordinateur : aucune phrase manquante, aucun débordement ; vérification statique : chacune des 2 400 phrases a ses 4 traductions.
+- **Régressions** : séance complète au clavier (QCM, vrai/faux, remise en ordre, masques), correction tapée, mission du Chroniqueur, lettre de Mentor, fiche de synthèse d'un paquet (fiche de cours en Pro, ancienne fenêtre en Découverte).
 - **Apparence** : 7 thèmes × vues principales, accents, polices, tailles 85 % et 130 %, densité, 4 papiers, mouvement coupé ; contraste du texte ≥ 4,5:1 partout.
 
 Non testé ici : les vrais paiements (non branchés dans le prototype), les appels à la vraie API Claude (pas de clé dans l'environnement de test), la synchronisation réelle dans l'app Claude, un déploiement sur les serveurs de Netlify eux-mêmes (le build et le site ont été rejoués avec la Netlify CLI, qui utilise le même outil d'emballage) et un vrai Apple Pencil (tracés simulés dans le navigateur).

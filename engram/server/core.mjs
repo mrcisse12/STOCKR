@@ -161,7 +161,7 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
     // La formule fixe le plafond : niveau de modèle, effort, longueur, images. Le propriétaire (code d'accès) a tout,
     // comme un serveur sans paiements. Le modèle le plus puissant (« complex ») reste réservé à Élite.
     const plan = !PAY || owner ? 'elite' : lic?.p === 'elite' ? 'elite' : lic ? 'pro' : 'free', cap = CAPS[plan];
-    if (!cap.scan && (body.purpose === 'scan' || countImages(body.messages) > cap.images)) return json(request, 402, { code: 'plan_required', message: 'scan is part of Pro' });
+    if (!cap.scan && (body.purpose === 'scan' || body.purpose === 'sheet' || countImages(body.messages) > cap.images)) return json(request, 402, { code: 'plan_required', message: 'part of Pro' });
     let want = body.modelTier || 'default';
     if (!cap.tiers.includes(want)) want = cap.tiers.at(-1);
     const tier = TIERS[want];
