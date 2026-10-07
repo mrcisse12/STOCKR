@@ -2395,6 +2395,99 @@ html[data-vt="out"]::view-transition-new(root){animation:vtLift .46s .12s cubic-
 .sc-locked-a{display:flex;gap:8px;flex-wrap:wrap}
 @media (max-width:600px){.sc-locked{grid-template-columns:1fr}.sc-locked .lcard{width:180px;justify-self:center}}
 @media (prefers-reduced-motion:reduce){.br-dots i.on{animation:none}}
+
+/* ── Liseuse et fiches de cours (lot 23) ─────────────────────────── */
+.reader{position:fixed;inset:0;z-index:98;display:flex;flex-direction:column;background:radial-gradient(80% 60% at 50% 0%,var(--lamp),transparent 70%),var(--desk);opacity:0;transform:translateY(14px);transition:opacity .35s var(--ease),transform .5s var(--ease)}
+.reader.in{opacity:1;transform:none}
+.reader.out{opacity:0;transform:translateY(10px)}
+body.lr-on{overflow:hidden}
+.lr-bar{display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px;border-bottom:1px solid var(--hair);background:color-mix(in srgb,var(--desk) 84%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.lr-t{display:grid;min-width:0;flex:1}
+.lr-t b{font:400 20px/1.2 var(--f-display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lr-st{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12.5px;white-space:nowrap;min-width:0}
+.lr-st>span:last-child{overflow:hidden;text-overflow:ellipsis}
+.lr-st>.i{color:var(--good)}
+.lr-acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.lr-acts:empty{display:none}
+.lr-body{flex:1;min-height:0;display:grid;grid-template-columns:250px minmax(0,1fr)}
+.lr-toc{overflow:auto;padding:28px 12px 40px 20px;border-right:1px solid var(--hair);display:flex;flex-direction:column;gap:1px}
+.lr-toc .kicker{margin:0 8px 10px}
+.lr-toc a{color:var(--text-2);text-decoration:none;font-size:13.5px;line-height:1.35;padding:6px 8px;border-radius:7px;transition:background .2s,color .2s}
+.lr-toc a:hover{background:var(--brass-soft);color:var(--text)}
+.lr-toc a.lv3{padding-left:22px;font-size:12.5px;color:var(--muted)}
+.lr-page{overflow:auto;padding:34px 24px calc(70px + env(safe-area-inset-bottom,0px))}
+.lr-sheet{max-width:840px;margin:0 auto;animation:rise .6s var(--ease) both}
+@media (max-width:980px){.lr-body{grid-template-columns:minmax(0,1fr)}.lr-toc{display:none}}
+@media (max-width:640px){.lr-bar{flex-wrap:wrap;gap:8px 10px;padding-left:10px;padding-right:10px}.lr-t{flex:1 1 calc(100% - 60px)}.lr-acts{order:3;width:100%;justify-content:flex-start}.lr-st{order:4;width:100%}.lr-acts .btn span{display:none}.lr-acts .btn{padding:0 11px}.lr-acts [data-rd="cards"]{flex:1}.lr-page{padding:14px 8px calc(80px + env(safe-area-inset-bottom,0px))}}
+.doc{position:relative;padding:50px 58px 58px 86px;border-radius:4px;color:var(--p-ink);background-color:var(--paper);box-shadow:var(--sh-card);font-size:16px;line-height:1.7;
+  background-image:linear-gradient(90deg,transparent 56px,var(--p-margin) 56px,var(--p-margin) 57.5px,transparent 57.5px)}
+.doc>:first-child{margin-top:0}
+.doc .d-title{font:400 clamp(30px,4.6vw,48px)/1.06 var(--f-display);margin:0 0 10px;letter-spacing:-.01em}
+.doc .d-sub{margin:0 0 28px;color:var(--p-muted);font:italic 400 15px/1.5 var(--f-ui)}
+.doc .d-h2{display:flex;align-items:baseline;gap:12px;font:400 27px/1.2 var(--f-display);margin:36px 0 12px;padding-bottom:9px;border-bottom:1px solid color-mix(in srgb,var(--p-ink) 13%,transparent);scroll-margin-top:20px}
+.doc .d-h1{font:400 32px/1.15 var(--f-display);margin:36px 0 12px;scroll-margin-top:20px}
+.doc .d-num{flex:none;font:700 12.5px/1 var(--f-type);color:var(--pen);letter-spacing:.06em;padding:5px 7px;border:1.5px solid currentColor;border-radius:4px;transform:translateY(-4px)}
+.doc .d-h3{display:flex;align-items:baseline;gap:8px;font:700 13px/1.4 var(--f-type);letter-spacing:.08em;text-transform:uppercase;margin:26px 0 8px;color:var(--brass-lo);scroll-margin-top:20px}
+.doc .d-h3 .d-num{padding:3px 5px;font-size:11px;border-width:1px;transform:none}
+.doc .d-h4{font-weight:700;font-size:16px;margin:18px 0 6px}
+.doc p{margin:8px 0}
+.doc b{font-weight:650}
+.doc i{font-style:italic}
+.doc code{font:13px var(--f-type);padding:1px 5px;border-radius:4px;background:color-mix(in srgb,var(--p-ink) 7%,transparent)}
+.doc .d-list{margin:8px 0;padding-left:22px}.doc .d-list li{margin:5px 0}.doc .d-list li::marker{color:var(--pen)}
+.doc .d-list ul{padding-left:18px;margin:4px 0}
+.doc .d-tbl{overflow-x:auto;margin:16px 0}
+.doc .d-hr{border:0;border-top:1px dashed color-mix(in srgb,var(--p-ink) 25%,transparent);margin:28px 0}
+.doc .d-code{font:13px/1.5 var(--f-type);background:color-mix(in srgb,var(--p-ink) 6%,transparent);padding:12px 14px;border-radius:6px;overflow:auto}
+.doc .d-quote{margin:12px 0;padding:2px 16px;border-left:3px solid color-mix(in srgb,var(--p-ink) 22%,transparent);color:var(--p-muted)}
+.d-box{--k:#2F55B0;position:relative;margin:18px 0;padding:14px 18px 12px;border-radius:8px;background:color-mix(in srgb,var(--k) 7%,var(--paper));border:1px solid color-mix(in srgb,var(--k) 24%,transparent);border-left:4px solid var(--k);break-inside:avoid}
+.d-box.d-def{--k:#2F55B0}.d-box.d-formula{--k:#9A6A1A}.d-box.d-thm{--k:#1D6B4A}.d-box.d-method{--k:#2C7A8C}.d-box.d-trap{--k:#B8352A}.d-box.d-ex{--k:#6E5A8E}.d-box.d-proof{--k:#46505A}.d-box.d-note{--k:#5B6770}
+.d-box.d-keep{--k:#A57B2E;background:linear-gradient(180deg,color-mix(in srgb,#E9CF8A 26%,var(--paper)),var(--paper));box-shadow:inset 0 0 0 1px color-mix(in srgb,#C9A45C 30%,transparent)}
+.d-bh,.d-box>summary{display:flex;align-items:baseline;gap:6px 10px;flex-wrap:wrap;margin-bottom:4px}
+.d-tab{display:inline-flex;align-items:center;gap:6px;font:700 10.5px/1 var(--f-type);letter-spacing:.12em;text-transform:uppercase;color:var(--k)}
+.d-tab .i{width:14px;height:14px}
+.d-ct{font:400 18.5px/1.25 var(--f-display);color:var(--p-ink)}
+.d-in>:first-child{margin-top:2px}.d-in>:last-child{margin-bottom:0}
+details.d-box>summary{cursor:pointer;list-style:none}
+details.d-box>summary::-webkit-details-marker{display:none}
+.d-show{margin-left:auto;font-size:12.5px;color:var(--k);text-decoration:underline;text-underline-offset:3px}
+details.d-box[open] .d-show{display:none}
+.mx{font-family:"Cambria Math","STIX Two Math","Latin Modern Math",Georgia,serif}
+.mx svg{vertical-align:-.25em;max-width:100%}
+.mx-d{margin:12px 0;padding:10px;text-align:center;font:400 19px/1.5 "Cambria Math","STIX Two Math","Latin Modern Math",Georgia,serif;overflow-x:auto;overflow-y:hidden}
+.mx-d svg{max-width:100%;height:auto}
+.d-formula .mx-d{background:color-mix(in srgb,var(--paper) 60%,#fff);border-radius:6px}
+.mx.on,.mx-d.on{animation:fadeIn .4s both}
+@media (max-width:640px){.doc{padding:28px 16px 32px 32px;font-size:15.5px;background-image:linear-gradient(90deg,transparent 21px,var(--p-margin) 21px,var(--p-margin) 22.5px,transparent 22.5px)}.doc .d-h2{font-size:23px}.d-box{padding:12px 13px 10px}}
+.lr-wait{display:flex;align-items:center;gap:14px;color:var(--p-muted);font:italic 15px/1.5 var(--f-ui)}
+.lr-quill{flex:none;display:grid;place-items:center;width:46px;height:46px;border-radius:50%;border:1px solid color-mix(in srgb,var(--p-ink) 18%,transparent);color:var(--pen);animation:quill 1.6s var(--ease) infinite}
+@keyframes quill{50%{transform:rotate(-10deg) translateY(-3px)}}
+.lr-cut,.lr-err{display:flex;gap:8px;align-items:center;padding:10px 12px;border-radius:8px;font-size:13.5px;margin:0 0 18px;background:color-mix(in srgb,var(--pen) 8%,var(--paper));color:var(--pen)}
+.lr-err{margin-top:18px}
+.m-clip{position:relative}
+@media (max-width:520px){.m-in{gap:6px;padding-left:10px;padding-right:10px}.m-in .icon-btn{width:40px}.m-in .btn{width:46px}.m-in .input{padding-left:11px;padding-right:11px}}
+.m-clip .tag{position:absolute;top:-8px;right:-10px;font-size:8px;padding:2px 4px;background:var(--folder)}
+.m-files{display:flex;flex-wrap:wrap;gap:8px;padding:8px 12px 2px;max-height:190px;overflow:auto}
+.m-file{display:flex;align-items:center;gap:9px;padding:6px 6px 6px 7px;border-radius:10px;border:1px solid var(--hair-2);background:var(--folder-2);min-width:0;flex:1 1 190px;animation:rise .35s var(--snap) both}
+.m-file.is-error{border-color:color-mix(in srgb,var(--again) 50%,transparent)}
+.m-file.is-error small{color:var(--again);white-space:normal}
+.mf-t{display:grid;min-width:0;flex:1}
+.mf-t b{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mf-t small{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mf-x{flex:none;width:28px;height:28px;display:grid;place-items:center;border-radius:7px;color:var(--muted)}
+.mf-x:hover{background:var(--folder-3);color:var(--text)}
+.m-files-n{width:100%;font:700 10px/1 var(--f-type);letter-spacing:.1em;color:var(--muted);text-transform:uppercase;text-align:right}
+.doc-badge{flex:none;display:grid;place-items:center;width:32px;height:38px;border-radius:4px 10px 4px 4px;background:linear-gradient(160deg,color-mix(in srgb,var(--c) 85%,#fff),var(--c));color:#fff;font:700 8.5px/1 var(--f-type);letter-spacing:.04em;box-shadow:inset 0 -2px 0 rgba(0,0,0,.2)}
+.m-att{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.m-att span{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.m-att .doc-badge{width:22px;height:26px;font-size:6.5px;border-radius:3px 7px 3px 3px}
+.m-sugg .m-sheet{border-color:var(--brass);color:var(--brass-text);background:linear-gradient(180deg,var(--brass-soft),transparent);font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.m-reading{font-size:13px;color:var(--muted)}
+.spin-dot{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--brass);border-top-color:transparent;animation:spin .8s linear infinite;flex:none}
+.mentor.drop::after{content:"";position:absolute;inset:8px;border:2px dashed var(--brass);border-radius:14px;background:var(--brass-soft);pointer-events:none;z-index:5}
+.note-card.course{background:linear-gradient(180deg,color-mix(in srgb,#E9CF8A 22%,var(--paper)),var(--paper))}
+.note-card .kicker .i{vertical-align:-3px;margin-right:4px}
+@media print{body.lr-print>*:not(.reader){display:none!important}body.lr-print .reader{position:static;inset:auto;background:#fff;display:block;opacity:1;transform:none}body.lr-print .lr-bar,body.lr-print .lr-toc,body.lr-print .lr-cut{display:none!important}body.lr-print .lr-body{display:block}body.lr-print .lr-page{overflow:visible;padding:0}body.lr-print .doc{box-shadow:none;max-width:none;padding:0 0 0 14mm;background-image:none;animation:none}}
 </style>
 </head>
 <body>
@@ -3320,7 +3413,7 @@ const AI = {
       if (!j?.ok) { this.status = 'off'; return; }
       if (j.key === false) { this.status = 'off'; this.nokey = true; return; }
       this.info = j; this.via = 'server'; this.server = url;
-      this.limits = { maxPromptBytes: 180000, images: j.images ? { maxCount: 5, maxInputBytes: 20e6, mediaTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] } : null, tools: { maxCount: 24 } };
+      this.limits = { maxPromptBytes: 180000, images: j.images ? { maxCount: 5, maxInputBytes: 20e6, mediaTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] } : null, tools: { maxCount: 32 } };
       this.status = j.locked && !S.profile.settings.aiCode ? 'locked' : 'on';
     } catch { this.status = 'off'; this.health = undefined; }
   },
@@ -5392,7 +5485,7 @@ Views.deck = id => {
       <div class="kpi"><b class="tnum"><span class="count" data-to="${mem}">0</span> %</b><span>${t('Mémoire estimée')}</span></div>
     </div>
     ${leitner(d.cards, d.id)}
-    ${d.notes?.length ? `<section class="sec"><div class="sec-h"><div><h2 class="h2">${t('Notes')}</h2><p>${t('Fiches de synthèse et notes enregistrées par vous ou par Mentor.')}</p></div></div><div class="notes">${d.notes.map(n => `<button class="note-card" data-act="openNote" data-deck="${d.id}" data-id="${n.id}"><span class="kicker">${esc(fmtDate(n.created))}</span><b>${esc(n.title)}</b><span class="muted">${esc(plain(n.md).replace(/[#*-]/g, '').slice(0, 120))}…</span></button>`).join('')}</div></section>` : ''}
+    ${d.notes?.length ? `<section class="sec"><div class="sec-h"><div><h2 class="h2">${t('Notes')}</h2><p>${t('Fiches de synthèse et notes enregistrées par vous ou par Mentor.')}</p></div></div><div class="notes">${d.notes.map(n => `<button class="note-card ${n.kind === 'course' ? 'course' : ''}" data-act="openNote" data-deck="${d.id}" data-id="${n.id}"><span class="kicker">${n.kind === 'course' ? `${icon('book', 'i-sm')}${t('Fiche de cours')} · ` : ''}${esc(fmtDate(n.created))}</span><b>${esc(n.title)}</b><span class="muted">${esc(plain(n.md).replace(/[#*-]/g, '').slice(0, 120))}…</span></button>`).join('')}</div></section>` : ''}
     <div class="toolbar">
       <div class="search">${icon('search')}<input class="input" id="deckSearch" placeholder="${esc(t('Filtrer les fiches…'))}" autocomplete="off"></div>
       <div class="seg" id="deckFilter">${[['all', t('Toutes')], ['due', t('À revoir')], ['new', t('Nouvelles')], ['leech', t('Sangsues') + (leeches ? ' · ' + leeches : '')]].concat(COMP.filter(k => k !== 'n').map(k => [k, t(ST_LABELS[k])])).map(([k, l]) => `<button class="${deckFilter === k ? 'on' : ''}" data-f="${k}">${l}</button>`).join('')}</div>
@@ -5427,7 +5520,9 @@ Hooks.deck = id => {
 };
 function openNote(deckId, id) {
   const d = deckById(deckId); const n = d?.notes.find(x => x.id === id); if (!n) return;
-  const m = Modal.open(mh(esc(n.title), esc(d.name)) + `<div class="sheet">${sheetHTML(n.md)}</div><div class="modal-f" style="justify-content:space-between"><button class="btn btn-sm btn-danger" id="nDel">${icon('trash', 'i-sm')}${t('Supprimer')}</button><button class="btn btn-brass" id="nSave">${icon('download')}${t('Exporter (.md)')}</button></div>`, 'wide');
+  if (n.kind === 'course') { CourseSheet.view(deckId, id); return; }
+  const m = Modal.open(mh(esc(n.title), esc(d.name)) + `<div class="sheet doc">${docHTML(n.md)}</div><div class="modal-f" style="justify-content:space-between"><button class="btn btn-sm btn-danger" id="nDel">${icon('trash', 'i-sm')}${t('Supprimer')}</button><button class="btn btn-brass" id="nSave">${icon('download')}${t('Exporter (.md)')}</button></div>`, 'wide');
+  TeX.typeset(m);
   m.querySelector('#nSave').onclick = () => saveFile(slug(n.title) + '.md', n.md);
   m.querySelector('#nDel').onclick = () => {
     const at = d.notes.indexOf(n); d.notes = d.notes.filter(x => x !== n); Store.touchDeck(d); Modal.close(); App.render();
@@ -6694,6 +6789,8 @@ const Pro = {
       agent: [t('Vos 3 missions du mois sont utilisées'), t('Avec Pro, les six assistants travaillent pour vous sans limite. Les analyses sans IA restent libres.')],
       expert: [t('Le mode Expert fait partie d\'Élite'), t('Le modèle le plus puissant, pour les plans de concours et les raisonnements longs.')],
       atelier: [t('Cet outil fait partie d\'Élite'), t('Thèmes Velours et Marbre, papiers Tableau noir, Tableau blanc et Kraft, couleur d\'accent sur mesure, rétention par paquet et intervalle maximal : Élite règle Engram à votre façon.')],
+      files: [t('Mentor lit vos fichiers avec Pro'), t('PDF, Word, PowerPoint, Excel, ZIP, photos : Mentor les lit, en tire une fiche de cours détaillée et crée vos fiches. Pro : 5 fichiers par demande ; Élite : 20, et les gros cours lus en entier.')],
+      sheet: [t('Les fiches de cours font partie de Pro'), t('Notions, définitions, formules, méthodes, pièges et exemples : une fiche complète et bien mise en page, rangée dans votre paquet et transformée en fiches de révision en un appui.')],
       autopilot: [t('L\'autopilote fait partie de Pro'), t('Chaque matin, le Planificateur prépare votre séance ; chaque lundi, le Chroniqueur fait le bilan de la semaine.')]
     }[kind] || [t('Cette fonction fait partie de Pro'), ''];
     const m = Modal.open(`<div class="up"><div class="up-card">${proCard({ sm: true })}</div><div><div class="kicker">Engram Pro</div><h2 class="h2" style="margin-top:8px">${L[0]}</h2><p class="muted" style="margin:10px 0 0;line-height:1.55">${L[1]}</p></div></div>
@@ -8389,6 +8486,7 @@ function localSheet(d) {
 }
 function openSheet(deckId) {
   const d = deckById(deckId); if (!d) return;
+  if (AI.on && Pro.on && d.cards.length) { CourseSheet.start({ fromDeck: d.id, deckId: d.id, title: d.name }); return; }
   let src = '', ctl = null;
   const m = Modal.open(mh(t('Fiche de synthèse'), esc(d.name)) + `<div class="sheet" id="sheet"></div>
     <div class="modal-f"><span class="muted" id="shNote" style="margin-right:auto;font-size:13px"></span>${AI.on ? `<button class="btn" id="shAgain">${icon('flip')}${t('Régénérer')}</button>` : ''}<button class="btn" id="shKeep">${icon('bookmark')}${t('Garder dans le paquet')}</button><button class="btn btn-brass" id="shSave">${icon('download')}${t('Exporter (.md)')}</button></div>`, 'wide');
@@ -9984,7 +10082,7 @@ Views.scan = () => {
           ${Scan.pdf && Scan.pdf.text.trim().length > 40 ? `<details class="pdf-peek"><summary>${t('Voir le texte extrait')}</summary><div class="page">${esc(Scan.pdf.text.slice(0, 3000))}</div></details>` : ''}`
       : Scan.tab === 'topic' ? `<div class="field"><label for="scTopic">${t('Sujet')}</label><input class="input" id="scTopic" value="${esc(Scan.topic)}" placeholder="${esc(t('Ex. La Révolution française, les verbes irréguliers anglais, le cycle de Krebs…'))}">
           <span class="muted" style="font-size:12.5px">${t("Les fiches sont rédigées à partir des connaissances de l'IA : relisez-les avant de les garder.")}</span></div>`
-      : `<div class="dict-row"><button class="btn" id="scDict">${icon('mic')}${t('Dicter le cours')}</button><span class="muted" id="scDictLive"></span></div>
+      : `<div class="dict-row"><button class="btn" id="scDict">${icon('mic')}${t('Dicter le cours')}</button><button class="btn" id="scDoc">${icon('upload')}${t('Importer un document')}</button><input type="file" id="scDocF" hidden accept=".docx,.pptx,.xlsx,.xlsm,.csv,.tsv,.txt,.md,.tex,.odt,.odp,.ods,.rtf,.html,.htm,.epub,.zip"><span class="muted" id="scDictLive"></span></div>
         <div class="web-row"><input class="input" id="scWeb" type="url" inputmode="url" autocomplete="off" placeholder="${esc(t('Adresse d\'une page web (Wikipédia, cours en ligne…)'))}"><button class="btn" id="scWebGo">${icon('globe')}${t('Lire la page')}</button></div>
         <div class="field"><label for="scText">${t('Texte du cours')}</label><textarea class="textarea" id="scText" style="min-height:220px" placeholder="${esc(t('Collez ici votre cours, vos notes, un chapitre de manuel…'))}">${esc(Scan.text)}</textarea>
           <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><span class="muted tnum" style="font:400 12px var(--f-type)" id="scCount">${t('{n} caractères', { n: Scan.text.length })}</span><button class="btn btn-ghost btn-sm" id="scSample">${icon('sparkles', 'i-sm')}${t('Essayer avec un exemple')}</button></div></div>`}
@@ -10284,6 +10382,18 @@ Hooks.scan = () => {
   $('#scFile')?.addEventListener('change', e => addFiles(e.target.files));
   $('#scWebGo')?.addEventListener('click', () => Inbox.web($('#scWeb').value));
   $('#scDict')?.addEventListener('click', () => LiveDict.toggle()); LiveDict.paint();
+  // Word, PowerPoint, Excel, OpenDocument… : le texte est lu dans l'appareil, puis rédigé en fiches (avec ou sans IA).
+  $('#scDoc')?.addEventListener('click', () => $('#scDocF').click());
+  $('#scDocF')?.addEventListener('change', async e => {
+    const f = e.target.files?.[0]; e.target.value = ''; if (!f) return;
+    const b = $('#scDoc'); b.disabled = true; b.innerHTML = icon('spin', 'spin') + t('Lecture…');
+    try {
+      const d = await Docs.read(f, { plan: Pro.expert ? 'elite' : 'pro' });
+      if (!d.text) throw { code: 'empty' };
+      Scan.text = (Scan.text.trim() ? Scan.text.trim() + '\n\n' : '') + d.text.slice(0, 120000); App.render();
+      toast(t('« {x} » lu : {n} caractères. Relisez, puis lancez.', { x: d.name, n: d.text.length }), 'file');
+    } catch (err) { toast(Docs.why(err), 'file'); b.disabled = false; b.innerHTML = icon('upload') + t('Importer un document'); }
+  });
   $('#scWeb')?.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); Inbox.web(e.target.value); } });
   // Une capture d'écran collée (Ctrl/⌘ V) devient une page du scan.
   if (!Hooks._paste) { Hooks._paste = true; document.addEventListener('paste', e => { if (App.route.v !== 'scan' || e.target.closest?.('input,textarea')) return; const fl = [...(e.clipboardData?.files || [])].filter(f => /^image\//.test(f.type)); if (!fl.length) return; e.preventDefault(); Scan.tab = 'photo'; const max = AI.limits?.images?.maxCount || 5; for (const f of fl.slice(0, Math.max(0, max - Scan.files.length))) { Scan.files.push(f); Scan.urls.push(URL.createObjectURL(f)); } App.render(); toast(t('Capture ajoutée au scan'), 'image'); }); }
@@ -11040,6 +11150,7 @@ Object.assign(Actions, {
    ════════════════════════════════════════════════════════════════════ */
 const Mentor = {
   isOpen: false, turns: [], ctl: null, busy: false, deckId: null, KEY: 'engram.mentor.v1',
+  files: [], docs: [], // fichiers joints en attente ; documents lus pendant la conversation (gardés en mémoire, jamais enregistrés)
   load() { const o = LS.get(this.KEY); this.turns = Array.isArray(o?.turns) ? o.turns.slice(-30) : []; },
   save() { LS.set(this.KEY, { turns: this.turns.slice(-30), updated: Date.now() }); },
   suggestions(ctx = App.route.v) {
@@ -11099,9 +11210,11 @@ const Mentor = {
         ${this.turns.length ? '' : this.introHTML(offline)}
         ${this.turns.map(x => this.msgHTML(x)).join('')}
       </div>
-      <div class="m-sugg" id="mSugg" ${this.turns.length && !offline ? 'hidden' : ''}>${offline ? this.offlineActions() : this.suggestions().map(s => `<button class="chip" data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>
+      <div class="m-sugg" id="mSugg" ${(this.turns.length && !this.files.length) && !offline ? 'hidden' : ''}>${offline ? this.offlineActions() : this.files.length ? this.docSugg() : this.suggestions().map(s => `<button class="chip" data-q="${esc(s)}">${esc(s)}</button>`).join('')}</div>
+      <div class="m-files" id="mFiles" ${this.files.length ? '' : 'hidden'}>${this.filesHTML()}</div>
       <form class="m-in" id="mForm" autocomplete="off">
-        <textarea class="input" id="mInput" rows="1" placeholder="${esc(offline ? t("Mentor a besoin de l'IA pour répondre") : t('Demandez, ou confiez une tâche…'))}" ${offline ? 'disabled' : ''}></textarea>
+        ${offline ? '' : `<button type="button" class="icon-btn m-clip" id="mClip" aria-label="${esc(t('Joindre des fichiers'))}" data-tip="${esc(t('Joindre des fichiers : PDF, Word, PowerPoint, Excel, ZIP, photos…'))}">${icon('clip')}${Pro.on ? '' : '<span class="tag gilt">Pro</span>'}</button><input type="file" id="mFile" multiple hidden accept="${Docs.ACCEPT}">`}
+        <textarea class="input" id="mInput" rows="1" placeholder="${esc(offline ? t("Mentor a besoin de l'IA pour répondre") : this.files.length ? t('Votre demande…') : t('Demandez, ou confiez une tâche…'))}" ${offline ? 'disabled' : ''}></textarea>
         ${Dictation.supported && !offline ? `<button type="button" class="icon-btn" id="mMic" aria-label="${esc(t('Dicter'))}">${icon('mic')}</button>` : ''}
         <button class="btn btn-brass" id="mSend" ${offline ? 'disabled' : ''} aria-label="${esc(t('Envoyer'))}">${icon('send')}</button>
       </form>
@@ -11122,14 +11235,87 @@ const Mentor = {
       .map(([a, ic, l]) => `<button class="chip" data-off="${a}">${icon(ic, 'i-sm')}${l}</button>`).join('');
   },
   msgHTML(x) {
-    if (x.role === 'user') return `<div class="m-msg me">${esc(x.content)}</div>`;
-    return `<div class="m-msg ai"><div class="m-txt">${md(x.content || '')}</div>${x.receipt?.length ? `<ul class="m-receipt">${x.receipt.map(r => `<li>${icon('check', 'i-sm')}<span>${esc(r)}</span></li>`).join('')}</ul>` : ''}</div>`;
+    if (x.role === 'user') return `<div class="m-msg me">${x.files?.length ? `<div class="m-att">${x.files.map(f => `<span>${Docs.badge(f.kind)}${esc(f.name)}</span>`).join('')}</div>` : ''}${esc(x.content)}</div>`;
+    const sh = x.sheet && deckById(x.sheet.deck)?.notes.some(n => n.id === x.sheet.note);
+    return `<div class="m-msg ai"><div class="m-txt">${md(x.content || '')}</div>${x.receipt?.length ? `<ul class="m-receipt">${x.receipt.map(r => `<li>${icon('check', 'i-sm')}<span>${esc(r)}</span></li>`).join('')}</ul>` : ''}${sh ? `<div class="m-acts"><button class="btn btn-sm btn-brass" data-sheet="${esc(x.sheet.deck)}:${esc(x.sheet.note)}">${icon('book', 'i-sm')}${t('Ouvrir la fiche de cours')}</button></div>` : ''}</div>`;
+  },
+  /* ── Fichiers joints (lot 23) ── */
+  filesHTML() {
+    return this.files.map(f => `<div class="m-file is-${f.status}" data-fid="${f.id}">${Docs.badge(f.kind)}<span class="mf-t"><b>${esc(f.name)}</b><small>${f.status === 'reading' ? `<span class="spin-dot"></span>${esc(f.prog || t('Lecture…'))}` : f.status === 'error' ? esc(f.err) : esc(this.fileMeta(f.doc))}</small></span><button type="button" class="mf-x" data-rmfile="${f.id}" aria-label="${esc(t('Retirer'))}">${icon('x', 'i-sm')}</button></div>`).join('')
+      + (this.files.length ? `<div class="m-files-n">${t('{a} sur {b}', { a: this.files.length, b: DocRead.maxFiles() })}</div>` : '');
+  },
+  fileMeta(d) {
+    if (!d) return '';
+    const a = [];
+    if (d.pages) a.push(d.kind === 'pptx' ? tp(d.pages, '{n} diapositive|{n} diapositives') : plural(d.pages, 'page|pages'));
+    if (d.chars) a.push(t('{n} signes', { n: d.chars }));
+    if (d.images?.length) a.push(tp(d.images.length, '{n} image|{n} images'));
+    return a.join(' · ') || t('Prêt');
+  },
+  docSugg() {
+    return `<button class="chip m-sheet" data-doc="sheet">${icon('book', 'i-sm')}${t('Fiche de cours détaillée')}</button>` + [t('Crée les fiches de révision à partir de ces documents'), t('Résume l\'essentiel en 10 points'), t('Interroge-moi sur ces documents'), t('Explique-moi les passages difficiles')].map(x => `<button class="chip" data-q="${esc(x)}">${esc(x)}</button>`).join('');
+  },
+  drawFiles() {
+    const box = $('#mFiles'); if (box) { box.innerHTML = this.filesHTML(); box.hidden = !this.files.length; }
+    const sg = $('#mSugg'); if (sg && AI.on) { if (this.files.length) { sg.hidden = false; sg.innerHTML = this.docSugg(); } else if (this.turns.length) sg.hidden = true; else sg.innerHTML = this.suggestions().map(x => `<button class="chip" data-q="${esc(x)}">${esc(x)}</button>`).join(''); }
+    const inp = $('#mInput'); if (inp && AI.on) inp.placeholder = this.files.length ? t('Votre demande…') : t('Demandez, ou confiez une tâche…');
+  },
+  /** Joindre des fichiers : Pro et Élite seulement ; lus tout de suite, dans l'appareil. */
+  attach(list) {
+    list = [...list].filter(Boolean); if (!list.length) return;
+    if (!AI.on) { toast(t("Mentor a besoin de l'IA : ouvrez Engram dans l'app Claude."), 'sparkles'); return; }
+    if (!Pro.on) { Pro.upsell('files'); return; }
+    const max = DocRead.maxFiles(), room = max - this.files.length;
+    if (list.length > room) toast(Pro.expert ? t('Élite : {n} fichiers par demande.', { n: max }) : t('Pro : 5 fichiers par demande. Élite en lit jusqu\'à 20.'), 'clip');
+    for (const f of list.slice(0, Math.max(0, room))) {
+      const it = { id: uid('f'), name: f.name || t('Document'), kind: Docs.kind(f), size: f.size, status: 'reading' };
+      this.files.push(it);
+      it.p = Docs.read(f, { plan: Pro.expert ? 'elite' : 'pro', progress: m => { it.prog = m; const el = $(`#mFiles [data-fid="${it.id}"] small`); if (el) el.innerHTML = `<span class="spin-dot"></span>${esc(m)}`; } })
+        .then(d => { it.doc = d; it.status = 'ready'; }).catch(e => { it.status = 'error'; it.err = Docs.why(e); }).finally(() => this.drawFiles());
+    }
+    S.profile.flags.files = 1;
+    this.drawFiles(); Sound.play('pop');
+  },
+  /** Les fichiers joints, une fois lus, passent dans la bibliothèque de la conversation. */
+  async takeFiles() {
+    const fl = this.files; if (!fl.length) return [];
+    if (fl.some(f => f.status === 'reading')) await Promise.all(fl.map(f => f.p).filter(Boolean));
+    const docs = fl.filter(f => f.status === 'ready').map(f => f.doc);
+    this.files = []; this.drawFiles(); this.docs.push(...docs);
+    return docs;
+  },
+  /** « Fiche de cours détaillée » : sans passer par la conversation, la fiche part tout de suite. */
+  async sheetFromFiles() {
+    if (this.busy) return;
+    if (!Pro.on) { Pro.upsell('sheet'); return; }
+    const docs = await this.takeFiles(); if (!docs.length) { toast(t('Aucun fichier lisible.'), 'clip'); return; }
+    this.turns.push({ role: 'user', content: t('Fiche de cours détaillée'), files: docs.map(d => ({ name: d.name, kind: d.kind })) });
+    const reply = t('Je rédige votre fiche de cours à partir de {x}. Elle s\'ouvre dans la liseuse et se range dans un paquet.', { x: docs.map(d => '« ' + d.name + ' »').join(', ') });
+    const turn = { role: 'assistant', content: reply }; this.turns.push(turn); this.save();
+    const body = $('#mBody'); body?.querySelector('.m-intro')?.remove();
+    body?.insertAdjacentHTML('beforeend', this.msgHTML(this.turns.at(-2)) + this.msgHTML(turn));
+    if (body) body.scrollTop = body.scrollHeight;
+    const res = await CourseSheet.start({ docs, deckId: this.deckId });
+    if (res) { turn.receipt = [t('Fiche rangée dans « {x} »', { x: res.deck.name })]; turn.sheet = { deck: res.deck.id, note: res.note.id }; this.save(); if (this.isOpen) this.render(); }
   },
   bind() {
     $('#mClose').onclick = () => this.close();
-    $('#mNew').onclick = () => { this.ctl?.abort(); this.turns = []; this.save(); this.render(); };
+    $('#mNew').onclick = () => { this.ctl?.abort(); this.turns = []; this.files = []; this.docs = []; this.save(); this.render(); };
+    // Fichiers : trombone, glisser-déposer sur Mentor, coller dans la zone de saisie.
+    $('#mClip')?.addEventListener('click', () => { if (!Pro.on) { Pro.upsell('files'); return; } $('#mFile').click(); });
+    $('#mFile')?.addEventListener('change', e => { this.attach(e.target.files); e.target.value = ''; });
+    $('#mFiles')?.addEventListener('click', e => { const x = e.target.closest('[data-rmfile]'); if (x) { this.files = this.files.filter(f => f.id !== x.dataset.rmfile); this.drawFiles(); } });
+    $('#mBody').onclick = e => { const b = e.target.closest('[data-sheet]'); if (b) { const [d, n] = b.dataset.sheet.split(':'); CourseSheet.view(d, n); } };
+    const box = $('#mentor');
+    if (!box._drop) {
+      box._drop = true;
+      box.addEventListener('dragover', e => { if ([...(e.dataTransfer?.types || [])].includes('Files')) { e.preventDefault(); e.stopPropagation(); box.classList.add('drop'); } });
+      box.addEventListener('dragleave', e => { if (!box.contains(e.relatedTarget)) box.classList.remove('drop'); });
+      box.addEventListener('drop', e => { box.classList.remove('drop'); const fl = e.dataTransfer?.files; if (!fl?.length) return; e.preventDefault(); e.stopPropagation(); this.attach(fl); });
+    }
     $('#mTier').onclick = () => { const order = MENTOR_TIERS_KEYS; const s = S.profile.settings; let nx = order[(order.indexOf(s.mentorTier) + 1) % order.length]; if (nx === 'complex' && !Pro.expert) { nx = 'auto'; toast(t('Le mode Expert fait partie d\'Élite'), 'crown'); } s.mentorTier = nx; Store.touch('profile'); $('#mTier').innerHTML = icon('brain', 'i-sm') + this.tierLabel(); toast(t('Mentor : {x}', { x: this.tierLabel() }) + ' — ' + t(MENTOR_TIERS[s.mentorTier][1]), 'sparkles'); };
     $('#mSugg').onclick = e => {
+      if (e.target.closest('[data-doc="sheet"]')) { this.sheetFromFiles(); return; }
       const q = e.target.closest('[data-q]'); if (q) { this.send(q.dataset.q); return; }
       const o = e.target.closest('[data-off]'); if (!o) return;
       const a = o.dataset.off; this.close();
@@ -11138,7 +11324,8 @@ const Mentor = {
     const inp = $('#mInput');
     inp.addEventListener('input', () => { inp.style.height = 'auto'; inp.style.height = Math.min(160, inp.scrollHeight) + 'px'; });
     inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#mForm').requestSubmit(); } });
-    $('#mForm').onsubmit = e => { e.preventDefault(); if (this.busy) { this.ctl?.abort(); return; } const v = inp.value.trim(); if (v) { inp.value = ''; inp.style.height = 'auto'; this.send(v); } };
+    inp.addEventListener('paste', e => { const fl = [...(e.clipboardData?.files || [])]; if (fl.length) { e.preventDefault(); this.attach(fl); } });
+    $('#mForm').onsubmit = e => { e.preventDefault(); if (this.busy) { this.ctl?.abort(); return; } const v = inp.value.trim(); if (v || this.files.length) { inp.value = ''; inp.style.height = 'auto'; this.send(v); } };
     $('#mMic')?.addEventListener('click', ev => {
       const b = ev.currentTarget; if (Dictation.rec) { Dictation.stop(); b.classList.remove('on'); return; }
       b.classList.add('on');
@@ -11173,6 +11360,7 @@ ${Brain.brief('mentor')}
 ${AI.tools ? `You can act inside the app with the tools provided. When the student asks for something the tools can do, DO it with the tools instead of explaining how, then confirm in one or two sentences what you did. Call get_deck_cards before editing or quizzing on specific cards. Create at most 30 cards per add_cards call (call it several times for more). When you learn something durable about the student (goal, weakness, preference, constraint), save it with remember. Never delete anything the student did not explicitly ask to delete — the app asks them to confirm deletions. Everything you change can be undone by the student with one click.` : `In this view you cannot act in the app: answer, advise and tell the student which button to use.`}
 Flashcard quality rules: one idea per card; precise, unambiguous question; short answer (under 20 words); useful detail in "extra"; cloze cards use {{c1::…}} on the most information-rich words (1–3 gaps); multiple-choice cards have 4 plausible options and exactly one correct; write cards in the language of the deck (see each deck's lang) unless asked otherwise.
 Engram Pro also has six specialised assistants you can hand a task to with run_agent (the student then reviews their proposals): planner (prepares today's session), proof (audits a deck's cards), coach (mnemonics for often-forgotten cards), librarian (finds missing notions and drafts new cards), examiner (tailored timed mock exam), chronicler (weekly report). Use them for audits, mock exams and weekly reports.
+${this.docs.length ? `Documents the student attached in this conversation (re-read them with read_document, numbered from 1): ${this.docs.map((d, k) => `${k + 1}. "${d.name}" (${d.chars || 0} characters${d.images?.length ? `, ${d.images.length} images` : ''})`).join('; ')}.\n` : ''}Course sheets: when the student asks for a summary, a "fiche", a "résumé" or a course sheet (of their documents, of a deck or of a topic), call write_course_sheet — never write such a sheet in the chat. To turn documents into flashcards, create a deck and add_cards (atomic cards at the student's level), in several calls if needed.
 Planning rules: the app computes the daily programme itself from exams, available minutes per weekday and FSRS; to change it, adjust exams, weekly minutes or the new-cards cap — then explain the effect with get_plan.
 To quiz the student in the chat: ask one question at a time, wait for their answer, grade it kindly (accept synonyms), then continue.
 
@@ -11345,6 +11533,20 @@ ${JSON.stringify(this.snapshot())}`;
       { name: 'run_agent', description: 'Hand a task to one of Engram\'s specialised assistants. It opens its mission window; its proposals wait for the student\'s approval. agent: planner | proof | coach | librarian | examiner | chronicler. deck_id is used by proof, coach and librarian (and optionally examiner).',
         inputSchema: { type: 'object', properties: { agent: { type: 'string', enum: AGENTS.map(a => a.id) }, deck_id: { type: 'string' } }, required: ['agent'] },
         execute: i => { const a = AGENT[str(i.agent)]; if (!a) throw new Error('Unknown agent.'); const deckId = str(i.deck_id) && deckById(str(i.deck_id)) ? str(i.deck_id) : undefined; ctx.after.push(() => { this.close(); Agents.run(a.id, { deckId }); }); say(t('Mission confiée : {a}', { a: t(a.name) })); return 'The assistant\'s window opens when you finish your reply. Tell the student in one sentence.'; } },
+      ...(this.docs.length ? [{ name: 'read_document', description: 'Read again a document the student attached in this conversation: its text from a character offset (documents are numbered from 1 in the order they were attached).',
+        inputSchema: { type: 'object', properties: { document: { type: 'number' }, from: { type: 'number' }, length: { type: 'number' } }, required: ['document'] },
+        execute: i => { const d = this.docs[(Math.round(+i.document) || 1) - 1]; if (!d) throw new Error('Unknown document number.'); const from = clamp(Math.round(+i.from) || 0, 0, d.text.length), len = clamp(Math.round(+i.length) || 30000, 1000, 60000); return { name: d.name, total_characters: d.text.length, from, text: d.text.slice(from, from + len), images: d.images?.length || 0 }; } }] : []),
+      ...(Pro.on ? [{ name: 'write_course_sheet', description: 'Write a detailed course sheet ("fiche de cours": notions, definitions, theorems, formulas, methods, classic traps, worked examples, a final "to remember" and practice questions) and open it in the reader; it is saved in a deck and the student can turn it into flashcards in one tap. source: "documents" (files attached in this conversation), "deck" (the cards of deck_id) or "topic" (your knowledge of a topic). Use it whenever the student asks for a summary, a "fiche", a "résumé" or a course sheet.',
+        inputSchema: { type: 'object', properties: { source: { type: 'string', enum: ['documents', 'deck', 'topic'] }, title: { type: 'string' }, topic: { type: 'string' }, focus: { type: 'string', description: 'optional: what to insist on' }, deck_id: { type: 'string', description: 'deck where the sheet is saved (and the source deck when source is "deck")' } }, required: ['source'] },
+        execute: i => {
+          const src = str(i.source), deckId = str(i.deck_id) && deckById(str(i.deck_id)) ? str(i.deck_id) : this.deckId || null;
+          if (src === 'documents' && !this.docs.length) throw new Error('No document attached in this conversation.');
+          if (src === 'deck' && !deckId) throw new Error('deck_id is required when source is "deck".');
+          const docs = this.docs.slice(), turn = () => this.turns.at(-1);
+          ctx.after.push(() => CourseSheet.start({ docs: src === 'documents' ? docs : null, fromDeck: src === 'deck' ? deckId : null, deckId, topic: src === 'topic' ? str(i.topic || i.title) : '', title: str(i.title), focus: str(i.focus),
+            onDone: (deck, note) => { const tu = turn(); if (tu?.role === 'assistant') { tu.sheet = { deck: deck.id, note: note.id }; (tu.receipt = tu.receipt || []).push(t('Fiche rangée dans « {x} »', { x: deck.name })); this.save(); if (this.isOpen) this.render(); } } }));
+          say(t('Fiche de cours : rédaction lancée')); return 'The sheet opens in the reader as soon as you finish your reply (keep it to one or two sentences); it is saved in a deck.';
+        } }] : []),
       ...(Pro.on ? [{ name: 'read_web_page', description: `Read a web page the student points to (a Wikipedia article, an online course, documentation) and get its readable text${Pro.expert ? ' in full' : ' (first 40,000 characters)'}. Use it whenever the student gives a link or asks you to explain, summarise or turn a page into cards. Then go to the heart of it: reconstruct the underlying ideas and reasoning even when the page is dense or confusing, explain them at the student's level, and say what the page leaves uncertain.`,
         inputSchema: { type: 'object', properties: { url: { type: 'string' } }, required: ['url'] },
         execute: async (i, c) => { const j = await WebRead.get(str(i.url), c?.signal).catch(e => { throw new Error(untag(WebRead.why(e))); }); say(t('Page lue : « {t} »', { t: j.title || j.url })); return { title: j.title, url: j.url, source: j.source || 'web', text: String(j.text).slice(0, Pro.expert ? 120000 : 40000) }; } }] : []),
@@ -11355,17 +11557,23 @@ ${JSON.stringify(this.snapshot())}`;
     return tools.slice(0, max);
   },
   async send(text) {
-    if (this.busy || !text.trim()) return;
+    text = String(text || '');
+    if (this.busy || (!text.trim() && !this.files.length)) return;
     if (!AI.on) { toast(t("Mentor a besoin de l'IA : ouvrez Engram dans l'app Claude."), 'sparkles'); return; }
     if (!Pro.use('mentor')) { Pro.upsell('mentor'); return; }
+    this.busy = true;
+    const docs = await this.takeFiles();
+    if (!text.trim()) text = docs.length ? t('Lis ces documents et dis-moi ce qu\'ils contiennent.') : '';
+    if (!text.trim()) { this.busy = false; return; }
     $('#mSugg')?.setAttribute('hidden', '');
-    this.turns.push({ role: 'user', content: text }); this.save();
+    const uturn = { role: 'user', content: text, ...(docs.length ? { files: docs.map(d => ({ name: d.name, kind: d.kind })) } : {}) };
+    this.turns.push(uturn); this.save();
     const body = $('#mBody'); body.querySelector('.m-intro')?.remove();
-    body.insertAdjacentHTML('beforeend', this.msgHTML({ role: 'user', content: text }));
+    body.insertAdjacentHTML('beforeend', this.msgHTML(uturn));
     body.insertAdjacentHTML('beforeend', `<div class="m-msg ai live"><div class="m-txt"><span class="thinking"><i></i><i></i><i></i></span></div><ul class="m-receipt"></ul><div class="m-acts"></div></div>`);
     const bubble = body.lastElementChild, txt = bubble.querySelector('.m-txt'), rec = bubble.querySelector('.m-receipt'), acts = bubble.querySelector('.m-acts');
     body.scrollTop = body.scrollHeight;
-    this.busy = true; this.ctl = new AbortController();
+    this.ctl = new AbortController();
     $('#mSend').innerHTML = icon('stop'); $('#mSend').setAttribute('aria-label', t('Arrêter'));
     const snap = Store.snapshot(), langBefore = LANG;
     const ctx = {
@@ -11381,10 +11589,19 @@ ${JSON.stringify(this.snapshot())}`;
       })
     };
     const input = [{ role: 'user', content: this.rules() }, ...this.turns.slice(-16).map(x => ({ role: x.role, content: x.content }))];
-    let out = '';
+    let out = '', images;
     try {
+      if (docs.length) {
+        // Les documents joints à ce message : en entier s'ils tiennent, sinon lus morceau par morceau.
+        const show = m => { txt.innerHTML = `<span class="thinking"><i></i><i></i><i></i></span> <span class="m-reading">${esc(m)}</span>`; };
+        show(t('Lecture des documents…'));
+        const prep = await DocRead.prepare(docs, { signal: this.ctl.signal, progress: show });
+        input[input.length - 1] = { role: 'user', content: `${text}\n\nATTACHED DOCUMENTS — the student's own material${prep.digested ? ' (long documents were read in full, part by part, and condensed below into faithful notes)' : ''}${prep.cut ? ' (only part of the material could be included: say so if it matters)' : ''}. Base your answer on them.\n\n${prep.text}` };
+        images = prep.images.length ? prep.images : undefined;
+        txt.innerHTML = '<span class="thinking"><i></i><i></i><i></i></span>';
+      }
       const set = S.profile.settings.mentorTier, auto = Brain.opts('mentor');
-      const opts = { signal: this.ctl.signal, modelTier: set === 'auto' || !MENTOR_TIERS[set] ? auto.modelTier : set === 'complex' && !Pro.expert ? 'default' : set, effort: set === 'quick' ? 'low' : auto.effort, rounds: Pro.expert ? 12 : Pro.on ? 9 : 7, onText: ({ text: x }) => { out = x; txt.innerHTML = md(x); body.scrollTop = body.scrollHeight; } };
+      const opts = { signal: this.ctl.signal, modelTier: set === 'auto' || !MENTOR_TIERS[set] ? auto.modelTier : set === 'complex' && !Pro.expert ? 'default' : set, effort: set === 'quick' ? 'low' : auto.effort, rounds: Pro.expert ? 12 : Pro.on ? 9 : 7, ...(images ? { images } : {}), onText: ({ text: x }) => { out = x; txt.innerHTML = md(x); body.scrollTop = body.scrollHeight; } };
       if (AI.tools) opts.tools = this.toolDefs(ctx); else opts.cache = false;
       const r = await AI.ask(input, opts);
       out = r.text;
@@ -11415,6 +11632,548 @@ ${JSON.stringify(this.snapshot())}`;
 };
 
 /* ════════════════════════════════════════════════════════════════════
+   DOCUMENTS ET FICHES DE COURS (lot 23)
+   · Docs lit dans le navigateur : PDF (texte, ou pages scannées en
+     images), Word, PowerPoint, Excel, CSV, OpenDocument, EPUB, RTF, HTML,
+     texte, images, et les ZIP qui en contiennent. Rien ne part avant
+     que la personne envoie sa demande.
+   · DocRead prépare les documents pour l'IA : tels quels s'ils tiennent
+     dans la demande ; sinon lus morceau par morceau et condensés en notes
+     fidèles (Élite lit les gros cours en entier, Pro les 6 premiers
+     morceaux). Les pages scannées en trop sont transcrites par lots.
+   · docHTML met en page une fiche de cours : titres numérotés, encadrés
+     (définition, formule, théorème, méthode, piège, exemple,
+     démonstration, à retenir), tableaux, formules LaTeX lisibles tout de
+     suite puis dessinées par MathJax quand il est chargé.
+   · CourseSheet rédige la fiche, l'affiche dans la liseuse, la range
+     dans un paquet et en tire les fiches de révision en un appui.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Formules : du LaTeX lisible sans rien charger ───────────────────── */
+const TEX_SYM = { alpha: 'α', beta: 'β', gamma: 'γ', delta: 'δ', epsilon: 'ε', varepsilon: 'ε', zeta: 'ζ', eta: 'η', theta: 'θ', vartheta: 'ϑ', iota: 'ι', kappa: 'κ', lambda: 'λ', mu: 'μ', nu: 'ν', xi: 'ξ', pi: 'π', rho: 'ρ', sigma: 'σ', tau: 'τ', upsilon: 'υ', phi: 'φ', varphi: 'φ', chi: 'χ', psi: 'ψ', omega: 'ω', Gamma: 'Γ', Delta: 'Δ', Theta: 'Θ', Lambda: 'Λ', Xi: 'Ξ', Pi: 'Π', Sigma: 'Σ', Phi: 'Φ', Psi: 'Ψ', Omega: 'Ω',
+  times: '×', cdot: '·', div: '÷', pm: '±', mp: '∓', le: '≤', leq: '≤', leqslant: '≤', ge: '≥', geq: '≥', geqslant: '≥', ne: '≠', neq: '≠', approx: '≈', simeq: '≃', sim: '∼', equiv: '≡', propto: '∝', infty: '∞', to: '→', rightarrow: '→', longrightarrow: '⟶', leftarrow: '←', Rightarrow: '⇒', Longrightarrow: '⟹', Leftarrow: '⇐', Leftrightarrow: '⇔', iff: '⇔', implies: '⇒', mapsto: '↦', uparrow: '↑', downarrow: '↓',
+  in: '∈', notin: '∉', subset: '⊂', subseteq: '⊆', supset: '⊃', cup: '∪', cap: '∩', forall: '∀', exists: '∃', partial: '∂', nabla: '∇', sum: '∑', prod: '∏', int: '∫', iint: '∬', oint: '∮', lim: 'lim', sin: 'sin', cos: 'cos', tan: 'tan', ln: 'ln', log: 'log', exp: 'exp', max: 'max', min: 'min', det: 'det',
+  degree: '°', circ: '∘', ldots: '…', cdots: '⋯', dots: '…', quad: ' ', qquad: '  ', hbar: 'ℏ', ell: 'ℓ', emptyset: '∅', varnothing: '∅', neg: '¬', land: '∧', lor: '∨', wedge: '∧', vee: '∨', perp: '⊥', parallel: '∥', angle: '∠', langle: '⟨', rangle: '⟩', lfloor: '⌊', rfloor: '⌋', lceil: '⌈', rceil: '⌉', vert: '|', mid: '|', star: '⋆', ast: '∗', bullet: '•', prime: '′', Re: 'ℜ', Im: 'ℑ', ohm: 'Ω', AA: 'Å' };
+const TEX_SUP = { 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹', '+': '⁺', '-': '⁻', '−': '⁻', '=': '⁼', '(': '⁽', ')': '⁾', n: 'ⁿ', i: 'ⁱ', '′': '′' };
+const TEX_SUB = { 0: '₀', 1: '₁', 2: '₂', 3: '₃', 4: '₄', 5: '₅', 6: '₆', 7: '₇', 8: '₈', 9: '₉', '+': '₊', '-': '₋', '=': '₌', '(': '₍', ')': '₎', a: 'ₐ', e: 'ₑ', o: 'ₒ', x: 'ₓ', i: 'ᵢ', j: 'ⱼ', k: 'ₖ', n: 'ₙ', m: 'ₘ', p: 'ₚ', t: 'ₜ', r: 'ᵣ', s: 'ₛ', h: 'ₕ', l: 'ₗ', ℓ: 'ₗ' };
+/** LaTeX → texte Unicode lisible (affiché avant MathJax, et dans les exports en texte). */
+function texToText(src) {
+  const map = (s, M, mark) => [...s].every(c => M[c]) ? [...s].map(c => M[c]).join('') : mark + (s.length > 1 ? '(' + s + ')' : s);
+  const wrap = a => a.length > 1 && /[+\-−\s=]/.test(a) ? `(${a})` : a;
+  let x = String(src || '');
+  for (let k = 0; k < 4; k++) x = x.replace(/\\[dt]?frac\s*\{([^{}]*)\}\s*\{([^{}]*)\}/g, (m, a, b) => `${wrap(a)}/${wrap(b)}`);
+  x = x.replace(/\\sqrt\s*\[([^\]]*)\]\s*\{([^{}]*)\}/g, (m, n, a) => `${n}√${wrap(a)}`).replace(/\\sqrt\s*\{([^{}]*)\}/g, (m, a) => '√' + wrap(a));
+  x = x.replace(/\\mathbb\s*\{(\w)\}/g, (m, c) => ({ R: 'ℝ', N: 'ℕ', Z: 'ℤ', Q: 'ℚ', C: 'ℂ', K: '𝕂' })[c] || c);
+  x = x.replace(/\\(?:vec|overrightarrow)\s*\{([^{}]*)\}/g, '$1⃗').replace(/\\(?:bar|overline)\s*\{([^{}]*)\}/g, '$1̄').replace(/\\hat\s*\{([^{}]*)\}/g, '$1̂').replace(/\\dot\s*\{([^{}]*)\}/g, '$1̇');
+  x = x.replace(/\\(?:text|mathrm|mathbf|mathit|mathsf|mathcal|operatorname|textbf|textit|boldsymbol|displaystyle|mbox)\s*\{([^{}]*)\}/g, '$1');
+  x = x.replace(/\\(?:left|right|big|Big|bigg|Bigg|displaystyle|limits)\b/g, '').replace(/\\([,;:! ])/g, ' ').replace(/\\\\/g, ' ; ');
+  x = x.replace(/\\([a-zA-Z]+)/g, (m, w) => TEX_SYM[w] ?? w);
+  x = x.replace(/\^\{([^{}]*)\}|\^(\S)/g, (m, a, b) => map(a ?? b, TEX_SUP, '^'));
+  x = x.replace(/_\{([^{}]*)\}|_(\S)/g, (m, a, b) => map(a ?? b, TEX_SUB, '_'));
+  return x.replace(/[{}]/g, '').replace(/&/g, ' ').replace(/\s+/g, ' ').trim();
+}
+/** MathJax (rendu SVG, sans police à charger), chargé seulement quand une formule s'affiche. */
+const TeX = {
+  p: null,
+  load() {
+    if (window.MathJax?.tex2svgPromise) return Promise.resolve(window.MathJax);
+    if (this.p) return this.p;
+    if (!window.MathJax?.version) window.MathJax = { tex: { inlineMath: [], displayMath: [], packages: { '[+]': ['ams'] } }, svg: { fontCache: 'local' }, startup: { typeset: false }, options: { enableMenu: false } };
+    return this.p = lib('mathjax').then(MJ => MJ.startup.promise.then(() => MJ)).catch(e => { this.p = null; throw e; });
+  },
+  /** Dessine les formules d'un bloc ; sans réseau, le texte lisible reste. */
+  async typeset(root) {
+    const els = $$('[data-tex]:not([data-done])', root); if (!els.length) return;
+    let MJ; try { MJ = await this.load(); } catch { return; }
+    for (const el of els) {
+      if (!el.isConnected || el.dataset.done) continue;
+      try { const node = await MJ.tex2svgPromise(el.dataset.tex, { display: el.classList.contains('mx-d') }); const svg = node.querySelector('svg'); if (svg) { svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', el.textContent); el.replaceChildren(svg); el.dataset.done = '1'; el.classList.add('on'); } }
+      catch { el.dataset.done = 'x'; }
+    }
+  }
+};
+
+/* ── Mise en page d'une fiche de cours (Markdown enrichi) ───────────── */
+const CALLOUT_KIND = { def: 'def', definition: 'def', définition: 'def', formula: 'formula', formule: 'formula', equation: 'formula', thm: 'thm', theorem: 'thm', théorème: 'thm', theoreme: 'thm', prop: 'thm', property: 'thm', propriété: 'thm', law: 'thm', loi: 'thm', method: 'method', méthode: 'method', methode: 'method', howto: 'method', trap: 'trap', piège: 'trap', piege: 'trap', warning: 'trap', attention: 'trap', caution: 'trap', example: 'ex', exemple: 'ex', ex: 'ex', proof: 'proof', demo: 'proof', démonstration: 'proof', preuve: 'proof', remember: 'keep', retenir: 'keep', key: 'keep', essentiel: 'keep', summary: 'keep', note: 'note', remarque: 'note', info: 'note', tip: 'note', astuce: 'note' };
+const CALLOUT_LABEL = { def: N_('Définition'), formula: N_('Formule'), thm: N_('Théorème'), method: N_('Méthode'), trap: N_('Piège'), ex: N_('Exemple'), proof: N_('Démonstration'), keep: N_('À retenir'), note: N_('Remarque') };
+const CALLOUT_ICON = { def: 'book', formula: 'sigma', thm: 'seal', method: 'route', trap: 'alert', ex: 'pen', proof: 'flip', keep: 'bookmark', note: 'sparkles' };
+/** Texte d'une ligne : gras, italique, code, et formules $…$ protégées du Markdown. */
+function docInline(s) {
+  const keep = [];
+  let x = String(s).replace(/\$\$([^$]+?)\$\$|\\\((.+?)\\\)|\$(?![\s\d])([^$\n]+?)(?<!\s)\$/g, (m, a, b, c) => { keep.push(a ?? b ?? c); return `${keep.length - 1}`; });
+  x = mdInline(esc(x));
+  return x.replace(/(\d+)/g, (m, k) => `<span class="mx" data-tex="${esc(keep[k])}">${esc(texToText(keep[k]))}</span>`);
+}
+/** Formules $…$ dans un HTML déjà échappé (cellules de tableau). */
+const docMathIn = h => h.replace(/\$(?![\s\d])([^$<]+?)(?<!\s)\$/g, (m, x) => { const tex = untag(x); return `<span class="mx" data-tex="${esc(tex)}">${esc(texToText(tex))}</span>`; });
+const docMath = tex => `<div class="mx-d" data-tex="${esc(tex.trim())}">${esc(texToText(tex))}</div>`;
+/** Markdown de fiche de cours → HTML. o.toc reçoit le sommaire (niveau, texte, id). */
+function docHTML(src, o = {}) {
+  const lines = String(src || '').replace(/\r/g, '').split('\n'), out = [], toc = o.toc || [];
+  let i = 0, firstH1 = true;
+  const isList = l => /^\s*(?:[-*•]|\d+[.)])\s+/.test(l);
+  const startsBlock = l => /^\s*(#{1,6}\s|>|```|\$\$|\\\[|(?:-{3,}|\*{3,}|_{3,})\s*$)/.test(l) || isList(l);
+  while (i < lines.length) {
+    const raw = lines[i], l = raw.trim();
+    if (!l) { i++; continue; }
+    if (l.startsWith('```')) { const b = []; i++; while (i < lines.length && !lines[i].trim().startsWith('```')) b.push(lines[i++]); i++; out.push(`<pre class="d-code">${esc(b.join('\n'))}</pre>`); continue; }
+    if (l.startsWith('$$') || l.startsWith('\\[')) {
+      const close = l.startsWith('$$') ? '$$' : '\\]'; let body = l.slice(2);
+      if (body.trim().length > 1 && body.trimEnd().endsWith(close)) body = body.trimEnd().slice(0, -2);
+      else { i++; while (i < lines.length && !lines[i].trim().endsWith(close)) body += '\n' + lines[i++]; if (i < lines.length) body += '\n' + lines[i].trim().slice(0, -2); }
+      i++; out.push(docMath(body)); continue;
+    }
+    const h = l.match(/^(#{1,6})\s+(.*)$/);
+    if (h) {
+      const lv = Math.min(h[1].length, 4), text = h[2].replace(/\s*#+\s*$/, '');
+      if (lv === 1 && firstH1) { firstH1 = false; out.push(`<h1 class="d-title">${docInline(text)}</h1>`); i++; continue; }
+      const id = 'd' + toc.length; toc.push({ lv, text: plain(text).replace(/\$/g, ''), id });
+      const num = lv <= 2 ? (text.match(/^(\d+(?:\.\d+)*)[.)]?\s+/) || [])[1] : null;
+      out.push(`<h${lv + 1} id="${id}" class="d-h${lv}">${num ? `<span class="d-num">${esc(num)}</span>` : ''}${docInline(num ? text.replace(/^(\d+(?:\.\d+)*)[.)]?\s+/, '') : text)}</h${lv + 1}>`); i++; continue;
+    }
+    if (/^(?:-{3,}|\*{3,}|_{3,})$/.test(l)) { out.push('<hr class="d-hr">'); i++; continue; }
+    if (l.startsWith('>')) {
+      // Un encadré s'arrête là où commence le suivant (« > [!formula] » juste après « > [!def] »).
+      const b = []; while (i < lines.length && lines[i].trim().startsWith('>') && !(b.length && /^>\s*\[!/.test(lines[i].trim()))) b.push(lines[i++].trim().replace(/^>\s?/, ''));
+      const m = b[0].match(/^\[!([\wÀ-ÿ]+)\][+-]?\s*(.*)$/);
+      if (m) {
+        const k = CALLOUT_KIND[m[1].toLowerCase()] || 'note', title = m[2].trim(), inner = docHTML(b.slice(1).join('\n'), { inner: true });
+        const head = `<span class="d-tab">${icon(CALLOUT_ICON[k], 'i-sm')}${t(CALLOUT_LABEL[k])}</span>${title ? `<b class="d-ct">${docInline(title)}</b>` : ''}`;
+        out.push(k === 'proof' ? `<details class="d-box d-${k}"><summary>${head}<span class="d-show">${t('Voir la démonstration')}</span></summary><div class="d-in">${inner}</div></details>` : `<div class="d-box d-${k}"><div class="d-bh">${head}</div><div class="d-in">${inner}</div></div>`);
+      } else out.push(`<blockquote class="d-quote">${docHTML(b.join('\n'), { inner: true })}</blockquote>`);
+      continue;
+    }
+    if (Tbl.pipe(l) && i + 1 < lines.length && Tbl.SEP.test(lines[i + 1])) {
+      const b = []; while (i < lines.length && lines[i].trim() && Tbl.pipe(lines[i])) b.push(lines[i++]);
+      const blk = Tbl.blocks(b.join('\n')).find(x => x.head); out.push(`<div class="d-tbl">${blk ? docMathIn(Tbl.html(blk)) : esc(b.join('\n'))}</div>`); continue;
+    }
+    if (isList(raw)) {
+      const ordered = /^\s*\d+[.)]\s/.test(raw), items = [];
+      while (i < lines.length && lines[i].trim() && (isList(lines[i]) || /^\s{2,}\S/.test(lines[i]))) {
+        const li = lines[i], sub = /^\s{2,}/.test(li) && items.length;
+        const txt = li.trim().replace(/^(?:[-*•]|\d+[.)])\s+/, '');
+        if (sub) (items[items.length - 1].sub = items[items.length - 1].sub || []).push(isList(li) ? txt : li.trim()); else items.push({ txt });
+        i++;
+      }
+      const tag = ordered ? 'ol' : 'ul';
+      out.push(`<${tag} class="d-list">${items.map(x => `<li>${docInline(x.txt)}${x.sub ? `<ul>${x.sub.map(y => `<li>${docInline(y)}</li>`).join('')}</ul>` : ''}</li>`).join('')}</${tag}>`);
+      continue;
+    }
+    const p = [l]; i++;
+    while (i < lines.length && lines[i].trim() && !startsBlock(lines[i]) && !(Tbl.pipe(lines[i]) && Tbl.SEP.test(lines[i + 1] || ''))) p.push(lines[i++].trim());
+    const txt = p.join(' ');
+    out.push(/^\*[^*].*\*$/.test(txt) && out.length === 1 && !o.inner ? `<p class="d-sub">${docInline(txt.slice(1, -1))}</p>` : `<p>${docInline(txt)}</p>`);
+  }
+  return out.join('');
+}
+/** Le titre d'une fiche : son premier « # ». */
+const docTitle = src => plain((String(src || '').match(/^#\s+(.+)$/m) || [])[1] || '').replace(/\$/g, '').trim();
+/** Fiche → texte brut (copie, impression sans MathJax). */
+const docPlain = src => String(src || '').replace(/\$\$([\s\S]+?)\$\$/g, (m, x) => texToText(x)).replace(/\$([^$\n]+)\$/g, (m, x) => texToText(x)).replace(/^>\s?\[!(\w+)\]\s*/gm, (m, k) => (t(CALLOUT_LABEL[CALLOUT_KIND[k.toLowerCase()] || 'note']) + ' — ')).replace(/^>\s?/gm, '');
+
+/* ── Lecture des fichiers ────────────────────────────────────────────── */
+const DOC_EXT = { pdf: 'pdf', docx: 'docx', docm: 'docx', dotx: 'docx', pptx: 'pptx', ppsx: 'pptx', potx: 'pptx', xlsx: 'xlsx', xlsm: 'xlsx', csv: 'csv', tsv: 'csv', txt: 'text', md: 'text', markdown: 'text', tex: 'text', json: 'text', srt: 'text', vtt: 'text', rtf: 'rtf', html: 'html', htm: 'html', xhtml: 'html', odt: 'odt', ods: 'ods', odp: 'odp', epub: 'epub', zip: 'zip', png: 'image', jpg: 'image', jpeg: 'image', webp: 'image', gif: 'image', heic: 'image', heif: 'image', bmp: 'image', doc: 'old', ppt: 'old', xls: 'old', pages: 'old', key: 'old', numbers: 'old' };
+const DOC_BADGE = { pdf: ['PDF', '#C0392B'], docx: ['DOC', '#2B5797'], pptx: ['PPT', '#C25B1E'], xlsx: ['XLS', '#1E7145'], csv: ['CSV', '#1E7145'], ods: ['ODS', '#1E7145'], odt: ['ODT', '#2B5797'], odp: ['ODP', '#C25B1E'], epub: ['EPUB', '#6B4E9B'], zip: ['ZIP', '#6E6A5E'], image: ['IMG', '#2C7A8C'], text: ['TXT', '#5B6770'], rtf: ['RTF', '#5B6770'], html: ['WEB', '#3A6FC4'], old: ['?', '#8A8A8A'] };
+const xmlDoc = s => new DOMParser().parseFromString(s, 'application/xml');
+const tags = (n, name) => n ? [...n.getElementsByTagName(name)] : [];
+const mdTable = rows => {
+  rows = rows.filter(r => r.some(c => String(c).trim())); if (!rows.length) return '';
+  const w = Math.max(...rows.map(r => r.length)), cell = c => String(c ?? '').replace(/\|/g, '\\|').replace(/\s*\n\s*/g, ' ').trim();
+  const line = r => '| ' + Array.from({ length: w }, (_, k) => cell(r[k])).join(' | ') + ' |';
+  return [line(rows[0]), '|' + ' --- |'.repeat(w), ...rows.slice(1).map(line)].join('\n');
+};
+const Docs = {
+  ACCEPT: '.pdf,.docx,.pptx,.xlsx,.xlsm,.csv,.tsv,.txt,.md,.tex,.json,.rtf,.html,.htm,.odt,.ods,.odp,.epub,.zip,.doc,.ppt,.xls,image/*',
+  kind(f) {
+    const ext = (String(f.name || '').match(/\.([a-z0-9]+)$/i)?.[1] || '').toLowerCase();
+    if (DOC_EXT[ext]) return DOC_EXT[ext];
+    if (/^image\//.test(f.type)) return 'image';
+    if (f.type === 'application/pdf') return 'pdf';
+    if (/^text\//.test(f.type)) return 'text';
+    return '';
+  },
+  badge(kind) { const [l, c] = DOC_BADGE[kind] || DOC_BADGE.old; return `<span class="doc-badge" style="--c:${c}">${l}</span>`; },
+  why(e) {
+    return ({ old_format: t('Ancien format : enregistrez-le en .docx, .pptx ou .xlsx (ou en PDF), puis réessayez.'), unsupported: t('Format non pris en charge'), too_big: t('Fichier trop lourd'), empty: t('Aucun texte trouvé dans ce fichier'), lib: t('Lecteur indisponible : une connexion est nécessaire la première fois.'), image: t('Image illisible : essayez en JPEG ou PNG.') })[e?.code] || t('Fichier illisible');
+  },
+  /** Lit un fichier. o.plan : 'pro' | 'elite' ; o.progress(texte) ; o.depth : profondeur dans un ZIP. */
+  async read(f, o = {}) {
+    const kind = this.kind(f), r = { id: uid('doc'), name: f.name || t('Document'), kind, size: f.size, text: '', images: [], pages: 0 };
+    if (!kind) throw { code: 'unsupported' };
+    if (kind === 'old') throw { code: 'old_format' };
+    if (f.size > (o.plan === 'elite' ? 150e6 : 60e6)) throw { code: 'too_big' };
+    const zip = async () => { try { const J = await lib('jszip'); return await J.loadAsync(await f.arrayBuffer()); } catch (e) { throw e?.code ? e : { code: /lib|load/.test(e?.message) ? 'lib' : 'unreadable' }; } };
+    const file = (z, p) => z.file(p)?.async('string') ?? Promise.resolve('');
+    if (kind === 'pdf') Object.assign(r, await this.pdf(f, o));
+    else if (kind === 'image') r.images.push(await this.image(f));
+    else if (kind === 'text') r.text = await f.text();
+    else if (kind === 'html') r.text = this.html(await f.text());
+    else if (kind === 'rtf') r.text = this.rtf(await f.text());
+    else if (kind === 'csv') { const s = await f.text(), d = /\t/.test(s.split('\n')[0]) ? '\t' : /;/.test(s.split('\n')[0]) && !/,/.test(s.split('\n')[0]) ? ';' : ','; r.text = mdTable(s.split(/\r?\n/).slice(0, 400).map(l => this.csvRow(l, d))); }
+    else if (kind === 'docx') { const z = await zip(); r.text = this.docx(await file(z, 'word/document.xml')); r.images = await this.media(z, /^word\/media\//, o); }
+    else if (kind === 'pptx') { const z = await zip(); Object.assign(r, await this.pptx(z)); r.images = await this.media(z, /^ppt\/media\//, o); }
+    else if (kind === 'xlsx') { const z = await zip(); r.text = await this.xlsx(z); }
+    else if (kind === 'odt' || kind === 'ods' || kind === 'odp') { const z = await zip(); r.text = this.odf(await file(z, 'content.xml')); r.images = await this.media(z, /^Pictures\//, o); }
+    else if (kind === 'epub') { const z = await zip(); r.text = await this.epub(z); }
+    else if (kind === 'zip') { const z = await zip(); Object.assign(r, await this.zipAll(z, o)); }
+    r.text = String(r.text || '').replace(/ /g, ' ').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+    if (!r.text && !r.images.length) throw { code: 'empty' };
+    r.chars = r.text.length;
+    return r;
+  },
+  csvRow(l, d) { const out = []; let cur = '', q = false; for (let k = 0; k < l.length; k++) { const c = l[k]; if (q) { if (c === '"' && l[k + 1] === '"') { cur += '"'; k++; } else if (c === '"') q = false; else cur += c; } else if (c === '"') q = true; else if (c === d) { out.push(cur); cur = ''; } else cur += c; } out.push(cur); return out; },
+  html(s) {
+    const d = new DOMParser().parseFromString(s, 'text/html');
+    d.querySelectorAll('script,style,nav,footer,noscript,svg').forEach(x => x.remove());
+    d.querySelectorAll('h1,h2,h3,h4').forEach(h => h.prepend('\n' + '#'.repeat(+h.tagName[1]) + ' '));
+    d.querySelectorAll('li').forEach(x => x.prepend('\n- '));
+    d.querySelectorAll('p,div,br,tr,section,article').forEach(x => x.append('\n'));
+    d.querySelectorAll('table').forEach(tb => tb.replaceWith('\n' + mdTable([...tb.rows].map(r => [...r.cells].map(c => c.textContent))) + '\n'));
+    return d.body?.textContent || '';
+  },
+  rtf(s) { return s.replace(/\\par[d]?/g, '\n').replace(/\{\\\*[^{}]*\}/g, '').replace(/\\'([0-9a-f]{2})/gi, (m, h) => String.fromCharCode(parseInt(h, 16))).replace(/\\u(-?\d+)\??/g, (m, n) => String.fromCharCode(+n < 0 ? +n + 65536 : +n)).replace(/\\[a-z]+-?\d* ?/gi, '').replace(/[{}]/g, ''); },
+  /** Word : titres, listes, tableaux et équations (texte), dans l'ordre du document. */
+  docx(xml) {
+    const body = tags(xmlDoc(xml), 'w:body')[0]; if (!body) return '';
+    const para = p => {
+      let s = '';
+      const walk = n => { for (const c of n.childNodes) { const nm = c.nodeName; if (nm === 'w:t') s += c.textContent; else if (nm === 'w:tab') s += '\t'; else if (nm === 'w:br' || nm === 'w:cr') s += '\n'; else if (nm === 'm:oMath' || nm === 'm:oMathPara') s += ' $' + tags(c, 'm:t').map(x => x.textContent).join('') + '$ '; else if (nm !== 'w:pPr' && nm !== 'w:rPr' && c.childNodes?.length) walk(c); } };
+      walk(p);
+      const st = tags(p, 'w:pStyle')[0]?.getAttribute('w:val') || '', hm = st.match(/(?:heading|titre|berschrift|título|titolo)\s*(\d)/i);
+      if (/^(title|titre)$/i.test(st)) return '# ' + s.trim();
+      if (hm) return '#'.repeat(Math.min(+hm[1] + 1, 5)) + ' ' + s.trim();
+      if ((tags(p, 'w:numPr').length || /list|liste|bullet|puce|aufz|lista|vi(ñ|n)eta/i.test(st)) && s.trim()) return '- ' + s.trim();
+      return s;
+    };
+    const out = [];
+    for (const n of body.childNodes) {
+      if (n.nodeName === 'w:p') out.push(para(n));
+      else if (n.nodeName === 'w:tbl') out.push('\n' + mdTable(tags(n, 'w:tr').map(tr => tags(tr, 'w:tc').map(tc => tags(tc, 'w:p').map(para).join(' ')))) + '\n');
+      else if (n.nodeName === 'w:sdt') tags(n, 'w:p').forEach(p => out.push(para(p)));
+    }
+    return out.join('\n');
+  },
+  /** PowerPoint : chaque diapositive (titre, texte, tableaux) et ses notes d'orateur. */
+  async pptx(z) {
+    const num = p => +(p.match(/(\d+)\.xml$/) || [0, 0])[1];
+    const slides = Object.keys(z.files).filter(p => /^ppt\/slides\/slide\d+\.xml$/.test(p)).sort((a, b) => num(a) - num(b));
+    const out = [];
+    for (const [k, p] of slides.entries()) {
+      const d = xmlDoc(await z.file(p).async('string'));
+      const lines = tags(d, 'a:p').map(ap => tags(ap, 'a:t').map(x => x.textContent).join('')).filter(x => x.trim());
+      let s = `## ${t('Diapositive {n}', { n: k + 1 })}${lines[0] ? ' — ' + lines[0] : ''}\n` + lines.slice(1).map(x => '- ' + x).join('\n');
+      const rel = await z.file(p.replace('slides/', 'slides/_rels/') + '.rels')?.async('string');
+      const note = rel && (rel.match(/Target="\.\.\/notesSlides\/(notesSlide\d+\.xml)"/) || [])[1];
+      if (note) { const nd = xmlDoc(await z.file('ppt/notesSlides/' + note)?.async('string') || '<x/>'); const nt = tags(nd, 'a:t').map(x => x.textContent).join(' ').replace(/\s+/g, ' ').trim(); if (nt.length > 3 && !/^\d+$/.test(nt)) s += `\n> ${t('Notes de l\'orateur')} : ${nt}`; }
+      out.push(s);
+    }
+    return { text: out.join('\n\n'), pages: slides.length };
+  },
+  /** Excel : chaque feuille devient un tableau (300 lignes, 30 colonnes au plus). */
+  async xlsx(z) {
+    const shared = tags(xmlDoc(await z.file('xl/sharedStrings.xml')?.async('string') || '<x/>'), 'si').map(si => tags(si, 't').map(x => x.textContent).join(''));
+    const wb = xmlDoc(await z.file('xl/workbook.xml')?.async('string') || '<x/>'), rels = await z.file('xl/_rels/workbook.xml.rels')?.async('string') || '';
+    const target = id => { const m = rels.match(new RegExp(`Id="${id}"[^>]*Target="([^"]+)"`)) || rels.match(new RegExp(`Target="([^"]+)"[^>]*Id="${id}"`)); return m ? 'xl/' + m[1].replace(/^\/?xl\//, '') : null; };
+    const col = ref => { let n = 0; for (const c of ref.replace(/\d+/g, '')) n = n * 26 + c.charCodeAt(0) - 64; return n - 1; };
+    const out = [];
+    for (const sh of tags(wb, 'sheet')) {
+      const p = target(sh.getAttribute('r:id')) || `xl/worksheets/sheet${out.length + 1}.xml`, x = await z.file(p)?.async('string'); if (!x) continue;
+      const grid = [];
+      for (const row of tags(xmlDoc(x), 'row').slice(0, 300)) {
+        const r = [];
+        for (const c of tags(row, 'c')) { const k = col(c.getAttribute('r') || 'A1'); if (k > 29) continue; const ty = c.getAttribute('t'), v = tags(c, 'v')[0]?.textContent ?? ''; r[k] = ty === 's' ? shared[+v] ?? '' : ty === 'inlineStr' ? tags(c, 't').map(y => y.textContent).join('') : ty === 'b' ? (v === '1' ? 'TRUE' : 'FALSE') : v; }
+        grid.push(Array.from(r, v => v ?? ''));
+      }
+      const tb = mdTable(grid); if (tb) out.push(`## ${sh.getAttribute('name') || t('Feuille')}\n${tb}`);
+    }
+    return out.join('\n\n');
+  },
+  /** OpenDocument (texte, classeur, présentation) : titres, paragraphes, listes, tableaux. */
+  odf(xml) {
+    const out = [], walk = n => {
+      for (const c of n.childNodes) {
+        const nm = c.nodeName;
+        if (nm === 'text:h') out.push('#'.repeat(Math.min(+(c.getAttribute('text:outline-level') || 1) + 1, 5)) + ' ' + c.textContent);
+        else if (nm === 'text:p') { if (c.textContent.trim()) out.push((c.parentNode?.nodeName === 'text:list-item' ? '- ' : '') + c.textContent); }
+        else if (nm === 'table:table') out.push(mdTable(tags(c, 'table:table-row').slice(0, 300).map(r => tags(r, 'table:table-cell').slice(0, 30).map(x => x.textContent))));
+        else if (nm === 'draw:page') { out.push(`## ${c.getAttribute('draw:name') || t('Diapositive')}`); walk(c); }
+        else if (c.childNodes?.length) walk(c);
+      }
+    };
+    walk(xmlDoc(xml).documentElement || xmlDoc('<x/>'));
+    return out.join('\n');
+  },
+  /** EPUB : les chapitres dans l'ordre du livre. */
+  async epub(z) {
+    const cont = await z.file('META-INF/container.xml')?.async('string') || '', opfPath = (cont.match(/full-path="([^"]+)"/) || [])[1];
+    const opf = opfPath ? xmlDoc(await z.file(opfPath)?.async('string') || '<x/>') : null, base = opfPath ? opfPath.replace(/[^/]*$/, '') : '';
+    const items = {}; tags(opf, 'item').forEach(it => { items[it.getAttribute('id')] = it.getAttribute('href'); });
+    let order = tags(opf, 'itemref').map(r => base + decodeURIComponent(items[r.getAttribute('idref')] || '')).filter(p => z.file(p));
+    if (!order.length) order = Object.keys(z.files).filter(p => /\.x?html?$/i.test(p)).sort();
+    const out = []; let n = 0;
+    for (const p of order) { out.push(this.html(await z.file(p).async('string'))); if ((n += out.at(-1).length) > 2e6) break; }
+    return out.join('\n\n');
+  },
+  /** ZIP : chaque document pris en charge, un niveau de dossiers compris. */
+  async zipAll(z, o) {
+    const max = o.plan === 'elite' ? 40 : 12, list = Object.values(z.files).filter(e => !e.dir && !/(^|\/)(__MACOSX|\.DS_Store|Thumbs\.db)/.test(e.name) && this.kind({ name: e.name }) && !['zip', 'old'].includes(this.kind({ name: e.name }))).slice(0, max);
+    const r = { text: '', images: [], pages: 0, parts: [] };
+    for (const [k, e] of list.entries()) {
+      o.progress?.(t('Lecture de {x}…', { x: e.name.split('/').pop() }) + ` ${k + 1}/${list.length}`);
+      try {
+        const blob = new File([await e.async('blob')], e.name.split('/').pop(), { type: /\.pdf$/i.test(e.name) ? 'application/pdf' : '' });
+        const d = await this.read(blob, { ...o, depth: (o.depth || 0) + 1, progress: null });
+        if (d.text) r.text += `\n\n## ${e.name}\n${d.text}`;
+        r.images.push(...d.images); r.pages += d.pages || 0; r.parts.push(e.name);
+      } catch { r.parts.push(e.name + ' ✕'); }
+    }
+    return r;
+  },
+  /** Images d'un document (schémas d'un Word, d'un PowerPoint…) : les plus grandes, au plus 6. */
+  async media(z, re, o) {
+    const files = Object.values(z.files).filter(e => re.test(e.name) && /\.(png|jpe?g|gif|webp)$/i.test(e.name));
+    const blobs = [];
+    for (const e of files) { const b = await e.async('blob'); if (b.size > 4000) blobs.push(b); }
+    blobs.sort((a, b) => b.size - a.size);
+    const out = [];
+    for (const b of blobs.slice(0, o.plan === 'elite' ? 6 : 3)) try { out.push(await this.image(b)); } catch { }
+    return out;
+  },
+  /** Une image lisible par l'IA : JPEG, 2000 px au plus sur le grand côté (écriture et formules restent nettes). */
+  async image(f) {
+    const url = URL.createObjectURL(f);
+    try {
+      const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej({ code: 'image' }); i.src = url; });
+      const sc = Math.min(1, 2000 / Math.max(img.naturalWidth, img.naturalHeight));
+      const cv = document.createElement('canvas'); cv.width = Math.max(1, Math.round(img.naturalWidth * sc)); cv.height = Math.max(1, Math.round(img.naturalHeight * sc));
+      const cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height); cx.drawImage(img, 0, 0, cv.width, cv.height);
+      return await new Promise((res, rej) => cv.toBlob(b => b ? res(b) : rej({ code: 'image' }), 'image/jpeg', 0.88));
+    } finally { URL.revokeObjectURL(url); }
+  },
+  /** PDF : le texte de chaque page ; un PDF scanné devient des images de pages. */
+  async pdf(f, o) {
+    let pdfjs; try { await lib('pdfWorker'); pdfjs = await lib('pdf'); } catch { throw { code: 'lib' }; }
+    const doc = await pdfjs.getDocument({ data: new Uint8Array(await f.arrayBuffer()), isEvalSupported: false, disableFontFace: true, useSystemFonts: false }).promise.catch(() => { throw { code: 'unreadable' }; });
+    const maxP = o.plan === 'elite' ? 1200 : 300, n = Math.min(doc.numPages, maxP);
+    let text = '';
+    for (let p = 1; p <= n; p++) {
+      const tc = await (await doc.getPage(p)).getTextContent(); let line = '';
+      for (const it of tc.items) { line += it.str; if (it.hasEOL) { text += line.trimEnd() + '\n'; line = ''; } else if (it.str && !/\s$/.test(it.str)) line += ' '; }
+      text += line.trim() + '\n\n';
+      if (p % 10 === 0) o.progress?.(t('Lecture de la page {a} / {b}…', { a: p, b: n }));
+    }
+    const r = { pages: doc.numPages, text: text.replace(/[ \t]+/g, ' '), images: [], cut: doc.numPages > maxP };
+    if (r.text.trim().length < 80 * Math.min(n, 3)) {
+      // PDF scanné : les pages deviennent des images, lues par l'IA (Élite : jusqu'à 40 pages, transcrites par lots).
+      r.text = ''; const maxI = Math.min(doc.numPages, o.plan === 'elite' ? 40 : 8);
+      for (let p = 1; p <= maxI; p++) {
+        o.progress?.(t('Photo de la page {a} / {b}…', { a: p, b: maxI }));
+        const page = await doc.getPage(p), vp0 = page.getViewport({ scale: 1 }), vp = page.getViewport({ scale: Math.min(2.2, 1600 / vp0.width) });
+        const cv = document.createElement('canvas'); cv.width = vp.width; cv.height = vp.height;
+        await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+        r.images.push(await new Promise(res => cv.toBlob(res, 'image/jpeg', 0.85)));
+      }
+      r.scanned = true; r.cut = doc.numPages > maxI;
+    }
+    doc.destroy?.();
+    return r;
+  }
+};
+
+/* ── Préparer les documents pour l'IA ────────────────────────────────── */
+const DocRead = {
+  maxFiles() { return Pro.expert ? 20 : 5; },
+  /** Caractères envoyés tels quels ; au-delà, lecture par morceaux. */
+  budget() { const srv = AI.via === 'server'; return Pro.expert ? (srv ? 360000 : 120000) : (srv ? 140000 : 90000); },
+  maxImages() { const cap = AI.via === 'server' ? 20 : (AI.limits?.images?.maxCount || 5); return AI.images ? Math.min(Pro.expert ? 20 : 8, cap) : 0; },
+  /** Coupe un texte en morceaux d'environ n caractères, aux fins de paragraphe. */
+  split(s, n) { const out = []; let cur = ''; for (const para of s.split(/\n{2,}/)) { if (cur.length + para.length > n && cur) { out.push(cur); cur = ''; } if (para.length > n) { for (let k = 0; k < para.length; k += n) out.push(para.slice(k, k + n)); continue; } cur += (cur ? '\n\n' : '') + para; } if (cur) out.push(cur); return out; },
+  /** Les documents → { text, images, digested, cut } ; o.progress(texte), o.signal. */
+  async prepare(docs, o = {}) {
+    const budget = this.budget(), head = (d, k) => `### ${t('Document {n}', { n: k + 1 })} : ${d.name}${d.pages ? ` (${plural(d.pages, 'page|pages')})` : ''}`;
+    let parts = docs.map((d, k) => ({ d, k, text: d.text || '' }));
+    let total = parts.reduce((a, p) => a + p.text.length, 0), digested = false, cut = docs.some(d => d.cut);
+    if (total > budget) {
+      // Trop long pour une seule demande : chaque morceau est condensé en notes fidèles, puis assemblé.
+      const CH = Pro.expert ? 60000 : 45000, maxChunks = Pro.expert ? 60 : 6, jobs = [];
+      for (const p of parts) for (const c of this.split(p.text, CH)) jobs.push({ p, c });
+      if (jobs.length > maxChunks) { cut = true; jobs.length = maxChunks; }
+      const notes = new Map(); let done = 0;
+      const opts = Pro.expert ? { modelTier: 'default', effort: 'medium' } : { modelTier: 'quick', effort: 'low' };
+      const run = async j => {
+        const r = await AI.ask(`You are reading one part of a student's course material ("${j.p.d.name}"). Rewrite this part as complete, dense study notes in the SAME language as the text: keep every heading, definition, theorem with its hypotheses, formula (LaTeX between $ signs), number, date, name, example and method; drop only repetitions, filler and layout noise (headers, page numbers). Use Markdown headings and "- " bullets. Add nothing that is not in the text. Output only the notes.\n\nPART:\n"""\n${j.c}\n"""`, { ...opts, signal: o.signal, cache: false });
+        notes.set(j, r.text.trim()); o.progress?.(t('Lecture du cours : morceau {a} sur {b}', { a: ++done, b: jobs.length }));
+      };
+      o.progress?.(t('Lecture du cours : morceau {a} sur {b}', { a: 0, b: jobs.length }));
+      for (let k = 0; k < jobs.length; k += 3) await Promise.all(jobs.slice(k, k + 3).map(run));
+      parts = parts.map(p => ({ ...p, text: jobs.filter(j => j.p === p).map(j => notes.get(j)).join('\n\n') })).filter(p => p.text);
+      digested = true; total = parts.reduce((a, p) => a + p.text.length, 0);
+      if (total > budget) { cut = true; const r = budget / total; parts = parts.map(p => ({ ...p, text: p.text.slice(0, Math.floor(p.text.length * r)) })); }
+    }
+    // Images : au-delà de ce qu'une demande accepte, Élite les fait transcrire par lots ; Pro garde les premières.
+    let images = docs.flatMap(d => d.images || []); const maxI = this.maxImages();
+    let extra = '';
+    if (images.length > maxI) {
+      if (Pro.expert && maxI) {
+        const batches = []; for (let k = 0; k < images.length; k += 8) batches.push(images.slice(k, k + 8));
+        const out = [];
+        for (const [k, b] of batches.entries()) {
+          o.progress?.(t('Lecture des pages scannées : lot {a} sur {b}', { a: k + 1, b: batches.length }));
+          const r = await AI.ask(`These images are pages of a student's course (printed or handwritten). Transcribe them faithfully as structured study notes in the language of the pages: headings, every definition, formula (LaTeX between $ signs), diagram (described in one line with its labels), example and method. Output only the notes.`, { modelTier: 'default', effort: 'medium', images: b, signal: o.signal, cache: false });
+          out.push(r.text.trim());
+        }
+        extra = `\n\n### ${t('Pages scannées')}\n` + out.join('\n\n'); images = [];
+      } else { cut = true; images = images.slice(0, maxI); }
+    }
+    const text = parts.map(p => `${head(p.d, p.k)}\n${p.text}`).join('\n\n') + extra;
+    return { text, images, digested, cut, chars: text.length };
+  }
+};
+
+/* ── La fiche de cours : rédaction, liseuse, rangement ──────────────── */
+const CourseSheet = {
+  cur: null,
+  prompt({ src, focus, title, hasImages, knowledge, lang }) {
+    const elite = Pro.expert;
+    return `You are an outstanding teacher. Write a COURSE SHEET ("fiche de cours") for this student${knowledge ? ` on the topic "${knowledge}", from well-established knowledge at their level` : ' from the material below'}${focus ? `, focused on: ${focus}` : ''}.
+${Brain.brief('summary')}
+
+GOAL: a complete, rigorous and well-organised summary that lets the student master the chapter without the original: every notion, definition, theorem or law (with its exact conditions of validity), formula (meaning and unit of every symbol), method, classic trap, short worked example, and the links between notions. Nothing important may be missing; nothing may contradict the sources. When the sources are unclear or incomplete, you may add a short clarification marked "(complément)".
+
+FORMAT — Markdown only, exactly this structure:
+# ${title ? title : 'Title of the chapter'}
+*Subject · level · one-line description*
+## 1. First section title
+Short paragraphs and "- " bullets, **bold** for key terms.
+### 1.1 Subsection title (when useful)
+Boxes, written as Markdown quotes whose first line is a tag, one box per idea:
+> [!def] Term
+> Definition.
+> [!formula] Name of the formula
+> $$ LaTeX formula $$
+> where each symbol is explained with its unit; conditions of validity.
+> [!thm] Name of the theorem or law
+> Statement with its exact hypotheses.
+> [!method] How to …
+> 1. step
+> 2. step
+> [!trap] Classic trap
+> What students get wrong and why.
+> [!ex] Example
+> A short worked example with numbers.${Brain.rigor() >= 4 ? `
+> [!proof] Proof of …
+> The key steps.` : ''}
+Comparison tables in Markdown when they help. Inline math between $…$, display math between $$…$$ (LaTeX). Number the sections (## 1., ## 2. …).
+End with a section "## À retenir" (translate the heading) of ${elite ? '8 to 12' : '6 to 8'} bullets, then a section "## Pour s'entraîner" (translate it) with ${elite ? '5' : '3'} exam-style questions (no answers).
+LANGUAGE: ${lang ? `write in ${langNameEn(lang)}` : `write in the language of the material (default ${aiLang()})`}. Box tags stay in English ([!def], [!formula]…).
+LENGTH: as long as needed to be complete${elite ? ' — be exhaustive, up to about 6,000 words for a long chapter' : ', up to about 3,000 words'}. Output only the sheet.${hasImages ? '\nSome material is given as images (pages, slides or diagrams): read them carefully.' : ''}${src ? `\n\nSTUDENT'S MATERIAL:\n"""\n${src}\n"""` : ''}`;
+  },
+  /** Rédige une fiche. o.docs (documents lus), o.deckId (paquet où la ranger), o.fromDeck (fiches d'un paquet), o.topic, o.focus, o.onDone(deck, note). */
+  async start(o = {}) {
+    if (!AI.on) { toast(t("La fiche de cours a besoin de l'IA."), 'sparkles'); return; }
+    if (!Pro.on) { Pro.upsell('sheet'); return; }
+    const R = this.reader({ title: o.title || t('Fiche de cours'), busy: true }), ctl = R.ctl;
+    let src = '', images = [], cut = false;
+    try {
+      if (o.fromDeck) { const d = deckById(o.fromDeck); src = `${t('Paquet')} « ${d.name} »\n${deckContext(d, 120000)}${d.notes?.length ? '\n\n' + d.notes.filter(n => n.kind !== 'course').map(n => n.md).join('\n\n').slice(0, 60000) : ''}`; }
+      else if (o.docs?.length) { const p = await DocRead.prepare(o.docs, { signal: ctl.signal, progress: m => R.status(m) }); src = p.text; images = p.images; cut = p.cut; }
+      R.status(t('Rédaction de la fiche…'));
+      const deck0 = o.deckId ? deckById(o.deckId) : o.fromDeck ? deckById(o.fromDeck) : null;
+      let md = '';
+      const r = await AI.ask(this.prompt({ src, focus: o.focus, title: o.title, hasImages: images.length, knowledge: !src && !images.length ? (o.topic || o.title || '') : '', lang: deck0?.lang && deck0.lang !== LANG ? deck0.lang : '' }),
+        { ...Brain.opts('summary'), purpose: 'sheet', cache: false, signal: ctl.signal, images: images.length ? images : undefined, onText: ({ text }) => { md = text; R.draw(md); } });
+      md = (r.text || md).trim().replace(/^```(?:markdown|md)?\s*|```\s*$/g, '');
+      if (!md) throw { code: 'empty_completion' };
+      const title = docTitle(md) || o.title || t('Fiche de cours');
+      const deck = deck0 || createDeck({ name: title.slice(0, 80), desc: t('Fiche de cours rédigée par l\'IA à partir de {x}.', { x: o.docs?.length ? o.docs.map(d => d.name).join(', ').slice(0, 140) : o.topic || title }) });
+      const note = { id: uid('note'), title: title.slice(0, 120), md: md.slice(0, 150000), created: Date.now(), kind: 'course', sources: (o.docs || []).map(d => d.name).slice(0, 30), cut: cut || !!r.truncated };
+      deck.notes.unshift(note); Store.touchDeck(deck); S.profile.flags.sheet = 1; Store.touch('profile');
+      R.done(deck, note); Sound.play('done');
+      o.onDone?.(deck, note);
+      if (App.route.v === 'deck' || App.route.v === 'library') App.render();
+      return { deck, note };
+    } catch (e) {
+      if (e?.code === 'cancelled') return;
+      R.fail(AI.fail(e) || Docs.why(e));
+    }
+  },
+  /** Relire une fiche rangée. */
+  view(deckId, noteId) { const d = deckById(deckId), n = d?.notes.find(x => x.id === noteId); if (!n) return; const R = this.reader({ title: n.title }); R.draw(n.md); R.done(d, n, true); },
+  /** La liseuse : plein écran, sommaire, fiche sur papier, actions. */
+  reader({ title, busy }) {
+    this.cur?.close(true);
+    const el = document.createElement('div'); el.className = 'reader'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', title);
+    el.innerHTML = `<div class="lr-bar"><button class="icon-btn" data-rd="close" aria-label="${esc(t('Fermer'))}">${icon('back')}</button>
+        <div class="lr-t"><span class="kicker">${t('Fiche de cours')}</span><b id="rdTitle">${esc(title)}</b></div>
+        <span class="lr-st" id="rdStatus">${busy ? `<span class="thinking"><i></i><i></i><i></i></span><span>${t('Lecture des documents…')}</span>` : ''}</span>
+        <div class="lr-acts" id="rdActs">${busy ? `<button class="btn btn-sm" data-rd="stop">${icon('stop', 'i-sm')}${t('Arrêter')}</button>` : ''}</div></div>
+      <div class="lr-body"><nav class="lr-toc" id="rdToc" aria-label="${esc(t('Sommaire'))}"></nav>
+        <div class="lr-page"><article class="lr-sheet doc" id="rdSheet">${busy ? `<div class="lr-wait"><span class="lr-quill">${icon('pen')}</span><span>${t('Mentor rédige votre fiche : notions, définitions, formules, méthodes, pièges et exemples.')}</span></div>` : ''}</article></div></div>`;
+    document.body.append(el); document.body.classList.add('lr-on');
+    requestAnimationFrame(() => el.classList.add('in'));
+    const ctl = new AbortController(), sheet = el.querySelector('#rdSheet'), page = el.querySelector('.lr-page');
+    let raf = 0, last = 0, src = '', follow = true;
+    page.addEventListener('scroll', () => { follow = page.scrollTop + page.clientHeight > page.scrollHeight - 160; }, { passive: true });
+    const paint = () => {
+      const toc = []; sheet.innerHTML = docHTML(src, { toc });
+      el.querySelector('#rdToc').innerHTML = toc.length ? `<div class="kicker">${t('Sommaire')}</div>` + toc.filter(x => x.lv <= 3).map(x => `<a href="#${x.id}" class="lv${x.lv}" data-go="${x.id}">${esc(x.text)}</a>`).join('') : '';
+      const tt = docTitle(src); if (tt) el.querySelector('#rdTitle').textContent = tt;
+      if (busy && follow) page.scrollTop = page.scrollHeight;
+    };
+    const R = {
+      ctl, el,
+      status(m) { const s = el.querySelector('#rdStatus'); if (s) s.innerHTML = m ? `<span class="thinking"><i></i><i></i><i></i></span><span>${esc(m)}</span>` : ''; },
+      draw(md) { src = md; if (raf) return; const wait = Math.max(0, 260 - (performance.now() - last)); raf = setTimeout(() => { raf = 0; last = performance.now(); paint(); }, wait); },
+      done: (deck, note, quiet) => {
+        busy = false; clearTimeout(raf); raf = 0; src = note.md; paint(); TeX.typeset(sheet);
+        const words = plain(note.md).split(/\s+/).length;
+        el.querySelector('#rdStatus').innerHTML = `${icon('check', 'i-sm')}<span>${quiet ? esc(fmtDate(note.created, { day: 'numeric', month: 'long', year: 'numeric' })) : t('Rangée dans « {x} »', { x: esc(deck.name) })} · ${t('{n} mots', { n: words })}</span>`;
+        el.querySelector('#rdActs').innerHTML = `<button class="btn btn-sm btn-brass" data-rd="cards">${icon('layers', 'i-sm')}${t('Créer les fiches')}</button>
+          <button class="btn btn-sm" data-rd="print">${icon('printer', 'i-sm')}<span>${t('Imprimer')}</span></button>
+          <button class="btn btn-sm" data-rd="md">${icon('download', 'i-sm')}<span>.md</span></button>
+          <button class="btn btn-sm btn-ghost" data-rd="copy" aria-label="${esc(t('Copier'))}">${icon('copy', 'i-sm')}</button>`;
+        if (note.cut) sheet.insertAdjacentHTML('afterbegin', `<p class="lr-cut">${icon('eye', 'i-sm')}${Pro.expert ? t('Une partie des documents dépassait la limite : la fiche couvre ce qui a pu être lu.') : t('Les documents étaient longs : la fiche couvre le début. Élite lit les gros cours en entier.')}</p>`);
+        R.deck = deck; R.note = note;
+        if (!quiet) toast(t('Fiche de cours rangée dans « {x} »', { x: deck.name }), 'bookmark');
+      },
+      fail(msg) { busy = false; R.status(''); el.querySelector('#rdActs').innerHTML = ''; sheet.insertAdjacentHTML('beforeend', `<p class="lr-err">${icon('x', 'i-sm')}${esc(msg || t("Connexion à l'IA interrompue. Réessayez."))}</p>`); },
+      close: (now) => {
+        ctl.abort(); clearTimeout(raf); document.removeEventListener('keydown', key);
+        if (this.cur === R) this.cur = null; document.body.classList.remove('lr-on');
+        if (now || !Motion.some) el.remove(); else { el.classList.remove('in'); el.classList.add('out'); setTimeout(() => el.remove(), 320); }
+      }
+    };
+    const key = e => { if (e.key === 'Escape' && !$('.modal-back')) { e.preventDefault(); R.close(); } };
+    document.addEventListener('keydown', key);
+    el.addEventListener('click', async e => {
+      const g = e.target.closest('[data-go]'); if (g) { e.preventDefault(); el.querySelector('#' + g.dataset.go)?.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'start' }); return; }
+      const b = e.target.closest('[data-rd]'); if (!b) return;
+      const a = b.dataset.rd;
+      if (a === 'close') R.close();
+      else if (a === 'stop') { ctl.abort(); R.fail(t('Rédaction arrêtée.')); }
+      else if (a === 'cards') { const d = R.deck, n = R.note; R.close(true); this.cards(d, n); }
+      else if (a === 'md') saveFile(`${slug(R.note.title)}.md`, R.note.md);
+      else if (a === 'copy') { try { await navigator.clipboard.writeText(docPlain(R.note.md)); toast(t('Fiche copiée'), 'copy'); } catch { toast(t('Copie impossible ici : utilisez l\'export .md.'), 'copy'); } }
+      else if (a === 'print') { await TeX.typeset(sheet); $$('details', sheet).forEach(d => { d.open = true; }); document.body.classList.add('lr-print'); const off = () => { document.body.classList.remove('lr-print'); removeEventListener('afterprint', off); }; addEventListener('afterprint', off); try { print(); } catch { } setTimeout(off, 1500); }
+    });
+    return this.cur = R;
+  },
+  /** « Créer les fiches » : le scanner reçoit la fiche et rédige les cartes, qu'on trie avant de les ranger. */
+  cards(deck, note) {
+    if (!deck || !note) return;
+    Scan.reset(); Scan.tab = 'text'; Scan.text = note.md; Scan.dest = deck.id; Scan.level = S.profile.study.level;
+    Scan.n = clamp(Math.round(plain(note.md).split(/\s+/).length / 60), 12, 40);
+    App.go('scan'); setTimeout(() => runScan(), 350);
+  }
+};
+
+Object.assign(I, {
+  sigma: '<path d="M18 5H6l6.5 7L6 19h12"/>',
+  seal: '<circle cx="12" cy="9.5" r="5.5"/><path d="m8.6 13.8-1.6 7.2L12 19l5 2-1.6-7.2"/>',
+  clip: '<path d="m20 11.2-8.3 8.3a5.2 5.2 0 0 1-7.4-7.4l8.7-8.7a3.5 3.5 0 0 1 4.9 4.9l-8.6 8.6a1.75 1.75 0 0 1-2.5-2.5l7.9-7.9"/>'
+});
+
+/* ════════════════════════════════════════════════════════════════════
    INTÉGRATIONS
    · Anki : import des paquets .apkg (ancien et nouveau format, avec
      images et historique de révision) et export en .apkg.
@@ -11432,7 +12191,8 @@ const LIBS = {
   zstd: ['fzstd@0.1.1/umd/index.js', () => window.fzstd],
   pdfWorker: ['pdfjs-dist@3.11.174/build/pdf.worker.min.js', () => window.pdfjsWorker],
   pdf: ['pdfjs-dist@3.11.174/build/pdf.min.js', () => window.pdfjsLib],
-  jspdf: ['jspdf@2.5.2/dist/jspdf.umd.min.js', () => window.jspdf]
+  jspdf: ['jspdf@2.5.2/dist/jspdf.umd.min.js', () => window.jspdf],
+  mathjax: ['mathjax@3.2.2/es5/tex-svg.js', () => window.MathJax?.version ? window.MathJax : null]
 };
 const _libs = {};
 function lib(name) {
@@ -12219,6 +12979,7 @@ function bootDrop() {
     if (App.route.v === 'scan' || e.defaultPrevented) return;
     const f = e.dataTransfer?.files?.[0]; if (!f) return; e.preventDefault();
     if (/^image\//.test(f.type)) { App.go('scan'); Scan.tab = 'photo'; Scan.files = [f]; Scan.urls = [URL.createObjectURL(f)]; App.render(); return; }
+    if (['docx', 'pptx', 'odt', 'odp', 'epub', 'rtf', 'html'].includes(Docs.kind(f)) || (Docs.kind(f) === 'zip' && !/\.(apkg|colpkg)$/i.test(f.name))) { if (!Mentor.isOpen) Mentor.open(); Mentor.attach(e.dataTransfer.files); return; }
     importFile(f);
   });
 }
@@ -14654,6 +15415,73 @@ TR = {
   "Ex. 3e, brevet": ["E.g. Year 10, GCSEs", "Ej. 4.º de ESO", "z. B. 10. Klasse", "Ex. 9º ano"],
   "Ex. BTS, CAP, certification…": ["E.g. vocational diploma, certification…", "Ej. FP, certificación…", "z. B. Ausbildung, Zertifikat…", "Ex. curso técnico, certificação…"],
   "Page lue : « {t} »": ["Page read: “{t}”", "Página leída: «{t}»", "Seite gelesen: „{t}“", "Página lida: “{t}”"],
+  "Fiche de cours": ["Course sheet", "Ficha de curso", "Lernzettel", "Ficha de curso"],
+  "Mentor lit vos fichiers avec Pro": ["Mentor reads your files with Pro", "Mentor lee tus archivos con Pro", "Mentor liest deine Dateien mit Pro", "O Mentor lê seus arquivos com o Pro"],
+  "PDF, Word, PowerPoint, Excel, ZIP, photos : Mentor les lit, en tire une fiche de cours détaillée et crée vos fiches. Pro : 5 fichiers par demande ; Élite : 20, et les gros cours lus en entier.": ["PDF, Word, PowerPoint, Excel, ZIP, photos: Mentor reads them, writes a detailed course sheet and creates your cards. Pro: 5 files per request; Elite: 20, and long courses read in full.", "PDF, Word, PowerPoint, Excel, ZIP, fotos: Mentor los lee, saca una ficha de curso detallada y crea tus tarjetas. Pro: 5 archivos por petición; Élite: 20, y los apuntes largos leídos enteros.", "PDF, Word, PowerPoint, Excel, ZIP, Fotos: Mentor liest sie, schreibt einen ausführlichen Lernzettel und erstellt deine Karten. Pro: 5 Dateien pro Anfrage; Elite: 20, und lange Skripte komplett gelesen.", "PDF, Word, PowerPoint, Excel, ZIP, fotos: o Mentor os lê, tira uma ficha de curso detalhada e cria seus cartões. Pro: 5 arquivos por pedido; Elite: 20, e os cursos longos lidos por inteiro."],
+  "Les fiches de cours font partie de Pro": ["Course sheets are part of Pro", "Las fichas de curso forman parte de Pro", "Lernzettel gehören zu Pro", "As fichas de curso fazem parte do Pro"],
+  "Notions, définitions, formules, méthodes, pièges et exemples : une fiche complète et bien mise en page, rangée dans votre paquet et transformée en fiches de révision en un appui.": ["Notions, definitions, formulas, methods, traps and examples: a complete, beautifully laid-out sheet, saved in your deck and turned into flashcards in one tap.", "Nociones, definiciones, fórmulas, métodos, trampas y ejemplos: una ficha completa y bien maquetada, guardada en tu mazo y convertida en tarjetas con un toque.", "Begriffe, Definitionen, Formeln, Methoden, Fallen und Beispiele: ein vollständiger, schön gesetzter Lernzettel, in deinem Stapel abgelegt und mit einem Tipp in Karteikarten verwandelt.", "Noções, definições, fórmulas, métodos, armadilhas e exemplos: uma ficha completa e bem diagramada, guardada no seu baralho e transformada em cartões com um toque."],
+  "Importer un document": ["Import a document", "Importar un documento", "Dokument importieren", "Importar um documento"],
+  "« {x} » lu : {n} caractères. Relisez, puis lancez.": ["“{x}” read: {n} characters. Check it, then start.", "«{x}» leído: {n} caracteres. Revísalo y empieza.", "„{x}“ gelesen: {n} Zeichen. Kurz prüfen, dann starten.", "“{x}” lido: {n} caracteres. Revise e comece."],
+  "Joindre des fichiers": ["Attach files", "Adjuntar archivos", "Dateien anhängen", "Anexar arquivos"],
+  "Joindre des fichiers : PDF, Word, PowerPoint, Excel, ZIP, photos…": ["Attach files: PDF, Word, PowerPoint, Excel, ZIP, photos…", "Adjuntar archivos: PDF, Word, PowerPoint, Excel, ZIP, fotos…", "Dateien anhängen: PDF, Word, PowerPoint, Excel, ZIP, Fotos…", "Anexar arquivos: PDF, Word, PowerPoint, Excel, ZIP, fotos…"],
+  "Votre demande…": ["Your request…", "Tu petición…", "Deine Anfrage…", "Seu pedido…"],
+  "Ouvrir la fiche de cours": ["Open the course sheet", "Abrir la ficha de curso", "Lernzettel öffnen", "Abrir a ficha de curso"],
+  "{a} sur {b}": ["{a} of {b}", "{a} de {b}", "{a} von {b}", "{a} de {b}"],
+  "{n} diapositive|{n} diapositives": ["{n} slide|{n} slides", "{n} diapositiva|{n} diapositivas", "{n} Folie|{n} Folien", "{n} slide|{n} slides"],
+  "{n} signes": ["{n} characters", "{n} caracteres", "{n} Zeichen", "{n} caracteres"],
+  "{n} image|{n} images": ["{n} image|{n} images", "{n} imagen|{n} imágenes", "{n} Bild|{n} Bilder", "{n} imagem|{n} imagens"],
+  "Fiche de cours détaillée": ["Detailed course sheet", "Ficha de curso detallada", "Ausführlicher Lernzettel", "Ficha de curso detalhada"],
+  "Crée les fiches de révision à partir de ces documents": ["Create flashcards from these documents", "Crea las tarjetas de repaso a partir de estos documentos", "Erstelle Karteikarten aus diesen Dokumenten", "Crie os cartões de revisão a partir destes documentos"],
+  "Résume l'essentiel en 10 points": ["Sum up the essentials in 10 points", "Resume lo esencial en 10 puntos", "Fasse das Wichtigste in 10 Punkten zusammen", "Resuma o essencial em 10 pontos"],
+  "Interroge-moi sur ces documents": ["Quiz me on these documents", "Pregúntame sobre estos documentos", "Frag mich zu diesen Dokumenten ab", "Me teste sobre estes documentos"],
+  "Explique-moi les passages difficiles": ["Explain the hard parts to me", "Explícame los pasajes difíciles", "Erkläre mir die schwierigen Stellen", "Explique-me as partes difíceis"],
+  "Élite : {n} fichiers par demande.": ["Elite: {n} files per request.", "Élite: {n} archivos por petición.", "Elite: {n} Dateien pro Anfrage.", "Elite: {n} arquivos por pedido."],
+  "Pro : 5 fichiers par demande. Élite en lit jusqu'à 20.": ["Pro: 5 files per request. Elite reads up to 20.", "Pro: 5 archivos por petición. Élite lee hasta 20.", "Pro: 5 Dateien pro Anfrage. Elite liest bis zu 20.", "Pro: 5 arquivos por pedido. O Elite lê até 20."],
+  "Aucun fichier lisible.": ["No readable file.", "Ningún archivo legible.", "Keine lesbare Datei.", "Nenhum arquivo legível."],
+  "Je rédige votre fiche de cours à partir de {x}. Elle s'ouvre dans la liseuse et se range dans un paquet.": ["I'm writing your course sheet from {x}. It opens in the reader and is saved in a deck.", "Redacto tu ficha de curso a partir de {x}. Se abre en el lector y se guarda en un mazo.", "Ich schreibe deinen Lernzettel aus {x}. Er öffnet sich im Lesemodus und wird in einem Stapel abgelegt.", "Estou redigindo sua ficha de curso a partir de {x}. Ela abre no leitor e é guardada num baralho."],
+  "Fiche rangée dans « {x} »": ["Sheet saved in “{x}”", "Ficha guardada en «{x}»", "Lernzettel in „{x}“ abgelegt", "Ficha guardada em “{x}”"],
+  "Fiche de cours : rédaction lancée": ["Course sheet: writing started", "Ficha de curso: redacción iniciada", "Lernzettel: wird geschrieben", "Ficha de curso: redação iniciada"],
+  "Lis ces documents et dis-moi ce qu'ils contiennent.": ["Read these documents and tell me what they contain.", "Lee estos documentos y dime qué contienen.", "Lies diese Dokumente und sag mir, was drinsteht.", "Leia estes documentos e diga-me o que contêm."],
+  "Lecture des documents…": ["Reading the documents…", "Leyendo los documentos…", "Dokumente werden gelesen…", "Lendo os documentos…"],
+  "Définition": ["Definition", "Definición", "Definition", "Definição"],
+  "Théorème": ["Theorem", "Teorema", "Satz", "Teorema"],
+  "Méthode": ["Method", "Método", "Methode", "Método"],
+  "Piège": ["Trap", "Trampa", "Falle", "Armadilha"],
+  "Démonstration": ["Proof", "Demostración", "Beweis", "Demonstração"],
+  "À retenir": ["To remember", "Para recordar", "Merken", "Para lembrar"],
+  "Remarque": ["Note", "Observación", "Anmerkung", "Observação"],
+  "Voir la démonstration": ["See the proof", "Ver la demostración", "Beweis anzeigen", "Ver a demonstração"],
+  "Ancien format : enregistrez-le en .docx, .pptx ou .xlsx (ou en PDF), puis réessayez.": ["Old format: save it as .docx, .pptx or .xlsx (or PDF), then try again.", "Formato antiguo: guárdalo como .docx, .pptx o .xlsx (o PDF) e inténtalo de nuevo.", "Altes Format: Speichere es als .docx, .pptx oder .xlsx (oder PDF) und versuche es erneut.", "Formato antigo: salve como .docx, .pptx ou .xlsx (ou PDF) e tente de novo."],
+  "Format non pris en charge": ["Unsupported format", "Formato no compatible", "Format nicht unterstützt", "Formato não suportado"],
+  "Fichier trop lourd": ["File too large", "Archivo demasiado pesado", "Datei zu groß", "Arquivo grande demais"],
+  "Aucun texte trouvé dans ce fichier": ["No text found in this file", "No se encontró texto en este archivo", "Kein Text in dieser Datei gefunden", "Nenhum texto encontrado neste arquivo"],
+  "Lecteur indisponible : une connexion est nécessaire la première fois.": ["Reader unavailable: a connection is needed the first time.", "Lector no disponible: hace falta conexión la primera vez.", "Leser nicht verfügbar: Beim ersten Mal ist eine Verbindung nötig.", "Leitor indisponível: é preciso conexão na primeira vez."],
+  "Image illisible : essayez en JPEG ou PNG.": ["Unreadable image: try JPEG or PNG.", "Imagen ilegible: prueba en JPEG o PNG.", "Bild nicht lesbar: Versuche es als JPEG oder PNG.", "Imagem ilegível: tente em JPEG ou PNG."],
+  "Fichier illisible": ["Unreadable file", "Archivo ilegible", "Datei nicht lesbar", "Arquivo ilegível"],
+  "Diapositive {n}": ["Slide {n}", "Diapositiva {n}", "Folie {n}", "Slide {n}"],
+  "Notes de l'orateur": ["Speaker notes", "Notas del orador", "Sprechernotizen", "Notas do apresentador"],
+  "Feuille": ["Sheet", "Hoja", "Blatt", "Planilha"],
+  "Diapositive": ["Slide", "Diapositiva", "Folie", "Slide"],
+  "Lecture de {x}…": ["Reading {x}…", "Leyendo {x}…", "{x} wird gelesen…", "Lendo {x}…"],
+  "Photo de la page {a} / {b}…": ["Photographing page {a} / {b}…", "Foto de la página {a} / {b}…", "Foto von Seite {a} / {b}…", "Foto da página {a} / {b}…"],
+  "Document {n}": ["Document {n}", "Documento {n}", "Dokument {n}", "Documento {n}"],
+  "Lecture du cours : morceau {a} sur {b}": ["Reading the course: part {a} of {b}", "Leyendo el curso: parte {a} de {b}", "Skript wird gelesen: Teil {a} von {b}", "Lendo o curso: parte {a} de {b}"],
+  "Lecture des pages scannées : lot {a} sur {b}": ["Reading scanned pages: batch {a} of {b}", "Leyendo páginas escaneadas: lote {a} de {b}", "Gescannte Seiten werden gelesen: Stapel {a} von {b}", "Lendo páginas digitalizadas: lote {a} de {b}"],
+  "Pages scannées": ["Scanned pages", "Páginas escaneadas", "Gescannte Seiten", "Páginas digitalizadas"],
+  "La fiche de cours a besoin de l'IA.": ["The course sheet needs the AI.", "La ficha de curso necesita la IA.", "Der Lernzettel braucht die KI.", "A ficha de curso precisa da IA."],
+  "Fiche de cours rédigée par l'IA à partir de {x}.": ["Course sheet written by the AI from {x}.", "Ficha de curso redactada por la IA a partir de {x}.", "Lernzettel, von der KI aus {x} geschrieben.", "Ficha de curso redigida pela IA a partir de {x}."],
+  "Sommaire": ["Contents", "Índice", "Inhalt", "Sumário"],
+  "Mentor rédige votre fiche : notions, définitions, formules, méthodes, pièges et exemples.": ["Mentor is writing your sheet: notions, definitions, formulas, methods, traps and examples.", "Mentor redacta tu ficha: nociones, definiciones, fórmulas, métodos, trampas y ejemplos.", "Mentor schreibt deinen Lernzettel: Begriffe, Definitionen, Formeln, Methoden, Fallen und Beispiele.", "O Mentor está redigindo sua ficha: noções, definições, fórmulas, métodos, armadilhas e exemplos."],
+  "Rangée dans « {x} »": ["Saved in “{x}”", "Guardada en «{x}»", "Abgelegt in „{x}“", "Guardada em “{x}”"],
+  "{n} mots": ["{n} words", "{n} palabras", "{n} Wörter", "{n} palavras"],
+  "Créer les fiches": ["Create the cards", "Crear las tarjetas", "Karten erstellen", "Criar os cartões"],
+  "Imprimer": ["Print", "Imprimir", "Drucken", "Imprimir"],
+  "Une partie des documents dépassait la limite : la fiche couvre ce qui a pu être lu.": ["Part of the documents was over the limit: the sheet covers what could be read.", "Parte de los documentos superaba el límite: la ficha cubre lo que se pudo leer.", "Ein Teil der Dokumente überschritt die Grenze: Der Lernzettel deckt ab, was gelesen werden konnte.", "Parte dos documentos passou do limite: a ficha cobre o que pôde ser lido."],
+  "Les documents étaient longs : la fiche couvre le début. Élite lit les gros cours en entier.": ["The documents were long: the sheet covers the beginning. Elite reads long courses in full.", "Los documentos eran largos: la ficha cubre el principio. Élite lee los apuntes largos enteros.", "Die Dokumente waren lang: Der Lernzettel deckt den Anfang ab. Elite liest lange Skripte komplett.", "Os documentos eram longos: a ficha cobre o começo. O Elite lê os cursos longos por inteiro."],
+  "Fiche de cours rangée dans « {x} »": ["Course sheet saved in “{x}”", "Ficha de curso guardada en «{x}»", "Lernzettel in „{x}“ abgelegt", "Ficha de curso guardada em “{x}”"],
+  "Rédaction arrêtée.": ["Writing stopped.", "Redacción detenida.", "Schreiben gestoppt.", "Redação interrompida."],
+  "Fiche copiée": ["Sheet copied", "Ficha copiada", "Lernzettel kopiert", "Ficha copiada"],
+  "Copie impossible ici : utilisez l'export .md.": ["Can't copy here: use the .md export.", "No se puede copiar aquí: usa la exportación .md.", "Kopieren hier nicht möglich: Nutze den .md-Export.", "Não é possível copiar aqui: use a exportação .md."],
 };
 
 /* ── Démarrage ─────────────────────────────────────────────────────── */
