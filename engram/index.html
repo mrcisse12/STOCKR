@@ -2289,7 +2289,7 @@ html[data-vt="out"]::view-transition-new(root){animation:vtLift .46s .12s cubic-
 .ac-who{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;margin-top:6px}
 .ac-who .av-lg{margin-bottom:12px}
 .ac-who b{font:400 27px/1.15 var(--f-display);letter-spacing:-.01em;overflow-wrap:anywhere}
-.ac-who>span{color:var(--muted);font-size:14px;overflow-wrap:anywhere}
+.ac-who>span:not(.av){color:var(--muted);font-size:14px;overflow-wrap:anywhere}
 .ac-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:12px}
 .ac-chips.l{justify-content:flex-start;align-items:center;margin:0}
 .ac-chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:999px;border:1px solid var(--hair-2);font-size:12.5px;font-weight:500;color:var(--text-2);white-space:nowrap}
@@ -2303,8 +2303,9 @@ html[data-vt="out"]::view-transition-new(root){animation:vtLift .46s .12s cubic-
 .ac-id{display:flex;align-items:center;gap:16px;min-width:0;flex:1 1 260px}
 .ac-id .av-lg{width:54px;height:54px;font-size:23px}
 .ac-id>div{min-width:0}
-.ac-id b{display:block;font:400 23px/1.2 var(--f-display);overflow-wrap:anywhere}
-.ac-id span{display:block;margin-top:3px;color:var(--muted);font-size:13.5px;overflow-wrap:anywhere}
+.ac-id>div>b{display:block;font:400 23px/1.2 var(--f-display);overflow-wrap:anywhere}
+.ac-id>div>span{display:block;margin-top:3px;color:var(--text-2);font-size:13.5px;overflow-wrap:anywhere}
+.ac-id>div>small{display:block;margin-top:2px;color:var(--muted);font-size:12.5px}
 .pk-list{display:flex;flex-direction:column;gap:6px;width:100%}
 .pk-row{display:flex;align-items:center;gap:12px;padding:8px 8px 8px 14px;border-radius:10px;background:var(--folder-3)}
 .pk-row>.i{color:var(--brass-text)}
@@ -2321,6 +2322,7 @@ html[data-vt="out"]::view-transition-new(root){animation:vtLift .46s .12s cubic-
   .ac-hero{margin-bottom:20px}
   .ac-x,.ac-back{top:10px}
   .ac-id .av-lg{width:46px;height:46px;font-size:20px}
+  .ac-id+.pill{margin-left:62px}
 }
 
 /* ── Divers ───────────────────────────────────────────────────────── */
@@ -3267,17 +3269,18 @@ const AI = {
   },
   async probeServer() {
     const url = this.serverUrl(); this.nokey = false;
-    if (!url) { this.status = 'off'; return; }
+    if (!url) { this.status = 'off'; this.health = null; return; }
     try {
       const ctl = new AbortController(); setTimeout(() => ctl.abort(), 4000);
       const r = await fetch(url + '/health', { signal: ctl.signal, headers: this.headers() });
       const j = r.ok ? await r.json() : null;
+      this.health = j?.ok ? j : null; // null : pas de serveur Engram ici ; undefined : pas de réponse (réseau)
       if (!j?.ok) { this.status = 'off'; return; }
       if (j.key === false) { this.status = 'off'; this.nokey = true; return; }
       this.info = j; this.via = 'server'; this.server = url;
       this.limits = { maxPromptBytes: 180000, images: j.images ? { maxCount: 5, maxInputBytes: 20e6, mediaTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] } : null, tools: { maxCount: 24 } };
       this.status = j.locked && !S.profile.settings.aiCode ? 'locked' : 'on';
-    } catch { this.status = 'off'; }
+    } catch { this.status = 'off'; this.health = undefined; }
   },
   headers() { const h = { 'content-type': 'application/json' }; const L = S?.profile.pro?.paid && S.profile.pro.license; if (L) h['x-engram-license'] = L; const c = S?.profile.settings.aiCode; if (c) h['x-engram-code'] = c; return h; },
   changed() { App.refreshAI?.(); },
@@ -6645,7 +6648,11 @@ const Account = {
   init() { return this.p || (this.p = this.load()); },
   async load() {
     const b = this.base();
-    if (b) {
+    // /api/ai/health dit si le serveur gère les comptes : aucune requête vaine (ni 404 en console) sur un
+    // hébergement statique ou un serveur plus ancien. Santé inconnue (réseau) : on demande quand même.
+    await AI.p;
+    this.retry = false;
+    if (b && (AI.health === undefined || AI.health?.accounts)) {
       try {
         const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 6000);
         const r = await fetch(b + '/config', { signal: ctl.signal }); clearTimeout(tm);
@@ -6653,8 +6660,8 @@ const Account = {
         this.cfg = j?.enabled ? j : null;
         // Ce serveur ne gère pas de comptes : une ancienne session n'y sert plus.
         if (j && j.enabled === false && this.signed) { Sess.set(''); Store.connect(); }
-      } catch { this.cfg = null; }
-    }
+      } catch { this.cfg = null; this.retry = true; }
+    } else this.cfg = null;
     this.ready = true;
     if (this.on && this.signed) { await this.me(); Store.reconnect(); }
     App.chrome(); this.repaint();
@@ -6706,6 +6713,7 @@ const Account = {
   /** Le compte et son abonnement ; l'abonnement suit le compte sur cet appareil. */
   async me(fresh) {
     if (!this.on || !this.signed) return null;
+    this.meAt = Date.now();
     try {
       const j = await this.call('/me' + (fresh ? '?fresh=1' : ''));
       this.user = j.user; this.sub = j.sub || null; Sess.who(j.user);
@@ -6742,7 +6750,7 @@ const Account = {
     Store.reconnect();
   },
   /** La session n'est plus reconnue (expirée, ou fermée ailleurs). */
-  lost() { const had = this.signed; this.drop(); if (had) toast(t('Votre session a expiré : reconnectez-vous.'), 'eye'); Store.connect(); },
+  lost() { const had = this.signed; this.drop(); if (had) toast(t('Votre session a expiré : reconnectez-vous.'), 'eye'); },
   /** Oublie la session : la synchronisation du compte s'arrête, les paquets restent sur l'appareil. */
   drop() {
     Sess.set(''); this.user = null; this.sub = null; this.linkTried = false;
@@ -6751,6 +6759,8 @@ const Account = {
     if (S.profile.pro?.acct) { S.profile.pro = { plan: 'free' }; S.profile.agents.autopilot = false; Store.saveLocal(); }
     App.chrome(); this.repaint();
     if (App.route.v === 'pro' && !Study.active) App.render();
+    // Un abonnement propre à cet appareil (pas celui du compte) reprend sa synchronisation par son code.
+    if (Store.mode !== 'cloud') Store.connect();
   },
   async signOut(all) {
     if (all) { try { await this.call('/logout-all', {}); } catch (e) { if (e.code !== 'no_session') toast(this.msg(e), 'eye'); return; } }
@@ -6848,8 +6858,13 @@ const Account = {
   seal() { return $('.brand .seal')?.outerHTML || ''; },
   hello() { const n = this.user?.name; toast(n ? t('Bienvenue, {x}.', { x: n }) : t('Vous êtes connecté.'), 'check'); },
   async open(view, data) {
-    if (this.m?.isConnected) return;
-    if (!this.on && this.base()) { if (this.ready) this.p = null; await this.init(); }
+    if (this.m?.isConnected || this.opening) return;
+    // Pas encore de réponse, ou le serveur n'avait pas répondu (réseau) : on attend, ou on redemande une fois.
+    if (!this.ready || (!this.on && this.retry && this.base())) {
+      this.opening = true;
+      try { if (this.ready) this.p = null; await this.init(); } finally { this.opening = false; }
+      if (this.m?.isConnected) return;
+    }
     const m = this.m = Modal.open('<div class="ac"></div>', 'acct');
     Modal.onClose(m, () => { if (this.m === m) this.m = null; });
     this.paint(view || (!this.on ? 'off' : this.signed ? 'me' : 'in'), data);
@@ -6894,7 +6909,7 @@ const Account = {
     // Se connecter / créer un compte
     const up = v === 'up', b = this.bio(), P = this.cfg?.providers || {};
     const quick = [
-      !up && this.pkOk ? `<button type="button" class="btn ac-pk">${icon(b.ic)}${t('Continuer avec une clé d\'accès')}</button>` : '',
+      !up && this.pkOk ? `<button type="button" class="btn ac-pk">${icon(b.ic)}${b.name ? t('Continuer avec {x}', { x: b.name }) : t('Continuer avec une clé d\'accès')}</button>` : '',
       P.google ? '<div class="ac-g"></div>' : '',
       P.apple ? `<button type="button" class="btn btn-apple ac-apple">${APPLE_LOGO}${t('Continuer avec Apple')}</button>` : ''
     ].filter(Boolean);
@@ -7000,13 +7015,13 @@ const Account = {
     const wrap = rows => `<section class="sec" id="sAccount">${head}<article class="panel"><div class="settings">${rows}</div></article></section>`;
     if (!this.signed) return wrap(setRow(t('Se connecter ou créer un compte'), t('Une minute suffit. Les paquets de cet appareil sont gardés et rejoignent votre compte.'), `<button type="button" class="btn btn-sm btn-brass" data-act="account">${icon('user', 'i-sm')}${t('Se connecter@@compte')}</button>`));
     const u = this.user;
-    if (!u) { const c = Sess.who() || {}; return wrap(setRow(esc(c.name || c.email || t('Votre compte')), t('Connexion au serveur…'), `<span class="pill"><i></i>${t('Vérification…')}</span>`)); }
+    if (!u) { const c = Sess.who() || {}; return wrap(setRow(esc(c.name || c.email || t('Votre compte')), t('Connexion au serveur…'), `<button type="button" class="btn btn-sm ac-out">${icon('exit', 'i-sm')}${t('Se déconnecter')}</button>`)); }
     const has = p => (u.providers || []).includes(p), P = this.cfg.providers || {}, synced = Store.mode === 'cloud' && Store.db?.who;
     const since = u.created ? t('Membre depuis {d}', { d: fmtDate(new Date(u.created), { month: 'long', year: 'numeric' }) }) : '';
     const keys = (u.passkeys || []).map(k => `<div class="pk-row">${icon('key')}<div><b>${esc(k.label || t('Clé d\'accès'))}</b><small>${esc(t('Ajoutée le {d}', { d: fmtDate(new Date(k.created)) }) + (k.lastUsed ? ' · ' + t('utilisée le {d}', { d: fmtDate(new Date(k.lastUsed)) }) : ''))}</small></div><button type="button" class="icon-btn" data-pkdel="${esc(k.id)}" aria-label="${esc(t('Retirer la clé {x}', { x: k.label || '' }))}" data-tip="${esc(t('Retirer'))}">${icon('trash', 'i-sm')}</button></div>`).join('');
     const links = (P.google && !has('google') ? '<div class="ac-g sm"></div>' : '') + (P.apple && !has('apple') ? `<button type="button" class="btn btn-sm btn-apple ac-apple">${APPLE_LOGO}${t('Lier Apple')}</button>` : '');
     return wrap(`
-      <div class="set-row"><div class="ac-id">${this.avatar('av-lg')}<div><b>${esc(u.name || u.email || t('Votre compte'))}</b><span>${esc([u.name && u.email, since].filter(Boolean).join(' · '))}</span></div></div><span class="pill ${synced ? 'on' : ''}"><i></i>${synced ? t('Synchronisé') : t('Connecté')}</span></div>
+      <div class="set-row"><div class="ac-id">${this.avatar('av-lg')}<div><b>${esc(u.name || u.email || t('Votre compte'))}</b>${u.name && u.email ? `<span>${esc(u.email)}</span>` : ''}${since ? `<small>${esc(since)}</small>` : ''}</div></div><span class="pill ${synced ? 'on' : ''}"><i></i>${synced ? t('Synchronisé') : t('Connecté')}</span></div>
       ${setRow(t('Moyens de connexion'), t('Chacun ouvre le même compte.'), `<div class="ac-chips l">${(u.providers || []).map(p => `<span class="ac-chip">${icon('check', 'i-sm')}${esc(this.pName(p))}</span>`).join('')}${links}</div>`)}
       <div class="set-row col"><div class="t"><b>${t('Clés d\'accès')}</b><span>${t('Face ID, Touch ID, Windows Hello ou votre gestionnaire de mots de passe, à la place du mot de passe.')}</span></div><div class="pk-list">${keys}${this.pkOk ? `<button type="button" class="btn btn-sm ac-pkadd">${icon('plus', 'i-sm')}${this.keyLabel()}</button>` : `<span class="muted" style="font-size:13px">${t('Ce navigateur ne gère pas les clés d\'accès.')}</span>`}</div></div>
       ${u.email ? setRow(t('Mot de passe'), has('password') ? t('Changer de mot de passe déconnecte vos autres appareils.') : t('Ajoutez-en un pour vous connecter aussi avec votre e-mail.'), `<button type="button" class="btn btn-sm ac-pwd">${icon('pen', 'i-sm')}${has('password') ? t('Changer') : t('Ajouter')}</button>`) : ''}
@@ -7025,6 +7040,8 @@ const Account = {
   },
   bind() {
     const sec = $('#sAccount'); if (!sec) return;
+    // Le serveur n'avait pas répondu (hors ligne au démarrage) : on redemande en ouvrant les réglages.
+    if (this.signed && !this.user && Date.now() - (this.meAt || 0) > 8000) this.me().then(j => { if (j) this.repaint(); });
     const g = sec.querySelector('.ac-g'); if (g) this.google(g);
     sec.addEventListener('click', e => {
       const b = e.target.closest('button'); if (!b || b.disabled) return;
@@ -9015,7 +9032,7 @@ Hooks.settings = arg => {
   $$('#stWeek input').forEach(inp => inp.addEventListener('input', () => { const i = +inp.dataset.wd; st.weekly[i] = +inp.value; $('#wdOut' + i).textContent = inp.value; Store.touch('profile'); }));
   $('#memList')?.addEventListener('click', e => { const b = e.target.closest('[data-forget]'); if (!b) return; S.profile.memory.splice(+b.dataset.forget, 1); Store.touch('profile'); App.render(); });
   $('#memAdd')?.addEventListener('submit', e => { e.preventDefault(); const v = $('#memIn').value.trim(); if (!v) return; S.profile.memory.push(v.slice(0, 200)); Store.touch('profile'); App.render(); });
-  $('#aiRecheck')?.addEventListener('click', async () => { s.aiServer = $('#aiSrv').value.trim(); s.aiCode = $('#aiCode').value.trim(); Store.touch('profile'); if (AI.via !== 'claude') { AI.status = 'checking'; await AI.probeServer(); AI.changed(); toast(AI.on ? t('Serveur IA connecté') : AI.nokey ? t("Serveur trouvé, mais sans clé d'API : ajoutez ANTHROPIC_API_KEY puis redéployez.") : t('Serveur IA introuvable'), AI.on ? 'check' : 'x'); App.render(); } });
+  $('#aiRecheck')?.addEventListener('click', async () => { s.aiServer = $('#aiSrv').value.trim(); s.aiCode = $('#aiCode').value.trim(); Store.touch('profile'); if (AI.via !== 'claude') { AI.status = 'checking'; await AI.probeServer(); AI.changed(); Account.p = null; Account.init(); toast(AI.on ? t('Serveur IA connecté') : AI.nokey ? t("Serveur trouvé, mais sans clé d'API : ajoutez ANTHROPIC_API_KEY puis redéployez.") : t('Serveur IA introuvable'), AI.on ? 'check' : 'x'); App.render(); } });
   $$('.set-nav [data-jump]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); $('#' + a.dataset.jump)?.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'start' }); }));
   Account.bind();
   const sec = { account: 'sAccount', look: 'sLook', ai: 'sAI', data: 'sData' }[arg];
@@ -14226,6 +14243,7 @@ TR = {
   "8 caractères au moins.": ["At least 8 characters.","Al menos 8 caracteres.","Mindestens 8 Zeichen.","Pelo menos 8 caracteres."],
   "Retrouver mon compte": ["Recover my account","Recuperar mi cuenta","Mein Konto wiederherstellen","Recuperar minha conta"],
   "Code perdu ? Sur un appareil encore connecté, créez-en un nouveau dans Réglages, Compte.": ["Lost the code? On a device that's still signed in, create a new one in Settings, Account.","¿Perdiste el código? En un dispositivo con la sesión abierta, crea uno nuevo en Ajustes, Cuenta.","Code verloren? Erstelle auf einem noch angemeldeten Gerät unter Einstellungen, Konto einen neuen.","Perdeu o código? Em um dispositivo ainda conectado, crie um novo em Ajustes, Conta."],
+  "Continuer avec {x}": ["Continue with {x}","Continuar con {x}","Mit {x} fortfahren","Continuar com {x}"],
   "Continuer avec une clé d'accès": ["Continue with a passkey","Continuar con una llave de acceso","Mit Passkey fortfahren","Continuar com uma chave de acesso"],
   "Continuer avec Apple": ["Continue with Apple","Continuar con Apple","Mit Apple fortfahren","Continuar com a Apple"],
   "Créer votre compte": ["Create your account","Crea tu cuenta","Erstelle dein Konto","Crie sua conta"],
@@ -14308,7 +14326,7 @@ async function boot() {
   bootApp(); Mentor.mount(); bootDrop();
   App.render();
   if (!S.profile.onboarded) Onb.open();
-  AI.init().then(() => setTimeout(() => Autopilot.check(), 1200));
+  (AI.p = AI.init()).then(() => setTimeout(() => Autopilot.check(), 1200));
   Pay.init();
   Account.init();
   Inbox.take();

@@ -4,7 +4,7 @@
 // (netlify/functions/ai.mjs).
 //
 // Protocole (le même que la capacité « sample » de l'app Claude, côté page) :
-//   GET  /api/ai/health → { ok, images, tools, locked, models }
+//   GET  /api/ai/health → { ok, accounts, images, tools, locked, models }
 //   POST /api/ai        ← { messages, tools, modelTier, json, final }
 //                       → NDJSON : {type:'text',delta} … {type:'done',content,stop_reason}
 //                                  ou {type:'error',code,message}
@@ -253,7 +253,7 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
       if (!pathname.startsWith('/api/ai')) return null;
       if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders(request) });
       if (pathname === '/api/ai/health' && request.method === 'GET') {
-        return json(request, 200, { ok: true, key: HAS_KEY, images: true, tools: true, locked: !!ACCESS_CODE && !PAY, pay: PAY, plan: PAY ? licenseOf(request.headers)?.p || 'free' : null, caps: (() => { const c = CAPS[!PAY || codeOk(request.headers) && ACCESS_CODE ? 'elite' : licenseOf(request.headers)?.p || 'free']; return { tiers: c.tiers, effort: c.effort, scan: c.scan }; })(), fallbacks: FALLBACKS, models: Object.fromEntries(Object.entries(TIERS).map(([k, v]) => [k, v.model])) });
+        return json(request, 200, { ok: true, accounts: true, key: HAS_KEY, images: true, tools: true, locked: !!ACCESS_CODE && !PAY, pay: PAY, plan: PAY ? licenseOf(request.headers)?.p || 'free' : null, caps: (() => { const c = CAPS[!PAY || codeOk(request.headers) && ACCESS_CODE ? 'elite' : licenseOf(request.headers)?.p || 'free']; return { tiers: c.tiers, effort: c.effort, scan: c.scan }; })(), fallbacks: FALLBACKS, models: Object.fromEntries(Object.entries(TIERS).map(([k, v]) => [k, v.model])) });
       }
       if (pathname === '/api/ai' && request.method === 'POST') return handleAI(request, ip);
       return json(request, 404, { code: 'upstream_error', message: 'not found' });
