@@ -29,6 +29,8 @@
     }
   },
   "shortcuts": [
+    { "name": "Ma séance du moment", "short_name": "Ma séance", "url": "./#now", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Mon planning", "url": "./#agenda", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
     { "name": "Réviser", "url": "./#study", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
     { "name": "Scanner un cours", "url": "./#scan", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
   ]

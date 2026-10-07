@@ -1748,6 +1748,8 @@ button,a,label,select,.chip,.opt,.ochip{touch-action:manipulation}
 .lcard.sm .lc-pro{font-size:44px}.lcard.sm .lc-frame{inset:8px}
 
 /* Page Pro */
+/* Le cachet de cire s'abat en grandissant : il ne doit jamais élargir la page sur téléphone. */
+.pro-hero{overflow-x:clip}
 .pro-hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(24px,5vw,72px);align-items:center}
 .pro-hero .lede{margin-top:16px}
 .pro-hero .hero-actions{margin-top:26px}
@@ -2069,7 +2071,8 @@ button,a,label,select,.chip,.opt,.ochip{touch-action:manipulation}
 .pro-welcome h2{margin:0;font:400 clamp(30px,6vw,44px)/1.05 var(--f-display);color:#F3E8CC;animation:rise .8s .6s var(--ease) both}
 .pro-welcome p{margin:0;color:rgba(243,232,204,.75);font-size:15px;line-height:1.55;animation:rise .8s .75s var(--ease) both}
 .pro-welcome .btn{animation:rise .8s .9s var(--ease) both}
-.flake{position:fixed;top:-20px;z-index:251;width:var(--w,9px);height:calc(var(--w,9px) * .6);border-radius:1px;background:linear-gradient(135deg,#FFF1C2,#D8B060 50%,#8F6A28);pointer-events:none;opacity:.95;
+.flakes{position:fixed;top:0;left:0;bottom:0;z-index:251;overflow:hidden;pointer-events:none}
+.flake{position:absolute;top:-20px;z-index:251;width:var(--w,9px);height:calc(var(--w,9px) * .6);border-radius:1px;background:linear-gradient(135deg,#FFF1C2,#D8B060 50%,#8F6A28);pointer-events:none;opacity:.95;
   animation:flake var(--d,2.4s) var(--dl,0s) cubic-bezier(.3,.6,.4,1) forwards}
 @keyframes flake{0%{transform:translate3d(0,0,0) rotate(0) rotateY(0)}100%{transform:translate3d(var(--x,0),105vh,0) rotate(var(--r,540deg)) rotateY(720deg);opacity:.2}}
 :root[data-motion="none"] .flake{display:none}
@@ -2488,6 +2491,93 @@ details.d-box[open] .d-show{display:none}
 .note-card.course{background:linear-gradient(180deg,color-mix(in srgb,#E9CF8A 22%,var(--paper)),var(--paper))}
 .note-card .kicker .i{vertical-align:-3px;margin-right:4px}
 @media print{body.lr-print>*:not(.reader){display:none!important}body.lr-print .reader{position:static;inset:auto;background:#fff;display:block;opacity:1;transform:none}body.lr-print .lr-bar,body.lr-print .lr-toc,body.lr-print .lr-cut{display:none!important}body.lr-print .lr-body{display:block}body.lr-print .lr-page{overflow:visible;padding:0}body.lr-print .doc{box-shadow:none;max-width:none;padding:0 0 0 14mm;background-image:none;animation:none}}
+
+/* ── Le planning heure par heure (lot 24) ────────────────────────── */
+.ag-now{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:18px;align-items:center;padding:20px 22px;border-radius:16px;margin-bottom:18px;position:relative;overflow:hidden}
+.ag-now .ap-dial{position:relative;width:64px;height:64px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(227,196,126,.4);box-shadow:inset 0 0 0 5px rgba(0,0,0,.18),inset 0 0 0 6px rgba(227,196,126,.18)}
+.ag-now .ap-dial .i{width:26px;height:26px;color:var(--gilt)}
+.ag-now .ap-dial::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:1.5px solid transparent;border-top-color:var(--gilt);animation:spin 3.2s linear infinite}
+.agn-t{display:grid;gap:4px;min-width:0}
+.agn-t .kicker{color:var(--gilt)}
+.agn-t b{font:400 26px/1.1 var(--f-display);color:var(--on-leather)}
+.agn-t>span:last-child{color:var(--on-leather-2);font-size:13.5px;line-height:1.5}
+.agn-a{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.agn-snz{color:var(--on-leather-2)}
+.ag-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-bottom:18px}
+.ag-day{position:relative;display:grid;justify-items:center;gap:2px;padding:10px 4px;border-radius:12px;border:1px solid var(--hair);background:var(--folder-2);color:var(--text-2);transition:all .25s var(--ease)}
+.ag-day span{font:700 10.5px/1 var(--f-type);letter-spacing:.1em;text-transform:uppercase}
+.ag-day b{font:400 24px/1.1 var(--f-display);color:var(--text)}
+.ag-day small{font-size:11.5px;color:var(--muted)}
+.ag-day:hover{border-color:var(--hair-3)}
+.ag-day.on{border-color:var(--brass);background:linear-gradient(180deg,var(--brass-soft),transparent),var(--folder-2);box-shadow:0 10px 24px -16px var(--brass-glow)}
+.ag-ex{position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--again)}
+.ag-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:18px;align-items:start}
+.ag-grid.locked .ag-tl,.ag-grid.locked .ag-side{filter:saturate(.75);opacity:.82}
+.ag-tl .panel-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.ag-list{list-style:none;margin:0;padding:4px 0;position:relative;display:grid;gap:10px}
+.ag-list::before{content:"";position:absolute;left:63px;top:14px;bottom:14px;width:2px;border-radius:2px;background:linear-gradient(180deg,var(--brass),var(--hair-2) 30%,var(--hair) 85%,transparent)}
+.ag-item{position:relative;display:grid;grid-template-columns:52px minmax(0,1fr);gap:24px;align-items:start}
+.ag-item>time{font:700 12px/1 var(--f-type);color:var(--text-2);text-align:right;padding-top:14px}
+.ag-item::before{content:"";position:absolute;left:58px;top:11px;width:12px;height:12px;border-radius:50%;background:var(--folder-2);border:2px solid var(--brass);z-index:1}
+.ag-b{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;width:100%;padding:10px 14px 10px 16px;border-radius:11px;text-align:left;color:var(--text);
+  background:linear-gradient(90deg,color-mix(in srgb,var(--c) 15%,var(--folder-2)),var(--folder-2) 75%);border:1px solid color-mix(in srgb,var(--c) 32%,transparent);box-shadow:inset 4px 0 0 var(--c),0 10px 22px -18px rgba(0,0,0,.55);transition:transform .25s var(--ease),box-shadow .25s;animation:rise .45s var(--ease) both}
+.ag-b:hover{transform:translateX(3px);box-shadow:inset 4px 0 0 var(--c),0 14px 26px -16px rgba(0,0,0,.55)}
+.ag-b.done{opacity:.58}
+.ag-b.ai::after{content:"IA";position:absolute;top:8px;right:10px;font:700 8.5px/1 var(--f-type);letter-spacing:.1em;color:var(--brass-text)}
+.ag-t{font:700 10.5px/1.2 var(--f-type);color:var(--muted);letter-spacing:.04em}
+.ag-n{display:flex;align-items:flex-start;gap:8px;min-width:0;width:100%}
+.ag-n .i{color:var(--c);flex:none;margin-top:2px}
+.ag-n b{flex:1;min-width:0;font-weight:600;font-size:14.5px;line-height:1.3}
+.ag-n em{flex:none;font-style:normal;font:700 11px/1 var(--f-type);padding:3px 7px;border-radius:99px;background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--text)}
+.ag-w{font-size:12.5px;color:var(--text-2);line-height:1.45}
+.ag-stamp{position:absolute;right:12px;bottom:10px;font:700 10px/1 var(--f-type);letter-spacing:.12em;text-transform:uppercase;color:var(--good);border:1.5px solid currentColor;border-radius:4px;padding:3px 5px;transform:rotate(-6deg)}
+.ag-pause,.ag-free{margin-left:76px;display:flex;align-items:center;gap:8px;font:700 10.5px/1 var(--f-type);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ag-pause span,.ag-free span{display:inline-flex;align-items:center;gap:7px}
+.ag-pause::after,.ag-free::after{content:"";flex:1;border-top:1px dotted var(--hair-3)}
+.ag-free{font-style:italic;letter-spacing:.06em;text-transform:none;font-family:var(--f-ui);font-weight:500;font-size:12.5px}
+.ag-nowrow{position:relative;display:grid;grid-template-columns:52px minmax(0,1fr);gap:24px;align-items:center;color:var(--stamp);font:700 11px/1 var(--f-type);letter-spacing:.08em;text-transform:uppercase}
+.ag-nowrow time{text-align:right}
+.ag-nowrow span{display:flex;align-items:center;gap:10px}
+.ag-nowrow span::after{content:"";flex:1;border-top:2px solid var(--stamp);opacity:.7}
+.ag-nowrow::before{content:"";position:absolute;left:59px;top:50%;width:10px;height:10px;margin-top:-5px;border-radius:50%;background:var(--stamp);box-shadow:0 0 0 4px color-mix(in srgb,var(--stamp) 22%,transparent);z-index:1}
+.ag-spill{display:flex;gap:8px;align-items:center;margin:16px 0 0;font-size:13px;color:var(--hard)}
+.ag-legend{display:flex;flex-wrap:wrap;gap:6px 14px;list-style:none;margin:18px 0 0;padding:14px 0 0;border-top:1px solid var(--hair);font-size:12px;color:var(--muted)}
+.ag-legend li{display:flex;align-items:center;gap:6px}.ag-legend i{width:10px;height:10px;border-radius:3px;background:var(--c)}
+.ag-side{display:grid;gap:18px}
+.ag-side .panel-h{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.ag-side .panel-h .i{color:var(--brass-text)}
+.ag-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.ag-note{font-size:17px}
+.ag-hint{margin:10px 0 0;font-size:12.5px;line-height:1.5}
+.ag-hint.warn{display:flex;gap:8px;align-items:flex-start;color:var(--hard);margin:0 0 12px}
+.ag-wins{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.ag-wins li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--hair);font-size:13.5px}
+.ag-wins li:last-child{border-bottom:0}
+.ag-wins b{font-weight:600}.ag-wins span{color:var(--text-2);text-align:right}
+.ag-sc details{border-top:1px solid var(--hair);padding:10px 0}
+.ag-sc details:first-of-type{border-top:0;padding-top:0}
+.ag-sc summary{cursor:pointer;font-size:14px;list-style-position:inside}
+.ag-sc ol{margin:8px 0 0;padding-left:20px;font-size:13px;color:var(--text-2);line-height:1.55}
+.ag-link{display:flex;align-items:center;gap:8px;margin-top:10px;padding:6px 6px 6px 10px;border-radius:9px;border:1px solid var(--hair-2);background:var(--folder)}
+.ag-link code{flex:1;min-width:0;font:12px var(--f-type);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--brass-text)}
+.ag-why{display:flex;gap:14px;align-items:flex-start;padding:16px;border-radius:12px;background:color-mix(in srgb,var(--c) 10%,var(--folder-2));border:1px solid color-mix(in srgb,var(--c) 30%,transparent)}
+.ag-why .i{color:var(--c);flex:none;margin-top:2px}.ag-why p{margin:0;line-height:1.55}
+.agw-rows{display:grid;gap:4px}
+.agw-row{display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--hair)}
+.agw-list{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.agw{display:inline-flex;align-items:center;gap:4px;padding:3px 3px 3px 8px;border-radius:9px;border:1px solid var(--hair-2);background:var(--folder-2)}
+.agw input{width:96px;height:32px;border:0;background:transparent;font:600 13.5px var(--f-ui);color:var(--text);font-variant-numeric:tabular-nums}
+.agw i{color:var(--muted);font-style:normal}
+.ag-next{display:flex;align-items:center;gap:16px;width:100%;padding:14px 18px;margin:0 0 18px;border-radius:14px;border:1px solid color-mix(in srgb,var(--c) 40%,var(--hair-2));background:linear-gradient(90deg,color-mix(in srgb,var(--c) 12%,transparent),transparent 70%),var(--folder-2);text-align:left;color:var(--text);transition:transform .25s var(--ease)}
+.ag-next:hover{transform:translateY(-2px)}
+.agx-time{font:400 30px/1 var(--f-display);color:var(--c);min-width:84px}
+.agx-t{display:grid;gap:3px;flex:1;min-width:0}
+.agx-t b{font-weight:600;font-size:15.5px}
+.agx-t small{color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:900px){.ag-grid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:620px){.ag-now{grid-template-columns:auto minmax(0,1fr)}.ag-now .agn-a{grid-column:1/-1;flex-direction:row;flex-wrap:wrap}.ag-now .ap-dial{width:52px;height:52px}.agn-t b{font-size:22px}
+  .ag-days{gap:5px}.ag-day{padding:8px 2px}.ag-day b{font-size:19px}.ag-day small{font-size:10px}
+  .ag-item,.ag-nowrow{grid-template-columns:44px minmax(0,1fr);gap:18px}.ag-list::before{left:52px}.ag-item::before{left:47px}.ag-nowrow::before{left:48px}.ag-pause,.ag-free{margin-left:62px}.agw-row{grid-template-columns:1fr}.agx-time{font-size:24px;min-width:64px}}
 </style>
 </head>
 <body>
@@ -2981,6 +3071,8 @@ function normalizeState(st) {
   if (!/^[2-9A-HJKMNP-Z]{6}$/.test(p.ref.code || '')) { const A = '23456789ABCDEFGHJKMNPQRSTUVWXYZ'; p.ref.code = Array.from(crypto.getRandomValues(new Uint8Array(6)), x => A[x % A.length]).join(''); }
   p.usage = p.usage && typeof p.usage === 'object' ? p.usage : {};
   p.agents = { autopilot: false, brief: null, report: null, ...(p.agents || {}) };
+  p.agenda = { windows: null, remind: false, lead: 5, done: {}, snooze: {}, ai: null, ...(p.agenda && typeof p.agenda === 'object' ? p.agenda : {}) };
+  if (!p.agenda.done || typeof p.agenda.done !== 'object') p.agenda.done = {};
   if (!Array.isArray(p.agents.runs)) p.agents.runs = [];
   // v2 → v3 : un seul examen devient une liste d'examens.
   if (!Array.isArray(p.exams)) p.exams = [];
@@ -5211,6 +5303,7 @@ Views.today = () => {
     </button>
     ${crewHTML()}
     ${examBanner()}
+    ${agendaNextHTML()}
     ${Plan.todayStrip()}
     <section class="sec">
       <div class="sec-h rise"><div><h2 class="h2">${t('La boîte')}</h2><p>${t("Chaque fiche avance d'un compartiment quand vous la retenez, et revient au début quand vous l'oubliez. C'est la méthode Leitner, pilotée ici par l'algorithme FSRS.")}</p></div></div>
@@ -6387,7 +6480,8 @@ const Cmd = {
       C('scan', G.mk, 'camera', t('Scanner un cours'), go('scan'), { kw: 'photo scanner cours image picture foto escanear fotografieren' }),
       C('kit', G.mk, 'users', t('Créer un kit de classe'), () => openKit(), { kw: 'classe equipe partager professeur class team share teacher clase equipo klasse lehrer turma professor' }),
       C('v-today', G.go, 'home', t("Aujourd'hui"), go('today'), { kw: 'accueil home today hoy heute hoje inicio start' }),
-      C('v-plan', G.go, 'route', t('Programme'), go('plan'), { kw: 'programme plan planning calendrier semaine schedule week programa plan' }),
+      C('v-plan', G.go, 'route', t('Programme'), go('plan'), { kw: 'programme plan calendrier semaine week programa' }),
+      C('v-agenda', G.go, 'clock', t('Planning heure par heure'), go('agenda'), { sub: Pro.expert ? '' : t('Élite'), kw: 'planning agenda horaire heure rappel alarme siri raccourcis schedule hour reminder alarm shortcuts horario recordatorio zeitplan erinnerung horário lembrete' }),
       C('v-library', G.go, 'drawer', t('Le fichier'), go('library'), { kw: 'fichier paquets bibliotheque tiroirs library decks biblioteca mazos kartei stapel' }),
       C('v-games', G.go, 'grid', t('Jeux'), go('games'), { kw: 'jeux jouer games play juegos spiele jogos' }),
       C('v-stats', G.go, 'chart', t('Carnet et statistiques'), go('stats'), { kw: 'carnet statistiques progres stats progress estadisticas statistik estatisticas' }),
@@ -6770,10 +6864,12 @@ const Pro = {
     document.body.append(el);
     Sound.play('seal'); haptic(30); App.chrome();
     if (!REDUCED && S.profile.settings.anim !== 'none') {
+      // Les confettis tombent dans un cadre fixe qui les découpe : la page ne déborde jamais sur le côté.
+      const box = document.createElement('div'); box.className = 'flakes'; box.style.width = document.documentElement.clientWidth + 'px'; document.body.append(box); setTimeout(() => box.remove(), 5200);
       for (let i = 0; i < 34; i++) {
         const f = document.createElement('i'); f.className = 'flake';
         f.style.cssText = `left:${(Math.random() * 100).toFixed(1)}vw;--w:${(6 + Math.random() * 8).toFixed(1)}px;--x:${((Math.random() - .5) * 30).toFixed(1)}vw;--r:${Math.round(360 + Math.random() * 720)}deg;--d:${(2 + Math.random() * 1.8).toFixed(2)}s;--dl:${(.35 + Math.random() * .9).toFixed(2)}s`;
-        document.body.append(f); setTimeout(() => f.remove(), 5000);
+        box.append(f);
       }
     }
     bindCardTilt(el);
@@ -6789,6 +6885,7 @@ const Pro = {
       agent: [t('Vos 3 missions du mois sont utilisées'), t('Avec Pro, les six assistants travaillent pour vous sans limite. Les analyses sans IA restent libres.')],
       expert: [t('Le mode Expert fait partie d\'Élite'), t('Le modèle le plus puissant, pour les plans de concours et les raisonnements longs.')],
       atelier: [t('Cet outil fait partie d\'Élite'), t('Thèmes Velours et Marbre, papiers Tableau noir, Tableau blanc et Kraft, couleur d\'accent sur mesure, rétention par paquet et intervalle maximal : Élite règle Engram à votre façon.')],
+      agenda: [t('Le planning heure par heure fait partie d\'Élite'), t('Quoi réviser à quelle heure, le plus exigeant à votre meilleur moment, des pauses, une alarme à chaque séance, et Siri pour lancer la séance du moment.')],
       files: [t('Mentor lit vos fichiers avec Pro'), t('PDF, Word, PowerPoint, Excel, ZIP, photos : Mentor les lit, en tire une fiche de cours détaillée et crée vos fiches. Pro : 5 fichiers par demande ; Élite : 20, et les gros cours lus en entier.')],
       sheet: [t('Les fiches de cours font partie de Pro'), t('Notions, définitions, formules, méthodes, pièges et exemples : une fiche complète et bien mise en page, rangée dans votre paquet et transformée en fiches de révision en un appui.')],
       autopilot: [t('L\'autopilote fait partie de Pro'), t('Chaque matin, le Planificateur prépare votre séance ; chaque lundi, le Chroniqueur fait le bilan de la semaine.')]
@@ -11057,6 +11154,7 @@ Views.plan = () => {
     <div class="toolbar rise">
       <button class="btn btn-brass" data-act="study" ${b.c.total ? '' : 'disabled'}>${icon('play')}${t('Lancer le programme du jour')}${b.c.total ? ` · ${b.c.total}` : ''}</button>
       <button class="btn" data-act="examPlan">${icon('cal')}${t('Ajouter un examen')}</button>
+      <button class="btn btn-gilt" data-act="go" data-v="agenda">${icon('clock')}${t('Planning heure par heure')}${Pro.expert ? '' : ` <span class="elite-tag">${t('Élite')}</span>`}</button>
       <button class="btn" data-act="calendar">${icon('cal')}${t('Ajouter à mon agenda')}</button>
       <button class="btn btn-ghost" data-act="go" data-v="settings">${icon('settings')}${t('Mon temps disponible')}</button>
     </div>
@@ -11524,8 +11622,23 @@ ${JSON.stringify(this.snapshot())}`;
           ctx.buttons.push({ label: str(i.label) || t('Lancer la séance'), icon: 'play', run: () => { this.close(); const handsFree = !!i.hands_free; items ? Study.start({ items, title: 'Mentor', handsFree }) : Study.start({ deckId, cram: mode === 'ahead', weak: mode === 'weak', handsFree }); } });
           return 'A start button is shown under your message.';
         } },
-      { name: 'open_view', description: 'Navigate the app behind the chat: today, plan, scan, library, deck (needs deck_id), games, stats, settings, pro (plans), agents (the six assistants), links (import, export, calendar), teams (schools and companies: class kits, group pricing).',
-        inputSchema: { type: 'object', properties: { view: { type: 'string', enum: ['today', 'plan', 'scan', 'library', 'deck', 'games', 'stats', 'settings', 'pro', 'agents', 'links', 'teams'] }, deck_id: { type: 'string' } }, required: ['view'] },
+      ...(Pro.expert ? [{ name: 'plan_schedule', description: 'Élite: the hour-by-hour study schedule (what to revise at what time, in the student\'s free time slots). Set the free time slots per weekday when the student tells you when they are available (e.g. "free from 17:30 to 19:00 on weekdays"), turn on reminders, have the AI compose the whole week, and get the blocks of the coming days. Then open the "agenda" view if useful.',
+        inputSchema: { type: 'object', properties: { windows: { type: 'object', description: 'free slots per weekday, keys "mon".."sun", values like ["17:30-19:00", "20:30-21:30"] (empty list = no study that day); only the days given change' }, reminders: { type: 'boolean' }, optimize_with_ai: { type: 'boolean' }, days: { type: 'number' } } },
+        execute: async i => {
+          const A = Agenda.st, names = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+          if (i.windows && typeof i.windows === 'object') {
+            const w = A.windows ? { ...A.windows } : Object.fromEntries(names.map((n, k) => [k, Agenda.windows(k)]));
+            for (const [k, v] of Object.entries(i.windows)) { const d = names.indexOf(String(k).slice(0, 3).toLowerCase()); if (d < 0 || !Array.isArray(v)) continue; w[d] = v.map(x => String(x).split(/[-–]/).map(y => toMin(y.trim()))).filter(([a, b]) => a != null && b != null && b - a >= 10).slice(0, 3); }
+            A.windows = w; A.ai = null; mark(); say(t('Créneaux mis à jour'));
+          }
+          if (typeof i.reminders === 'boolean') { if (i.reminders) ctx.after.push(() => Agenda.enableReminders()); else A.remind = false; mark(); }
+          Store.touch('profile');
+          if (i.optimize_with_ai) { ctx.after.push(() => { App.go('agenda'); setTimeout(() => Agenda.optimize($('#agAI')), 300); }); say(t('Planning : l\'IA compose la semaine')); }
+          Agenda.arm();
+          return { days: Array.from({ length: clamp(+i.days || 3, 1, 7) }, (_, k) => { const D = Agenda.day(k); return { date: D.key, windows: D.windows.map(([a, b]) => `${hhmm(a)}-${hhmm(b)}`), blocks: D.blocks.filter(b => b.kind !== 'break').map(b => ({ start: hhmm(b.s), end: hhmm(b.e), title: b.title, cards: b.n || undefined, done: !!b.done, why: b.why })), unscheduled_minutes: D.spill || 0 }; }), reminders: !!A.remind };
+        } }] : []),
+      { name: 'open_view', description: 'Navigate the app behind the chat: today, plan, agenda (Élite hour-by-hour schedule), scan, library, deck (needs deck_id), games, stats, settings, pro (plans), agents (the six assistants), links (import, export, calendar), teams (schools and companies: class kits, group pricing).',
+        inputSchema: { type: 'object', properties: { view: { type: 'string', enum: ['today', 'plan', 'agenda', 'scan', 'library', 'deck', 'games', 'stats', 'settings', 'pro', 'agents', 'links', 'teams'] }, deck_id: { type: 'string' } }, required: ['view'] },
         execute: i => { const v = str(i.view); if (v === 'deck') { deckOf(i.deck_id); ctx.after.push(() => App.go('deck', str(i.deck_id))); } else ctx.after.push(() => App.go(v)); return 'ok'; } },
       { name: 'save_note', description: 'Save a note or summary sheet (Markdown: ## title, ### sections, - bullets, **bold**) inside a deck, where the student can reread and export it.',
         inputSchema: { type: 'object', properties: { deck_id: { type: 'string' }, title: { type: 'string' }, markdown: { type: 'string' } }, required: ['deck_id', 'title', 'markdown'] },
@@ -12167,7 +12280,463 @@ LENGTH: as long as needed to be complete${elite ? ' — be exhaustive, up to abo
   }
 };
 
+/* ════════════════════════════════════════════════════════════════════
+   LE PLANNING HEURE PAR HEURE (Élite, lot 24)
+   · Créneaux libres par jour de la semaine ; par défaut, déduits du temps
+     disponible et du moment préféré. La charge vient du programme :
+     révisions dues par paquet, nouvelles fiches dosées, examens.
+   · Le planificateur pose des blocs de 25 minutes séparés de pauses :
+     les révisions dues d'abord (elles sont à leur point d'oubli), le plus
+     exigeant au meilleur moment de la journée (d'après le carnet), la
+     fiche de cours relue avant les nouvelles d'un paquet, les matières
+     alternées, un examen blanc à J−3, une révision éclair le soir, rien
+     de nouveau la veille d'un examen.
+   · L'IA d'Élite peut réécrire la semaine et expliquer sa stratégie ; ce
+     qu'elle propose est vérifié (créneaux, chevauchements, paquets).
+   · Rappels : notification et son à l'heure de chaque bloc tant qu'Engram
+     est ouvert ; alarmes de l'agenda (.ics), même app fermée ; Raccourcis
+     Apple et Siri par des liens (#now : la séance du moment).
+   ════════════════════════════════════════════════════════════════════ */
+const AG_KIND = {
+  review: { name: N_('Révisions'), ic: 'flip', c: 'var(--st-m)' },
+  new: { name: N_('Nouvelles fiches'), ic: 'plus', c: 'var(--st-n)' },
+  sheet: { name: N_('Fiche de cours'), ic: 'book', c: 'var(--brass)' },
+  leech: { name: N_('Fiches qui résistent'), ic: 'target', c: 'var(--st-l)' },
+  mock: { name: N_('Examen blanc'), ic: 'timer', c: 'var(--again)' },
+  recap: { name: N_('Révision éclair'), ic: 'zap', c: '#8E6FD1' },
+  break: { name: N_('Pause'), ic: 'clock', c: 'var(--hair-3)' }
+};
+const hhmm = m => { m = ((Math.round(m) % 1440) + 1440) % 1440; return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`; };
+const toMin = s => { const m = String(s || '').match(/^(\d{1,2})[:h.](\d{2})$/); return m && +m[1] < 24 && +m[2] < 60 ? +m[1] * 60 + +m[2] : null; };
+/** Heure lisible selon la langue (17:30, 5:30 PM…). */
+const fmtHM = m => new Intl.DateTimeFormat(locale(), { hour: 'numeric', minute: '2-digit' }).format(new Date(2024, 0, 1, Math.floor(m / 60), m % 60));
+/** Calendrier .ics : lignes pliées à 75 octets, textes échappés (RFC 5545). */
+const ICS = {
+  pad: n => String(n).padStart(2, '0'),
+  loc(d) { return `${d.getFullYear()}${this.pad(d.getMonth() + 1)}${this.pad(d.getDate())}T${this.pad(d.getHours())}${this.pad(d.getMinutes())}00`; },
+  esc: s => String(s).replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1'),
+  fold(line) { const enc = new TextEncoder(), out = []; let cur = '', n = 0; for (const ch of line) { const b = enc.encode(ch).length; if (n + b > 75) { out.push(cur); cur = ' ' + ch; n = 1 + b; } else { cur += ch; n += b; } } out.push(cur); return out.join('\r\n'); },
+  stamp: () => new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z')
+};
+const Agenda = {
+  timers: [],
+  get st() { const a = S.profile.agenda; return a; },
+  on() { return Pro.expert; },
+  /** Les créneaux libres d'un jour de la semaine (0 = lundi), en minutes depuis minuit. */
+  windows(wd) {
+    const w = this.st.windows?.[wd];
+    if (Array.isArray(w)) return w.filter(x => Array.isArray(x) && x[1] > x[0]).map(x => [x[0], x[1]]).sort((a, b) => a[0] - b[0]);
+    const m = S.profile.study.weekly[wd] || 0; if (!m) return [];
+    const [h, mi] = STUDY_HOUR[S.profile.study.time] || STUDY_HOUR.evening, start = h * 60 + mi;
+    const len = Math.max(25, Math.ceil(m * 1.2 / 5) * 5);
+    if (len <= 120) return [[start, Math.min(1435, start + len)]];
+    const a = Math.round(len / 2 / 5) * 5; return [[start, start + a], [Math.min(1380, start + a + 60), Math.min(1435, start + len + 60)]];
+  },
+  /** Date (minuit) du jour i du programme. */
+  date(i) { const d = new Date(Plan.compute(7).days[i].date); d.setHours(0, 0, 0, 0); return d; },
+  /** Ce qu'il y a à faire le jour i : révisions par paquet, nouvelles, fiche de cours, points faibles, examen blanc, révision éclair. */
+  tasks(i) {
+    const P = Plan.compute(7), d = P.days[i], sec = P.sec, base = dayStart(), end0 = endOfToday();
+    const out = [], acc = {};
+    for (const r of Carnet.decks(30)) acc[r.d.id] = r.s.r >= 10 ? r.s.acc : null;
+    let dueSum = 0;
+    for (const dk of S.decks) {
+      let n = 0;
+      for (const c of dk.cards) { if (c.suspended || c.srs.state === 0) continue; const k = c.srs.due < end0 ? 0 : Math.floor((c.srs.due - base) / DAY); if (k === i) n++; }
+      if (n) { dueSum += n; out.push({ kind: 'review', deckId: dk.id, n, min: Math.max(3, n * sec.rev / 60), hard: 0 }); }
+    }
+    if (i > 0 && d.rev - dueSum >= 4) out.push({ kind: 'review', deckId: null, n: Math.round(d.rev - dueSum), min: (d.rev - dueSum) * sec.rev / 60, hard: 0 });
+    const done = i === 0 ? S.profile.log[dayKey()]?.nd || {} : {};
+    const eve = new Set(upcomingExams().filter(x => daysUntil(x.date) - i === 1).flatMap(x => x.deckIds?.length ? x.deckIds : S.decks.map(z => z.id)));
+    for (const [id, q] of Object.entries(d.quota)) {
+      const n = Math.max(0, q - (done[id] || 0)), dk = deckById(id); if (!n || !dk || eve.has(id)) continue;
+      const hard = 1 + (acc[id] != null ? 1 - acc[id] : 0.2) + (Plan.deckDeadline(dk) ? 0.5 : 0);
+      const note = dk.notes?.find(x => x.kind === 'course');
+      if (note && !(note.readAt > Date.now() - 4 * DAY)) out.push({ kind: 'sheet', deckId: id, noteId: note.id, min: 10, hard: hard + 0.01 });
+      out.push({ kind: 'new', deckId: id, n, min: Math.max(4, n * sec.nw / 60), hard });
+    }
+    for (const dk of S.decks) { const l = dk.cards.filter(c => isLeech(c) && !c.suspended).length; if (l >= 3 && i % 2 === 0) out.push({ kind: 'leech', deckId: dk.id, n: Math.min(l, 15), min: 8, hard: 0.8 }); }
+    for (const x of upcomingExams()) if (daysUntil(x.date) - i === 3) out.push({ kind: 'mock', examId: x.id, deckIds: x.deckIds || [], n: 20, min: 20, hard: 2.5, name: x.name });
+    if (out.some(x => x.kind === 'new')) out.push({ kind: 'recap', min: 5, hard: -1 });
+    return out;
+  },
+  /** Le titre et la raison d'un bloc, dans la langue de l'interface. */
+  label(b, best) {
+    const dk = b.deckId ? deckById(b.deckId) : null, many = (b.deckIds || []).map(id => deckById(id)?.name).filter(Boolean);
+    const nm = dk ? dk.name : many.length > 1 ? `${many[0]} +${many.length - 1}` : many[0] || '';
+    const title = b.kind === 'review' ? (nm ? t('Révisions · {deck}', { deck: nm }) : t('Révisions, toutes matières')) : b.kind === 'new' ? t('Nouvelles · {deck}', { deck: nm }) : b.kind === 'sheet' ? t('Relire la fiche · {deck}', { deck: nm })
+      : b.kind === 'leech' ? t('Points faibles · {deck}', { deck: nm }) : b.kind === 'mock' ? t('Examen blanc · {x}', { x: b.name || '' }) : b.kind === 'recap' ? t('Révision éclair du soir') : t('Pause');
+    const why = b.why || (b.kind === 'review' ? t('Les fiches dues d\'abord : elles sont à leur point d\'oubli.')
+      : b.kind === 'new' ? (b.best && best ? t('Votre meilleur moment ({p}) : le plus exigeant passe ici.', { p: t(best.inl) }) : b.alt ? t('Matières alternées : on retient mieux en changeant de sujet.') : t('Dosées pour être prêt à temps, sans dépasser votre temps libre.'))
+        : b.kind === 'sheet' ? t('Relire la fiche de cours avant d\'apprendre les nouvelles fiches.') : b.kind === 'leech' ? t('Les fiches oubliées plusieurs fois, reprises à part.')
+          : b.kind === 'mock' ? t('À J−3 : un examen blanc pour repérer les trous à temps.') : b.kind === 'recap' ? t('Juste avant de dormir : le sommeil consolide ce qu\'on vient de voir.') : t('Cinq minutes loin de l\'écran : l\'attention se recharge.'));
+    return { title, why };
+  },
+  /** Place les tâches du jour i dans ses créneaux : blocs de 25 min au plus, pauses, meilleur moment, matières alternées. */
+  build(i) {
+    const wd = (this.date(i).getDay() + 6) % 7, key = Plan.compute(7).days[i].key;
+    const nowM = i === 0 ? (() => { const n = new Date(); return n.getHours() * 60 + n.getMinutes(); })() : -1;
+    let wins = this.windows(wd).map(([a, b]) => [Math.max(a, nowM >= 0 ? Math.ceil((nowM + 1) / 5) * 5 : a), b]).filter(([a, b]) => b - a >= 10);
+    const bp = Carnet.parts(Carnet.sum(0, 30, '').h).best, bpi = bp ? DAY_PARTS.findIndex(p => p[0] === bp.name) : -1;
+    const inBest = ([a]) => bpi >= 0 && partOf(Math.floor(a / 60)) === bpi;
+    // Morceaux de 25 minutes au plus, dans l'ordre : révisions dues, puis le plus exigeant, matières alternées, révision éclair à la fin.
+    const chunks = [], sheets = new Set();
+    let tasks = this.tasks(i); tasks.filter(x => x.kind === 'sheet').forEach(x => sheets.add(x.deckId));
+    const merge = (arr, kind) => {
+      const small = arr.filter(x => x.kind === kind && x.min < 10 && !sheets.has(x.deckId)), groups = []; let g = null;
+      for (const x of small) { if (!g || g.min + x.min > 25) { g = { ...x, deckIds: [], min: 0, n: 0 }; groups.push(g); } g.min += x.min; g.n += x.n || 0; if (x.deckId && !g.deckIds.includes(x.deckId)) g.deckIds.push(x.deckId); g.hard = Math.max(g.hard, x.hard); }
+      for (const z of groups) { if (z.deckIds.length > 1) z.deckId = null; else z.deckIds = null; }
+      return [...arr.filter(x => !small.includes(x)), ...groups];
+    };
+    tasks = merge(merge(tasks, 'review'), 'new');
+    for (const x of tasks) {
+      let left = Math.round(x.min); const parts = Math.max(1, Math.ceil(left / 25));
+      for (let k = 0; k < parts; k++) { const m = Math.max(5, Math.round(left / (parts - k) / 5) * 5); left -= m; chunks.push({ ...x, min: m, n: x.n ? Math.max(1, Math.round(x.n / parts)) : x.n, part: k }); }
+    }
+    const reviews = chunks.filter(c => c.kind === 'review'), hard = chunks.filter(c => ['new', 'sheet', 'mock'].includes(c.kind)).sort((a, b) => b.hard - a.hard), easy = chunks.filter(c => c.kind === 'leech'), recap = chunks.filter(c => c.kind === 'recap');
+    // Alterner : jamais deux morceaux de nouvelles du même paquet d'affilée quand un autre attend (la fiche reste juste avant ses nouvelles).
+    const alt = [];
+    while (hard.length) {
+      const prev = alt.at(-1); let k = 0;
+      if (prev && hard[0].deckId === prev.deckId && hard[0].kind === 'new' && prev.kind === 'new') { const j = hard.findIndex(c => c.deckId !== prev.deckId && c.kind !== 'sheet'); if (j > 0) { k = j; hard[j].alt = true; } }
+      alt.push(hard.splice(k, 1)[0]);
+    }
+    const blocks = [], pos = new Map(wins.map(w => [w, w[0]]));
+    const fill = (w, list) => {
+      let at = pos.get(w), streak = 0;
+      while (list.length && at < w[1]) {
+        const c = list[0], room = w[1] - at; if (room < 5) break;
+        let m = c.min;
+        if (m > room) { if (room < 10) break; const keep = Math.floor(room / 5) * 5; list[0] = { ...c, min: m - keep, n: c.n ? Math.max(1, Math.round(c.n * (m - keep) / m)) : c.n }; c.n = c.n ? Math.max(1, Math.round(c.n * keep / m)) : c.n; m = keep; }
+        else list.shift();
+        blocks.push({ ...c, s: at, e: at + m, best: inBest(w) && c.kind === 'new' });
+        at += m; streak += m;
+        if (streak >= 25 && list.length && w[1] - at >= 15) { blocks.push({ kind: 'break', s: at, e: at + 5 }); at += 5; streak = 0; }
+      }
+      pos.set(w, at);
+    };
+    const light = [...reviews, ...easy], bestW = wins.filter(inBest), otherW = wins.filter(w => !inBest(w));
+    if (bestW.length && otherW.length) {
+      // Les révisions dans les autres créneaux, le plus exigeant au meilleur moment, puis ce qui reste où il y a de la place.
+      for (const w of otherW) fill(w, light);
+      for (const w of bestW) { fill(w, alt); fill(w, light); }
+      for (const w of otherW) { fill(w, alt); fill(w, light); }
+    } else { const q = [...reviews, ...alt, ...easy]; for (const w of wins) fill(w, q); light.length = 0; alt.length = 0; alt.push(...q); }
+    // La révision éclair : à la fin du dernier créneau qui a de la place.
+    if (recap.length && blocks.some(b => b.kind === 'new')) {
+      const last = [...wins].sort((a, b) => b[0] - a[0]).find(w => w[1] - pos.get(w) >= 5);
+      if (last) { const s = pos.get(last); blocks.push({ ...recap[0], s, e: s + 5 }); }
+    }
+    const queue = [...light, ...alt];
+    const spill = queue, best = bp;
+    const out = blocks.sort((a, b) => a.s - b.s).filter((b, k, arr) => !(b.kind === 'break' && (!arr[k + 1] || arr[k + 1].kind === 'break')))
+      .map(b => { const L = this.label(b, best); return { id: `${key}-${b.s}`, key, s: b.s, e: b.e, kind: b.kind, deckId: b.deckId || null, n: b.n || 0, noteId: b.noteId || null, examId: b.examId || null, deckIds: b.deckIds || null, name: b.name || '', title: L.title, why: L.why }; });
+    return { key, blocks: out, spill: Math.round(spill.reduce((a, c) => a + c.min, 0)), windows: this.windows(wd) };
+  },
+  /** Le jour i : blocs de l'IA s'il y en a (encore valables), sinon le calcul ; aujourd'hui, les blocs faits restent. */
+  day(i) {
+    const key = Plan.compute(7).days[i].key, ai = this.st.ai, nowM = (() => { const n = new Date(); return n.getHours() * 60 + n.getMinutes(); })();
+    let r;
+    if (ai?.days?.[key] && Date.now() - ai.made < 7 * DAY) {
+      const wd = (this.date(i).getDay() + 6) % 7;
+      r = { key, blocks: ai.days[key].filter(b => i > 0 || b.e > nowM).map(b => ({ ...b, ai: true })), spill: 0, windows: this.windows(wd), ai: true };
+    } else r = this.build(i);
+    if (i === 0) {
+      const done = Object.values(this.st.done || {}).filter(x => x.key === key);
+      const ids = new Set(done.map(x => x.id));
+      r.blocks = [...done.map(x => ({ ...x, done: true })), ...r.blocks.filter(b => !ids.has(b.id) && !done.some(x => b.s < x.e && b.e > x.s))].sort((a, b) => a.s - b.s);
+    }
+    return r;
+  },
+  /** Le bloc en cours ou le prochain, aujourd'hui. */
+  current() {
+    const n = new Date(), m = n.getHours() * 60 + n.getMinutes();
+    const list = this.day(0).blocks.filter(b => b.kind !== 'break' && !b.done && b.e > m);
+    const b = list[0]; return b ? { b, now: b.s <= m } : null;
+  },
+  /** Lance la séance d'un bloc ; il est marqué fait. */
+  start(b) {
+    if (!b) { Study.start(); return; }
+    this.st.done[b.id] = { id: b.id, key: b.key, s: b.s, e: b.e, kind: b.kind, title: b.title, why: b.why, deckId: b.deckId, at: Date.now() };
+    const keep = Object.values(this.st.done).filter(x => x.key >= dayKey(Date.now() - 2 * DAY)); this.st.done = Object.fromEntries(keep.map(x => [x.id, x]));
+    Store.touch('profile');
+    const dk = b.deckId && deckById(b.deckId) ? b.deckId : undefined;
+    if (b.kind === 'sheet' && dk) { const n = deckById(dk).notes.find(x => x.id === b.noteId) || deckById(dk).notes.find(x => x.kind === 'course'); if (n) { n.readAt = Date.now(); Store.touchDeck(deckById(dk)); CourseSheet.view(dk, n.id); return; } }
+    if (b.kind === 'mock') { const ids = b.deckIds?.length ? b.deckIds : S.decks.map(d => d.id); startExamWith(S.decks.filter(d => ids.includes(d.id)).flatMap(d => d.cards.filter(c => c.type !== 'occlusion').map(c => [c, d]))); return; }
+    if (b.kind === 'recap') { const t0 = dayStart(), items = S.decks.flatMap(d => d.cards.filter(c => c.srs.last >= t0).map(c => [c, d])); if (items.length) { Study.start({ items: shuffle(items).slice(0, 25), cram: true, title: t('Révision éclair du soir') }); return; } }
+    if (b.kind === 'leech') { Study.start({ deckId: dk, weak: true, title: b.title }); return; }
+    if (b.kind === 'break') return;
+    if (!dk && b.deckIds?.length) { const items = b.deckIds.filter(id => deckById(id)).flatMap(id => Study.build(id)); if (items.length) { Study.start({ items, title: b.title }); return; } }
+    Study.start({ deckId: dk, title: b.title });
+  },
+  /** « Ma séance du moment » (#now, Raccourcis, notification) : le bloc en cours ou le prochain, sinon la séance du jour. */
+  startNow() {
+    if (!this.on()) { Study.start(); return; }
+    const c = this.current();
+    if (c && c.b.s - (new Date().getHours() * 60 + new Date().getMinutes()) <= 60) this.start(c.b); else Study.start();
+  },
+  /* ── Rappels ── */
+  async enableReminders() {
+    if (!('Notification' in window)) { toast(t('Cet appareil n\'affiche pas de notifications : ajoutez le planning à votre agenda pour avoir les alarmes.'), 'bell'); this.st.remind = true; Store.touch('profile'); this.arm(); return true; }
+    let p = Notification.permission; if (p === 'default') { try { p = await Notification.requestPermission(); } catch { p = 'denied'; } }
+    this.st.remind = true; Store.touch('profile'); this.arm();
+    if (p !== 'granted') toast(t('Notifications refusées : Engram sonnera quand il est ouvert. Pour des alarmes même app fermée, ajoutez le planning à votre agenda.'), 'bell');
+    return p === 'granted';
+  },
+  arm() {
+    this.timers.forEach(clearTimeout); this.timers = [];
+    if (!this.on() || !this.st.remind || !S.profile.onboarded) return;
+    const day = this.day(0), midnight = this.date(0).getTime(), lead = (+this.st.lead || 0) * MIN, now = Date.now();
+    for (const b of day.blocks) {
+      if (b.kind === 'break' || b.done) continue;
+      const at = midnight + b.s * MIN - lead + (this.st.snooze?.[b.id] || 0) * MIN;
+      if (at > now && at - now < DAY) this.timers.push(setTimeout(() => this.ring(b), at - now));
+    }
+  },
+  ring(b) {
+    const L = t('C\'est l\'heure : {x}', { x: b.title }), body = `${fmtHM(b.s)} – ${fmtHM(b.e)} · ${b.why}`;
+    Sound.play('seal'); haptic(60);
+    toastAct(L, AG_KIND[b.kind]?.ic || 'bell', t('Commencer'), 'play', () => this.start(b), 60000);
+    if ('Notification' in window && Notification.permission === 'granted' && document.visibilityState !== 'visible') {
+      const opts = { body, tag: 'engram-' + b.id, icon: 'icons/icon-192.png', badge: 'icons/icon-192.png', data: { url: './#now' }, renotify: true };
+      navigator.serviceWorker?.getRegistration?.().then(reg => reg ? reg.showNotification(L, opts) : new Notification(L, opts)).catch(() => { try { new Notification(L, opts); } catch { } });
+    }
+  },
+  snooze(b, m = 15) { this.st.snooze = { ...(this.st.snooze || {}), [b.id]: (this.st.snooze?.[b.id] || 0) + m }; Store.touch('profile'); this.arm(); toast(t('Rappel dans {n} min.', { n: m }), 'bell'); },
+  /* ── Agenda (.ics) : chaque bloc avec son alarme ── */
+  icsText(days = 7) {
+    const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Engram//Planning//' + LANG.toUpperCase(), 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:Engram · ' + t('Planning')];
+    const stamp = ICS.stamp(), link = this.link('now'), lead = Math.max(0, +this.st.lead || 0);
+    for (let i = 0; i < days; i++) {
+      const d0 = this.date(i);
+      for (const b of this.day(i).blocks) {
+        if (b.kind === 'break' || b.done) continue;
+        const s = new Date(d0.getTime() + b.s * MIN), e = new Date(d0.getTime() + b.e * MIN);
+        L.push('BEGIN:VEVENT', `UID:engram-ag-${b.id}-${hash(b.title)}@engram.app`, `DTSTAMP:${stamp}`, `DTSTART:${ICS.loc(s)}`, `DTEND:${ICS.loc(e)}`,
+          ICS.fold('SUMMARY:' + ICS.esc('Engram · ' + b.title + (b.n ? ` (${b.n})` : ''))), ICS.fold('DESCRIPTION:' + ICS.esc(b.why + (link ? '\n' + link : ''))), ...(link ? [ICS.fold('URL:' + link)] : []),
+          'BEGIN:VALARM', 'ACTION:DISPLAY', `TRIGGER:-PT${lead}M`, ICS.fold('DESCRIPTION:' + ICS.esc(t('C\'est l\'heure : {x}', { x: b.title }))), 'END:VALARM', 'END:VEVENT');
+      }
+    }
+    L.push('END:VCALENDAR');
+    return L.join('\r\n') + '\r\n';
+  },
+  exportICS() { saveFile('engram-planning.ics', this.icsText(), { alt: 'engram-planning.ics.txt', altNote: t('Enregistré en .txt (seul format permis ici) : renommez-le en .ics, puis ouvrez-le avec votre agenda.') }); },
+  /** L'adresse de l'app à donner aux Raccourcis ; vide dans l'aperçu (l'adresse n'y est pas celle de l'app). */
+  link(h) { if (!/^https?:/.test(location.protocol) || AI.via === 'claude') return ''; return location.origin + location.pathname + '#' + h; },
+  /* ── L'IA d'Élite réécrit la semaine ── */
+  async optimize(btn) {
+    if (!AI.on) { toast(t("Le planning par l'IA a besoin de l'IA."), 'sparkles'); return; }
+    if (!this.on()) { Pro.upsell('agenda'); return; }
+    if (this.busy) return; this.busy = true;
+    if (btn) { btn.disabled = true; btn.innerHTML = icon('spin', 'spin') + t('L\'IA compose votre semaine…'); }
+    try {
+      const P = Plan.compute(7), bp = Carnet.parts(Carnet.sum(0, 30, '').h);
+      const draft = Array.from({ length: 7 }, (_, i) => { const r = this.build(i); return { date: r.key, weekday: fmtDate(this.date(i), { weekday: 'long' }), windows: r.windows.map(([a, b]) => `${hhmm(a)}-${hhmm(b)}`), unscheduled_minutes: r.spill, blocks: r.blocks.map(b => ({ start: hhmm(b.s), end: hhmm(b.e), kind: b.kind, deck_id: b.deckId, cards: b.n || undefined, title: b.title })) }; });
+      const decks = Carnet.decks(30).map(r => ({ id: r.d.id, name: r.d.name, success_rate_30d: r.s.r >= 10 ? Math.round(r.s.acc * 100) + '%' : null, due_today: r.due, leeches: r.d.cards.filter(isLeech).length, has_course_sheet: !!r.d.notes?.some(n => n.kind === 'course'), exam: Plan.deckDeadline(r.d) ? { name: Plan.deckDeadline(r.d).x.name, days_left: Plan.deckDeadline(r.d).days } : null }));
+      const prompt = `You are the scheduling engine of Engram (Élite plan), a spaced-repetition app. Build the student's study schedule for the next 7 days, hour by hour, so that they know exactly what to revise at what time.
+${Brain.brief('plan')}
+
+HARD CONSTRAINTS
+- Blocks only inside the free windows of each day (local time, HH:MM), never overlapping; today starts after ${hhmm(new Date().getHours() * 60 + new Date().getMinutes())}.
+- Do the work of the draft: every due review and every new-card quota (same decks, about the same number of cards). You may move, split, merge or reorder blocks, add breaks, add a short course-sheet reading before new cards, a weak-cards block (kind "leech") or a mock exam (kind "mock") when useful.
+- kind is one of: review, new, sheet, leech, mock, recap, break. deck_id must be one of the deck ids given (or null for reviews of all decks, mock, recap, break).
+PRINCIPLES (cognitive science)
+- Focus blocks of 20 to 30 minutes, 5-minute breaks, a longer break after about 90 minutes.
+- Due reviews first in the day (they are at their forgetting point).
+- The most demanding work (new cards of the weakest or most urgent decks, mock exams) at the student's best time of day${bp.best ? ` (${['morning', 'afternoon', 'evening', 'night'][DAY_PARTS.findIndex(p => p[0] === bp.best.name)]}: ${Math.round(bp.best.acc * 100)}% success)` : ''}.
+- Interleave subjects; read the course sheet of a deck just before learning its new cards.
+- A light 5-minute recap of the day's new cards at the end of the day (sleep consolidates); the day before an exam: reviews only, no new cards.
+- Each block gets a "why": one short sentence in ${aiLang()}, concrete, mentioning the reason (time of day, exam in N days, weak deck…). Titles in ${aiLang()}.
+
+DATA (JSON)
+${JSON.stringify({ today: dayKey(), success_by_time_of_day: bp.P.map((p, k) => ({ part: ['morning 5-12h', 'afternoon 12-18h', 'evening 18-23h', 'night 23-5h'][k], reviews: p.r, success_rate: p.acc == null ? null : Math.round(p.acc * 100) + '%' })), seconds_per_review: Math.round(P.sec.rev), seconds_per_new_card: Math.round(P.sec.nw), decks, exams: upcomingExams().map(x => ({ name: x.name, date: x.date, days_left: daysUntil(x.date) })), draft })}
+
+Reply with only a JSON object: {"note": "your strategy for the week in ${aiLang()}, 3 to 5 short lines of Markdown, addressed to the student", "days": [{"date": "YYYY-MM-DD", "blocks": [{"start": "HH:MM", "end": "HH:MM", "kind": "...", "deck_id": "... or null", "cards": 12, "title": "...", "why": "..."}]}]}`;
+      const r = await AI.json(prompt, { ...Brain.opts('plan'), cache: false });
+      const days = this.check(r, draft);
+      if (!Object.keys(days).length) throw { code: 'invalid_json' };
+      this.st.ai = { made: Date.now(), note: String(r?.note || '').slice(0, 1200), days };
+      Store.touch('profile'); this.arm(); Sound.play('done');
+      toast(t('Votre semaine est composée.'), 'sparkles');
+    } catch (e) { toast(AI.fail(e) || t('Le planning n\'a pas pu être composé.'), 'sparkles'); }
+    finally { this.busy = false; if (App.route.v === 'agenda') App.render(); }
+  },
+  /** Ce que l'IA propose, vérifié : jours de la semaine, créneaux, chevauchements, paquets, textes. */
+  check(r, draft) {
+    const keys = new Set(draft.map(d => d.key || d.date)), out = {};
+    const nowM = new Date().getHours() * 60 + new Date().getMinutes();
+    for (const day of Array.isArray(r?.days) ? r.days : []) {
+      const key = String(day?.date || ''); if (!keys.has(key)) continue;
+      const i = draft.findIndex(d => d.date === key), wins = draft[i].windows.map(w => w.split('-').map(toMin));
+      const list = [];
+      for (const b of Array.isArray(day.blocks) ? day.blocks.slice(0, 40) : []) {
+        let s = toMin(b?.start), e = toMin(b?.end); const kind = AG_KIND[b?.kind] ? b.kind : null;
+        if (s == null || e == null || !kind || e - s < 5) continue;
+        const w = wins.find(([a, z]) => s < z && e > a); if (!w) continue;
+        s = Math.max(s, w[0]); e = Math.min(e, w[1]); if (i === 0 && s < nowM) continue; if (e - s < 5) continue;
+        const deckId = b.deck_id && deckById(String(b.deck_id)) ? String(b.deck_id) : null;
+        if (['new', 'sheet', 'leech'].includes(kind) && !deckId) continue;
+        const note = kind === 'sheet' ? deckById(deckId)?.notes?.find(n => n.kind === 'course') : null; if (kind === 'sheet' && !note) continue;
+        const L = this.label({ kind, deckId, name: '' });
+        list.push({ id: `${key}-${s}`, key, s, e, kind, deckId, n: clamp(Math.round(+b.cards) || 0, 0, 500), noteId: note?.id || null, examId: null, deckIds: null, name: '', title: String(b.title || L.title).slice(0, 80), why: String(b.why || L.why).slice(0, 220) });
+      }
+      list.sort((a, b) => a.s - b.s);
+      const clean = []; for (const b of list) if (!clean.length || b.s >= clean.at(-1).e) clean.push(b);
+      if (clean.length) out[key] = clean;
+    }
+    return out;
+  }
+};
+
+/* ── La page « Planning » ─────────────────────────────────────────── */
+let agSel = 0;
+Views.agenda = () => {
+  const P = Plan.compute(7), lock = !Agenda.on(), A = Agenda.st, wd = weekdayNames('long');
+  if (!S.decks.length) return `<header class="rise"><div class="kicker"><b>${t('Élite')}</b> · ${t('heure par heure')}</div><h1 class="display" style="margin-top:12px">${words(t('Votre <em>planning</em>.'))}</h1></header><div class="empty"><div class="t">${t('Pas encore de paquet')}</div><div>${t('Scannez un cours ou importez des fiches : le planning se remplira tout seul.')}</div></div>`;
+  agSel = clamp(agSel, 0, 6);
+  const D = Agenda.day(agSel), cur = Agenda.current();
+  const nowM = new Date().getHours() * 60 + new Date().getMinutes();
+  const focus = D.blocks.filter(b => b.kind !== 'break').reduce((a, b) => a + b.e - b.s, 0);
+  const weekMin = Array.from({ length: 7 }, (_, i) => Agenda.day(i).blocks.filter(b => b.kind !== 'break').reduce((a, b) => a + b.e - b.s, 0));
+  const nowHTML = cur ? `<article class="ag-now leather gilt-rule rise ${lock ? 'locked' : ''}">
+      <span class="ap-dial">${icon(AG_KIND[cur.b.kind]?.ic || 'clock')}</span>
+      <div class="agn-t"><span class="kicker">${cur.now ? t('Maintenant') : t('Prochain créneau · {h}', { h: fmtHM(cur.b.s) })}</span><b>${esc(cur.b.title)}${cur.b.n ? ` · ${num(cur.b.n)}` : ''}</b><span>${esc(cur.b.why)}</span></div>
+      <div class="agn-a"><button class="btn btn-gilt" data-agact="now">${icon('play')}${t('Commencer')}</button>${!cur.now && A.remind ? `<button class="btn btn-sm btn-ghost agn-snz" data-agact="snooze">${icon('bell', 'i-sm')}${t('+15 min')}</button>` : ''}</div></article>` : '';
+  return `
+    <header class="rise"><div class="kicker"><b>${t('Élite')}</b> · ${t('heure par heure')}</div><h1 class="display" style="margin-top:12px">${words(t('Votre <em>planning</em>.'))}</h1>
+      <p class="lede" style="margin-top:14px">${t('Quoi réviser, à quelle heure : vos révisions posées dans vos créneaux libres, le plus exigeant à votre meilleur moment, des pauses, et une alarme quand c\'est l\'heure.')}</p></header>
+    ${lock ? `<article class="autopilot leather gilt-rule rise sc-lock"><span class="ap-dial">${icon('crown')}</span><div><b>${t('Le planning heure par heure fait partie d\'Élite')}</b><span>${t('Voici à quoi ressemblerait votre journée. Avec Élite, l\'IA la plus puissante compose votre semaine, vous rappelle chaque séance et se pilote depuis Siri et Raccourcis.')}</span></div><button class="btn btn-gilt" data-act="proTrial">${icon('sparkles')}${Pro.canTrial ? t('Essayer 14 jours') : t('Passer à Élite')}</button></article>` : ''}
+    ${nowHTML}
+    <div class="ag-days rise" id="agDays">${P.days.slice(0, 7).map((d, i) => `<button class="ag-day ${i === agSel ? 'on' : ''}" data-agday="${i}"><span>${esc(cap(fmtDate(d.date, { weekday: 'short' })))}</span><b class="tnum">${d.date.getDate()}</b><small class="tnum">${weekMin[i] ? weekMin[i] + ' min' : '—'}</small>${d.exams.length ? `<i class="ag-ex" title="${esc(d.exams.map(x => x.name).join(', '))}"></i>` : ''}</button>`).join('')}</div>
+    <section class="ag-grid ${lock ? 'locked' : ''}">
+      <article class="panel ag-tl rise">
+        <div class="panel-h"><h3 class="h3">${esc(cap(fmtDate(P.days[agSel].date, { weekday: 'long', day: 'numeric', month: 'long' })))}</h3><span class="kicker">${focus ? t('{m} min de travail', { m: focus }) : t('Rien de prévu')}${D.ai ? ' · ' + t('composé par l\'IA') : ''}</span></div>
+        ${D.blocks.length ? `<ol class="ag-list">${agRail(D, agSel === 0 ? nowM : -1, lock)}</ol>`
+      : `<div class="empty" style="padding:28px 10px"><div class="t">${D.windows.length ? t('Journée libre') : t('Aucun créneau ce jour-là')}</div><div>${D.windows.length ? t('Rien à réviser dans vos créneaux : profitez-en, ou avancez un paquet.') : t('Ajoutez un créneau si vous voulez travailler ce jour-là.')}</div></div>`}
+        ${D.spill ? `<p class="ag-spill">${icon('eye', 'i-sm')}<span>${t('{m} min n\'entrent pas dans vos créneaux : ajoutez un créneau ou réduisez les nouvelles fiches.', { m: D.spill })}</span></p>` : ''}
+        <ul class="ag-legend">${['review', 'new', 'sheet', 'leech', 'mock', 'recap'].map(k => `<li style="--c:${AG_KIND[k].c}"><i></i>${t(AG_KIND[k].name)}</li>`).join('')}</ul>
+      </article>
+      <aside class="ag-side">
+        <article class="panel rise ag-ai">
+          <div class="panel-h"><h3 class="h3">${t('La stratégie de la semaine')}</h3>${A.ai ? `<span class="tag ai">IA</span>` : ''}</div>
+          ${A.ai?.note ? `<div class="pen-letter ag-note">${md(A.ai.note)}</div>` : `<p class="muted" style="margin:0;font-size:14px;line-height:1.55">${t('Le planning suit vos créneaux, vos examens et votre mémoire. L\'IA d\'Élite peut composer toute la semaine en tenant compte de vos heures de réussite, de vos paquets fragiles et de vos fiches de cours.')}</p>`}
+          <div class="ag-row"><button class="btn btn-brass" id="agAI" ${AI.on ? '' : 'disabled'}>${icon('sparkles')}${A.ai ? t('Recomposer avec l\'IA') : t('Composer ma semaine avec l\'IA')}</button>${A.ai ? `<button class="btn btn-sm btn-ghost" data-agact="auto">${t('Revenir au calcul automatique')}</button>` : ''}</div>
+        </article>
+        <article class="panel rise">
+          <div class="panel-h"><h3 class="h3">${t('Mes créneaux')}</h3><button class="btn btn-sm" data-agact="windows">${icon('pen', 'i-sm')}${t('Modifier')}</button></div>
+          <ul class="ag-wins">${wd.map((n, k) => { const w = Agenda.windows(k); return `<li><b>${esc(cap(n))}</b><span class="tnum">${w.length ? w.map(([a, b]) => `${fmtHM(a)}–${fmtHM(b)}`).join(' · ') : '—'}</span></li>`; }).join('')}</ul>
+          ${A.windows ? '' : `<p class="muted ag-hint">${t('Déduits de votre temps disponible et de votre moment préféré. Modifiez-les pour coller à votre emploi du temps.')}</p>`}
+        </article>
+        <article class="panel rise">
+          <div class="panel-h"><h3 class="h3">${t('Rappels et alarmes')}</h3></div>
+          <div class="settings">
+            ${setRow(t('Rappel à chaque séance'), t('Une notification et un son à l\'heure de chaque bloc, tant qu\'Engram est ouvert (même en arrière-plan).'), sw('agRemind', A.remind, t('Rappel à chaque séance')))}
+            ${setRow(t('Prévenir avant'), '', segCtl('agLead', [[0, '0'], [5, '5 min'], [10, '10 min']], +A.lead || 0, 'data-aglead'))}
+          </div>
+          <div class="ag-row"><button class="btn" data-agact="ics">${icon('cal')}${t('Alarmes dans mon agenda (.ics)')}</button></div>
+          <p class="muted ag-hint">${t('Même app fermée : chaque bloc arrive dans Calendrier, Google Agenda ou Outlook avec son alarme.')}</p>
+        </article>
+        <article class="panel rise ag-sc">
+          <div class="panel-h"><h3 class="h3">${t('Raccourcis Apple et Siri')}</h3>${icon('zap')}</div>
+          ${Agenda.link('now') ? '' : `<p class="ag-hint warn">${icon('eye', 'i-sm')}<span>${t('Ces liens marchent avec Engram en ligne (le site Netlify), pas dans l\'aperçu.')}</span></p>`}
+          <details open><summary><b>${t('« Dis Siri, ma séance Engram »')}</b></summary><ol>
+            <li>${t('Ouvrez l\'app Raccourcis, touchez « + ».')}</li><li>${t('Ajoutez l\'action « Ouvrir les URL » et collez le lien ci-dessous.')}</li><li>${t('Nommez le raccourci « Ma séance Engram » : Siri le lance, et il s\'ajoute à l\'écran d\'accueil.')}</li></ol>
+            <div class="ag-link"><code>${esc(Agenda.link('now') || '…/#now')}</code><button class="btn btn-sm" data-agcopy="now" ${Agenda.link('now') ? '' : 'disabled'}>${icon('copy', 'i-sm')}${t('Copier')}</button></div></details>
+          <details><summary><b>${t('Chaque séance, automatiquement')}</b></summary><ol>
+            <li>${t('Raccourcis → Automatisation → « + » → « Heure de la journée ».')}</li><li>${t('Choisissez l\'heure d\'un créneau, puis l\'action « Ouvrir les URL » avec le même lien.')}</li><li>${t('Cochez « Exécuter immédiatement » : Engram s\'ouvre sur la bonne séance.')}</li></ol></details>
+          <details><summary><b>${t('Concentration pendant les révisions')}</b></summary><ol>
+            <li>${t('Raccourcis → Automatisation → « App » → Engram « est ouverte ».')}</li><li>${t('Action « Activer/désactiver Concentration » : « Travail » ou un mode « Étude ».')}</li></ol></details>
+          <details><summary><b>${t('Ouvrir le planning')}</b></summary><div class="ag-link"><code>${esc(Agenda.link('agenda') || '…/#agenda')}</code><button class="btn btn-sm" data-agcopy="agenda" ${Agenda.link('agenda') ? '' : 'disabled'}>${icon('copy', 'i-sm')}${t('Copier')}</button></div></details>
+        </article>
+      </aside>
+    </section>`;
+};
+Hooks.agenda = () => {
+  const v = $('#view'), A = Agenda.st, lock = !Agenda.on();
+  $('#agDays')?.addEventListener('click', e => { const b = e.target.closest('[data-agday]'); if (!b) return; agSel = +b.dataset.agday; App.render(); Sound.play('tick'); });
+  v.addEventListener('click', e => {
+    const blk = e.target.closest('[data-ag]');
+    if (blk) { if (lock) { Pro.upsell('agenda'); return; } const b = Agenda.day(agSel).blocks.find(x => x.id === blk.dataset.ag); if (b) openAgBlock(b); return; }
+    const c = e.target.closest('[data-agcopy]'); if (c) { const l = Agenda.link(c.dataset.agcopy); navigator.clipboard?.writeText(l).then(() => toast(t('Lien copié'), 'copy'), () => toast(l, 'copy')); return; }
+    const a = e.target.closest('[data-agact]'); if (!a) return;
+    const k = a.dataset.agact;
+    if (lock && k !== 'ics') { Pro.upsell('agenda'); return; }
+    if (k === 'now') { const cur = Agenda.current(); Agenda.start(cur?.b); }
+    else if (k === 'snooze') { const cur = Agenda.current(); if (cur) Agenda.snooze(cur.b); }
+    else if (k === 'auto') { A.ai = null; Store.touch('profile'); Agenda.arm(); App.render(); }
+    else if (k === 'windows') openAgWindows();
+    else if (k === 'ics') { if (lock) { Pro.upsell('agenda'); return; } Agenda.exportICS(); }
+  });
+  $('#agAI')?.addEventListener('click', e => Agenda.optimize(e.currentTarget));
+  $('[data-toggle="agRemind"]')?.addEventListener('click', async e => {
+    e.stopImmediatePropagation(); if (lock) { Pro.upsell('agenda'); return; }
+    const b = e.currentTarget;
+    if (A.remind) { A.remind = false; Store.touch('profile'); Agenda.arm(); } else await Agenda.enableReminders();
+    b.classList.toggle('on', !!A.remind); b.setAttribute('aria-pressed', !!A.remind);
+  }, true);
+  $('[data-aglead]')?.addEventListener('click', e => { const b = e.target.closest('[data-val]'); if (!b) return; if (lock) { Pro.upsell('agenda'); return; } A.lead = +b.dataset.val; Store.touch('profile'); Agenda.arm(); $$('[data-aglead] button').forEach(x => x.classList.toggle('on', x === b)); });
+};
+/** La journée : chaque bloc à son heure sur un rail, les pauses, le temps libre entre deux, et « maintenant ». */
+function agRail(D, nowM, lock) {
+  const out = [], dur = m => m >= 60 ? `${Math.floor(m / 60)} h${m % 60 ? ' ' + String(m % 60).padStart(2, '0') : ''}` : `${m} min`;
+  let prev = null, nowDone = nowM < 0;
+  const now = () => { if (!nowDone) { nowDone = true; out.push(`<li class="ag-nowrow"><time class="tnum">${fmtHM(nowM)}</time><span>${t('Maintenant')}</span></li>`); } };
+  for (const b of D.blocks) {
+    if (!nowDone && nowM < b.s) now();
+    if (prev && b.s - prev.e >= 15) out.push(`<li class="ag-free"><span>${t('Libre · {d}', { d: dur(b.s - prev.e) })}</span></li>`);
+    if (b.kind === 'break') out.push(`<li class="ag-pause"><span>${icon('clock', 'i-sm')}${t('Pause')} · ${b.e - b.s} min</span></li>`);
+    else {
+      const K = AG_KIND[b.kind] || AG_KIND.review, h = Math.round(Math.min(150, Math.max(64, (b.e - b.s) * 3.2)));
+      out.push(`<li class="ag-item"><time class="tnum">${fmtHM(b.s)}</time><button class="ag-b ${b.done ? 'done' : ''} ${b.ai ? 'ai' : ''}" style="--c:${K.c};min-height:${h}px" data-ag="${esc(b.id)}" ${lock ? 'tabindex="-1"' : ''}>
+        <span class="ag-n">${icon(K.ic, 'i-sm')}<b>${esc(b.title)}</b>${b.n ? `<em class="tnum">${num(b.n)}</em>` : ''}</span>
+        <span class="ag-w">${esc(b.why)}</span><span class="ag-t tnum">${fmtHM(b.s)} – ${fmtHM(b.e)} · ${b.e - b.s} min</span>${b.done ? `<span class="ag-stamp">${t('Fait')}</span>` : ''}</button></li>`);
+      if (!nowDone && nowM >= b.s && nowM < b.e) now();
+    }
+    prev = b;
+  }
+  now();
+  return out.join('');
+}
+/** Le détail d'un bloc : pourquoi maintenant, et le lancer. */
+function openAgBlock(b) {
+  const K = AG_KIND[b.kind] || AG_KIND.review;
+  const m = Modal.open(mh(esc(b.title), `${fmtHM(b.s)} – ${fmtHM(b.e)}${b.n ? ' · ' + plural(b.n, 'fiche|fiches') : ''}`) + `<div class="ag-why" style="--c:${K.c}">${icon(K.ic)}<p>${esc(b.why)}</p></div>
+    <div class="modal-f">${b.done ? `<span class="muted" style="margin-right:auto">${icon('check', 'i-sm')} ${t('Fait')}</span>` : ''}<button class="btn btn-ghost" data-act="close">${t('Fermer')}</button>${b.kind !== 'break' ? `<button class="btn btn-brass" id="agGo">${icon('play')}${b.done ? t('Recommencer') : t('Commencer')}</button>` : ''}</div>`);
+  m.querySelector('#agGo')?.addEventListener('click', () => { Modal.close(); Agenda.start(b); });
+}
+/** Modifier les créneaux libres de chaque jour (jusqu'à trois par jour). */
+function openAgWindows() {
+  const wd = weekdayNames('long'), cur = Array.from({ length: 7 }, (_, k) => Agenda.windows(k));
+  const row = (k, w) => `<div class="agw-row" data-k="${k}"><b>${esc(cap(wd[k]))}</b><div class="agw-list">${w.map(([a, b]) => `<span class="agw"><input type="time" value="${hhmm(a)}" step="300" aria-label="${esc(t('Début'))}"><i>–</i><input type="time" value="${hhmm(b)}" step="300" aria-label="${esc(t('Fin'))}"><button type="button" class="mf-x" data-rm aria-label="${esc(t('Retirer'))}">${icon('x', 'i-sm')}</button></span>`).join('')}<button type="button" class="btn btn-sm btn-ghost" data-add ${w.length >= 3 ? 'hidden' : ''}>${icon('plus', 'i-sm')}${t('Créneau')}</button></div></div>`;
+  const m = Modal.open(mh(t('Mes créneaux'), t('Les moments où vous pouvez réviser, jour par jour.')) + `<div class="agw-rows">${cur.map((w, k) => row(k, w)).join('')}</div>
+    <div class="modal-f" style="justify-content:space-between"><button class="btn btn-sm btn-ghost" id="agwAuto">${t('Créneaux automatiques')}</button><div style="display:flex;gap:8px"><button class="btn btn-ghost" data-act="close">${t('Annuler')}</button><button class="btn btn-brass" id="agwSave">${icon('check')}${t('Enregistrer')}</button></div></div>`, 'wide');
+  m.addEventListener('click', e => {
+    const rm = e.target.closest('[data-rm]'); if (rm) { const list = rm.closest('.agw-list'); rm.closest('.agw').remove(); list.querySelector('[data-add]').hidden = false; return; }
+    const ad = e.target.closest('[data-add]'); if (ad) {
+      const list = ad.closest('.agw-list'), last = [...list.querySelectorAll('.agw')].at(-1), s0 = last ? Math.min(1380, (toMin(last.querySelectorAll('input')[1].value) || 1080) + 60) : 1080;
+      ad.insertAdjacentHTML('beforebegin', `<span class="agw"><input type="time" value="${hhmm(s0)}" step="300" aria-label="${esc(t('Début'))}"><i>–</i><input type="time" value="${hhmm(Math.min(1435, s0 + 60))}" step="300" aria-label="${esc(t('Fin'))}"><button type="button" class="mf-x" data-rm aria-label="${esc(t('Retirer'))}">${icon('x', 'i-sm')}</button></span>`);
+      ad.hidden = list.querySelectorAll('.agw').length >= 3;
+    }
+  });
+  m.querySelector('#agwAuto').onclick = () => { Agenda.st.windows = null; Store.touch('profile'); Modal.close(); Agenda.arm(); App.render(); toast(t('Créneaux automatiques'), 'clock'); };
+  m.querySelector('#agwSave').onclick = () => {
+    const out = {};
+    for (const r of m.querySelectorAll('.agw-row')) {
+      out[r.dataset.k] = [...r.querySelectorAll('.agw')].map(x => { const [a, b] = [...x.querySelectorAll('input')].map(i => toMin(i.value)); return a != null && b != null && b - a >= 10 ? [a, b] : null; }).filter(Boolean).sort((a, b) => a[0] - b[0]).filter((w, i, arr) => !i || w[0] >= arr[i - 1][1]);
+    }
+    Agenda.st.windows = out; Agenda.st.ai = null; Store.touch('profile'); Modal.close(); Agenda.arm(); App.render(); toast(t('Créneaux enregistrés'), 'clock');
+  };
+}
+/** Sur l'accueil (Élite) : la prochaine séance du planning. */
+function agendaNextHTML() {
+  if (!Agenda.on() || !S.decks.length) return '';
+  const c = Agenda.current(); if (!c) return '';
+  const K = AG_KIND[c.b.kind] || AG_KIND.review;
+  return `<button class="ag-next rise" data-act="go" data-v="agenda" style="--c:${K.c}"><span class="agx-time tnum">${fmtHM(c.b.s)}</span><span class="agx-t"><span class="kicker">${c.now ? t('Maintenant') : t('Prochain créneau')} · ${t('Planning')}</span><b>${esc(c.b.title)}${c.b.n ? ` · ${num(c.b.n)}` : ''}</b><small>${esc(c.b.why)}</small></span>${icon('arrow')}</button>`;
+}
+
 Object.assign(I, {
+  bell: '<path d="M6 16v-5a6 6 0 0 1 12 0v5l1.6 2.2H4.4z"/><path d="M10 20.6a2.1 2.1 0 0 0 4 0"/>',
   sigma: '<path d="M18 5H6l6.5 7L6 19h12"/>',
   seal: '<circle cx="12" cy="9.5" r="5.5"/><path d="m8.6 13.8-1.6 7.2L12 19l5 2-1.6-7.2"/>',
   clip: '<path d="m20 11.2-8.3 8.3a5.2 5.2 0 0 1-7.4-7.4l8.7-8.7a3.5 3.5 0 0 1 4.9 4.9l-8.6 8.6a1.75 1.75 0 0 1-2.5-2.5l7.9-7.9"/>'
@@ -15482,6 +16051,90 @@ TR = {
   "Rédaction arrêtée.": ["Writing stopped.", "Redacción detenida.", "Schreiben gestoppt.", "Redação interrompida."],
   "Fiche copiée": ["Sheet copied", "Ficha copiada", "Lernzettel kopiert", "Ficha copiada"],
   "Copie impossible ici : utilisez l'export .md.": ["Can't copy here: use the .md export.", "No se puede copiar aquí: usa la exportación .md.", "Kopieren hier nicht möglich: Nutze den .md-Export.", "Não é possível copiar aqui: use a exportação .md."],
+  "Planning heure par heure": ["Hour-by-hour schedule", "Planificación hora a hora", "Stundenplan", "Planejamento hora a hora"],
+  "Le planning heure par heure fait partie d'Élite": ["The hour-by-hour schedule is part of Elite", "La planificación hora a hora forma parte de Élite", "Der Stundenplan gehört zu Elite", "O planejamento hora a hora faz parte do Elite"],
+  "Quoi réviser à quelle heure, le plus exigeant à votre meilleur moment, des pauses, une alarme à chaque séance, et Siri pour lancer la séance du moment.": ["What to revise at what time, the hardest work at your best moment, breaks, an alarm for every session, and Siri to start the current session.", "Qué repasar a qué hora, lo más exigente en tu mejor momento, pausas, una alarma en cada sesión y Siri para lanzar la sesión del momento.", "Was du wann wiederholst, das Schwerste zu deiner besten Zeit, Pausen, ein Alarm für jede Sitzung und Siri, um die aktuelle Sitzung zu starten.", "O que revisar a que horas, o mais exigente no seu melhor momento, pausas, um alarme a cada sessão e a Siri para iniciar a sessão do momento."],
+  "Créneaux mis à jour": ["Time slots updated", "Franjas actualizadas", "Zeitfenster aktualisiert", "Horários atualizados"],
+  "Planning : l'IA compose la semaine": ["Schedule: the AI is composing the week", "Planificación: la IA compone la semana", "Plan: Die KI stellt die Woche zusammen", "Planejamento: a IA está compondo a semana"],
+  "Fiches qui résistent": ["Stubborn cards", "Tarjetas que se resisten", "Hartnäckige Karten", "Cartões teimosos"],
+  "Pause": ["Break", "Pausa", "Pause", "Pausa"],
+  "Révisions, toutes matières": ["Reviews, all subjects", "Repasos, todas las materias", "Wiederholungen, alle Fächer", "Revisões, todas as matérias"],
+  "Relire la fiche · {deck}": ["Reread the sheet · {deck}", "Releer la ficha · {deck}", "Lernzettel lesen · {deck}", "Reler a ficha · {deck}"],
+  "Points faibles · {deck}": ["Weak spots · {deck}", "Puntos débiles · {deck}", "Schwachstellen · {deck}", "Pontos fracos · {deck}"],
+  "Examen blanc · {x}": ["Mock exam · {x}", "Simulacro · {x}", "Probeprüfung · {x}", "Simulado · {x}"],
+  "Révision éclair du soir": ["Evening lightning review", "Repaso exprés de la noche", "Blitzwiederholung am Abend", "Revisão relâmpago da noite"],
+  "Les fiches dues d'abord : elles sont à leur point d'oubli.": ["Due cards first: they are at their forgetting point.", "Primero las tarjetas pendientes: están en su punto de olvido.", "Fällige Karten zuerst: Sie sind kurz vor dem Vergessen.", "Os cartões pendentes primeiro: estão no ponto de esquecimento."],
+  "Votre meilleur moment ({p}) : le plus exigeant passe ici.": ["Your best moment ({p}): the hardest work goes here.", "Tu mejor momento ({p}): lo más exigente va aquí.", "Deine beste Zeit ({p}): Das Schwerste kommt hierhin.", "Seu melhor momento ({p}): o mais exigente fica aqui."],
+  "Matières alternées : on retient mieux en changeant de sujet.": ["Subjects interleaved: you remember better when you switch topics.", "Materias alternadas: se retiene mejor cambiando de tema.", "Fächer im Wechsel: Man behält mehr, wenn man das Thema wechselt.", "Matérias alternadas: retemos melhor mudando de assunto."],
+  "Dosées pour être prêt à temps, sans dépasser votre temps libre.": ["Paced to be ready in time, without going over your free time.", "Dosificadas para estar listo a tiempo, sin pasarte de tu tiempo libre.", "So dosiert, dass du rechtzeitig fertig bist, ohne deine freie Zeit zu sprengen.", "Dosadas para estar pronto a tempo, sem passar do seu tempo livre."],
+  "Relire la fiche de cours avant d'apprendre les nouvelles fiches.": ["Reread the course sheet before learning the new cards.", "Relee la ficha de curso antes de aprender las tarjetas nuevas.", "Lies den Lernzettel, bevor du die neuen Karten lernst.", "Releia a ficha de curso antes de aprender os novos cartões."],
+  "Les fiches oubliées plusieurs fois, reprises à part.": ["Cards forgotten several times, worked on separately.", "Las tarjetas olvidadas varias veces, retomadas aparte.", "Mehrfach vergessene Karten, separat geübt.", "Os cartões esquecidos várias vezes, retomados à parte."],
+  "À J−3 : un examen blanc pour repérer les trous à temps.": ["Three days before: a mock exam to spot the gaps in time.", "A tres días: un simulacro para detectar las lagunas a tiempo.", "Drei Tage vorher: eine Probeprüfung, um Lücken rechtzeitig zu finden.", "A três dias: um simulado para achar as lacunas a tempo."],
+  "Juste avant de dormir : le sommeil consolide ce qu'on vient de voir.": ["Just before sleep: sleep consolidates what you have just seen.", "Justo antes de dormir: el sueño consolida lo que acabas de ver.", "Kurz vor dem Schlafen: Der Schlaf festigt, was du gerade gelernt hast.", "Logo antes de dormir: o sono consolida o que você acabou de ver."],
+  "Cinq minutes loin de l'écran : l'attention se recharge.": ["Five minutes away from the screen: attention recharges.", "Cinco minutos lejos de la pantalla: la atención se recarga.", "Fünf Minuten weg vom Bildschirm: Die Konzentration lädt sich auf.", "Cinco minutos longe da tela: a atenção recarrega."],
+  "Cet appareil n'affiche pas de notifications : ajoutez le planning à votre agenda pour avoir les alarmes.": ["This device doesn't show notifications: add the schedule to your calendar to get the alarms.", "Este dispositivo no muestra notificaciones: añade la planificación a tu calendario para tener las alarmas.", "Dieses Gerät zeigt keine Mitteilungen: Füge den Plan deinem Kalender hinzu, um die Alarme zu bekommen.", "Este dispositivo não mostra notificações: adicione o planejamento à sua agenda para ter os alarmes."],
+  "Notifications refusées : Engram sonnera quand il est ouvert. Pour des alarmes même app fermée, ajoutez le planning à votre agenda.": ["Notifications declined: Engram will ring while it is open. For alarms even when the app is closed, add the schedule to your calendar.", "Notificaciones rechazadas: Engram sonará cuando esté abierto. Para alarmas incluso con la app cerrada, añade la planificación a tu calendario.", "Mitteilungen abgelehnt: Engram klingelt, solange es geöffnet ist. Für Alarme auch bei geschlossener App füge den Plan deinem Kalender hinzu.", "Notificações recusadas: o Engram tocará quando estiver aberto. Para alarmes mesmo com o app fechado, adicione o planejamento à sua agenda."],
+  "C'est l'heure : {x}": ["It's time: {x}", "Es la hora: {x}", "Es ist so weit: {x}", "Está na hora: {x}"],
+  "Rappel dans {n} min.": ["Reminder in {n} min.", "Recordatorio en {n} min.", "Erinnerung in {n} Min.", "Lembrete em {n} min."],
+  "Planning": ["Schedule", "Planificación", "Plan", "Planejamento"],
+  "Le planning par l'IA a besoin de l'IA.": ["The AI schedule needs the AI.", "La planificación con IA necesita la IA.", "Der KI-Plan braucht die KI.", "O planejamento pela IA precisa da IA."],
+  "L'IA compose votre semaine…": ["The AI is composing your week…", "La IA compone tu semana…", "Die KI stellt deine Woche zusammen…", "A IA está compondo sua semana…"],
+  "Votre semaine est composée.": ["Your week is ready.", "Tu semana está compuesta.", "Deine Woche steht.", "Sua semana está pronta."],
+  "Le planning n'a pas pu être composé.": ["The schedule couldn't be composed.", "No se pudo componer la planificación.", "Der Plan konnte nicht erstellt werden.", "Não foi possível compor o planejamento."],
+  "heure par heure": ["hour by hour", "hora a hora", "Stunde für Stunde", "hora a hora"],
+  "Votre <em>planning</em>.": ["Your <em>schedule</em>.", "Tu <em>planificación</em>.", "Dein <em>Plan</em>.", "Seu <em>planejamento</em>."],
+  "Scannez un cours ou importez des fiches : le planning se remplira tout seul.": ["Scan a course or import cards: the schedule will fill itself in.", "Escanea un curso o importa tarjetas: la planificación se llenará sola.", "Scanne ein Skript oder importiere Karten: Der Plan füllt sich von selbst.", "Digitalize um curso ou importe cartões: o planejamento se preencherá sozinho."],
+  "Maintenant": ["Now", "Ahora", "Jetzt", "Agora"],
+  "Prochain créneau · {h}": ["Next slot · {h}", "Próxima franja · {h}", "Nächstes Zeitfenster · {h}", "Próximo horário · {h}"],
+  "+15 min": ["+15 min", "+15 min", "+15 Min.", "+15 min"],
+  "Quoi réviser, à quelle heure : vos révisions posées dans vos créneaux libres, le plus exigeant à votre meilleur moment, des pauses, et une alarme quand c'est l'heure.": ["What to revise, at what time: your reviews placed in your free slots, the hardest work at your best moment, breaks, and an alarm when it's time.", "Qué repasar y a qué hora: tus repasos en tus franjas libres, lo más exigente en tu mejor momento, pausas y una alarma cuando toca.", "Was du wann wiederholst: deine Wiederholungen in deinen freien Zeitfenstern, das Schwerste zu deiner besten Zeit, Pausen und ein Alarm, wenn es so weit ist.", "O que revisar e a que horas: suas revisões nos seus horários livres, o mais exigente no seu melhor momento, pausas e um alarme na hora certa."],
+  "Voici à quoi ressemblerait votre journée. Avec Élite, l'IA la plus puissante compose votre semaine, vous rappelle chaque séance et se pilote depuis Siri et Raccourcis.": ["Here is what your day would look like. With Elite, the most powerful AI composes your week, reminds you of every session and can be driven from Siri and Shortcuts.", "Así sería tu día. Con Élite, la IA más potente compone tu semana, te recuerda cada sesión y se maneja desde Siri y Atajos.", "So sähe dein Tag aus. Mit Elite stellt die stärkste KI deine Woche zusammen, erinnert dich an jede Sitzung und lässt sich über Siri und Kurzbefehle steuern.", "Veja como seria o seu dia. Com o Elite, a IA mais poderosa compõe sua semana, lembra você de cada sessão e é controlada pela Siri e pelos Atalhos."],
+  "Passer à Élite": ["Upgrade to Elite", "Pasar a Élite", "Zu Elite wechseln", "Mudar para o Elite"],
+  "{m} min de travail": ["{m} min of work", "{m} min de trabajo", "{m} Min. Arbeit", "{m} min de trabalho"],
+  "Rien de prévu": ["Nothing planned", "Nada previsto", "Nichts geplant", "Nada previsto"],
+  "composé par l'IA": ["composed by the AI", "compuesto por la IA", "von der KI erstellt", "composto pela IA"],
+  "Journée libre": ["Free day", "Día libre", "Freier Tag", "Dia livre"],
+  "Aucun créneau ce jour-là": ["No slot that day", "Ninguna franja ese día", "Kein Zeitfenster an diesem Tag", "Nenhum horário nesse dia"],
+  "Rien à réviser dans vos créneaux : profitez-en, ou avancez un paquet.": ["Nothing to revise in your slots: enjoy it, or get ahead on a deck.", "Nada que repasar en tus franjas: aprovecha, o adelanta un mazo.", "Nichts zu wiederholen in deinen Zeitfenstern: Genieß es oder arbeite einen Stapel vor.", "Nada a revisar nos seus horários: aproveite, ou adiante um baralho."],
+  "Ajoutez un créneau si vous voulez travailler ce jour-là.": ["Add a slot if you want to work that day.", "Añade una franja si quieres trabajar ese día.", "Füge ein Zeitfenster hinzu, wenn du an diesem Tag lernen willst.", "Adicione um horário se quiser estudar nesse dia."],
+  "{m} min n'entrent pas dans vos créneaux : ajoutez un créneau ou réduisez les nouvelles fiches.": ["{m} min don't fit into your slots: add a slot or reduce new cards.", "{m} min no caben en tus franjas: añade una franja o reduce las tarjetas nuevas.", "{m} Min. passen nicht in deine Zeitfenster: Füge eines hinzu oder reduziere die neuen Karten.", "{m} min não cabem nos seus horários: adicione um horário ou reduza os cartões novos."],
+  "La stratégie de la semaine": ["This week's strategy", "La estrategia de la semana", "Die Strategie der Woche", "A estratégia da semana"],
+  "Le planning suit vos créneaux, vos examens et votre mémoire. L'IA d'Élite peut composer toute la semaine en tenant compte de vos heures de réussite, de vos paquets fragiles et de vos fiches de cours.": ["The schedule follows your slots, your exams and your memory. Elite's AI can compose the whole week, taking into account your best hours, your fragile decks and your course sheets.", "La planificación sigue tus franjas, tus exámenes y tu memoria. La IA de Élite puede componer toda la semana teniendo en cuenta tus horas de acierto, tus mazos frágiles y tus fichas de curso.", "Der Plan folgt deinen Zeitfenstern, Prüfungen und deinem Gedächtnis. Die Elite-KI kann die ganze Woche zusammenstellen und berücksichtigt deine erfolgreichsten Stunden, schwache Stapel und Lernzettel.", "O planejamento segue seus horários, suas provas e sua memória. A IA do Elite pode compor a semana inteira considerando seus melhores horários, seus baralhos frágeis e suas fichas de curso."],
+  "Recomposer avec l'IA": ["Recompose with the AI", "Recomponer con la IA", "Mit der KI neu erstellen", "Recompor com a IA"],
+  "Composer ma semaine avec l'IA": ["Compose my week with the AI", "Componer mi semana con la IA", "Meine Woche mit der KI erstellen", "Compor minha semana com a IA"],
+  "Revenir au calcul automatique": ["Back to automatic planning", "Volver al cálculo automático", "Zurück zur automatischen Berechnung", "Voltar ao cálculo automático"],
+  "Mes créneaux": ["My time slots", "Mis franjas", "Meine Zeitfenster", "Meus horários"],
+  "Déduits de votre temps disponible et de votre moment préféré. Modifiez-les pour coller à votre emploi du temps.": ["Derived from your available time and preferred moment. Edit them to match your timetable.", "Deducidas de tu tiempo disponible y de tu momento preferido. Modifícalas para ajustarlas a tu horario.", "Aus deiner verfügbaren Zeit und deiner bevorzugten Tageszeit abgeleitet. Passe sie an deinen Stundenplan an.", "Deduzidos do seu tempo disponível e do seu momento preferido. Edite-os para combinar com sua rotina."],
+  "Rappels et alarmes": ["Reminders and alarms", "Recordatorios y alarmas", "Erinnerungen und Alarme", "Lembretes e alarmes"],
+  "Rappel à chaque séance": ["Reminder for every session", "Recordatorio en cada sesión", "Erinnerung bei jeder Sitzung", "Lembrete a cada sessão"],
+  "Une notification et un son à l'heure de chaque bloc, tant qu'Engram est ouvert (même en arrière-plan).": ["A notification and a sound at the time of each block, while Engram is open (even in the background).", "Una notificación y un sonido a la hora de cada bloque, mientras Engram esté abierto (incluso en segundo plano).", "Eine Mitteilung und ein Ton zu Beginn jedes Blocks, solange Engram geöffnet ist (auch im Hintergrund).", "Uma notificação e um som na hora de cada bloco, enquanto o Engram estiver aberto (mesmo em segundo plano)."],
+  "Prévenir avant": ["Notify before", "Avisar antes", "Vorher erinnern", "Avisar antes"],
+  "Alarmes dans mon agenda (.ics)": ["Alarms in my calendar (.ics)", "Alarmas en mi calendario (.ics)", "Alarme in meinem Kalender (.ics)", "Alarmes na minha agenda (.ics)"],
+  "Même app fermée : chaque bloc arrive dans Calendrier, Google Agenda ou Outlook avec son alarme.": ["Even with the app closed: every block lands in Calendar, Google Calendar or Outlook with its alarm.", "Incluso con la app cerrada: cada bloque llega a Calendario, Google Calendar u Outlook con su alarma.", "Auch bei geschlossener App: Jeder Block landet mit seinem Alarm in Kalender, Google Kalender oder Outlook.", "Mesmo com o app fechado: cada bloco chega ao Calendário, Google Agenda ou Outlook com seu alarme."],
+  "Raccourcis Apple et Siri": ["Apple Shortcuts and Siri", "Atajos de Apple y Siri", "Apple Kurzbefehle und Siri", "Atalhos da Apple e Siri"],
+  "Ces liens marchent avec Engram en ligne (le site Netlify), pas dans l'aperçu.": ["These links work with Engram online (the Netlify site), not in the preview.", "Estos enlaces funcionan con Engram en línea (el sitio de Netlify), no en la vista previa.", "Diese Links funktionieren mit Engram online (der Netlify-Seite), nicht in der Vorschau.", "Estes links funcionam com o Engram online (o site Netlify), não na prévia."],
+  "« Dis Siri, ma séance Engram »": ["“Hey Siri, my Engram session”", "«Oye Siri, mi sesión de Engram»", "„Hey Siri, meine Engram-Sitzung“", "“E aí Siri, minha sessão Engram”"],
+  "Ouvrez l'app Raccourcis, touchez « + ».": ["Open the Shortcuts app, tap “+”.", "Abre la app Atajos y toca «+».", "Öffne die App Kurzbefehle und tippe auf „+“.", "Abra o app Atalhos e toque em “+”."],
+  "Ajoutez l'action « Ouvrir les URL » et collez le lien ci-dessous.": ["Add the “Open URLs” action and paste the link below.", "Añade la acción «Abrir URL» y pega el enlace de abajo.", "Füge die Aktion „URLs öffnen“ hinzu und füge den Link unten ein.", "Adicione a ação “Abrir URLs” e cole o link abaixo."],
+  "Nommez le raccourci « Ma séance Engram » : Siri le lance, et il s'ajoute à l'écran d'accueil.": ["Name the shortcut “My Engram session”: Siri runs it, and it can go on the Home Screen.", "Llama al atajo «Mi sesión de Engram»: Siri lo lanza y se añade a la pantalla de inicio.", "Nenne den Kurzbefehl „Meine Engram-Sitzung“: Siri startet ihn, und er lässt sich zum Home-Bildschirm hinzufügen.", "Dê ao atalho o nome “Minha sessão Engram”: a Siri o executa, e ele pode ir para a tela de início."],
+  "Chaque séance, automatiquement": ["Every session, automatically", "Cada sesión, automáticamente", "Jede Sitzung automatisch", "Cada sessão, automaticamente"],
+  "Raccourcis → Automatisation → « + » → « Heure de la journée ».": ["Shortcuts → Automation → “+” → “Time of Day”.", "Atajos → Automatización → «+» → «Hora del día».", "Kurzbefehle → Automation → „+“ → „Tageszeit“.", "Atalhos → Automação → “+” → “Horário”."],
+  "Choisissez l'heure d'un créneau, puis l'action « Ouvrir les URL » avec le même lien.": ["Pick the time of a slot, then the “Open URLs” action with the same link.", "Elige la hora de una franja y luego la acción «Abrir URL» con el mismo enlace.", "Wähle die Uhrzeit eines Zeitfensters, dann die Aktion „URLs öffnen“ mit demselben Link.", "Escolha o horário de uma sessão e depois a ação “Abrir URLs” com o mesmo link."],
+  "Cochez « Exécuter immédiatement » : Engram s'ouvre sur la bonne séance.": ["Turn on “Run Immediately”: Engram opens on the right session.", "Activa «Ejecutar inmediatamente»: Engram se abre en la sesión correcta.", "Aktiviere „Sofort ausführen“: Engram öffnet sich bei der richtigen Sitzung.", "Ative “Executar Imediatamente”: o Engram abre na sessão certa."],
+  "Concentration pendant les révisions": ["Focus while revising", "Concentración durante los repasos", "Fokus beim Lernen", "Foco durante as revisões"],
+  "Raccourcis → Automatisation → « App » → Engram « est ouverte ».": ["Shortcuts → Automation → “App” → Engram “Is Opened”.", "Atajos → Automatización → «App» → Engram «se abre».", "Kurzbefehle → Automation → „App“ → Engram „Wird geöffnet“.", "Atalhos → Automação → “App” → Engram “É Aberto”."],
+  "Action « Activer/désactiver Concentration » : « Travail » ou un mode « Étude ».": ["“Set Focus” action: “Work” or a “Study” Focus.", "Acción «Activar/desactivar modo de concentración»: «Trabajo» o un modo «Estudio».", "Aktion „Fokus festlegen“: „Arbeit“ oder ein Fokus „Lernen“.", "Ação “Ativar/Desativar Foco”: “Trabalho” ou um Foco “Estudo”."],
+  "Ouvrir le planning": ["Open the schedule", "Abrir la planificación", "Plan öffnen", "Abrir o planejamento"],
+  "Lien copié": ["Link copied", "Enlace copiado", "Link kopiert", "Link copiado"],
+  "Libre · {d}": ["Free · {d}", "Libre · {d}", "Frei · {d}", "Livre · {d}"],
+  "Fait": ["Done", "Hecho", "Erledigt", "Feito"],
+  "Début": ["Start", "Inicio", "Beginn", "Início"],
+  "Fin": ["End", "Fin", "Ende", "Fim"],
+  "Créneau": ["Slot", "Franja", "Zeitfenster", "Horário"],
+  "Les moments où vous pouvez réviser, jour par jour.": ["The times you can revise, day by day.", "Los momentos en que puedes repasar, día a día.", "Die Zeiten, in denen du lernen kannst, Tag für Tag.", "Os momentos em que você pode revisar, dia a dia."],
+  "Créneaux automatiques": ["Automatic slots", "Franjas automáticas", "Automatische Zeitfenster", "Horários automáticos"],
+  "Créneaux enregistrés": ["Slots saved", "Franjas guardadas", "Zeitfenster gespeichert", "Horários salvos"],
+  "Prochain créneau": ["Next slot", "Próxima franja", "Nächstes Zeitfenster", "Próximo horário"],
 };
 
 /* ── Démarrage ─────────────────────────────────────────────────────── */
@@ -15502,7 +16155,9 @@ async function boot() {
   Inbox.take();
   Store.connect();
   Dl.ready().then(() => { if (App.route.v === 'links') App.render(); });
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { Autopilot.check(); Store.pull(); } });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { Autopilot.check(); Store.pull(); Agenda.arm(); } });
+  setTimeout(() => Agenda.arm(), 1500); setInterval(() => Agenda.arm(), 30 * MIN);
+  navigator.serviceWorker?.addEventListener?.('message', e => { if (e.data?.type === 'engram-now') Agenda.startNow(); });
   // Les lignes des fiches dépendent des polices et de la taille de l'écran : on les recale quand l'une change.
   let relay = 0;
   const reRule = () => { clearTimeout(relay); relay = setTimeout(() => { if (Study.active) Study.layout(); Ruling.scan(); }, 120); };
@@ -15515,6 +16170,8 @@ async function boot() {
   const follow = () => {
     const h = location.hash.slice(1); if (!h) return;
     if (h === 'scan') App.go('scan'); else if (h === 'study' && S.profile.onboarded) setTimeout(() => Study.start(), 300);
+    else if (h === 'now' && S.profile.onboarded) setTimeout(() => Agenda.startNow(), 300);
+    else if (h === 'agenda') App.go('agenda');
     else if (h === 'pro' || h === 'teams') App.go(h);
     else if (h === 'invite') { App.go('pro'); if (S.profile.onboarded) setTimeout(() => openInvite(), 400); }
     else if (h === 'bilan') setTimeout(() => openCheckup(), 300);

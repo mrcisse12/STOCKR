@@ -12,6 +12,16 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== VERSION && k !== 'engram-share').map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
+// Rappel du planning touché : l'app (ouverte ou non) lance la séance du moment.
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = new URL(e.notification.data?.url || './#now', self.registration.scope).href;
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+    const c = list.find(w => w.url.startsWith(self.registration.scope));
+    if (c) { c.postMessage({ type: 'engram-now' }); return c.focus(); }
+    return self.clients.openWindow(url);
+  }));
+});
 // La page demande quelle version la sert : elle signale une mise à jour sans se tromper de cache.
 self.addEventListener('message', e => { if (e.data?.type === 'version') e.ports[0]?.postMessage({ version: VERSION.slice(7) }); });
 self.addEventListener('fetch', e => {
