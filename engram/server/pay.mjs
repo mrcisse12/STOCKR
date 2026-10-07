@@ -2,9 +2,11 @@
 // Écrit avec les objets standard du Web (Request, Response, fetch), comme core.mjs, pour tourner
 // à l'identique dans le serveur Node et dans une fonction Netlify (netlify/functions/pay.mjs).
 //
-// Engram n'a pas de comptes : après le paiement, le serveur remet à l'app un « code d'abonnement »
-// signé (formule, client Stripe, date de fin). L'app le présente à chaque appel à l'IA ; seul ce
-// serveur sait le fabriquer. Pour changer d'appareil, on recopie ce code.
+// Après le paiement, le serveur remet à l'app un « code d'abonnement » signé (formule, client Stripe,
+// date de fin). L'app le présente à chaque appel à l'IA ; seul ce serveur sait le fabriquer.
+// Avec un compte (account.mjs, en-tête x-engram-session), l'abonnement suit le compte : le paiement part
+// avec l'e-mail du compte (client_reference_id = son identifiant), le client Stripe est rangé dans le compte
+// au retour, et /api/account/me redonne un code neuf sur chaque appareil. Sans compte, on recopie le code.
 //
 //   GET  /api/pay/config   → { enabled, mode, prices: { pro: { month, year }, elite: { month, year } } }
 //   POST /api/pay/checkout ← { plan, bill, email?, ref? }  → { url }  (page de paiement Stripe)
@@ -26,7 +28,7 @@ import crypto from 'node:crypto';
 
 export const PLAN_KEYS = ['pro', 'elite'];
 const BILLS = ['month', 'year'];
-const GRACE = 3 * 864e5; // trois jours de marge après la fin de période (paiement en cours de relance)
+export const GRACE = 3 * 864e5; // trois jours de marge après la fin de période (paiement en cours de relance)
 const OK_STATUS = new Set(['active', 'trialing', 'past_due']);
 const PRODUCTS = {
   pro: { name: 'Engram Pro', description: 'Scans, corrections et assistants IA sans limite.', month: 7.99, year: 79.9 },
@@ -58,8 +60,11 @@ export function readLicense(secret, token) {
   try { const d = JSON.parse(b64u.dec(body).toString('utf8')); return { ...d, expired: !(d.e > Date.now()) }; } catch { return null; }
 }
 
-export function createPay(env = process.env, { fetchImpl = fetch } = {}) {
+export function createPay(env = process.env, { fetchImpl = fetch, accounts = null } = {}) {
   const KEY = env.STRIPE_SECRET_KEY || '';
+  /** Les comptes (account.mjs), s'ils sont branchés : un objet, ou une fonction qui le renvoie. */
+  const acc = () => (typeof accounts === 'function' ? accounts() : accounts) || null;
+  async function who(request) { const t = request.headers.get('x-engram-session'), a = acc(); return t && a ? a.sessionUser(t) : null; }
   const SECRET = licenseSecret(env);
   const enabled = !!KEY && !!SECRET;
   const mode = /^(sk|rk)_live_/.test(KEY) ? 'live' : 'test';
@@ -120,7 +125,7 @@ export function createPay(env = process.env, { fetchImpl = fetch } = {}) {
     if (!CORS) return {};
     const origin = request.headers.get('origin') || '';
     const allowed = CORS === '*' || CORS.split(',').map(s => s.trim()).includes(origin);
-    return allowed ? { 'access-control-allow-origin': CORS === '*' ? '*' : origin, 'access-control-allow-headers': 'content-type', 'access-control-allow-methods': 'GET, POST, OPTIONS', vary: 'origin' } : {};
+    return allowed ? { 'access-control-allow-origin': CORS === '*' ? '*' : origin, 'access-control-allow-headers': 'content-type, x-engram-session', 'access-control-allow-methods': 'GET, POST, OPTIONS', vary: 'origin' } : {};
   }
   const json = (request, status, obj) => new Response(JSON.stringify(obj), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...corsHeaders(request) } });
 
@@ -175,6 +180,16 @@ export function createPay(env = process.env, { fetchImpl = fetch } = {}) {
     enabled, mode,
     /** Vérifie un code d'abonnement présenté par l'app (appels à l'IA). */
     license(token) { const d = readLicense(SECRET, token); return d && !d.expired && PLAN_KEYS.includes(d.p) ? d : null; },
+    /** L'abonnement Engram en cours d'un client Stripe (le meilleur s'il y en a plusieurs), avec un code neuf ; sinon null. */
+    async subscriptionFor(customer) {
+      if (!enabled || !customer) return null;
+      const r = await stripe('GET', '/subscriptions', { customer, status: 'all', limit: 20 });
+      const map = await prices();
+      const mine = (r.data || []).filter(s => OK_STATUS.has(s.status) && (s.metadata?.app === 'engram' || map.byId[s.items?.data?.[0]?.price?.id]));
+      return mine.map(s => ({ ...issue(s, map), sub: s.id })).sort((a, b) => (b.plan === 'elite') - (a.plan === 'elite') || b.until - a.until)[0] || null;
+    },
+    /** Un code d'abonnement signé à partir d'un abonnement déjà vérifié auprès de Stripe (account.mjs le garde 10 minutes). */
+    licenseFrom({ c, s, p, b, until }) { return SECRET && PLAN_KEYS.includes(p) && c ? signLicense(SECRET, { c, s, p, b, e: until + GRACE, m: mode }) : null; },
     /** Répond aux routes /api/pay… ; renvoie null pour toute autre adresse. */
     async handle(request) {
       const { pathname } = new URL(request.url);
@@ -195,24 +210,34 @@ export function createPay(env = process.env, { fetchImpl = fetch } = {}) {
           const { v } = await prices(), price = v[plan]?.[bill];
           if (!price) return json(request, 400, { code: 'no_price', message: `engram_${plan}_${bill}` });
           const site = siteOrigin(request);
+          const user = await who(request), ref = /^[2-9A-HJKMNP-Z]{6}$/.test(b.ref || '') ? b.ref : '';
           const params = {
             mode: 'subscription',
             line_items: [{ price: price.id, quantity: 1 }],
             success_url: `${site}/#paid={CHECKOUT_SESSION_ID}`,
             cancel_url: `${site}/#pro`,
             allow_promotion_codes: 'true',
-            customer_email: /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(b.email || '') ? b.email : '',
-            client_reference_id: /^[2-9A-HJKMNP-Z]{6}$/.test(b.ref || '') ? b.ref : '',
+            // Connecté : le client Stripe du compte s'il existe, sinon l'e-mail du compte ; l'identifiant du compte revient au retour.
+            customer: user?.stripe?.customer || '',
+            customer_email: user?.stripe?.customer ? '' : user?.email || (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(b.email || '') ? b.email : ''),
+            client_reference_id: user ? user.id : ref,
             locale: 'auto',
-            metadata: { app: 'engram', plan, bill },
-            subscription_data: { metadata: { app: 'engram', plan, bill } },
+            metadata: { app: 'engram', plan, bill, uid: user?.id || '', ref: user ? ref : '' },
+            subscription_data: { metadata: { app: 'engram', plan, bill, uid: user?.id || '' } },
             ...(env.STRIPE_TAX === 'on' ? { automatic_tax: { enabled: 'true' } } : {})
           };
           // Page de paiement aux couleurs d'Engram (papier, laiton) ; si l'API du compte ne connaît pas ce réglage, sans.
           const brand = { branding_settings: { display_name: 'Engram', background_color: '#F6F1E6', button_color: '#9A7432', border_style: 'rounded' } };
-          let s;
-          try { s = await stripe('POST', '/checkout/sessions', { ...params, ...brand }); }
-          catch (e) { if (e.status !== 400 || !/branding/i.test(e.message)) throw e; s = await stripe('POST', '/checkout/sessions', params); }
+          let s, p = { ...params, ...brand };
+          for (let i = 0; !s; i++) {
+            try { s = await stripe('POST', '/checkout/sessions', p); }
+            catch (e) {
+              if (e.status !== 400 || i > 2) throw e;
+              if (/branding/i.test(e.message) && p.branding_settings) { const { branding_settings, ...rest } = p; p = rest; }
+              else if (/customer/i.test(e.message) && p.customer) p = { ...p, customer: '', customer_email: user?.email || '' }; // client Stripe effacé : on repart de l'e-mail
+              else throw e;
+            }
+          }
           return json(request, 200, { url: s.url });
         }
         if (route === 'claim') {
@@ -220,8 +245,18 @@ export function createPay(env = process.env, { fetchImpl = fetch } = {}) {
           const s = await stripe('GET', '/checkout/sessions/' + b.session, { expand: ['subscription'] });
           const sub = s.subscription;
           if (s.status !== 'complete' || !sub || !OK_STATUS.has(sub.status)) return json(request, 402, { code: 'not_paid', message: s.status || 'open' });
-          const out = issue(sub, await prices());
-          return json(request, 200, { ...out, email: s.customer_details?.email || '' });
+          // Seulement un abonnement d'Engram (le compte Stripe peut servir à d'autres apps), comme subscriptionFor.
+          const map = await prices(), meta = sub.metadata || {};
+          if (!(meta.app === 'engram' || map.byId[sub.items?.data?.[0]?.price?.id])) return json(request, 402, { code: 'not_paid', message: 'not an Engram subscription' });
+          const out = issue(sub, map);
+          // Payé depuis un compte (client_reference_id = son identifiant), ou réclamé connecté : l'abonnement suit le compte.
+          // L'identifiant ne vaut que pour un abonnement créé par notre checkout (metadata app=engram, uid identique) :
+          // un lien de paiement Stripe accepte ?client_reference_id=… de n'importe qui.
+          const a = acc(), ref = String(s.client_reference_id || '');
+          const uid = /^[0-9a-f]{24}$/.test(ref) ? (meta.app === 'engram' && (!meta.uid || meta.uid === ref) ? ref : '') : a ? (await who(request))?.id || '' : '';
+          const customer = typeof sub.customer === 'string' ? sub.customer : sub.customer?.id;
+          const account = !!(a && uid && customer) && await a.linkStripe(uid, customer, { sub: sub.id, ...out });
+          return json(request, 200, { ...out, email: s.customer_details?.email || '', account });
         }
         const lic = readLicense(SECRET, b.license);
         if (!lic) return json(request, 401, { code: 'bad_license' });

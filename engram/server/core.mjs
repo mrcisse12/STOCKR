@@ -4,7 +4,7 @@
 // (netlify/functions/ai.mjs).
 //
 // Protocole (le même que la capacité « sample » de l'app Claude, côté page) :
-//   GET  /api/ai/health → { ok, images, tools, locked, models }
+//   GET  /api/ai/health → { ok, accounts, images, tools, locked, models }
 //   POST /api/ai        ← { messages, tools, modelTier, json, final }
 //                       → NDJSON : {type:'text',delta} … {type:'done',content,stop_reason}
 //                                  ou {type:'error',code,message}
@@ -49,6 +49,7 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
   const RATE_PER_MIN = +env.ENGRAM_RATE_PER_MIN || 30;
   const MAX_BODY = (+env.ENGRAM_MAX_BODY_MB || 12) * 1024 * 1024;
   const MAX_TOKENS = +env.ENGRAM_MAX_TOKENS || 32000;
+  const MAX_TOKENS_FREE = +env.ENGRAM_MAX_TOKENS_FREE || 8000, MAX_TOKENS_ELITE = +env.ENGRAM_MAX_TOKENS_ELITE || 64000;
   const CORS = env.ENGRAM_CORS_ORIGIN || '';
   const HEARTBEAT = +env.ENGRAM_HEARTBEAT_MS || 10_000;
   // Repli automatique si le modèle demandé décline une requête (classifieurs de sécurité) :
@@ -61,6 +62,18 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
     default: { model: env.ENGRAM_MODEL_DEFAULT || 'claude-opus-5-5', effort: env.ENGRAM_EFFORT_DEFAULT || 'medium' },
     complex: { model: env.ENGRAM_MODEL_COMPLEX || 'claude-fable-5-1', effort: env.ENGRAM_EFFORT_COMPLEX || 'high' }
   };
+
+  // Ce que chaque formule peut demander (avec STRIPE_SECRET_KEY) : niveaux de modèle, effort de réflexion le plus haut,
+  // longueur de réponse, images par requête. Le gratuit n'a pas le scan (plusieurs photos ou pages) : une image à la fois,
+  // pour corriger une réponse écrite au stylet. Élite peut demander l'effort « max » (ENGRAM_EFFORT_TOP pour le changer).
+  const EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max'];
+  const TOP = EFFORTS.includes(env.ENGRAM_EFFORT_TOP) ? env.ENGRAM_EFFORT_TOP : 'max';
+  const CAPS = {
+    free: { tiers: ['quick'], effort: 'low', maxTokens: MAX_TOKENS_FREE, images: 1, scan: false },
+    pro: { tiers: ['quick', 'default'], effort: 'high', maxTokens: MAX_TOKENS, images: 20, scan: true },
+    elite: { tiers: ['quick', 'default', 'complex'], effort: TOP, maxTokens: Math.max(MAX_TOKENS, MAX_TOKENS_ELITE), images: 20, scan: true }
+  };
+  const countImages = msgs => msgs.reduce((n, m) => n + (Array.isArray(m.content) ? m.content.filter(b => b?.type === 'image' || b?.type === 'document').length : 0), 0);
 
   // Sans clé, le serveur répond quand même à /health pour que l'app puisse dire ce qui manque.
   const HAS_KEY = !!(client || env.ANTHROPIC_API_KEY || env.ANTHROPIC_AUTH_TOKEN);
@@ -115,6 +128,7 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
     if (b.tools && (!Array.isArray(b.tools) || b.tools.length > 32)) return 'outils invalides';
     for (const x of b.tools || []) if (!x || typeof x.name !== 'string' || !/^[a-zA-Z0-9_-]{1,64}$/.test(x.name)) return 'nom d\'outil invalide';
     if (b.modelTier && !TIERS[b.modelTier]) return 'niveau de modèle inconnu';
+    if (b.effort != null && !EFFORTS.includes(b.effort)) return 'effort inconnu';
     return null;
   }
 
@@ -144,20 +158,26 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
     const bad = invalid(body);
     if (bad) return json(request, 400, { code: 'upstream_error', message: bad });
 
-    // Le modèle le plus puissant (« complex ») : Élite, ou le propriétaire du serveur.
-    if (PAY && body.modelTier === 'complex' && !(lic?.p === 'elite' || owner)) body.modelTier = 'default';
-    const tier = TIERS[body.modelTier || 'default'];
+    // La formule fixe le plafond : niveau de modèle, effort, longueur, images. Le propriétaire (code d'accès) a tout,
+    // comme un serveur sans paiements. Le modèle le plus puissant (« complex ») reste réservé à Élite.
+    const plan = !PAY || owner ? 'elite' : lic?.p === 'elite' ? 'elite' : lic ? 'pro' : 'free', cap = CAPS[plan];
+    if (!cap.scan && (body.purpose === 'scan' || countImages(body.messages) > cap.images)) return json(request, 402, { code: 'plan_required', message: 'scan is part of Pro' });
+    let want = body.modelTier || 'default';
+    if (!cap.tiers.includes(want)) want = cap.tiers.at(-1);
+    const tier = TIERS[want];
+    const effort = body.effort && EFFORTS.indexOf(body.effort) <= EFFORTS.indexOf(cap.effort) ? body.effort
+      : body.effort ? cap.effort : EFFORTS.indexOf(tier.effort) > EFFORTS.indexOf(cap.effort) ? cap.effort : tier.effort;
     const tools = (body.tools || []).map(x => ({ name: x.name, description: String(x.description || '').slice(0, 4000), input_schema: x.input_schema || { type: 'object', properties: {} } }));
     const params = {
       model: tier.model,
-      max_tokens: MAX_TOKENS,
+      max_tokens: cap.maxTokens,
       system: body.json ? SYSTEM + '\n\n' + JSON_RULE : SYSTEM,
       messages: body.messages,
       // Mise en cache automatique du préfixe : les tours successifs d'une même conversation coûtent moins cher.
       cache_control: { type: 'ephemeral' }
     };
     // Haiku ne prend pas le réglage d'effort : on ne l'envoie qu'aux modèles qui le gèrent.
-    if (tier.effort && !/haiku/.test(tier.model)) params.output_config = { effort: tier.effort };
+    if (effort && !/haiku/.test(tier.model)) params.output_config = { effort };
     if (tools.length) {
       params.tools = tools;
       // Dernier tour autorisé : la page demande une réponse sans nouvel appel d'outil.
@@ -176,9 +196,20 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
         const write = o => { if (open) try { controller.enqueue(enc.encode(JSON.stringify(o) + '\n')); } catch { open = false; } };
         const beat = setInterval(() => write({ type: 'ping' }), HEARTBEAT);
         try {
-          const s = api.beta.messages.stream(params, { signal: ac.signal });
-          s.on('text', delta => write({ type: 'text', delta }));
-          const msg = await s.finalMessage();
+          let msg, sent = false;
+          for (let attempt = 0; ; attempt++) {
+            try {
+              const s = api.beta.messages.stream(params, { signal: ac.signal });
+              s.on('text', delta => { sent = true; write({ type: 'text', delta }); });
+              msg = await s.finalMessage();
+              break;
+            } catch (e) {
+              // Un modèle qui ne connaît pas cet effort (« max », « xhigh ») : on redescend d'un cran, tant que rien n'est parti.
+              const lower = EFFORTS[EFFORTS.indexOf(params.output_config?.effort) - 1];
+              if (sent || attempt > 2 || e?.status !== 400 || !/effort/i.test(String(e?.message || '')) || !lower || EFFORTS.indexOf(lower) < 2) throw e;
+              params.output_config = { effort: lower };
+            }
+          }
           if (msg.stop_reason === 'refusal') {
             // Toute la chaîne (modèle demandé puis repli) a décliné : la réponse partielle est écartée.
             write({ type: 'error', code: 'refused', message: msg.stop_details?.category || '' });
@@ -187,7 +218,7 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
             if (!content.length) write({ type: 'error', code: 'empty_completion', message: '' });
             else write({ type: 'done', content, stop_reason: msg.stop_reason, model: msg.model });
             const u = msg.usage || {};
-            log(ip, tier.model, msg.model, msg.stop_reason, u.input_tokens, u.cache_read_input_tokens, u.output_tokens);
+            log(ip, plan, tier.model, params.output_config?.effort || '', msg.model, msg.stop_reason, u.input_tokens, u.cache_read_input_tokens, u.output_tokens);
           }
         } catch (e) {
           if (!ac.signal.aborted) {
@@ -215,14 +246,14 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
   }
 
   return {
-    TIERS, FALLBACKS, locked: !!ACCESS_CODE, RATE_PER_MIN, MAX_BODY,
+    TIERS, CAPS, FALLBACKS, locked: !!ACCESS_CODE, RATE_PER_MIN, MAX_BODY,
     /** Répond aux routes /api/ai… ; renvoie null pour toute autre adresse. */
     async handle(request, { ip = '?' } = {}) {
       const { pathname } = new URL(request.url);
       if (!pathname.startsWith('/api/ai')) return null;
       if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders(request) });
       if (pathname === '/api/ai/health' && request.method === 'GET') {
-        return json(request, 200, { ok: true, key: HAS_KEY, images: true, tools: true, locked: !!ACCESS_CODE && !PAY, pay: PAY, plan: PAY ? licenseOf(request.headers)?.p || 'free' : null, fallbacks: FALLBACKS, models: Object.fromEntries(Object.entries(TIERS).map(([k, v]) => [k, v.model])) });
+        return json(request, 200, { ok: true, accounts: true, key: HAS_KEY, images: true, tools: true, locked: !!ACCESS_CODE && !PAY, pay: PAY, plan: PAY ? licenseOf(request.headers)?.p || 'free' : null, caps: (() => { const c = CAPS[!PAY || codeOk(request.headers) && ACCESS_CODE ? 'elite' : licenseOf(request.headers)?.p || 'free']; return { tiers: c.tiers, effort: c.effort, scan: c.scan }; })(), fallbacks: FALLBACKS, models: Object.fromEntries(Object.entries(TIERS).map(([k, v]) => [k, v.model])) });
       }
       if (pathname === '/api/ai' && request.method === 'POST') return handleAI(request, ip);
       return json(request, 404, { code: 'upstream_error', message: 'not found' });

@@ -70,6 +70,18 @@ Comment ça marche : après le paiement, le serveur vérifie la session Stripe e
 
 Un abonné retrouve ses paquets et sa progression sur l'iPhone, l'iPad et l'ordinateur : il colle son code d'abonnement (page Pro) sur l'autre appareil. Chaque paquet, chaque image et le profil sont un document stocké sous son numéro de client Stripe : Netlify Blobs en ligne (magasin `engram-sync`, rien à régler), des fichiers dans `server/data/` avec le serveur Node (`ENGRAM_SYNC_DIR`). Pour un même paquet modifié sur deux appareils, la version la plus récente l'emporte ; un paquet supprimé ne revient pas d'un autre appareil. 2,5 Mo par document, 300 Mo par abonné. La synchronisation démarre seule quand les paiements sont actifs (`STRIPE_SECRET_KEY`).
 
+### Comptes
+
+Avec le serveur d'Engram (Node ou Netlify), chacun peut créer un compte : e-mail et mot de passe (avec un code de secours), clé d'accès (Face ID, Touch ID, Windows Hello), « Continuer avec Google », « Continuer avec Apple ». Le compte garde les paquets (25 Mo en gratuit, 300 Mo abonné) et l'abonnement : un achat fait connecté suit le compte sur tous les appareils. Les comptes vont dans Netlify Blobs (magasin `engram-accounts`) ou dans `server/data/acct/`. Rien n'est obligatoire pour l'e-mail et les clés d'accès ; à régler en production :
+
+| Variable | Rôle |
+|---|---|
+| `ENGRAM_RP_ID` | **Conseillé** : le domaine du site (ex. `engram.example.com`), auquel les clés d'accès sont liées. Sans lui, il est déduit de l'en-tête Host. |
+| `ENGRAM_SESSION_SECRET` | Facultatif : secret des sessions (sinon tiré une fois et gardé dans le stockage). Le changer déconnecte tout le monde. |
+| `GOOGLE_CLIENT_ID` | « Continuer avec Google » : identifiant client OAuth (Google Cloud → Identifiants), avec le domaine du site en origine autorisée. Bouton absent sans lui. |
+| `APPLE_CLIENT_ID` | « Continuer avec Apple » : Services ID créé dans le compte Apple Developer, avec le domaine du site et son adresse de retour. Bouton absent sans lui. |
+| `ENGRAM_TRUST_PROXY` | Serveur Node derrière un proxy : nombre de proxys devant lui (1 en général, 2 avec un CDN), pour lire la vraie adresse des visiteurs. |
+
 ### Installer l'app
 
 Sur iPad ou iPhone : Safari → Partager → **Sur l'écran d'accueil**. Sur Android, ordinateur : **Installer** dans le menu du navigateur. L'app s'ouvre en plein écran et fonctionne hors-ligne (seule l'IA demande le réseau).
