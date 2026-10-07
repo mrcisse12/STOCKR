@@ -28,7 +28,10 @@ const pay = createPay(env, { accounts: account });
 const reader = createReader(env);
 const sync = createSync(env, { backend: store, accounts: account });
 
-const clientIp = req => (env.ENGRAM_TRUST_PROXY ? String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() : '') || req.socket.remoteAddress || '?';
+// Derrière un relais de confiance (ENGRAM_TRUST_PROXY = nombre de relais, 1 par défaut) : l'adresse ajoutée par le
+// relais, en partant de la droite. La première de la liste vient du navigateur, qui peut y écrire ce qu'il veut.
+const HOPS = Math.max(1, parseInt(env.ENGRAM_TRUST_PROXY, 10) || 1);
+const clientIp = req => (env.ENGRAM_TRUST_PROXY ? String(req.headers['x-forwarded-for'] || '').split(',').map(s => s.trim()).filter(Boolean).at(-HOPS) : '') || req.socket.remoteAddress || '?';
 
 function readBody(req) {
   return new Promise((resolve, reject) => {

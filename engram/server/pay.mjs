@@ -245,10 +245,15 @@ export function createPay(env = process.env, { fetchImpl = fetch, accounts = nul
           const s = await stripe('GET', '/checkout/sessions/' + b.session, { expand: ['subscription'] });
           const sub = s.subscription;
           if (s.status !== 'complete' || !sub || !OK_STATUS.has(sub.status)) return json(request, 402, { code: 'not_paid', message: s.status || 'open' });
-          const out = issue(sub, await prices());
+          // Seulement un abonnement d'Engram (le compte Stripe peut servir à d'autres apps), comme subscriptionFor.
+          const map = await prices(), meta = sub.metadata || {};
+          if (!(meta.app === 'engram' || map.byId[sub.items?.data?.[0]?.price?.id])) return json(request, 402, { code: 'not_paid', message: 'not an Engram subscription' });
+          const out = issue(sub, map);
           // Payé depuis un compte (client_reference_id = son identifiant), ou réclamé connecté : l'abonnement suit le compte.
+          // L'identifiant ne vaut que pour un abonnement créé par notre checkout (metadata app=engram, uid identique) :
+          // un lien de paiement Stripe accepte ?client_reference_id=… de n'importe qui.
           const a = acc(), ref = String(s.client_reference_id || '');
-          const uid = /^[0-9a-f]{24}$/.test(ref) ? ref : a ? (await who(request))?.id || '' : '';
+          const uid = /^[0-9a-f]{24}$/.test(ref) ? (meta.app === 'engram' && (!meta.uid || meta.uid === ref) ? ref : '') : a ? (await who(request))?.id || '' : '';
           const customer = typeof sub.customer === 'string' ? sub.customer : sub.customer?.id;
           const account = !!(a && uid && customer) && await a.linkStripe(uid, customer, { sub: sub.id, ...out });
           return json(request, 200, { ...out, email: s.customer_details?.email || '', account });

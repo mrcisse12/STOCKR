@@ -18,12 +18,12 @@
 //   POST /api/account/link-license  (session) ← { license }            → { user, sub }   (abonnement pris avant le compte)
 //   POST /api/account/logout-all    (session)                          → { ok }
 //   POST /api/account/delete        (session) ← { password? }          → { ok }  (mot de passe, ou session de moins de 10 min)
-//   POST /api/account/passkey/register/options (session)              → { token, publicKey }
+//   POST /api/account/passkey/register/options (session) ← { password? } → { token, publicKey }  (mot de passe, ou session de moins de 10 min)
 //   POST /api/account/passkey/register/verify  (session) ← { token, credential, label? } → { user }
 //   POST /api/account/passkey/login/options                           → { token, publicKey }
 //   POST /api/account/passkey/login/verify     ← { token, credential } → { session, user }
 //   POST /api/account/passkey/delete (session) ← { id }                → { user }
-//   POST /api/account/google   ← { idToken }          (avec une session : lie Google au compte ouvert) → { session, user, created? }
+//   POST /api/account/google   ← { idToken, password? } (avec une session : lie Google au compte ouvert ; mot de passe, ou session de moins de 10 min) → { session, user, created? }
 //   POST /api/account/apple    ← { idToken, name? }   (idem)
 //
 // Variables : ENGRAM_SESSION_SECRET (facultatif : sinon un secret aléatoire de 32 octets est créé une fois
@@ -54,7 +54,7 @@ const SESSION_TTL = 60 * 864e5, CHALLENGE_TTL = 5 * 60e3, RECENT = 10 * 60e3, PL
 const WINDOW = 15 * 60e3, LIMITS = { email: 10, ip: 20, signup: 10, passkey: 20, fed: 20 };
 const SCRYPT = { N: 2 ** 15, r: 8, p: 1, maxmem: 96 * MB };
 const PW_MIN = 8, PW_MAX = 1024, MAX_PASSKEYS = 20, MAX_BODY = 64 * 1024;
-const UID_RE = /^[0-9a-f]{24}$/;
+const UID_RE = /^[0-9a-f]{24}$/, NO_UID = '0'.repeat(24);
 const RC_ALPHA = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ'; // 32 signes, sans 0/O ni 1/I
 const ALGS = [-7, -8, -257]; // ES256, EdDSA, RS256
 const JWKS = { google: 'https://www.googleapis.com/oauth2/v3/certs', apple: 'https://appleid.apple.com/auth/keys' };
@@ -281,19 +281,42 @@ export function createAccount(env = process.env, { backend, syncBackend, fetchIm
     for (const [key, max, persist] of rules) { const e = await rlGet(key, persist); if (e && e.n >= max) wait = Math.max(wait, Math.ceil((e.t + WINDOW - Date.now()) / 1000)); }
     if (wait) throw Object.assign(E(429, 'rate_limited', 'too many attempts, try again later'), { retryAfter: wait });
   }
-  async function rlHit(key, persist) {
-    const old = await rlGet(key, persist), e = old ? { n: old.n + 1, t: old.t } : { n: 1, t: Date.now() };
+  async function rlSet(key, e, persist) {
     hits.set(key, e);
     if (hits.size > 20000) for (const [k, v] of hits) if (v.t + WINDOW <= Date.now()) hits.delete(k);
     if (persist) { await putDoc(NS_RL, hkey(key), e).catch(() => {}); prune(NS_RL, d => !(d?.t + WINDOW > Date.now())); }
+  }
+  async function rlHit(key, persist) {
+    const old = await rlGet(key, persist);
+    await rlSet(key, old ? { n: old.n + 1, t: old.t } : { n: 1, t: Date.now() }, persist);
+  }
+  /** Un essai de mot de passe ou de code de secours : compté AVANT le calcul (vérifier et compter d'un coup, sous verrou),
+   *  sinon des requêtes envoyées en rafale passent toutes avant que le compteur bouge. Un essai réussi est rendu. */
+  async function attempt(rules, fn) {
+    const taken = [];
+    const give = () => Promise.all(taken.map(([key, persist]) => lock('rl:' + key, async () => {
+      const e = await rlGet(key, persist);
+      if (e?.n > 0) await rlSet(key, { n: e.n - 1, t: e.t }, persist);
+    })));
+    try {
+      for (const [key, max, persist] of rules) {
+        await lock('rl:' + key, async () => {
+          const e = await rlGet(key, persist);
+          if (e && e.n >= max) throw Object.assign(E(429, 'rate_limited', 'too many attempts, try again later'), { retryAfter: Math.max(1, Math.ceil((e.t + WINDOW - Date.now()) / 1000)) });
+          await rlSet(key, e ? { n: e.n + 1, t: e.t } : { n: 1, t: Date.now() }, persist);
+        });
+        taken.push([key, persist]);
+      }
+    } catch (err) { await give(); throw err; }
+    const ok = await fn();
+    if (ok) await give();
+    return ok;
   }
   /** Confirme une action sensible : mot de passe, ou session ouverte depuis moins de 10 minutes. */
   async function confirm(s, password, ip) {
     if (typeof password === 'string' && password && s.rec.pw) {
       const k = 'email:' + (s.rec.email || s.rec.id);
-      await rlCheck(['ip:' + ip, LIMITS.ip], [k, LIMITS.email, true]);
-      if (await passwordOk(s.rec, password)) return;
-      await Promise.all([rlHit('ip:' + ip), rlHit(k, true)]);
+      if (await attempt([['ip:' + ip, LIMITS.ip], [k, LIMITS.email, true]], () => passwordOk(s.rec, password))) return;
       throw E(401, 'bad_credentials', 'wrong password');
     }
     if (s.iat > Date.now() - RECENT) return;
@@ -465,7 +488,7 @@ export function createAccount(env = process.env, { backend, syncBackend, fetchIm
         if (!(await claimIndex(key, rec.id))) throw E(409, 'already_linked');
         return { rec: await mutate(rec.id, r => { r[provider] = link; if (email && r.email === email) r.emailVerified = true; if (!r.name && name) r.name = name; }), linked: true };
       };
-      if (cur) return attach(cur.rec);
+      if (cur) { await confirm(cur, b.password, ip); return attach(cur.rec); } // lier un service : comme une clé d'accès
       if (email) {
         const ex = await byIndex('email.' + hkey(email));
         // Un compte créé avec un mot de passe n'a jamais prouvé son adresse : le lier d'office ouvrirait la porte au
@@ -494,25 +517,28 @@ export function createAccount(env = process.env, { backend, syncBackend, fetchIm
     async login(b, request, ip) {
       const email = normEmail(b.email);
       if (!email || typeof b.password !== 'string' || !b.password) throw E(400, 'bad_request', 'email and password required');
-      await rlCheck(['ip:' + ip, LIMITS.ip], ['email:' + email, LIMITS.email, true]);
-      const rec = await byIndex('email.' + hkey(email));
-      if (!(await passwordOk(rec, b.password))) {
-        await Promise.all([rlHit('ip:' + ip), rlHit('email:' + email, true)]);
-        throw E(401, 'bad_credentials', 'wrong email or password');
-      }
+      let rec = null;
+      const ok = await attempt([['ip:' + ip, LIMITS.ip], ['email:' + email, LIMITS.email, true]], async () => {
+        // Autant de lectures que l'adresse existe ou non : la durée ne dit pas si le compte existe.
+        const i = await getDoc(NS, 'email.' + hkey(email));
+        rec = await getUser(i?.u || NO_UID);
+        return passwordOk(rec, b.password);
+      });
+      if (!ok) throw E(401, 'bad_credentials', 'wrong email or password');
       return [200, { session: await issue(rec), user: pub(rec) }];
     },
     async recover(b, request, ip) {
       const email = normEmail(b.email);
       if (!email || typeof b.recoveryCode !== 'string') throw E(400, 'bad_request', 'email and recovery code required');
       checkNewPassword(b.newPassword);
-      await rlCheck(['ip:' + ip, LIMITS.ip], ['email:' + email, LIMITS.email, true]);
-      const rec = await byIndex('email.' + hkey(email));
-      const pw = await hashPassword(b.newPassword); // calculé dans tous les cas : même durée
-      if (!codeOk(rec, b.recoveryCode)) {
-        await Promise.all([rlHit('ip:' + ip), rlHit('email:' + email, true)]);
-        throw E(401, 'bad_recovery', 'wrong email or recovery code');
-      }
+      let rec = null, pw = null;
+      const ok = await attempt([['ip:' + ip, LIMITS.ip], ['email:' + email, LIMITS.email, true]], async () => {
+        const i = await getDoc(NS, 'email.' + hkey(email));
+        rec = await getUser(i?.u || NO_UID);
+        pw = await hashPassword(b.newPassword); // calculé dans tous les cas : même durée
+        return codeOk(rec, b.recoveryCode);
+      });
+      if (!ok) throw E(401, 'bad_recovery', 'wrong email or recovery code');
       const code = newRecoveryCode();
       const r = await mutate(rec.id, x => { x.pw = pw; x.rc = { h: codeHash(x.id, code), t: Date.now() }; x.sv++; });
       return [200, { session: await issue(r), user: pub(r), recoveryCode: code }];
@@ -559,8 +585,11 @@ export function createAccount(env = process.env, { backend, syncBackend, fetchIm
       await lock('u:' + s.rec.id, async () => { const rec = await getUser(s.rec.id); if (rec) await removeAccount(rec); });
       return [200, { ok: true }];
     },
-    async 'passkey/register/options'(b, request) {
+    async 'passkey/register/options'(b, request, ip) {
       const s = await auth(request), rp = rpOf(request), rec = s.rec;
+      // Ajouter un moyen de se connecter : mot de passe, ou session de moins de 10 min. Une session volée ne s'installe
+      // pas pour de bon (une clé ajoutée survivrait à « se déconnecter partout » et au changement de mot de passe).
+      await confirm(s, b.password, ip);
       const { c, token } = await challenge('reg', rp, rec.id);
       return [200, { token, publicKey: {
         challenge: c, rp: { id: rp, name: 'Engram' },

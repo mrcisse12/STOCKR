@@ -2927,6 +2927,8 @@ function ServerDB(base, license, session) {
     if (license) headers['x-engram-license'] = license;
     const r = await fetch(base + '/api/sync' + path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
     const j = await r.json().catch(() => ({}));
+    // Session refusée (fermée ailleurs, expirée, compte supprimé) : on l'oublie, comme pour /api/account.
+    if (r.status === 401 && j.code === 'bad_session' && s && s === Sess.get()) setTimeout(() => Account.lost(), 0);
     if (!r.ok) throw { code: r.status === 413 || j.code === 'quota' ? 'quota_exceeded' : j.code || 'sync_error' };
     return j;
   };
@@ -6694,6 +6696,7 @@ const Account = {
       unavailable: N_('Cette adresse ne peut pas servir à créer un compte. Si c\'est la vôtre, connectez-vous ou utilisez votre code de secours.'),
       bad_recovery: N_('E-mail ou code de secours incorrect.'),
       reauth_required: N_('Par sécurité, confirmez avec votre mot de passe.'),
+      reauth_fresh: N_('Par sécurité, déconnectez-vous puis reconnectez-vous, et recommencez dans les dix minutes.'),
       reauth_signin: N_('Par sécurité, déconnectez-vous puis reconnectez-vous : vous aurez ensuite dix minutes pour supprimer le compte.'),
       link_required: N_('Un compte Engram utilise déjà cet e-mail. Connectez-vous d\'abord, puis liez ce service dans Réglages, Compte.'),
       already_linked: N_('Ce compte est déjà lié à un autre compte Engram.'),
@@ -6782,9 +6785,9 @@ const Account = {
   keyLabel() { const b = this.bio(); return b.name ? t('Activer {x}', { x: b.name }) : t('Ajouter une clé d\'accès'); },
   keyDone() { const b = this.bio(); return b.name ? t('{x} est activé pour Engram.', { x: b.name }) : t('Clé d\'accès ajoutée.'); },
   /** kind : 'login' (se connecter) ou 'register' (ajouter une clé au compte ouvert). */
-  async passkey(kind) {
+  async passkey(kind, extra) {
     if (!this.pkOk) throw { code: 'unsupported' };
-    const o = await this.call(`/passkey/${kind}/options`, {}), pk = o.publicKey || {};
+    const o = await this.call(`/passkey/${kind}/options`, kind === 'register' && extra ? extra : {}), pk = o.publicKey || {};
     const ids = l => (l || []).map(c => ({ ...c, id: B64U.dec(c.id) }));
     let cred;
     try {
@@ -6798,7 +6801,24 @@ const Account = {
     if (r.authenticatorData) Object.assign(out.response, { authenticatorData: B64U.enc(r.authenticatorData), signature: B64U.enc(r.signature), ...(r.userHandle ? { userHandle: B64U.enc(r.userHandle) } : {}) });
     return this.call(`/passkey/${kind}/verify`, kind === 'login' ? { token: o.token, credential: out } : { token: o.token, credential: out, label: this.bio().dev || t('Cet appareil') });
   },
-  async addKey() { const j = await this.passkey('register'); this.user = j.user; this.repaint(); return j; },
+  async addKey() { const j = await this.sudo(x => this.passkey('register', x)); this.user = j.user; this.repaint(); return j; },
+  /** Ajouter un moyen de se connecter (clé d'accès, Google, Apple) demande une session de moins de 10 minutes :
+   *  sinon le mot de passe, ou une clé d'accès déjà enregistrée ; sans l'un ni l'autre, se reconnecter. */
+  async sudo(run) {
+    try { return await run({}); }
+    catch (e) {
+      if (e?.code !== 'reauth_required') throw e;
+      if (!this.user?.providers?.includes('password')) {
+        if (!this.pkOk || !(this.user?.passkeys || []).length) throw { code: 'reauth_fresh' };
+        const j = await this.passkey('login');
+        if (j.user?.id !== this.user?.id) throw { code: 'passkey_failed' };
+        Sess.set(j.session); return run({});
+      }
+      return new Promise(res => this.ask({ title: t('Confirmez que c\'est vous'), text: t('Par sécurité, confirmez avec votre mot de passe.'), ok: t('Continuer'),
+        fields: [{ id: 'acCur', label: t('Mot de passe'), pw: true, ac: 'current-password' }],
+        run: async el => { const j = await run({ password: el('acCur').value }); Modal.close(); res(j); } }));
+    }
+  },
 
   /* ── Google et Apple : leurs scripts ne se chargent que s'ils sont configurés ── */
   script(src) {
@@ -6834,7 +6854,7 @@ const Account = {
   /** Google ou Apple : se connecter, ou lier le service au compte ouvert. */
   async fed(p, body) {
     const linking = this.signed && !!this.user;
-    const j = await this.call('/' + p, body);
+    const j = linking ? await this.sudo(x => this.call('/' + p, { ...body, ...x })) : await this.call('/' + p, body);
     if (linking) { if (j.session) Sess.set(j.session); this.user = j.user; this.repaint(); toast(t('{x} est maintenant lié à votre compte.', { x: p === 'google' ? 'Google' : 'Apple' }), 'link'); return; }
     await this.signedIn(j); Modal.close(); this.hello();
   },
