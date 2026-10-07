@@ -584,6 +584,9 @@ body.studying .shell,body.studying .dock{visibility:hidden}
 .st-prog i::after{content:"";position:absolute;right:-5px;top:-5px;width:10px;height:13px;background:var(--brass);clip-path:polygon(0 0,100% 0,100% 100%,50% 72%,0 100%)}
 .st-main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;width:100%;max-width:1000px;margin:0 auto;padding:16px 0;min-height:0}
 .st-bottom{max-width:720px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+/* Le prof virtuel s'ajoute sous la fiche : la fiche se resserre (layout) et, s'il le faut, la colonne défile au lieu de passer sous les notes. */
+.st-main.has-tutor{overflow-y:auto;overscroll-behavior:contain;justify-content:flex-start;scrollbar-width:thin}
+@supports (justify-content:safe center){.st-main.has-tutor{justify-content:safe center}}
 .answer-box{display:flex;gap:8px;width:min(640px,100%)}
 .answer-box .input{height:50px;font-size:16px}
 .verdict{display:flex;align-items:center;gap:16px;width:min(640px,100%);padding:12px 16px;border-radius:12px;background:var(--folder-2);border:1px solid var(--hair-2);animation:rise .5s var(--ease) both}
@@ -610,7 +613,7 @@ body.studying .shell,body.studying .dock{visibility:hidden}
 .grade.sugg{border-color:var(--gc);background:color-mix(in srgb,var(--gc) 12%,var(--folder-2))}
 .grade.sugg::after{content:attr(data-sugg);position:absolute;top:-8px;left:50%;transform:translateX(-50%);font:700 9px/1 var(--f-type);letter-spacing:.08em;text-transform:uppercase;padding:3px 6px;border-radius:3px;background:var(--gc);color:var(--desk)}
 .reveal{width:100%}
-.tutor{width:min(640px,100%);padding:16px 18px;border-radius:12px;background:var(--folder-2);border:1px solid var(--hair-2);animation:rise .5s var(--ease) both;max-height:30vh;overflow:auto}
+.tutor{width:min(640px,100%);flex:none;padding:16px 18px;border-radius:12px;background:var(--folder-2);border:1px solid var(--hair-2);animation:rise .5s var(--ease) both;max-height:min(30vh,280px);overflow:auto}
 .tutor-h{display:flex;align-items:center;gap:8px;font:700 10.5px/1 var(--f-type);letter-spacing:.12em;text-transform:uppercase;color:var(--brass-text);margin-bottom:10px}
 .tutor p{margin:0;white-space:pre-wrap;font-size:15px;line-height:1.6}
 .mini-box{position:absolute;right:max(16px,calc(50% - 560px));bottom:calc(100px + env(safe-area-inset-bottom,0px));display:flex;gap:4px;padding:6px;border-radius:9px;background:var(--folder-3);border:1px solid var(--hair-2);z-index:2}
@@ -1216,7 +1219,9 @@ kbd.sym{font:600 11px/1 system-ui,-apple-system,sans-serif;min-width:18px;text-a
 :root:is([data-card="slate"],[data-card="chalk"]) .face :is(.opt,.ochip,.exam-opt){background:color-mix(in srgb,#fff 6%,var(--paper));border-color:rgba(255,255,255,.16);color:var(--p-ink)}
 :root:is([data-card="slate"],[data-card="chalk"]) .face :is(.opt,.exam-opt) b{border-color:rgba(255,255,255,.3)}
 :root:is([data-card="slate"],[data-card="chalk"]) .face .opt.right{background:color-mix(in srgb,#62BD8F 16%,var(--paper));border-color:#62BD8F}:root:is([data-card="slate"],[data-card="chalk"]) .face .opt.right b{background:#2E8F62;border-color:#2E8F62}
-:root:is([data-card="slate"],[data-card="chalk"]) .face .opt.wrong{background:color-mix(in srgb,#F4A99A 12%,var(--paper))}
+:root:is([data-card="slate"],[data-card="chalk"]) .face .opt.wrong{background:color-mix(in srgb,#F4A99A 14%,var(--paper));border-color:#F4A99A}:root:is([data-card="slate"],[data-card="chalk"]) .face .opt.wrong b{background:#C2584A;border-color:#C2584A;color:#fff}
+.face .opt.wrong span{text-decoration:line-through;text-decoration-thickness:1.5px;text-decoration-color:color-mix(in srgb,var(--pen) 70%,transparent)}
+:root:is([data-card="slate"],[data-card="chalk"]) .face .opt.wrong span{text-decoration-color:rgba(244,169,154,.75)}
 /* ── Papiers : feuille A4, Seyès, tableau noir, tableau blanc, kraft ─────────────────────────
    Chaque papier habille aussi son échantillon des réglages (.pp-…) : une seule source pour son allure. */
 :root{--chalk-grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='170' height='170'><filter id='g' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' seed='5' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.4 2.1'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");--chalk-dust:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='d' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3' seed='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 4 -2.8'/></filter><rect width='100%' height='100%' filter='url(%23d)'/></svg>") 0 0/220px 220px,url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='640' height='640'><filter id='c' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='.006 .012' numOctaves='3' seed='11' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .9  0 0 0 0 .95  0 0 0 0 .92  0 0 0 .7 -.26'/></filter><rect width='100%' height='100%' filter='url(%23c)'/></svg>") 0 0/640px 640px;--fibres:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='m' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='.02' numOctaves='3' seed='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .36  0 0 0 0 .2  0 0 0 0 .08  0 0 0 .75 -.24'/></filter><filter id='a' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='.1 .8' numOctaves='2' seed='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .25  0 0 0 0 .14  0 0 0 0 .05  0 0 0 5 -3.45'/></filter><filter id='b' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='.8 .1' numOctaves='2' seed='8' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .25  0 0 0 0 .14  0 0 0 0 .05  0 0 0 5 -3.5'/></filter><rect width='100%' height='100%' filter='url(%23m)'/><rect width='100%' height='100%' filter='url(%23a)' opacity='.55'/><rect width='100%' height='100%' filter='url(%23b)' opacity='.45'/></svg>");--ghost:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 380' preserveAspectRatio='xMidYMid slice'><g fill='none' stroke-linecap='round' stroke-linejoin='round'><path d='M64 92c8-20 22-22 26-2s10 24 22 4 18-20 24 0 12 18 26-2 20-14 28 4' stroke='rgba(60,78,105,.045)' stroke-width='5'/><path d='M58 128q96 10 196-4' stroke='rgba(60,78,105,.038)' stroke-width='4'/><path d='M372 70q74 12 112 74m-18-4 18 4 4-19' stroke='rgba(38,82,180,.045)' stroke-width='5'/><path d='M430 262c-36-30 12-62 58-44s34 58-18 60-60-14-40-30' stroke='rgba(60,78,105,.038)' stroke-width='4'/><path d='M96 268l26 38m0-38-26 38M140 262q8-12 16 0t-16 18h18M196 286h28m-14-14v28M250 268q14-8 20 6t-14 30q20 4 24-8' stroke='rgba(60,78,105,.04)' stroke-width='4.5'/><path d='M300 186h120' stroke='rgba(60,78,105,.028)' stroke-width='16'/></g></svg>")}
@@ -2217,6 +2222,107 @@ html[data-vt="out"]::view-transition-new(root){animation:vtLift .46s .12s cubic-
   .modal.dragging{transition:none;user-select:none;-webkit-user-select:none}
 }
 @media (max-width:620px) and (pointer:fine){.m-grip{display:none}.modal:not(.palette) .modal-h{touch-action:auto}}
+/* ── Compte : bouton d'en-tête, feuille de connexion, réglages ─────── */
+.acct-btn{display:inline-grid;place-items:center;width:38px;height:38px;padding:0;border-radius:50%;color:var(--text-2);border:1px solid var(--hair);background:transparent;transition:all .25s var(--ease);flex:none}
+.acct-btn:hover{color:var(--text);border-color:var(--hair-2);background:var(--brass-soft)}
+.acct-btn .i{width:18px;height:18px}
+.acct-btn.on{padding:2px;border-color:var(--hair-3)}
+.av{display:inline-grid;place-items:center;width:100%;height:100%;border-radius:50%;font:600 12.5px/1 var(--f-ui);letter-spacing:.03em;color:var(--on-brass);background:linear-gradient(180deg,var(--brass-hi) -30%,var(--brass-btn) 50%,var(--brass-lo) 140%);box-shadow:0 1px 0 rgba(255,255,255,.35) inset;user-select:none;-webkit-user-select:none}
+.av-lg{width:68px;height:68px;flex:none;font:400 28px/1 var(--f-display);letter-spacing:0;box-shadow:0 1px 0 rgba(255,255,255,.4) inset,0 0 0 4px var(--folder),0 0 0 5px var(--hair-2),0 14px 30px -14px var(--brass-glow)}
+.modal.acct{width:min(452px,100%);padding:34px 32px 28px}
+.modal.acct.ask{width:min(480px,100%)}
+.ac-x,.ac-back{position:absolute;top:14px;z-index:2;border-color:transparent;color:var(--muted)}
+.ac-x{right:14px}.ac-back{left:14px}
+.ac-hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;margin-bottom:24px}
+.ac-hero .seal{width:58px;height:58px;margin-bottom:6px}
+.ac-hero h2{margin:0;font:400 clamp(26px,5.4vw,31px)/1.12 var(--f-display);letter-spacing:-.01em;text-wrap:balance}
+.ac-hero p{margin:0;max-width:34ch;color:var(--muted);font-size:14.5px;line-height:1.55;text-wrap:pretty}
+.ac-hero p.lead{font-size:16.5px;color:var(--text-2);max-width:30ch}
+.ac-quick{display:flex;flex-direction:column;gap:10px}
+.ac-quick>.btn{width:100%;height:46px;font-size:15px}
+.ac-quick>.btn .i{width:20px;height:20px}
+.btn-apple{border-color:transparent;background:var(--text);color:var(--folder)}
+.btn-apple:hover{border-color:transparent;background:var(--text);opacity:.88}
+.btn-apple svg{width:15px;height:18px;fill:currentColor;margin-top:-3px;flex:none}
+.ac-g{display:flex;justify-content:center;align-items:center;min-height:44px}
+.ac-g.sm{min-height:34px;justify-content:flex-start}
+.ac-or{display:flex;align-items:center;gap:14px;margin:22px 0 18px;color:var(--muted);font:700 10.5px/1.2 var(--f-type);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+.ac-or::before,.ac-or::after{content:"";flex:1;height:1px;background:var(--hair-2)}
+.ac-tabs{display:grid;grid-template-columns:1fr 1fr;width:100%;margin-bottom:18px}
+.ac-tabs button{justify-content:center;padding:9px 10px;font-size:13.5px;text-align:center}
+.ac-form{display:grid;gap:14px}
+.ac-form>.btn-lg{width:100%;margin-top:4px}
+.ac-pw{position:relative}
+.ac-pw .input{padding-right:48px}
+.ac-eye{position:absolute;right:3px;top:50%;transform:translateY(-50%);width:40px;height:40px;display:grid;place-items:center;border-radius:8px;color:var(--muted);transition:color .2s}
+.ac-eye:hover{color:var(--text)}
+.ac-eye.on{color:var(--brass-text)}
+.ac-eye .i{width:18px;height:18px}
+.ac-hint{font-size:12.5px;line-height:1.45;color:var(--muted)}
+.field>label .opt{font:500 12px/1 var(--f-ui);letter-spacing:0;text-transform:none}
+.ac-mono{font-family:var(--f-type);letter-spacing:.06em;text-transform:uppercase}
+.ac-mono::placeholder{letter-spacing:.04em}
+.input[aria-invalid="true"]{border-color:var(--again)}
+.ac-err{margin:0;padding:10px 12px;border-radius:9px;font-size:13.5px;line-height:1.45;color:var(--again);background:color-mix(in srgb,var(--again) 8%,transparent);border:1px solid color-mix(in srgb,var(--again) 30%,transparent);animation:fadeIn .25s both}
+.ac-err:empty{display:none}
+.ac-link{justify-self:center;padding:6px 8px;border-radius:6px;color:var(--brass-text);font-weight:600;font-size:13.5px;text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--brass) 45%,transparent);text-underline-offset:3px}
+.ac-link:hover{text-decoration-color:currentColor}
+.ac-foot{display:flex;align-items:flex-start;justify-content:center;gap:8px;margin:20px auto 0;max-width:38ch;text-align:left;font-size:12.5px;line-height:1.5;color:var(--muted)}
+.ac-foot .i{width:15px;height:15px;margin-top:1px;color:var(--brass-text)}
+.ac-busy .i:first-child{animation:spin .9s linear infinite}
+.ac-code{display:flex;flex-direction:column;align-items:center;gap:10px;padding:22px 18px 20px;border-radius:6px;background:var(--paper);color:var(--p-ink);box-shadow:var(--sh-card);text-align:center;transform:rotate(-.6deg)}
+.ac-code small{font:700 10px/1 var(--f-type);letter-spacing:.18em;text-transform:uppercase;color:var(--p-muted)}
+.ac-code b{font:700 clamp(17px,4.8vw,21px)/1.35 var(--f-type);letter-spacing:.08em;user-select:all;-webkit-user-select:all}
+.ac-acts{display:flex;gap:10px;margin-top:18px}
+.ac-acts .btn{flex:1}
+.ac-offer{display:grid;grid-template-columns:auto minmax(0,1fr);gap:3px 14px;align-items:center;margin-top:20px;padding:16px;border-radius:12px;border:1px solid var(--hair-2);background:var(--folder-2)}
+.ac-ico{grid-row:1/3;width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:var(--brass-soft);color:var(--brass-text)}
+.ac-ico .i{width:24px;height:24px}
+.ac-offer b{font-weight:600;font-size:15px;align-self:end}
+.ac-offer>span:not(.ac-ico){font-size:13px;line-height:1.45;color:var(--muted);align-self:start}
+.ac-offer .btn,.ac-offer .ac-err{grid-column:1/-1;margin-top:12px}
+.ac-ok{display:flex;align-items:center;gap:10px;margin:20px 0 0;padding:14px 16px;border-radius:12px;background:var(--brass-soft);color:var(--text);font-weight:500;font-size:14px;animation:fadeIn .3s both}
+.ac-ok .i{color:var(--good);flex:none}
+.modal.acct .modal-f{margin-top:22px}
+.modal.acct .modal-f>.btn-lg{width:100%}
+.modal.acct .modal-f.split .btn{flex:1}
+.ac-who{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;margin-top:6px}
+.ac-who .av-lg{margin-bottom:12px}
+.ac-who b{font:400 27px/1.15 var(--f-display);letter-spacing:-.01em;overflow-wrap:anywhere}
+.ac-who>span{color:var(--muted);font-size:14px;overflow-wrap:anywhere}
+.ac-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:12px}
+.ac-chips.l{justify-content:flex-start;align-items:center;margin:0}
+.ac-chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:999px;border:1px solid var(--hair-2);font-size:12.5px;font-weight:500;color:var(--text-2);white-space:nowrap}
+.ac-chip .i{width:14px;height:14px;color:var(--brass-text)}
+.ac-chip.gilt{border-color:var(--brass);color:var(--brass-text)}
+.ac-sync{display:flex;align-items:center;gap:12px;margin-top:22px;padding:14px 16px;border-radius:12px;background:var(--folder-2);border:1px solid var(--hair);font-size:13.5px;line-height:1.45;color:var(--text-2);text-align:left}
+.ac-sync .i{flex:none;color:var(--brass-text)}
+.modal.ask .modal-h{margin-bottom:12px}
+.modal.ask .modal-h h2{font-size:clamp(24px,5vw,28px)}
+.ac-asktxt{margin:0 0 18px;line-height:1.55;font-size:14.5px}
+.ac-id{display:flex;align-items:center;gap:16px;min-width:0;flex:1 1 260px}
+.ac-id .av-lg{width:54px;height:54px;font-size:23px}
+.ac-id>div{min-width:0}
+.ac-id b{display:block;font:400 23px/1.2 var(--f-display);overflow-wrap:anywhere}
+.ac-id span{display:block;margin-top:3px;color:var(--muted);font-size:13.5px;overflow-wrap:anywhere}
+.pk-list{display:flex;flex-direction:column;gap:6px;width:100%}
+.pk-row{display:flex;align-items:center;gap:12px;padding:8px 8px 8px 14px;border-radius:10px;background:var(--folder-3)}
+.pk-row>.i{color:var(--brass-text)}
+.pk-row>div{flex:1;min-width:0}
+.pk-row b{display:block;font-weight:600;font-size:14px}
+.pk-row small{display:block;margin-top:2px;color:var(--muted);font-size:12.5px}
+.pk-list>.btn{align-self:flex-start;margin-top:4px}
+.set-acts{display:flex;gap:8px;flex-wrap:wrap}
+.danger-t{color:var(--again)}
+.ac-dangerbtn{border-color:color-mix(in srgb,var(--again) 45%,transparent)}
+.ac-dangerbtn:hover{background:color-mix(in srgb,var(--again) 10%,transparent);border-color:var(--again)}
+@media (max-width:620px){
+  .modal.acct{padding:26px 18px calc(24px + env(safe-area-inset-bottom,0px))}
+  .ac-hero{margin-bottom:20px}
+  .ac-x,.ac-back{top:10px}
+  .ac-id .av-lg{width:46px;height:46px;font-size:20px}
+}
+
 /* ── Divers ───────────────────────────────────────────────────────── */
 .c-img{display:block;max-width:100%;max-height:180px;margin:0 auto;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,.25)}
 .onb-langs{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
@@ -2290,6 +2396,7 @@ html[data-vt="out"]::view-transition-new(root){animation:vtLift .46s .12s cubic-
       <button class="lang-btn" id="langBtn" data-act="lang" data-i18n-aria="Langue" data-i18n-tip="Langue">FR</button>
       <button class="icon-btn" data-act="palette" data-i18n-aria="Rechercher (Ctrl K)" data-i18n-tip="Rechercher (Ctrl K)"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
       <button class="icon-btn hide-m" data-act="settings" data-i18n-aria="Réglages" data-i18n-tip="Réglages"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg></button>
+      <button class="acct-btn" id="acctBtn" data-act="account" aria-label="Compte"></button>
       <button class="pro-btn" id="proBtn" data-act="pro">Pro</button>
     </div>
   </header>
@@ -2810,14 +2917,19 @@ const IDB = {
   }
 };
 /** Base distante d'un abonné (serveur Engram, /api/sync), avec l'interface de la base de l'app Claude : collection().get(), doc(id).set() / .delete(). */
-function ServerDB(base, license) {
+function ServerDB(base, license, session) {
   const call = async (method, path, body) => {
-    const r = await fetch(base + '/api/sync' + path, { method, headers: { 'content-type': 'application/json', 'x-engram-license': license }, body: body === undefined ? undefined : JSON.stringify(body) });
+    // Le compte (session, relue à chaque appel : elle change avec le mot de passe), et le code d'abonnement pour le quota payant.
+    const headers = { 'content-type': 'application/json' }, s = typeof session === 'function' ? session() : session;
+    if (s) headers['x-engram-session'] = s;
+    if (license) headers['x-engram-license'] = license;
+    const r = await fetch(base + '/api/sync' + path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
     const j = await r.json().catch(() => ({}));
     if (!r.ok) throw { code: r.status === 413 || j.code === 'quota' ? 'quota_exceeded' : j.code || 'sync_error' };
     return j;
   };
   return {
+    who: !!session,
     collection: () => ({
       get: async () => { const j = await call('GET', ''); const docs = (j.docs || []).map(d => ({ id: d.id, data: () => d.data })); return { empty: !docs.length, docs }; },
       doc: id => ({ set: data => call('PUT', '/doc/' + encodeURIComponent(id), data), delete: () => call('DELETE', '/doc/' + encodeURIComponent(id)) })
@@ -2908,16 +3020,27 @@ const Store = {
   },
   touchDeck(d) { d.updatedAt = Date.now(); this.touch('deck:' + d.id); },
   schedule() { clearTimeout(this.timer); this.timer = setTimeout(() => this.flush(), 1200); },
-  async connect() {
+  /** Une seule connexion à la fois : le démarrage, les paiements et le compte peuvent la demander ensemble. */
+  connect() { return this.cp || (this.cp = this._connect().finally(() => { this.cp = null; })); },
+  /** Le compte change (connexion, déconnexion) : la synchronisation passe sur le bon espace. */
+  async reconnect() {
+    if (window.claude?.use) return;
+    await this.cp;
+    if (this.mode === 'cloud' && !!this.db?.who === !!Sess.get()) return;
+    clearTimeout(this.timer); this.mode = 'local'; this.db = null; this.col = null;
+    return this.connect();
+  },
+  async _connect() {
     let db = null, id = null;
     if (window.claude?.use) {
       let user = null;
       try { [db, user] = await Promise.all([claude.use('db'), claude.use('user')]); } catch { return; }
       if (!db || !user) return;
       try { id = await user.id(); } catch { }
-    } else if (Pay.on && Pro.paid && S.profile.pro.license && AI.serverUrl()) {
-      // Hors de l'app Claude : l'abonné synchronise par le serveur Engram, reconnu par son code d'abonnement.
-      db = ServerDB(AI.serverUrl().replace(/\/api\/ai$/, ''), S.profile.pro.license); id = 'abonnement';
+    } else if (AI.serverUrl() && (Sess.get() || (Pay.on && Pro.paid && S.profile.pro.license))) {
+      // Hors de l'app Claude : le compte (même gratuit), sinon l'abonné reconnu par son code d'abonnement, synchronise par le serveur Engram.
+      const sess = !!Sess.get();
+      db = ServerDB(AI.serverUrl().replace(/\/api\/ai$/, ''), Pro.paid ? S.profile.pro.license || '' : '', sess ? () => Sess.get() : null); id = sess ? 'compte' : 'abonnement';
     }
     if (!db || !id) return;
     this.db = db; this.uid = id; this.pulled = Date.now();
@@ -4702,6 +4825,7 @@ const App = {
     const pb = $('#proBtn'); pb.classList.toggle('on', Pro.on);
     pb.innerHTML = Pro.on ? `${icon('crown')}${Pro.expert ? t('Élite') : 'Pro'}` : 'Pro';
     pb.dataset.tip = Pro.on ? (Pro.trial ? t(Pro.gift ? 'Cadeau · encore {n}' : 'Essai · encore {n}', { n: tp(Pro.daysLeft(), '{n} jour|{n} jours') }) : Pro.name()) : t('Découvrir Engram Pro');
+    Account.chip();
     applyStatic($('#shell'));
   },
   after() {
@@ -6417,7 +6541,9 @@ const Pay = {
     this.refresh();
   },
   async post(path, body) {
-    const r = await fetch(this.base() + path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+    const headers = { 'content-type': 'application/json' }, s = Sess.get();
+    if (s) headers['x-engram-session'] = s; // connecté : l'achat est rattaché au compte
+    const r = await fetch(this.base() + path, { method: 'POST', headers, body: JSON.stringify(body) });
     const j = await r.json().catch(() => ({}));
     if (!r.ok) throw Object.assign(new Error(j.message || 'pay'), { code: j.code || 'pay_error' });
     return j;
@@ -6435,12 +6561,12 @@ const Pay = {
     catch (e) { this.fail(e); }
   },
   async claim(session) {
-    try { const j = await this.post('/claim', { session }); this.save(j); Pro.welcome(false); }
+    try { const j = await this.post('/claim', { session }); this.save(j); Pro.welcome(false); if (j.account) Account.me(true); }
     catch (e) { this.fail(e); }
   },
   save(j) {
     const prev = S.profile.pro || {};
-    S.profile.pro = { plan: j.plan === 'elite' ? 'expert' : 'pro', paid: true, license: j.license, until: j.until, ends: !!j.ends, billing: j.bill, email: j.email || prev.email || '', since: prev.paid && prev.since ? prev.since : Date.now(), checked: Date.now() };
+    S.profile.pro = { plan: j.plan === 'elite' ? 'expert' : 'pro', paid: true, license: j.license, until: j.until, ends: !!j.ends, billing: j.bill, email: j.email || prev.email || '', acct: j.account !== undefined ? !!j.account : !!prev.acct, since: prev.paid && prev.since ? prev.since : Date.now(), checked: Date.now() };
     Store.touch('profile'); App.chrome?.();
     if (Store.mode !== 'cloud') Store.connect().then(() => { if (Store.mode === 'cloud' && App.route.v === 'pro') App.render(); });
   },
@@ -6450,7 +6576,7 @@ const Pay = {
     if (!force && p.checked > Date.now() - 12 * HOUR && p.until > Date.now() + 2 * DAY) return;
     try {
       const j = await this.post('/status', { license: p.license });
-      if (j.plan === 'free') { S.profile.pro = { plan: 'free' }; S.profile.agents.autopilot = false; if (!window.claude?.use) { Store.mode = 'local'; Store.col = null; } Store.touch('profile'); App.render(); toast(t('Votre abonnement est terminé. Vous êtes revenu à Découverte, rien n\'est perdu.'), 'eye'); }
+      if (j.plan === 'free') { S.profile.pro = { plan: 'free' }; S.profile.agents.autopilot = false; if (!window.claude?.use && !Store.db?.who) { Store.mode = 'local'; Store.col = null; } Store.touch('profile'); App.render(); toast(t('Votre abonnement est terminé. Vous êtes revenu à Découverte, rien n\'est perdu.'), 'eye'); }
       else { this.save({ ...j, email: p.email }); if (force) App.render(); }
     } catch { }
   },
@@ -6464,8 +6590,503 @@ const Pay = {
     try {
       const j = await this.post('/status', { license: code });
       if (j.plan === 'free') { toast(t('Cet abonnement n\'est plus actif.'), 'eye'); return; }
-      this.save(j); App.render(); toast(t('Abonnement retrouvé : {p}.', { p: Pro.name() }), 'check');
+      this.save({ ...j, account: false }); App.render(); toast(t('Abonnement retrouvé : {p}.', { p: Pro.name() }), 'check');
     } catch (e) { this.fail(e); }
+  }
+};
+
+/* ════════════════════════════════════════════════════════════════════
+   COMPTES (server/account.mjs)
+   · Clé d'accès (Face ID, Touch ID, Windows Hello), Google, Apple, ou
+     e-mail et mot de passe : le serveur remet une session signée.
+   · La session reste dans localStorage (engram.session), jamais dans S :
+     le profil part sur le serveur de synchronisation.
+   · L'abonnement suit le compte : /me redonne le code d'abonnement sur
+     chaque appareil ; un code pris avant le compte y est lié une fois.
+   · Connecté, même sans abonnement, l'appareil synchronise ses paquets
+     dans l'espace du compte (25 Mo ; 300 Mo avec Pro).
+   · Sans serveur de comptes (aperçu, hébergement statique), le bouton
+     l'explique en une phrase : aucun bouton mort.
+   ════════════════════════════════════════════════════════════════════ */
+const Sess = {
+  K: 'engram.session', KU: 'engram.account',
+  get() { try { return localStorage.getItem(this.K) || ''; } catch { return ''; } },
+  set(v) { try { if (v) localStorage.setItem(this.K, v); else { localStorage.removeItem(this.K); localStorage.removeItem(this.KU); } } catch { } },
+  /** Nom et e-mail, pour dessiner l'avatar dès l'ouverture, avant la réponse du serveur. */
+  who(u) {
+    try {
+      if (u === undefined) return JSON.parse(localStorage.getItem(this.KU) || 'null');
+      localStorage.setItem(this.KU, JSON.stringify({ name: u?.name || '', email: u?.email || '' }));
+    } catch { }
+    return null;
+  }
+};
+/** base64url ⇄ ArrayBuffer, pour WebAuthn. */
+const B64U = {
+  enc(buf) { const b = new Uint8Array(buf); let s = ''; for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000)); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); },
+  dec(s) { s = String(s || '').replace(/-/g, '+').replace(/_/g, '/'); s += '='.repeat((4 - s.length % 4) % 4); const r = atob(s), b = new Uint8Array(r.length); for (let i = 0; i < r.length; i++) b[i] = r.charCodeAt(i); return b.buffer; }
+};
+Object.assign(I, {
+  user: '<circle cx="12" cy="8.2" r="3.6"/><path d="M4.8 20.2c.6-3.8 3.6-6.4 7.2-6.4s6.6 2.6 7.2 6.4"/>',
+  key: '<circle cx="8" cy="15.5" r="4"/><path d="m10.9 12.6 8.6-8.6M16.6 6.9l2.5 2.5M14 9.5l2 2"/>',
+  faceid: '<path d="M4 8.5V6.5A2.5 2.5 0 0 1 6.5 4h2M15.5 4h2A2.5 2.5 0 0 1 20 6.5v2M20 15.5v2a2.5 2.5 0 0 1-2.5 2.5h-2M8.5 20h-2A2.5 2.5 0 0 1 4 17.5v-2"/><path d="M9 9.5v1.2M15 9.5v1.2M12 9.5v3.8h-1.2M9.3 16c1.6 1.1 3.8 1.1 5.4 0"/>',
+  copy: '<rect x="8.5" y="8.5" width="11.5" height="11.5" rx="2"/><path d="M15.5 8.5V6A2 2 0 0 0 13.5 4H6a2 2 0 0 0-2 2v7.5a2 2 0 0 0 2 2h2.5"/>',
+  exit: '<path d="M14 4h3.5A2.5 2.5 0 0 1 20 6.5v11a2.5 2.5 0 0 1-2.5 2.5H14"/><path d="M10 8l-4 4 4 4M6 12h10"/>'
+});
+const APPLE_LOGO = '<svg viewBox="0 0 17 20" aria-hidden="true"><path d="M14.1 10.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2.1-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9C3.6 4.7 2 5.7 1.1 7.3c-1.8 3.2-.5 8 1.3 10.6.9 1.3 1.9 2.7 3.3 2.6 1.3-.1 1.8-.9 3.4-.9s2 .9 3.4.8c1.4 0 2.3-1.3 3.2-2.6 1-1.5 1.4-2.9 1.4-3-.1 0-2.9-1.1-3-4.2zM11.5 2.9c.7-.9 1.2-2 1.1-3.2-1 0-2.3.7-3 1.6-.7.8-1.3 2-1.1 3.1 1.1.1 2.3-.6 3-1.5z"/></svg>';
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const GIS_JS = 'https://accounts.google.com/gsi/client', APPLE_JS = 'https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js';
+const Account = {
+  cfg: null, user: null, sub: null, ready: false, p: null, m: null, view: 'in', email: '', busy: false, linkTried: false, scripts: {},
+  base() { const s = AI.serverUrl(); return s && !window.claude?.use ? s.replace(/\/api\/ai$/, '') + '/api/account' : ''; },
+  get on() { return !!this.cfg?.enabled; },
+  get signed() { return !!Sess.get(); },
+  get pkOk() { return !!(window.PublicKeyCredential && navigator.credentials?.create && window.isSecureContext); },
+  init() { return this.p || (this.p = this.load()); },
+  async load() {
+    const b = this.base();
+    if (b) {
+      try {
+        const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 6000);
+        const r = await fetch(b + '/config', { signal: ctl.signal }); clearTimeout(tm);
+        const j = r.ok ? await r.json().catch(() => null) : null;
+        this.cfg = j?.enabled ? j : null;
+        // Ce serveur ne gère pas de comptes : une ancienne session n'y sert plus.
+        if (j && j.enabled === false && this.signed) { Sess.set(''); Store.connect(); }
+      } catch { this.cfg = null; }
+    }
+    this.ready = true;
+    if (this.on && this.signed) { await this.me(); Store.reconnect(); }
+    App.chrome(); this.repaint();
+  },
+  /** Appel au serveur de comptes ; une erreur garde le code du serveur ({ code, retryAfter }). */
+  async call(path, body) {
+    const headers = { 'content-type': 'application/json' }, s = Sess.get();
+    if (s) headers['x-engram-session'] = s;
+    let r;
+    try { r = await fetch(this.base() + path, { method: body === undefined ? 'GET' : 'POST', headers, body: body === undefined ? undefined : JSON.stringify(body) }); }
+    catch { throw { code: 'network' }; }
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      const e = { code: j.code || (r.status === 429 ? 'rate_limited' : 'error'), retryAfter: +j.retryAfter || +r.headers.get('retry-after') || 0 };
+      if (e.code === 'no_session' && s && s === Sess.get()) this.lost();
+      throw e;
+    }
+    return j;
+  },
+  /** Une phrase claire pour chaque refus du serveur. */
+  msg(e, ctx) {
+    const c = e?.code;
+    if (c === 'rate_limited') return t('Trop d\'essais. Réessayez dans {n}.', { n: tp(Math.max(1, Math.ceil((e.retryAfter || 60) / 60)), '{n} minute|{n} minutes') });
+    if (ctx === 'confirm' && c === 'bad_credentials') return t('Mot de passe incorrect.');
+    if (ctx === 'license' && c === 'already_linked') return t('Cet abonnement est déjà lié à un autre compte.');
+    const M = {
+      bad_credentials: N_('E-mail ou mot de passe incorrect.'),
+      bad_email: N_('Cette adresse e-mail ne semble pas valide.'),
+      weak_password: N_('Choisissez un mot de passe d\'au moins 8 caractères.'),
+      unavailable: N_('Cette adresse ne peut pas servir à créer un compte. Si c\'est la vôtre, connectez-vous ou utilisez votre code de secours.'),
+      bad_recovery: N_('E-mail ou code de secours incorrect.'),
+      reauth_required: N_('Par sécurité, confirmez avec votre mot de passe.'),
+      reauth_signin: N_('Par sécurité, déconnectez-vous puis reconnectez-vous : vous aurez ensuite dix minutes pour supprimer le compte.'),
+      link_required: N_('Un compte Engram utilise déjà cet e-mail. Connectez-vous d\'abord, puis liez ce service dans Réglages, Compte.'),
+      already_linked: N_('Ce compte est déjà lié à un autre compte Engram.'),
+      passkey_failed: N_('Cette clé d\'accès n\'a pas été reconnue.'),
+      provider_off: N_('Ce mode de connexion n\'est pas disponible pour le moment.'),
+      no_session: N_('Votre session a expiré : reconnectez-vous.'),
+      network: N_('Pas de réponse du serveur. Vérifiez votre connexion et réessayez.'),
+      last_method: N_('Ajoutez d\'abord un autre moyen de vous connecter.'),
+      too_many: N_('Vous avez atteint le nombre maximal de clés d\'accès.'),
+      bad_request: N_('Saisissez votre e-mail et votre mot de passe.'),
+      no_password: N_('Ajoutez d\'abord un mot de passe.'),
+      exists: N_('Cette clé d\'accès est déjà enregistrée sur cet appareil.'),
+      unsupported: N_('Ce navigateur ne gère pas les clés d\'accès.')
+    };
+    return t(M[c] || N_('Le service de comptes ne répond pas. Réessayez dans un instant.'));
+  },
+  /** Le compte et son abonnement ; l'abonnement suit le compte sur cet appareil. */
+  async me(fresh) {
+    if (!this.on || !this.signed) return null;
+    try {
+      const j = await this.call('/me' + (fresh ? '?fresh=1' : ''));
+      this.user = j.user; this.sub = j.sub || null; Sess.who(j.user);
+      this.adopt(this.sub); App.chrome();
+      return j;
+    } catch { return null; }
+  },
+  adopt(sub) {
+    const p = S.profile.pro || {};
+    if (sub?.license) {
+      const plan = sub.plan === 'elite' ? 'expert' : 'pro';
+      if (!p.paid || p.plan !== plan || p.until !== sub.until || !!p.ends !== !!sub.ends || !p.acct) Pay.save({ ...sub, account: true });
+      else if (p.license !== sub.license) { p.license = sub.license; Store.soon(); }
+      return;
+    }
+    // Un abonnement pris sur cet appareil avant le compte : on le lie, une fois.
+    if (p.paid && p.license && !p.acct && !this.linkTried) { this.linkTried = true; this.link(p.license); }
+  },
+  async link(license) {
+    try {
+      const j = await this.call('/link-license', { license });
+      if (j.user) this.user = j.user;
+      this.sub = j.sub || null;
+      if (this.sub?.license) Pay.save({ ...this.sub, account: true });
+      else if (S.profile.pro?.paid) { S.profile.pro.acct = true; Store.touch('profile'); }
+      toast(t('Votre abonnement suit maintenant votre compte, sur tous vos appareils.'), 'link');
+      this.repaint();
+    } catch (e) { if (e.code === 'already_linked') toast(this.msg(e, 'license'), 'eye'); }
+  },
+  async signedIn(j) {
+    Sess.set(j.session); this.user = j.user; Sess.who(j.user); this.linkTried = false;
+    await this.me();
+    App.chrome(); this.repaint(); if (App.route.v === 'pro' && !Study.active) App.render();
+    Store.reconnect();
+  },
+  /** La session n'est plus reconnue (expirée, ou fermée ailleurs). */
+  lost() { const had = this.signed; this.drop(); if (had) toast(t('Votre session a expiré : reconnectez-vous.'), 'eye'); Store.connect(); },
+  /** Oublie la session : la synchronisation du compte s'arrête, les paquets restent sur l'appareil. */
+  drop() {
+    Sess.set(''); this.user = null; this.sub = null; this.linkTried = false;
+    if (Store.db?.who) { clearTimeout(Store.timer); Store.mode = 'local'; Store.db = null; Store.col = null; Store.dirty.clear(); }
+    // Un abonnement venu du compte reste au compte : il ne reste pas sur un appareil prêté.
+    if (S.profile.pro?.acct) { S.profile.pro = { plan: 'free' }; S.profile.agents.autopilot = false; Store.saveLocal(); }
+    App.chrome(); this.repaint();
+    if (App.route.v === 'pro' && !Study.active) App.render();
+  },
+  async signOut(all) {
+    if (all) { try { await this.call('/logout-all', {}); } catch (e) { if (e.code !== 'no_session') toast(this.msg(e), 'eye'); return; } }
+    if (Store.db?.who) await Promise.race([Store.flush(), new Promise(r => setTimeout(r, 3000))]);
+    this.drop();
+    toast(all ? t('Toutes les sessions sont fermées. Vos paquets restent sur cet appareil.') : t('Vous êtes déconnecté. Vos paquets restent sur cet appareil.'), 'check');
+  },
+
+  /* ── Clés d'accès (WebAuthn) ── */
+  /** Le nom que l'appareil donne à sa clé d'accès : Face ID, Touch ID, Windows Hello… */
+  bio() {
+    const ua = navigator.userAgent, pf = navigator.userAgentData?.platform || navigator.platform || '';
+    if (/iPhone|iPod/.test(ua)) return { name: 'Face ID', ic: 'faceid', dev: 'iPhone' };
+    if (/iPad/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1)) return { name: 'Face ID / Touch ID', ic: 'faceid', dev: 'iPad' };
+    if (/Mac/.test(pf) || /Macintosh/.test(ua)) return { name: 'Touch ID', ic: 'key', dev: 'Mac' };
+    if (/Win/.test(pf) || /Windows/.test(ua)) return { name: 'Windows Hello', ic: 'faceid', dev: 'Windows' };
+    return { name: '', ic: 'key', dev: /Android/.test(ua) ? 'Android' : '' };
+  },
+  keyLabel() { const b = this.bio(); return b.name ? t('Activer {x}', { x: b.name }) : t('Ajouter une clé d\'accès'); },
+  keyDone() { const b = this.bio(); return b.name ? t('{x} est activé pour Engram.', { x: b.name }) : t('Clé d\'accès ajoutée.'); },
+  /** kind : 'login' (se connecter) ou 'register' (ajouter une clé au compte ouvert). */
+  async passkey(kind) {
+    if (!this.pkOk) throw { code: 'unsupported' };
+    const o = await this.call(`/passkey/${kind}/options`, {}), pk = o.publicKey || {};
+    const ids = l => (l || []).map(c => ({ ...c, id: B64U.dec(c.id) }));
+    let cred;
+    try {
+      cred = kind === 'login'
+        ? await navigator.credentials.get({ publicKey: { ...pk, challenge: B64U.dec(pk.challenge), allowCredentials: ids(pk.allowCredentials) } })
+        : await navigator.credentials.create({ publicKey: { ...pk, challenge: B64U.dec(pk.challenge), user: { ...pk.user, id: B64U.dec(pk.user.id) }, excludeCredentials: ids(pk.excludeCredentials) } });
+    } catch (e) { throw { code: e?.name === 'InvalidStateError' ? 'exists' : e?.name === 'NotAllowedError' || e?.name === 'AbortError' ? 'cancelled' : e?.name === 'NotSupportedError' ? 'unsupported' : 'passkey_failed' }; }
+    if (!cred) throw { code: 'cancelled' };
+    const r = cred.response, out = { id: cred.id, rawId: B64U.enc(cred.rawId), type: cred.type, authenticatorAttachment: cred.authenticatorAttachment || null, response: { clientDataJSON: B64U.enc(r.clientDataJSON) } };
+    if (r.attestationObject) Object.assign(out.response, { attestationObject: B64U.enc(r.attestationObject), transports: r.getTransports?.() || [] });
+    if (r.authenticatorData) Object.assign(out.response, { authenticatorData: B64U.enc(r.authenticatorData), signature: B64U.enc(r.signature), ...(r.userHandle ? { userHandle: B64U.enc(r.userHandle) } : {}) });
+    return this.call(`/passkey/${kind}/verify`, kind === 'login' ? { token: o.token, credential: out } : { token: o.token, credential: out, label: this.bio().dev || t('Cet appareil') });
+  },
+  async addKey() { const j = await this.passkey('register'); this.user = j.user; this.repaint(); return j; },
+
+  /* ── Google et Apple : leurs scripts ne se chargent que s'ils sont configurés ── */
+  script(src) {
+    return this.scripts[src] || (this.scripts[src] = new Promise((res, rej) => {
+      const s = document.createElement('script'); s.src = src; s.async = true;
+      s.onload = () => res(); s.onerror = () => { delete this.scripts[src]; s.remove(); rej(new Error('script')); };
+      document.head.append(s);
+    }));
+  },
+  dark() { const c = (getComputedStyle(document.body).color.match(/\d+/g) || []).map(Number); return c.length >= 3 && c[0] + c[1] + c[2] > 400; },
+  /** Le bouton officiel de Google, dessiné dans box. */
+  async google(box) {
+    const id = this.cfg?.providers?.google; if (!id || !box) return;
+    try { await this.script(GIS_JS); } catch { box.remove(); return; }
+    const gid = window.google?.accounts?.id; if (!gid || !box.isConnected) return;
+    if (this.gInit !== id) { gid.initialize({ client_id: id, callback: r => this.gcb(r), ux_mode: 'popup', auto_select: false, cancel_on_tap_outside: true, itp_support: true }); this.gInit = id; }
+    box.innerHTML = '';
+    gid.renderButton(box, { type: 'standard', theme: this.dark() ? 'filled_black' : 'outline', size: box.classList.contains('sm') ? 'medium' : 'large', text: 'continue_with', shape: 'rectangular', logo_alignment: 'center', width: Math.round(Math.min(400, Math.max(200, box.clientWidth || 300))), locale: LANG });
+  },
+  gcb(r) {
+    if (!r?.credential) return;
+    this.busyDo(null, () => this.fed('google', { idToken: r.credential }), this.m?.querySelector('.ac') || $('#sAccount'));
+  },
+  async apple() {
+    const id = this.cfg?.providers?.apple; if (!id) throw { code: 'provider_off' };
+    try { await this.script(APPLE_JS); } catch { throw { code: 'network' }; }
+    if (this.aInit !== id) { AppleID.auth.init({ clientId: id, scope: 'name email', redirectURI: location.origin, usePopup: true }); this.aInit = id; }
+    let r; try { r = await AppleID.auth.signIn(); } catch { throw { code: 'cancelled' }; }
+    const tok = r?.authorization?.id_token; if (!tok) throw { code: 'cancelled' };
+    const n = r.user?.name, name = n ? [n.firstName, n.lastName].filter(Boolean).join(' ') : '';
+    return this.fed('apple', name ? { idToken: tok, name } : { idToken: tok });
+  },
+  /** Google ou Apple : se connecter, ou lier le service au compte ouvert. */
+  async fed(p, body) {
+    const linking = this.signed && !!this.user;
+    const j = await this.call('/' + p, body);
+    if (linking) { if (j.session) Sess.set(j.session); this.user = j.user; this.repaint(); toast(t('{x} est maintenant lié à votre compte.', { x: p === 'google' ? 'Google' : 'Apple' }), 'link'); return; }
+    await this.signedIn(j); Modal.close(); this.hello();
+  },
+
+  /* ── La feuille du compte ── */
+  initials() {
+    const u = this.user || Sess.who() || {}, n = String(u.name || '').trim();
+    if (n) return n.split(/\s+/).slice(0, 2).map(w => [...w][0]).join('').toUpperCase();
+    return ([...String(u.email || '')][0] || '·').toUpperCase();
+  },
+  avatar(cls = '') { return `<span class="av ${cls}" aria-hidden="true">${esc(this.initials())}</span>`; },
+  /** Le bouton de l'en-tête : les initiales quand un compte est ouvert. */
+  chip() {
+    const b = $('#acctBtn'); if (!b) return;
+    const on = this.signed && (this.on || !this.ready), u = this.user || Sess.who();
+    b.classList.toggle('on', on);
+    b.innerHTML = on ? this.avatar() : icon('user');
+    const lab = on && (u?.email || u?.name) ? t('Compte · {x}', { x: u.email || u.name }) : t('Compte');
+    b.setAttribute('aria-label', lab); b.dataset.tip = lab;
+  },
+  seal() { return $('.brand .seal')?.outerHTML || ''; },
+  hello() { const n = this.user?.name; toast(n ? t('Bienvenue, {x}.', { x: n }) : t('Vous êtes connecté.'), 'check'); },
+  async open(view, data) {
+    if (this.m?.isConnected) return;
+    if (!this.on && this.base()) { if (this.ready) this.p = null; await this.init(); }
+    const m = this.m = Modal.open('<div class="ac"></div>', 'acct');
+    Modal.onClose(m, () => { if (this.m === m) this.m = null; });
+    this.paint(view || (!this.on ? 'off' : this.signed ? 'me' : 'in'), data);
+  },
+  paint(v, data = {}) {
+    const box = this.m?.querySelector('.ac'); if (!box) return;
+    this.view = v; box.innerHTML = this.html(v, data); this.m.scrollTop = 0;
+    this.wire(box, v, data);
+  },
+  fEmail() { return `<div class="field"><label for="acEmail">${t('E-mail')}</label><input class="input" id="acEmail" name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="254" value="${esc(this.email)}"></div>`; },
+  fPw(id, name, label, ac, hint = '') {
+    return `<div class="field"><label for="${id}">${label}</label><div class="ac-pw"><input class="input" id="${id}" name="${name}" type="password" autocomplete="${ac}" maxlength="1024"><button type="button" class="ac-eye" aria-label="${esc(t('Afficher le mot de passe'))}" aria-pressed="false">${icon('eye')}</button></div>${hint ? `<span class="ac-hint">${hint}</span>` : ''}</div>`;
+  },
+  html(v, d) {
+    const x = `<button type="button" class="icon-btn ac-x" data-act="close" aria-label="${esc(t('Fermer'))}">${icon('x')}</button>`;
+    if (v === 'off') return x + `<div class="ac-hero">${this.seal()}<div class="kicker">${t('Compte Engram')}</div><p class="lead">${this.signed ? t('Le service de comptes ne répond pas pour le moment : vos paquets restent sur cet appareil.') : t('Les comptes arrivent avec le site en ligne : ici, vos paquets restent sur cet appareil.')}</p></div><div class="modal-f"><button type="button" class="btn btn-brass btn-lg" data-act="close">${t('Compris')}</button></div>`;
+    if (v === 'me') {
+      const u = this.user || { ...(Sess.who() || {}), providers: [] }, synced = Store.mode === 'cloud' && Store.db?.who;
+      const chips = (u.providers || []).map(p => `<span class="ac-chip">${icon('check', 'i-sm')}${esc(this.pName(p))}</span>`).join('') + `<span class="ac-chip ${Pro.paid ? 'gilt' : ''}">${icon(Pro.paid ? 'crown' : 'bookmark', 'i-sm')}${esc(Pro.paid ? Pro.name() : t('Découverte'))}</span>`;
+      return x + `<div class="ac-who">${this.avatar('av-lg')}<b>${esc(u.name || u.email || t('Votre compte'))}</b>${u.name && u.email ? `<span>${esc(u.email)}</span>` : ''}<div class="ac-chips">${chips}</div></div>
+        <div class="ac-sync">${icon('cloud')}<span>${synced ? t('Vos paquets sont synchronisés sur tous vos appareils.') : S.demo ? t('Les paquets d\'exemple restent sur cet appareil ; les vôtres vous suivront partout.') : t('La synchronisation démarre dès que le serveur répond.')}</span></div>
+        <div class="modal-f split"><button type="button" class="btn ac-out">${icon('exit', 'i-sm')}${t('Se déconnecter')}</button><button type="button" class="btn btn-brass ac-set">${icon('settings', 'i-sm')}${t('Gérer le compte')}</button></div>`;
+    }
+    if (v === 'code') {
+      const b = this.bio(), offer = d.first && this.pkOk && !(this.user?.passkeys || []).length;
+      return `<div class="ac-hero">${this.seal()}<div class="kicker">${d.first ? t('Compte créé') : d.recovered ? t('Compte retrouvé') : t('Nouveau code')}</div><h2>${t('Votre code de secours')}</h2><p>${d.first ? t('Il remplace votre mot de passe si vous l\'oubliez. Gardez-le en lieu sûr : il ne sera plus affiché.') : t('L\'ancien code ne fonctionne plus. Gardez celui-ci en lieu sûr : il ne sera plus affiché.')}</p></div>
+        <div class="ac-code"><small>Engram · ${t('code de secours')}</small><b class="tnum">${esc(d.code)}</b></div>
+        <div class="ac-acts"><button type="button" class="btn" data-ac="copy">${icon('copy', 'i-sm')}${t('Copier')}</button><button type="button" class="btn" data-ac="dl">${icon('download', 'i-sm')}${t('Télécharger')}</button></div>
+        ${offer ? `<div class="ac-offer"><span class="ac-ico">${icon(b.ic)}</span><b>${t('Connexion en un geste')}</b><span>${b.name ? t('{x} remplace le mot de passe sur cet appareil.', { x: b.name }) : t('Une clé d\'accès remplace le mot de passe sur cet appareil.')}</span><button type="button" class="btn ac-pkadd">${icon(b.ic, 'i-sm')}${this.keyLabel()}</button><p class="ac-err" role="alert"></p></div>` : ''}
+        <div class="modal-f"><button type="button" class="btn btn-brass btn-lg ac-done">${t('C\'est noté')}</button></div>`;
+    }
+    if (v === 'recover') return `<button type="button" class="icon-btn ac-back" data-go="in" aria-label="${esc(t('Retour'))}">${icon('back')}</button>${x}
+      <div class="ac-hero">${this.seal()}<h2>${t('Retrouver votre compte')}</h2><p>${t('Saisissez le code de secours reçu à la création du compte, puis choisissez un nouveau mot de passe.')}</p></div>
+      <form class="ac-form" novalidate>
+        ${this.fEmail()}
+        <div class="field"><label for="acCode">${t('Code de secours')}</label><input class="input ac-mono" id="acCode" name="code" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="XXXXX-XXXXX-XXXXX-XXXXX" maxlength="40"></div>
+        ${this.fPw('acPw', 'password', t('Nouveau mot de passe'), 'new-password', t('8 caractères au moins.'))}
+        <p class="ac-err" role="alert"></p>
+        <button class="btn btn-brass btn-lg" type="submit">${t('Retrouver mon compte')}</button>
+      </form>
+      <p class="ac-foot">${icon('info', 'i-sm')}<span>${t('Code perdu ? Sur un appareil encore connecté, créez-en un nouveau dans Réglages, Compte.')}</span></p>`;
+    // Se connecter / créer un compte
+    const up = v === 'up', b = this.bio(), P = this.cfg?.providers || {};
+    const quick = [
+      !up && this.pkOk ? `<button type="button" class="btn ac-pk">${icon(b.ic)}${t('Continuer avec une clé d\'accès')}</button>` : '',
+      P.google ? '<div class="ac-g"></div>' : '',
+      P.apple ? `<button type="button" class="btn btn-apple ac-apple">${APPLE_LOGO}${t('Continuer avec Apple')}</button>` : ''
+    ].filter(Boolean);
+    return x + `<div class="ac-hero">${this.seal()}<h2>${up ? t('Créer votre compte') : t('Vos fiches, sur tous vos appareils.')}</h2><p>${t('Un compte garde vos paquets et votre abonnement, de l\'iPhone à l\'ordinateur.')}</p></div>
+      ${quick.length ? `<div class="ac-quick">${quick.join('')}<p class="ac-err" role="alert"></p></div><div class="ac-or">${t('ou avec votre e-mail')}</div>` : ''}
+      <div class="seg ac-tabs" role="tablist"><button type="button" role="tab" data-tab="in" class="${up ? '' : 'on'}" aria-selected="${!up}">${t('Se connecter@@compte')}</button><button type="button" role="tab" data-tab="up" class="${up ? 'on' : ''}" aria-selected="${up}">${t('Créer un compte')}</button></div>
+      <form class="ac-form" novalidate>
+        ${up ? `<div class="field"><label for="acName">${t('Prénom')} <span class="opt">· ${t('facultatif')}</span></label><input class="input" id="acName" name="given" autocomplete="given-name" maxlength="60" value="${esc(S.profile.study?.name || '')}"></div>` : ''}
+        ${this.fEmail()}
+        ${this.fPw('acPw', 'password', t('Mot de passe'), up ? 'new-password' : 'current-password', up ? t('8 caractères au moins. Une phrase facile à retenir fait très bien l\'affaire.') : '')}
+        <p class="ac-err" role="alert"></p>
+        <button class="btn btn-brass btn-lg" type="submit">${up ? t('Créer mon compte') : t('Se connecter@@compte')}</button>
+        ${up ? '' : `<button type="button" class="ac-link" data-go="recover">${t('Mot de passe oublié ?')}</button>`}
+      </form>
+      <p class="ac-foot">${icon('shield', 'i-sm')}<span>${t('Votre e-mail sert seulement à vous connecter. Ni publicité, ni revente.')}</span></p>`;
+  },
+  /** Œil du mot de passe, effacement de l'erreur dès qu'on retape. */
+  fields(root) {
+    root.querySelectorAll('.ac-eye').forEach(b => b.addEventListener('click', () => {
+      const inp = b.previousElementSibling, show = inp.type === 'password';
+      inp.type = show ? 'text' : 'password'; b.classList.toggle('on', show); b.setAttribute('aria-pressed', show);
+      b.setAttribute('aria-label', show ? t('Masquer le mot de passe') : t('Afficher le mot de passe'));
+    }));
+    root.querySelectorAll('input').forEach(i => i.addEventListener('input', () => {
+      i.removeAttribute('aria-invalid'); root.querySelectorAll('.ac-err').forEach(e => { e.textContent = ''; });
+      if (i.name === 'email') this.email = i.value.trim();
+    }));
+  },
+  wire(box, v, d) {
+    this.fields(box);
+    const on = (sel, fn) => box.querySelector(sel)?.addEventListener('click', e => fn(e.currentTarget));
+    on('.ac-pk', b => this.busyDo(b, async () => { const j = await this.passkey('login'); await this.signedIn(j); Modal.close(); this.hello(); }, box));
+    on('.ac-apple', b => this.busyDo(b, () => this.apple(), box));
+    if (this.cfg?.providers?.apple && box.querySelector('.ac-apple')) this.script(APPLE_JS).catch(() => { });
+    const g = box.querySelector('.ac-g'); if (g) this.google(g);
+    box.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => { if (b.dataset.tab !== v) this.paint(b.dataset.tab); }));
+    box.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => this.paint(b.dataset.go)));
+    const f = box.querySelector('form.ac-form');
+    f?.addEventListener('submit', e => { e.preventDefault(); if (v === 'recover') this.recover(f); else this.submit(f, v === 'up'); });
+    on('[data-ac="copy"]', () => this.copy(d.code));
+    on('[data-ac="dl"]', () => this.saveCode(d.code));
+    on('.ac-offer .ac-pkadd', b => this.busyDo(b, async () => {
+      await this.addKey();
+      const o = box.querySelector('.ac-offer'); if (o) o.outerHTML = `<p class="ac-ok">${icon('check')}<span>${esc(this.keyDone())}</span></p>`;
+    }, box.querySelector('.ac-offer')));
+    on('.ac-done', () => { Modal.close(); if (d.first) this.hello(); });
+    on('.ac-out', () => { Modal.close(); this.signOut(false); });
+    on('.ac-set', () => { Modal.close(); App.go('settings', 'account'); });
+    if (f && !matchMedia('(pointer: coarse)').matches) setTimeout(() => f.querySelector('input')?.focus({ preventScroll: true }), 80);
+  },
+  async submit(f, up) {
+    const el = n => f.elements.namedItem(n), email = el('email').value.trim(), password = el('password').value;
+    if (!EMAIL_RE.test(email)) return this.fail(f, { code: 'bad_email' }, el('email'));
+    if (!password) return this.fail(f, { code: 'bad_request' }, el('password'));
+    if (up && [...password].length < 8) return this.fail(f, { code: 'weak_password' }, el('password'));
+    await this.busyDo(f.querySelector('[type=submit]'), async () => {
+      if (up) {
+        const j = await this.call('/signup', { email, password, name: el('given')?.value.trim() || '' });
+        await this.signedIn(j); this.paint('code', { code: j.recoveryCode, first: true });
+      } else { const j = await this.call('/login', { email, password }); await this.signedIn(j); Modal.close(); this.hello(); }
+    }, f);
+  },
+  async recover(f) {
+    const el = n => f.elements.namedItem(n), email = el('email').value.trim(), code = el('code').value.trim(), pw = el('password').value;
+    if (!EMAIL_RE.test(email)) return this.fail(f, { code: 'bad_email' }, el('email'));
+    if (code.replace(/[^0-9a-z]/gi, '').length < 20) return this.fail(f, { code: 'bad_recovery' }, el('code'));
+    if ([...pw].length < 8) return this.fail(f, { code: 'weak_password' }, el('password'));
+    await this.busyDo(f.querySelector('[type=submit]'), async () => {
+      const j = await this.call('/recover', { email, recoveryCode: code, newPassword: pw });
+      await this.signedIn(j); this.paint('code', { code: j.recoveryCode, recovered: true });
+    }, f);
+  },
+  /** Un bouton occupé le temps de l'appel ; l'erreur s'affiche dans scope (ou en bulle). */
+  async busyDo(btn, fn, scope) {
+    if (this.busy) return; this.busy = true;
+    const keep = btn?.innerHTML;
+    if (btn) { btn.disabled = true; btn.classList.add('ac-busy'); btn.innerHTML = icon('spin') + `<span>${esc(btn.textContent.trim())}</span>`; }
+    try { await fn(); }
+    catch (e) { if (e instanceof Error) console.error(e); if (e?.code !== 'cancelled') this.fail(scope, e); }
+    finally { this.busy = false; if (btn?.isConnected) { btn.disabled = false; btn.classList.remove('ac-busy'); btn.innerHTML = keep; } }
+  },
+  fail(scope, e, field) {
+    const box = scope?.querySelector?.('.ac-err'), msg = this.msg(e, scope?.dataset?.ctx);
+    if (field) { field.setAttribute('aria-invalid', 'true'); field.focus(); }
+    if (box) box.textContent = msg; else toast(msg, 'eye');
+  },
+  async copy(code) {
+    try { await navigator.clipboard.writeText(code); toast(t('Code copié'), 'check'); }
+    catch { const b = this.m?.querySelector('.ac-code b'); if (b) getSelection().selectAllChildren(b); toast(t('Sélectionnez le code, puis copiez-le.'), 'eye'); }
+  },
+  saveCode(code) {
+    const u = this.user || {}, when = fmtDate(new Date(), { day: 'numeric', month: 'long', year: 'numeric' });
+    const txt = [t('Engram — code de secours'), '', t('Compte : {x}', { x: u.email || u.name || '' }), t('Code : {x}', { x: code }), t('Créé le {d}', { d: when }), '',
+      t('Ce code remplace votre mot de passe si vous l\'oubliez : sur l\'écran de connexion, touchez « Mot de passe oublié ? ». Il ne sert qu\'une fois ; un nouveau code vous est alors remis. Gardez-le en lieu sûr.'), ''].join('\r\n');
+    saveFile(`engram-${slug(t('code de secours'))}.txt`, txt);
+  },
+
+  /* ── Réglages, section « Compte » ── */
+  pName(p) { return { password: t('E-mail et mot de passe'), passkey: t('Clé d\'accès'), google: 'Google', apple: 'Apple' }[p] || p; },
+  section() {
+    if (!this.on) return '';
+    const head = `<div class="sec-h"><div><h2 class="h2">${t('Compte')}</h2><p>${t('Vos paquets et votre abonnement vous suivent sur tous vos appareils.')}</p></div></div>`;
+    const wrap = rows => `<section class="sec" id="sAccount">${head}<article class="panel"><div class="settings">${rows}</div></article></section>`;
+    if (!this.signed) return wrap(setRow(t('Se connecter ou créer un compte'), t('Une minute suffit. Les paquets de cet appareil sont gardés et rejoignent votre compte.'), `<button type="button" class="btn btn-sm btn-brass" data-act="account">${icon('user', 'i-sm')}${t('Se connecter@@compte')}</button>`));
+    const u = this.user;
+    if (!u) { const c = Sess.who() || {}; return wrap(setRow(esc(c.name || c.email || t('Votre compte')), t('Connexion au serveur…'), `<span class="pill"><i></i>${t('Vérification…')}</span>`)); }
+    const has = p => (u.providers || []).includes(p), P = this.cfg.providers || {}, synced = Store.mode === 'cloud' && Store.db?.who;
+    const since = u.created ? t('Membre depuis {d}', { d: fmtDate(new Date(u.created), { month: 'long', year: 'numeric' }) }) : '';
+    const keys = (u.passkeys || []).map(k => `<div class="pk-row">${icon('key')}<div><b>${esc(k.label || t('Clé d\'accès'))}</b><small>${esc(t('Ajoutée le {d}', { d: fmtDate(new Date(k.created)) }) + (k.lastUsed ? ' · ' + t('utilisée le {d}', { d: fmtDate(new Date(k.lastUsed)) }) : ''))}</small></div><button type="button" class="icon-btn" data-pkdel="${esc(k.id)}" aria-label="${esc(t('Retirer la clé {x}', { x: k.label || '' }))}" data-tip="${esc(t('Retirer'))}">${icon('trash', 'i-sm')}</button></div>`).join('');
+    const links = (P.google && !has('google') ? '<div class="ac-g sm"></div>' : '') + (P.apple && !has('apple') ? `<button type="button" class="btn btn-sm btn-apple ac-apple">${APPLE_LOGO}${t('Lier Apple')}</button>` : '');
+    return wrap(`
+      <div class="set-row"><div class="ac-id">${this.avatar('av-lg')}<div><b>${esc(u.name || u.email || t('Votre compte'))}</b><span>${esc([u.name && u.email, since].filter(Boolean).join(' · '))}</span></div></div><span class="pill ${synced ? 'on' : ''}"><i></i>${synced ? t('Synchronisé') : t('Connecté')}</span></div>
+      ${setRow(t('Moyens de connexion'), t('Chacun ouvre le même compte.'), `<div class="ac-chips l">${(u.providers || []).map(p => `<span class="ac-chip">${icon('check', 'i-sm')}${esc(this.pName(p))}</span>`).join('')}${links}</div>`)}
+      <div class="set-row col"><div class="t"><b>${t('Clés d\'accès')}</b><span>${t('Face ID, Touch ID, Windows Hello ou votre gestionnaire de mots de passe, à la place du mot de passe.')}</span></div><div class="pk-list">${keys}${this.pkOk ? `<button type="button" class="btn btn-sm ac-pkadd">${icon('plus', 'i-sm')}${this.keyLabel()}</button>` : `<span class="muted" style="font-size:13px">${t('Ce navigateur ne gère pas les clés d\'accès.')}</span>`}</div></div>
+      ${u.email ? setRow(t('Mot de passe'), has('password') ? t('Changer de mot de passe déconnecte vos autres appareils.') : t('Ajoutez-en un pour vous connecter aussi avec votre e-mail.'), `<button type="button" class="btn btn-sm ac-pwd">${icon('pen', 'i-sm')}${has('password') ? t('Changer') : t('Ajouter')}</button>`) : ''}
+      ${has('password') ? setRow(t('Code de secours'), t('Il remplace votre mot de passe si vous l\'oubliez. Un nouveau code annule l\'ancien.'), `<button type="button" class="btn btn-sm ac-code-new">${icon('refresh', 'i-sm')}${t('Nouveau code')}</button>`) : ''}
+      ${setRow(t('Abonnement'), Pro.paid ? t('{p} : il suit votre compte sur tous vos appareils.', { p: esc(Pro.name()) }) : t('Découverte : vos paquets se synchronisent jusqu\'à 25 Mo, 300 Mo avec Pro.'), `<button type="button" class="btn btn-sm" data-act="go" data-v="pro">${icon('crown', 'i-sm')}${Pro.paid ? t('Gérer') : t('Voir les formules')}</button>`)}
+      ${setRow(t('Session'), t('Vos paquets restent sur cet appareil.'), `<div class="set-acts"><button type="button" class="btn btn-sm ac-out">${icon('exit', 'i-sm')}${t('Se déconnecter')}</button><button type="button" class="btn btn-sm btn-ghost ac-outall">${t('Se déconnecter partout')}</button></div>`)}
+      ${setRow(`<span class="danger-t">${t('Supprimer le compte')}</span>`, t('Efface le compte et la copie de vos paquets sur le serveur. Ceux de cet appareil restent.'), `<button type="button" class="btn btn-sm btn-danger ac-del">${icon('trash', 'i-sm')}${t('Supprimer…')}</button>`)}`);
+  },
+  /** Redessine la section des réglages (connexion, déconnexion, clé ajoutée…). */
+  repaint() {
+    const el = $('#sAccount');
+    if (!el) { if (App.route.v === 'settings' && this.on && !Study.active) App.render(); return; }
+    const html = this.section();
+    if (!html) { el.remove(); return; }
+    const tmp = document.createElement('div'); tmp.innerHTML = html; el.replaceWith(tmp.firstElementChild); this.bind();
+  },
+  bind() {
+    const sec = $('#sAccount'); if (!sec) return;
+    const g = sec.querySelector('.ac-g'); if (g) this.google(g);
+    sec.addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b || b.disabled) return;
+      if (b.matches('.ac-pkadd')) this.busyDo(b, async () => { await this.addKey(); toast(this.keyDone(), 'check'); }, sec);
+      else if (b.dataset.pkdel) this.busyDo(b, async () => { const j = await this.call('/passkey/delete', { id: b.dataset.pkdel }); this.user = j.user; this.repaint(); toast(t('Clé d\'accès retirée. Vous pouvez aussi l\'effacer des réglages de l\'appareil.'), 'check'); }, sec);
+      else if (b.matches('.ac-code-new')) this.newCode();
+      else if (b.matches('.ac-pwd')) this.changePw();
+      else if (b.matches('.ac-out')) this.signOut(false);
+      else if (b.matches('.ac-outall')) this.signOut(true);
+      else if (b.matches('.ac-del')) this.del();
+      else if (b.matches('.ac-apple')) this.busyDo(b, () => this.apple(), sec);
+    });
+  },
+  /** Petite fenêtre de confirmation (mot de passe, mot à taper). */
+  ask(o) {
+    const m = Modal.open(`<form class="ac-ask" novalidate data-ctx="confirm">
+      <div class="modal-h"><div><div class="kicker">${t('Compte Engram')}</div><h2>${o.title}</h2></div></div>
+      ${o.text ? `<p class="muted ac-asktxt">${o.text}</p>` : ''}
+      <div class="ac-form">${o.fields.map(f => f.pw ? this.fPw(f.id, f.id, f.label, f.ac, f.hint) : `<div class="field"><label for="${f.id}">${f.label}</label><input class="input ac-mono" id="${f.id}" name="${f.id}" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="${esc(f.ph || '')}"></div>`).join('')}
+      <p class="ac-err" role="alert"></p></div>
+      <div class="modal-f"><button type="button" class="btn btn-ghost" data-act="close">${t('Annuler')}</button><button type="submit" class="btn ${o.danger ? 'btn-danger ac-dangerbtn' : 'btn-brass'}">${o.ok}</button></div></form>`, 'acct ask');
+    const f = m.querySelector('form'), ok = f.querySelector('[type=submit]'), el = n => f.elements.namedItem(n);
+    this.fields(f);
+    if (o.gate) { const upd = () => { ok.disabled = !o.gate(el); }; f.addEventListener('input', upd); upd(); }
+    f.addEventListener('submit', e => { e.preventDefault(); if (!ok.disabled) this.busyDo(ok, () => o.run(el), f); });
+    return m;
+  },
+  newCode() {
+    this.ask({ title: t('Nouveau code de secours'), text: t('L\'ancien code cessera de fonctionner. Confirmez avec votre mot de passe.'), ok: t('Créer le code'),
+      fields: [{ id: 'acCur', label: t('Mot de passe'), pw: true, ac: 'current-password' }],
+      run: async el => { const j = await this.call('/recovery-code', { password: el('acCur').value }); Modal.close(); setTimeout(() => this.open('code', { code: j.recoveryCode }), 60); } });
+  },
+  changePw() {
+    const has = !!this.user?.providers?.includes('password');
+    this.ask({ title: has ? t('Changer le mot de passe') : t('Ajouter un mot de passe'), text: has ? t('Vos autres appareils seront déconnectés.') : t('Vous pourrez aussi vous connecter avec {x}.', { x: esc(this.user?.email || '') }), ok: t('Enregistrer'),
+      fields: [...(has ? [{ id: 'acCur', label: t('Mot de passe actuel'), pw: true, ac: 'current-password' }] : []), { id: 'acNew', label: t('Nouveau mot de passe'), pw: true, ac: 'new-password', hint: t('8 caractères au moins.') }],
+      run: async el => {
+        if ([...el('acNew').value].length < 8) throw { code: 'weak_password' };
+        const j = await this.call('/password', { password: el('acNew').value, ...(has ? { current: el('acCur').value } : {}) });
+        Sess.set(j.session); this.user = j.user; Sess.who(j.user); this.repaint(); Modal.close();
+        if (j.recoveryCode) setTimeout(() => this.open('code', { code: j.recoveryCode }), 60); else toast(t('Mot de passe enregistré.'), 'check');
+      } });
+  },
+  del() {
+    const has = !!this.user?.providers?.includes('password'), word = t('SUPPRIMER');
+    this.ask({ title: t('Supprimer le compte ?'), danger: true, ok: t('Supprimer définitivement'),
+      text: t('Le compte, ses moyens de connexion et la copie de vos paquets sur le serveur seront effacés. Les paquets de cet appareil restent.') + (Pro.paid ? ' ' + t('Pensez à arrêter votre abonnement avant, depuis la page Pro.') : ''),
+      fields: [...(has ? [{ id: 'acCur', label: t('Mot de passe'), pw: true, ac: 'current-password' }] : []), { id: 'acWord', label: t('Tapez {w} pour confirmer', { w: esc(word) }), ph: word }],
+      gate: el => el('acWord').value.trim().toLocaleUpperCase() === word.toLocaleUpperCase() && (!has || !!el('acCur').value),
+      run: async el => {
+        const go = () => this.call('/delete', has ? { password: el('acCur').value } : {});
+        try { await go(); }
+        catch (e) {
+          if (e.code !== 'reauth_required' || has) throw e;
+          // Sans mot de passe : la clé d'accès confirme que c'est bien vous (et ouvre une session récente).
+          if (!this.pkOk || !(this.user?.passkeys || []).length) throw { code: 'reauth_signin' };
+          const j = await this.passkey('login');
+          if (j.user?.id !== this.user?.id) throw { code: 'passkey_failed' };
+          Sess.set(j.session); await go();
+        }
+        Modal.close(); this.drop(); toast(t('Votre compte est supprimé. Vos paquets restent sur cet appareil.'), 'check');
+      } });
   }
 };
 function payHTML() {
@@ -8117,6 +8738,7 @@ const Actions = {
   study: el => Study.start({ deckId: el.dataset.deck }),
   cram: el => Study.start({ deckId: el.dataset.deck, cram: true }),
   close: () => Modal.close(),
+  account: () => Account.open(),
   checkup: () => openCheckup(),
   newDeck: () => openNewDeck(),
   addCard: el => openEditor(null, el.dataset.deck),
@@ -8234,11 +8856,12 @@ Views.settings = arg => {
   const s = S.profile.settings, st = S.profile.study;
   const aiTxt = { on: t('Connectée'), off: t('Non disponible ici'), denied: t('Non autorisée'), locked: t("Code d'accès requis"), checking: t('Vérification…') }[AI.status];
   const via = AI.via === 'claude' ? t('via votre compte Claude') : AI.via === 'server' ? t('via le serveur Engram') : '';
-  const nav = [['sProfile', t('Profil et programme')], ['sLook', t('Apparence')], ['sLang', t('Langue')], ['sStudy', t('Révision')], ['sAI', t('IA et Mentor')], ['sData', t('Données et intégrations')]];
+  const nav = [...(Account.on ? [['sAccount', t('Compte')]] : []), ['sProfile', t('Profil et programme')], ['sLook', t('Apparence')], ['sLang', t('Langue')], ['sStudy', t('Révision')], ['sAI', t('IA et Mentor')], ['sData', t('Données et intégrations')]];
   const wd = weekdayNames('short');
   return `
     <header class="rise"><div class="kicker">${t('Préférences')}</div><h1 class="display" style="margin-top:12px">${words(t('Réglages.'))}</h1></header>
     <nav class="set-nav rise">${nav.map(([id, l]) => `<a href="#${id}" data-jump="${id}">${l}</a>`).join('')}</nav>
+    ${Account.section()}
 
     <section class="sec" id="sProfile"><div class="sec-h"><div><h2 class="h2">${t('Profil et programme')}</h2><p>${t('Ce que vous visez et le temps dont vous disposez : Engram et Mentor bâtissent votre programme à partir de là.')}</p></div></div>
     <article class="panel rise"><div class="settings">
@@ -8394,7 +9017,8 @@ Hooks.settings = arg => {
   $('#memAdd')?.addEventListener('submit', e => { e.preventDefault(); const v = $('#memIn').value.trim(); if (!v) return; S.profile.memory.push(v.slice(0, 200)); Store.touch('profile'); App.render(); });
   $('#aiRecheck')?.addEventListener('click', async () => { s.aiServer = $('#aiSrv').value.trim(); s.aiCode = $('#aiCode').value.trim(); Store.touch('profile'); if (AI.via !== 'claude') { AI.status = 'checking'; await AI.probeServer(); AI.changed(); toast(AI.on ? t('Serveur IA connecté') : AI.nokey ? t("Serveur trouvé, mais sans clé d'API : ajoutez ANTHROPIC_API_KEY puis redéployez.") : t('Serveur IA introuvable'), AI.on ? 'check' : 'x'); App.render(); } });
   $$('.set-nav [data-jump]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); $('#' + a.dataset.jump)?.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'start' }); }));
-  const sec = { look: 'sLook', ai: 'sAI', data: 'sData' }[arg];
+  Account.bind();
+  const sec = { account: 'sAccount', look: 'sLook', ai: 'sAI', data: 'sData' }[arg];
   if (sec) setTimeout(() => $('#' + sec)?.scrollIntoView({ block: 'start' }), 60);
 };
 
@@ -8573,7 +9197,8 @@ const Study = {
   typeable(c, f) { return ['basic', 'cloze', 'occlusion'].includes(c.type) && !!f.expected; },
   miniBox() {
     const m = maturity(this.scope.filter(Boolean).flatMap(d => d.cards));
-    return `<div class="mini-box" id="miniBox" aria-hidden="true">${COMP.map(k => `<div class="mini-comp" data-c="${k}" style="--c:${ST_COLORS[k]}">${m[k]}</div>`).join('')}</div>`;
+    const L = { n: 'Nouvelles', l: 'En cours', y: 'Jeunes', m: 'Acquises' };
+    return `<div class="mini-box" id="miniBox" aria-hidden="true">${COMP.map(k => `<div class="mini-comp" data-c="${k}" style="--c:${ST_COLORS[k]}" data-tip="${esc(t(L[k]))} · ${num(m[k])}">${m[k]}</div>`).join('')}</div>`;
   },
   render(enter = false) {
     if (!this.cur) { if (this.summaryOn) this.summary(true); return; }
@@ -8643,6 +9268,14 @@ const Study = {
     if (Math.abs(h - base) > 1) { card.style.minHeight = '0px'; card.style.height = h + 'px'; }
     this.sheet(card, main, faces, room);
     faces.forEach(f => Ruling.snap(f, f.querySelector('.face-body')));
+    // La petite boîte des compartiments ne doit jamais chevaucher la fiche, le verdict, le prof virtuel ou les notes (texte agrandi, fenêtre étroite).
+    const mb = $('#miniBox');
+    if (mb) {
+      mb.style.visibility = '';
+      const r = mb.getBoundingClientRect();
+      const hit = r.width && $$('#study :is(.card3d,.verdict,.tutor,.grades,.answer-box,.inkpad,.reveal)').some(k => { const q = k.getBoundingClientRect(); return q.width && q.right > r.left - 12 && q.left < r.right + 12 && q.bottom > r.top - 12 && q.top < r.bottom + 12; });
+      if (hit) mb.style.visibility = 'hidden';
+    }
     card.querySelectorAll('img').forEach(im => { if (!im.complete) im.addEventListener('load', () => this.layout(), { once: true }); });
   },
   bodyNeed(b) { const j = b.style.justifyContent; b.style.justifyContent = 'flex-start'; const h = b.scrollHeight; b.style.justifyContent = j; return h; },
@@ -8886,6 +9519,20 @@ const Study = {
     const box = $('#tutorBox'); if (!box || !AI.on) return;
     box.innerHTML = `<div class="tutor"><div class="tutor-h">${icon('bulb', 'i-sm')}${t('Prof virtuel')}</div><p id="tutorTxt"><span class="thinking"><i></i><i></i><i></i></span></p></div>`;
     this.tutorCtl?.abort(); this.tutorCtl = new AbortController(); const card = this.cur;
+    // La fiche se resserre pour laisser la place à l'explication, qui ne passe plus sous les boutons de notation.
+    $('#study .st-main')?.classList.add('has-tutor');
+    let lastH = 0, raf = 0;
+    // L'explication prend la place qui reste sous la fiche (au moins 140 px, elle défile ensuite d'elle-même) ;
+    // la fiche garde sa hauteur utile au lieu d'être écrasée ou poussée hors de l'écran.
+    const fit = () => { if (raf) return; raf = requestAnimationFrame(() => {
+      raf = 0; const tb = $('#tutorBox .tutor'), main = $('#study .st-main'); if (!tb || !main || this.cur !== card) return;
+      const h = tb.scrollHeight; if (Math.abs(h - lastH) < 20) return; lastH = h;
+      tb.style.maxHeight = ''; this.layout();
+      const over = main.scrollHeight - main.clientHeight;
+      if (over > 0) { tb.style.maxHeight = Math.max(140, tb.offsetHeight - over) + 'px'; this.layout(); }
+      if (main.scrollHeight > main.clientHeight) tb.scrollIntoView({ block: 'nearest', behavior: REDUCED ? 'auto' : 'smooth' });
+    }); };
+    fit();
     S.profile.flags.curious = 1;
     const prompt = `You are a private tutor who is ${TONES[S.profile.settings.tone]?.ai || TONES.gentle.ai}. A student is revising a flashcard and keeps stumbling on it.
 Question: ${plain(f.question)}
@@ -8893,8 +9540,8 @@ Right answer: ${plain(f.expected)}${this.typed ? `\nTheir answer: ${this.typed}`
 
 Explain the idea differently, in 4 sentences at most, with a concrete everyday analogy. End with one line that starts with "${t('Astuce :')}" and gives a short mnemonic. Write in ${aiLang()}, simply, no heading, no list, no markdown.`;
     try {
-      await AI.ask(prompt, { signal: this.tutorCtl.signal, onText: ({ text }) => { if (this.cur === card) { const p = $('#tutorTxt'); if (p) p.textContent = text; } } });
-    } catch (e) { const p = $('#tutorTxt'); if (p && this.cur === card) p.textContent = e?.text || AI.fail(e) || ''; }
+      await AI.ask(prompt, { signal: this.tutorCtl.signal, onText: ({ text }) => { if (this.cur === card) { const p = $('#tutorTxt'); if (p) { p.textContent = text; fit(); } } } });
+    } catch (e) { const p = $('#tutorTxt'); if (p && this.cur === card) { p.textContent = e?.text || AI.fail(e) || ''; fit(); } }
   },
   speakCur() {
     const [c, d] = this.cur; const f = cardFaces(c); const [lq, la] = cardLangs(c, d);
@@ -13516,6 +14163,137 @@ TR = {
   "Insérer un tableau": ["Insert a table","Insertar una tabla","Tabelle einfügen","Inserir uma tabela"],
   "Colonne {n}": ["Column {n}","Columna {n}","Spalte {n}","Coluna {n}"],
   "Tableau collé": ["Table pasted","Tabla pegada","Tabelle eingefügt","Tabela colada"],
+  "Compte": ["Account","Cuenta","Konto","Conta"],
+  "Compte · {x}": ["Account · {x}","Cuenta · {x}","Konto · {x}","Conta · {x}"],
+  "Compte Engram": ["Engram account","Cuenta de Engram","Engram-Konto","Conta Engram"],
+  "Trop d'essais. Réessayez dans {n}.": ["Too many attempts. Try again in {n}.","Demasiados intentos. Inténtalo de nuevo en {n}.","Zu viele Versuche. Versuch es in {n} noch einmal.","Muitas tentativas. Tente de novo em {n}."],
+  "Mot de passe incorrect.": ["Incorrect password.","Contraseña incorrecta.","Falsches Passwort.","Senha incorreta."],
+  "Cet abonnement est déjà lié à un autre compte.": ["This subscription is already linked to another account.","Esta suscripción ya está vinculada a otra cuenta.","Dieses Abo ist bereits mit einem anderen Konto verknüpft.","Esta assinatura já está vinculada a outra conta."],
+  "E-mail ou mot de passe incorrect.": ["Incorrect email or password.","Correo o contraseña incorrectos.","E-Mail oder Passwort ist falsch.","E-mail ou senha incorretos."],
+  "Cette adresse e-mail ne semble pas valide.": ["This email address doesn't look valid.","Esta dirección de correo no parece válida.","Diese E-Mail-Adresse scheint ungültig zu sein.","Este endereço de e-mail não parece válido."],
+  "Choisissez un mot de passe d'au moins 8 caractères.": ["Choose a password of at least 8 characters.","Elige una contraseña de al menos 8 caracteres.","Wähle ein Passwort mit mindestens 8 Zeichen.","Escolha uma senha com pelo menos 8 caracteres."],
+  "Cette adresse ne peut pas servir à créer un compte. Si c'est la vôtre, connectez-vous ou utilisez votre code de secours.": ["This address can't be used to create an account. If it's yours, sign in or use your recovery code.","Esta dirección no puede usarse para crear una cuenta. Si es tuya, inicia sesión o usa tu código de recuperación.","Mit dieser Adresse kann kein Konto erstellt werden. Wenn es deine ist, melde dich an oder nutze deinen Wiederherstellungscode.","Este endereço não pode ser usado para criar uma conta. Se for seu, entre ou use seu código de recuperação."],
+  "E-mail ou code de secours incorrect.": ["Incorrect email or recovery code.","Correo o código de recuperación incorrectos.","E-Mail oder Wiederherstellungscode ist falsch.","E-mail ou código de recuperação incorretos."],
+  "Par sécurité, confirmez avec votre mot de passe.": ["For your security, confirm with your password.","Por seguridad, confirma con tu contraseña.","Bestätige zur Sicherheit mit deinem Passwort.","Por segurança, confirme com sua senha."],
+  "Par sécurité, déconnectez-vous puis reconnectez-vous : vous aurez ensuite dix minutes pour supprimer le compte.": ["For your security, sign out and sign back in: you'll then have ten minutes to delete the account.","Por seguridad, cierra sesión y vuelve a entrar: después tendrás diez minutos para eliminar la cuenta.","Melde dich zur Sicherheit ab und wieder an: Danach hast du zehn Minuten, um das Konto zu löschen.","Por segurança, saia e entre novamente: depois você terá dez minutos para excluir a conta."],
+  "Un compte Engram utilise déjà cet e-mail. Connectez-vous d'abord, puis liez ce service dans Réglages, Compte.": ["An Engram account already uses this email. Sign in first, then link this service in Settings, Account.","Una cuenta de Engram ya usa este correo. Inicia sesión primero y luego vincula este servicio en Ajustes, Cuenta.","Ein Engram-Konto nutzt diese E-Mail bereits. Melde dich zuerst an und verknüpfe diesen Dienst dann unter Einstellungen, Konto.","Uma conta Engram já usa este e-mail. Entre primeiro e depois vincule este serviço em Ajustes, Conta."],
+  "Ce compte est déjà lié à un autre compte Engram.": ["This account is already linked to another Engram account.","Esta cuenta ya está vinculada a otra cuenta de Engram.","Dieses Konto ist bereits mit einem anderen Engram-Konto verknüpft.","Esta conta já está vinculada a outra conta Engram."],
+  "Cette clé d'accès n'a pas été reconnue.": ["This passkey wasn't recognized.","No se reconoció esta llave de acceso.","Dieser Passkey wurde nicht erkannt.","Esta chave de acesso não foi reconhecida."],
+  "Ce mode de connexion n'est pas disponible pour le moment.": ["This sign-in method isn't available right now.","Este método de acceso no está disponible por ahora.","Diese Anmeldeart ist gerade nicht verfügbar.","Este método de acesso não está disponível no momento."],
+  "Votre session a expiré : reconnectez-vous.": ["Your session has expired: please sign in again.","Tu sesión ha caducado: vuelve a iniciar sesión.","Deine Sitzung ist abgelaufen: Melde dich erneut an.","Sua sessão expirou: entre novamente."],
+  "Pas de réponse du serveur. Vérifiez votre connexion et réessayez.": ["No response from the server. Check your connection and try again.","El servidor no responde. Revisa tu conexión e inténtalo de nuevo.","Keine Antwort vom Server. Prüfe deine Verbindung und versuch es noch einmal.","Sem resposta do servidor. Verifique sua conexão e tente de novo."],
+  "Ajoutez d'abord un autre moyen de vous connecter.": ["Add another way to sign in first.","Añade primero otro modo de iniciar sesión.","Füge zuerst eine andere Anmeldemöglichkeit hinzu.","Adicione primeiro outra forma de entrar."],
+  "Vous avez atteint le nombre maximal de clés d'accès.": ["You've reached the maximum number of passkeys.","Has alcanzado el número máximo de llaves de acceso.","Du hast die maximale Anzahl an Passkeys erreicht.","Você atingiu o número máximo de chaves de acesso."],
+  "Saisissez votre e-mail et votre mot de passe.": ["Enter your email and password.","Introduce tu correo y tu contraseña.","Gib deine E-Mail und dein Passwort ein.","Digite seu e-mail e sua senha."],
+  "Ajoutez d'abord un mot de passe.": ["Add a password first.","Añade primero una contraseña.","Füge zuerst ein Passwort hinzu.","Adicione uma senha primeiro."],
+  "Cette clé d'accès est déjà enregistrée sur cet appareil.": ["This passkey is already saved on this device.","Esta llave de acceso ya está guardada en este dispositivo.","Dieser Passkey ist auf diesem Gerät bereits gespeichert.","Esta chave de acesso já está salva neste dispositivo."],
+  "Ce navigateur ne gère pas les clés d'accès.": ["This browser doesn't support passkeys.","Este navegador no admite llaves de acceso.","Dieser Browser unterstützt keine Passkeys.","Este navegador não suporta chaves de acesso."],
+  "Le service de comptes ne répond pas. Réessayez dans un instant.": ["The account service isn't responding. Try again in a moment.","El servicio de cuentas no responde. Inténtalo de nuevo en un momento.","Der Kontodienst antwortet nicht. Versuch es gleich noch einmal.","O serviço de contas não está respondendo. Tente de novo em instantes."],
+  "Votre abonnement suit maintenant votre compte, sur tous vos appareils.": ["Your subscription now follows your account, on all your devices.","Tu suscripción ahora sigue a tu cuenta, en todos tus dispositivos.","Dein Abo folgt jetzt deinem Konto, auf all deinen Geräten.","Sua assinatura agora acompanha sua conta, em todos os seus dispositivos."],
+  "Toutes les sessions sont fermées. Vos paquets restent sur cet appareil.": ["All sessions are closed. Your decks stay on this device.","Todas las sesiones están cerradas. Tus mazos se quedan en este dispositivo.","Alle Sitzungen sind beendet. Deine Stapel bleiben auf diesem Gerät.","Todas as sessões foram encerradas. Seus baralhos ficam neste dispositivo."],
+  "Vous êtes déconnecté. Vos paquets restent sur cet appareil.": ["You're signed out. Your decks stay on this device.","Has cerrado sesión. Tus mazos se quedan en este dispositivo.","Du bist abgemeldet. Deine Stapel bleiben auf diesem Gerät.","Você saiu. Seus baralhos ficam neste dispositivo."],
+  "Activer {x}": ["Turn on {x}","Activar {x}","{x} aktivieren","Ativar {x}"],
+  "Ajouter une clé d'accès": ["Add a passkey","Añadir una llave de acceso","Passkey hinzufügen","Adicionar uma chave de acesso"],
+  "{x} est activé pour Engram.": ["{x} is now on for Engram.","{x} está activado para Engram.","{x} ist für Engram aktiviert.","{x} está ativado para o Engram."],
+  "Clé d'accès ajoutée.": ["Passkey added.","Llave de acceso añadida.","Passkey hinzugefügt.","Chave de acesso adicionada."],
+  "Cet appareil": ["This device","Este dispositivo","Dieses Gerät","Este dispositivo"],
+  "{x} est maintenant lié à votre compte.": ["{x} is now linked to your account.","{x} ya está vinculado a tu cuenta.","{x} ist jetzt mit deinem Konto verknüpft.","{x} agora está vinculado à sua conta."],
+  "Bienvenue, {x}.": ["Welcome, {x}.","Hola, {x}.","Willkommen, {x}.","Olá, {x}."],
+  "Vous êtes connecté.": ["You're signed in.","Has iniciado sesión.","Du bist angemeldet.","Você entrou."],
+  "Le service de comptes ne répond pas pour le moment : vos paquets restent sur cet appareil.": ["The account service isn't responding right now: your decks stay on this device.","El servicio de cuentas no responde por ahora: tus mazos se quedan en este dispositivo.","Der Kontodienst antwortet gerade nicht: Deine Stapel bleiben auf diesem Gerät.","O serviço de contas não está respondendo no momento: seus baralhos ficam neste dispositivo."],
+  "Les comptes arrivent avec le site en ligne : ici, vos paquets restent sur cet appareil.": ["Accounts come with the online site: here, your decks stay on this device.","Las cuentas llegan con el sitio en línea: aquí, tus mazos se quedan en este dispositivo.","Konten gibt es mit der Online-Version: Hier bleiben deine Stapel auf diesem Gerät.","As contas chegam com o site online: aqui, seus baralhos ficam neste dispositivo."],
+  "Votre compte": ["Your account","Tu cuenta","Dein Konto","Sua conta"],
+  "Vos paquets sont synchronisés sur tous vos appareils.": ["Your decks are synced across all your devices.","Tus mazos están sincronizados en todos tus dispositivos.","Deine Stapel sind auf all deinen Geräten synchronisiert.","Seus baralhos estão sincronizados em todos os seus dispositivos."],
+  "Les paquets d'exemple restent sur cet appareil ; les vôtres vous suivront partout.": ["The sample decks stay on this device; yours will follow you everywhere.","Los mazos de ejemplo se quedan en este dispositivo; los tuyos te seguirán a todas partes.","Die Beispielstapel bleiben auf diesem Gerät; deine eigenen folgen dir überallhin.","Os baralhos de exemplo ficam neste dispositivo; os seus vão com você para todo lugar."],
+  "Se déconnecter": ["Sign out","Cerrar sesión","Abmelden","Sair"],
+  "Gérer le compte": ["Manage account","Gestionar la cuenta","Konto verwalten","Gerenciar conta"],
+  "Compte créé": ["Account created","Cuenta creada","Konto erstellt","Conta criada"],
+  "Compte retrouvé": ["Account recovered","Cuenta recuperada","Konto wiederhergestellt","Conta recuperada"],
+  "Nouveau code": ["New code","Código nuevo","Neuer Code","Novo código"],
+  "Votre code de secours": ["Your recovery code","Tu código de recuperación","Dein Wiederherstellungscode","Seu código de recuperação"],
+  "Il remplace votre mot de passe si vous l'oubliez. Gardez-le en lieu sûr : il ne sera plus affiché.": ["It replaces your password if you forget it. Keep it somewhere safe: it won't be shown again.","Sustituye a tu contraseña si la olvidas. Guárdalo en un lugar seguro: no se volverá a mostrar.","Er ersetzt dein Passwort, falls du es vergisst. Bewahre ihn sicher auf: Er wird nicht noch einmal angezeigt.","Ele substitui sua senha se você esquecê-la. Guarde-o em lugar seguro: ele não será exibido de novo."],
+  "L'ancien code ne fonctionne plus. Gardez celui-ci en lieu sûr : il ne sera plus affiché.": ["The old code no longer works. Keep this one somewhere safe: it won't be shown again.","El código anterior ya no funciona. Guarda este en un lugar seguro: no se volverá a mostrar.","Der alte Code funktioniert nicht mehr. Bewahre diesen sicher auf: Er wird nicht noch einmal angezeigt.","O código antigo não funciona mais. Guarde este em lugar seguro: ele não será exibido de novo."],
+  "code de secours": ["recovery code","código de recuperación","Wiederherstellungscode","código de recuperação"],
+  "Télécharger": ["Download","Descargar","Herunterladen","Baixar"],
+  "Connexion en un geste": ["Sign in with one gesture","Acceso con un gesto","Anmelden mit einer Geste","Acesso com um gesto"],
+  "{x} remplace le mot de passe sur cet appareil.": ["{x} replaces the password on this device.","{x} sustituye a la contraseña en este dispositivo.","{x} ersetzt das Passwort auf diesem Gerät.","{x} substitui a senha neste dispositivo."],
+  "Une clé d'accès remplace le mot de passe sur cet appareil.": ["A passkey replaces the password on this device.","Una llave de acceso sustituye a la contraseña en este dispositivo.","Ein Passkey ersetzt das Passwort auf diesem Gerät.","Uma chave de acesso substitui a senha neste dispositivo."],
+  "C'est noté": ["I've saved it","Ya lo he guardado","Notiert","Já guardei"],
+  "Retrouver votre compte": ["Recover your account","Recupera tu cuenta","Konto wiederherstellen","Recupere sua conta"],
+  "Saisissez le code de secours reçu à la création du compte, puis choisissez un nouveau mot de passe.": ["Enter the recovery code you got when you created the account, then choose a new password.","Introduce el código de recuperación que recibiste al crear la cuenta y elige una contraseña nueva.","Gib den Wiederherstellungscode ein, den du beim Erstellen des Kontos erhalten hast, und wähle dann ein neues Passwort.","Digite o código de recuperação recebido ao criar a conta e escolha uma nova senha."],
+  "Code de secours": ["Recovery code","Código de recuperación","Wiederherstellungscode","Código de recuperação"],
+  "Nouveau mot de passe": ["New password","Contraseña nueva","Neues Passwort","Nova senha"],
+  "8 caractères au moins.": ["At least 8 characters.","Al menos 8 caracteres.","Mindestens 8 Zeichen.","Pelo menos 8 caracteres."],
+  "Retrouver mon compte": ["Recover my account","Recuperar mi cuenta","Mein Konto wiederherstellen","Recuperar minha conta"],
+  "Code perdu ? Sur un appareil encore connecté, créez-en un nouveau dans Réglages, Compte.": ["Lost the code? On a device that's still signed in, create a new one in Settings, Account.","¿Perdiste el código? En un dispositivo con la sesión abierta, crea uno nuevo en Ajustes, Cuenta.","Code verloren? Erstelle auf einem noch angemeldeten Gerät unter Einstellungen, Konto einen neuen.","Perdeu o código? Em um dispositivo ainda conectado, crie um novo em Ajustes, Conta."],
+  "Continuer avec une clé d'accès": ["Continue with a passkey","Continuar con una llave de acceso","Mit Passkey fortfahren","Continuar com uma chave de acesso"],
+  "Continuer avec Apple": ["Continue with Apple","Continuar con Apple","Mit Apple fortfahren","Continuar com a Apple"],
+  "Créer votre compte": ["Create your account","Crea tu cuenta","Erstelle dein Konto","Crie sua conta"],
+  "Vos fiches, sur tous vos appareils.": ["Your cards, on all your devices.","Tus tarjetas, en todos tus dispositivos.","Deine Karten, auf all deinen Geräten.","Seus cartões, em todos os seus dispositivos."],
+  "Un compte garde vos paquets et votre abonnement, de l'iPhone à l'ordinateur.": ["An account keeps your decks and subscription, from iPhone to computer.","Una cuenta guarda tus mazos y tu suscripción, del iPhone al ordenador.","Ein Konto bewahrt deine Stapel und dein Abo auf, vom iPhone bis zum Computer.","Uma conta guarda seus baralhos e sua assinatura, do iPhone ao computador."],
+  "ou avec votre e-mail": ["or with your email","o con tu correo","oder mit deiner E-Mail","ou com seu e-mail"],
+  "Se connecter@@compte": ["Sign in","Iniciar sesión","Anmelden","Entrar"],
+  "Créer un compte": ["Create an account","Crear una cuenta","Konto erstellen","Criar uma conta"],
+  "facultatif": ["optional","opcional","optional","opcional"],
+  "Mot de passe": ["Password","Contraseña","Passwort","Senha"],
+  "8 caractères au moins. Une phrase facile à retenir fait très bien l'affaire.": ["At least 8 characters. An easy-to-remember phrase works very well.","Al menos 8 caracteres. Una frase fácil de recordar funciona muy bien.","Mindestens 8 Zeichen. Ein leicht zu merkender Satz eignet sich sehr gut.","Pelo menos 8 caracteres. Uma frase fácil de lembrar funciona muito bem."],
+  "Créer mon compte": ["Create my account","Crear mi cuenta","Mein Konto erstellen","Criar minha conta"],
+  "Mot de passe oublié ?": ["Forgot your password?","¿Olvidaste tu contraseña?","Passwort vergessen?","Esqueceu a senha?"],
+  "Votre e-mail sert seulement à vous connecter. Ni publicité, ni revente.": ["Your email is only used to sign you in. No ads, no reselling.","Tu correo solo sirve para iniciar sesión. Ni publicidad ni reventa.","Deine E-Mail dient nur zur Anmeldung. Keine Werbung, kein Weiterverkauf.","Seu e-mail serve só para você entrar. Sem publicidade, sem revenda."],
+  "Afficher le mot de passe": ["Show password","Mostrar contraseña","Passwort anzeigen","Mostrar senha"],
+  "Masquer le mot de passe": ["Hide password","Ocultar contraseña","Passwort verbergen","Ocultar senha"],
+  "Code copié": ["Code copied","Código copiado","Code kopiert","Código copiado"],
+  "Sélectionnez le code, puis copiez-le.": ["Select the code, then copy it.","Selecciona el código y cópialo.","Markiere den Code und kopiere ihn.","Selecione o código e copie-o."],
+  "Engram — code de secours": ["Engram — recovery code","Engram — código de recuperación","Engram — Wiederherstellungscode","Engram — código de recuperação"],
+  "Compte : {x}": ["Account: {x}","Cuenta: {x}","Konto: {x}","Conta: {x}"],
+  "Code : {x}": ["Code: {x}","Código: {x}","Code: {x}","Código: {x}"],
+  "Créé le {d}": ["Created on {d}","Creado el {d}","Erstellt am {d}","Criado em {d}"],
+  "Ce code remplace votre mot de passe si vous l'oubliez : sur l'écran de connexion, touchez « Mot de passe oublié ? ». Il ne sert qu'une fois ; un nouveau code vous est alors remis. Gardez-le en lieu sûr.": ["This code replaces your password if you forget it: on the sign-in screen, tap “Forgot your password?”. It works only once; you then get a new code. Keep it somewhere safe.","Este código sustituye a tu contraseña si la olvidas: en la pantalla de inicio de sesión, toca «¿Olvidaste tu contraseña?». Sirve una sola vez; después recibes un código nuevo. Guárdalo en un lugar seguro.","Dieser Code ersetzt dein Passwort, falls du es vergisst: Tippe auf dem Anmeldebildschirm auf „Passwort vergessen?“. Er gilt nur einmal; danach erhältst du einen neuen Code. Bewahre ihn sicher auf.","Este código substitui sua senha se você esquecê-la: na tela de acesso, toque em “Esqueceu a senha?”. Ele vale uma única vez; depois você recebe um novo código. Guarde-o em lugar seguro."],
+  "E-mail et mot de passe": ["Email and password","Correo y contraseña","E-Mail und Passwort","E-mail e senha"],
+  "Clé d'accès": ["Passkey","Llave de acceso","Passkey","Chave de acesso"],
+  "Clés d'accès": ["Passkeys","Llaves de acceso","Passkeys","Chaves de acesso"],
+  "Vos paquets et votre abonnement vous suivent sur tous vos appareils.": ["Your decks and subscription follow you on all your devices.","Tus mazos y tu suscripción te siguen en todos tus dispositivos.","Deine Stapel und dein Abo begleiten dich auf all deinen Geräten.","Seus baralhos e sua assinatura acompanham você em todos os seus dispositivos."],
+  "Se connecter ou créer un compte": ["Sign in or create an account","Inicia sesión o crea una cuenta","Anmelden oder Konto erstellen","Entre ou crie uma conta"],
+  "Une minute suffit. Les paquets de cet appareil sont gardés et rejoignent votre compte.": ["It takes a minute. The decks on this device are kept and join your account.","Basta un minuto. Los mazos de este dispositivo se conservan y se suman a tu cuenta.","Eine Minute genügt. Die Stapel auf diesem Gerät bleiben erhalten und kommen in dein Konto.","Leva um minuto. Os baralhos deste dispositivo são mantidos e passam para sua conta."],
+  "Connexion au serveur…": ["Connecting to the server…","Conectando con el servidor…","Verbindung zum Server…","Conectando ao servidor…"],
+  "Ajoutée le {d}": ["Added on {d}","Añadida el {d}","Hinzugefügt am {d}","Adicionada em {d}"],
+  "utilisée le {d}": ["used on {d}","usada el {d}","verwendet am {d}","usada em {d}"],
+  "Retirer la clé {x}": ["Remove the {x} passkey","Quitar la llave {x}","Passkey {x} entfernen","Remover a chave {x}"],
+  "Lier Apple": ["Link Apple","Vincular Apple","Apple verknüpfen","Vincular Apple"],
+  "Connecté": ["Signed in","Conectado","Angemeldet","Conectado"],
+  "Moyens de connexion": ["Sign-in methods","Métodos de acceso","Anmeldemethoden","Formas de acesso"],
+  "Chacun ouvre le même compte.": ["Each one opens the same account.","Todos abren la misma cuenta.","Jede öffnet dasselbe Konto.","Todas abrem a mesma conta."],
+  "Face ID, Touch ID, Windows Hello ou votre gestionnaire de mots de passe, à la place du mot de passe.": ["Face ID, Touch ID, Windows Hello or your password manager, instead of a password.","Face ID, Touch ID, Windows Hello o tu gestor de contraseñas, en lugar de la contraseña.","Face ID, Touch ID, Windows Hello oder dein Passwortmanager statt eines Passworts.","Face ID, Touch ID, Windows Hello ou seu gerenciador de senhas, no lugar da senha."],
+  "Changer de mot de passe déconnecte vos autres appareils.": ["Changing your password signs out your other devices.","Cambiar la contraseña cierra la sesión en tus otros dispositivos.","Wenn du dein Passwort änderst, werden deine anderen Geräte abgemeldet.","Trocar a senha desconecta seus outros dispositivos."],
+  "Ajoutez-en un pour vous connecter aussi avec votre e-mail.": ["Add one to also sign in with your email.","Añade una para entrar también con tu correo.","Füge eines hinzu, um dich auch mit deiner E-Mail anzumelden.","Adicione uma para entrar também com seu e-mail."],
+  "Il remplace votre mot de passe si vous l'oubliez. Un nouveau code annule l'ancien.": ["It replaces your password if you forget it. A new code cancels the old one.","Sustituye a tu contraseña si la olvidas. Un código nuevo anula el anterior.","Er ersetzt dein Passwort, falls du es vergisst. Ein neuer Code macht den alten ungültig.","Ele substitui sua senha se você esquecê-la. Um novo código anula o anterior."],
+  "Abonnement": ["Subscription","Suscripción","Abo","Assinatura"],
+  "{p} : il suit votre compte sur tous vos appareils.": ["{p}: it follows your account on all your devices.","{p}: sigue a tu cuenta en todos tus dispositivos.","{p}: Es folgt deinem Konto auf all deine Geräte.","{p}: acompanha sua conta em todos os seus dispositivos."],
+  "Découverte : vos paquets se synchronisent jusqu'à 25 Mo, 300 Mo avec Pro.": ["Discovery: your decks sync up to 25 MB, 300 MB with Pro.","Descubrimiento: tus mazos se sincronizan hasta 25 MB, 300 MB con Pro.","Entdecken: Deine Stapel werden bis 25 MB synchronisiert, mit Pro bis 300 MB.","Descoberta: seus baralhos sincronizam até 25 MB, 300 MB com o Pro."],
+  "Gérer": ["Manage","Gestionar","Verwalten","Gerenciar"],
+  "Session": ["Session","Sesión","Sitzung","Sessão"],
+  "Se déconnecter partout": ["Sign out everywhere","Cerrar sesión en todas partes","Überall abmelden","Sair de todos os dispositivos"],
+  "Supprimer le compte": ["Delete account","Eliminar la cuenta","Konto löschen","Excluir conta"],
+  "Efface le compte et la copie de vos paquets sur le serveur. Ceux de cet appareil restent.": ["Erases the account and the copy of your decks on the server. The ones on this device stay.","Borra la cuenta y la copia de tus mazos en el servidor. Los de este dispositivo se quedan.","Löscht das Konto und die Kopie deiner Stapel auf dem Server. Die auf diesem Gerät bleiben.","Apaga a conta e a cópia dos seus baralhos no servidor. Os deste dispositivo ficam."],
+  "Supprimer…": ["Delete…","Eliminar…","Löschen…","Excluir…"],
+  "Clé d'accès retirée. Vous pouvez aussi l'effacer des réglages de l'appareil.": ["Passkey removed. You can also delete it from the device's settings.","Llave de acceso quitada. También puedes borrarla de los ajustes del dispositivo.","Passkey entfernt. Du kannst ihn auch in den Einstellungen des Geräts löschen.","Chave de acesso removida. Você também pode apagá-la nos ajustes do dispositivo."],
+  "Nouveau code de secours": ["New recovery code","Nuevo código de recuperación","Neuer Wiederherstellungscode","Novo código de recuperação"],
+  "L'ancien code cessera de fonctionner. Confirmez avec votre mot de passe.": ["The old code will stop working. Confirm with your password.","El código anterior dejará de funcionar. Confirma con tu contraseña.","Der alte Code wird ungültig. Bestätige mit deinem Passwort.","O código antigo deixará de funcionar. Confirme com sua senha."],
+  "Créer le code": ["Create the code","Crear el código","Code erstellen","Criar o código"],
+  "Changer le mot de passe": ["Change password","Cambiar la contraseña","Passwort ändern","Alterar a senha"],
+  "Ajouter un mot de passe": ["Add a password","Añadir una contraseña","Passwort hinzufügen","Adicionar uma senha"],
+  "Vos autres appareils seront déconnectés.": ["Your other devices will be signed out.","Se cerrará la sesión en tus otros dispositivos.","Deine anderen Geräte werden abgemeldet.","Seus outros dispositivos serão desconectados."],
+  "Vous pourrez aussi vous connecter avec {x}.": ["You'll also be able to sign in with {x}.","También podrás entrar con {x}.","Du kannst dich dann auch mit {x} anmelden.","Você também poderá entrar com {x}."],
+  "Mot de passe actuel": ["Current password","Contraseña actual","Aktuelles Passwort","Senha atual"],
+  "Mot de passe enregistré.": ["Password saved.","Contraseña guardada.","Passwort gespeichert.","Senha salva."],
+  "SUPPRIMER": ["DELETE","ELIMINAR","LÖSCHEN","EXCLUIR"],
+  "Supprimer le compte ?": ["Delete the account?","¿Eliminar la cuenta?","Konto löschen?","Excluir a conta?"],
+  "Le compte, ses moyens de connexion et la copie de vos paquets sur le serveur seront effacés. Les paquets de cet appareil restent.": ["The account, its sign-in methods and the copy of your decks on the server will be erased. The decks on this device stay.","Se borrarán la cuenta, sus métodos de acceso y la copia de tus mazos en el servidor. Los mazos de este dispositivo se quedan.","Das Konto, seine Anmeldemethoden und die Kopie deiner Stapel auf dem Server werden gelöscht. Die Stapel auf diesem Gerät bleiben.","A conta, suas formas de acesso e a cópia dos seus baralhos no servidor serão apagadas. Os baralhos deste dispositivo ficam."],
+  "Pensez à arrêter votre abonnement avant, depuis la page Pro.": ["Remember to cancel your subscription first, from the Pro page.","Recuerda cancelar tu suscripción antes, desde la página Pro.","Denk daran, dein Abo vorher auf der Pro-Seite zu beenden.","Lembre-se de cancelar sua assinatura antes, na página Pro."],
+  "Tapez {w} pour confirmer": ["Type {w} to confirm","Escribe {w} para confirmar","Gib {w} ein, um zu bestätigen","Digite {w} para confirmar"],
+  "Supprimer définitivement": ["Delete permanently","Eliminar definitivamente","Endgültig löschen","Excluir definitivamente"],
+  "Vos paquets restent sur cet appareil.": ["Your decks stay on this device.","Tus mazos se quedan en este dispositivo.","Deine Stapel bleiben auf diesem Gerät.","Seus baralhos ficam neste dispositivo."],
+  "Votre compte est supprimé. Vos paquets restent sur cet appareil.": ["Your account is deleted. Your decks stay on this device.","Tu cuenta se ha eliminado. Tus mazos se quedan en este dispositivo.","Dein Konto ist gelöscht. Deine Stapel bleiben auf diesem Gerät.","Sua conta foi excluída. Seus baralhos ficam neste dispositivo."],
 };
 
 /* ── Démarrage ─────────────────────────────────────────────────────── */
@@ -13532,6 +14310,7 @@ async function boot() {
   if (!S.profile.onboarded) Onb.open();
   AI.init().then(() => setTimeout(() => Autopilot.check(), 1200));
   Pay.init();
+  Account.init();
   Inbox.take();
   Store.connect();
   Dl.ready().then(() => { if (App.route.v === 'links') App.render(); });
