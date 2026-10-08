@@ -98,7 +98,8 @@ L'app détecte seule le serveur qui la sert. Si l'app est hébergée ailleurs (N
 | `ENGRAM_RATE_PER_MIN` | `30` | Requêtes par minute et par adresse |
 | `ENGRAM_FALLBACKS` | activé | Repli automatique sur le modèle recommandé si une requête est déclinée (`off` pour couper) |
 | `ENGRAM_CORS_ORIGIN` | — | Origines autorisées (`*` ou liste séparée par des virgules) |
-| `PORT`, `ENGRAM_MAX_TOKENS`, `ENGRAM_MAX_BODY_MB`, `ENGRAM_TRUST_PROXY`, `ENGRAM_LOG` | `8787`, `32000`, `12`, —, — | Réseau, limites, journal |
+| `ENGRAM_TRUST_PROXY` | — | Nombre de relais de confiance devant le serveur : `1` (ou `true`) derrière un seul (hébergeur ou nginx), `2` si un second (Cloudflare…) s'y ajoute. L'adresse comptée par la limite de débit est alors la n-ième en partant de la droite de `X-Forwarded-For` (les valeurs plus à gauche viennent du client) |
+| `PORT`, `ENGRAM_MAX_TOKENS`, `ENGRAM_MAX_BODY_MB`, `ENGRAM_LOG` | `8787`, `32000`, `12`, — | Réseau, limites, journal |
 
 Coûts : environ 0,002 $ par correction, 0,06 $ par page scannée, 0,04 $ par message à Mentor ; environ 5,45 $ par mois pour un abonné Pro normal (détail dans la fiche technique, §11). Astuce : `ENGRAM_MODEL_DEFAULT=claude-sonnet-5-5` divise encore par deux le prix des scans et de Mentor, à valider sur de vraies photos de cours.
 

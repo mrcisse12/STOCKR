@@ -454,7 +454,8 @@ ou avec Docker, depuis `engram/` : `docker build -f server/Dockerfile -t engram 
 | `ENGRAM_RATE_PER_MIN` | 30 | Requêtes par minute et par adresse |
 | `ENGRAM_FALLBACKS` | activé | Repli automatique si un modèle décline une requête (`off` pour désactiver) |
 | `ENGRAM_CORS_ORIGIN` | — | Origines autorisées si l'app est servie ailleurs |
-| `ENGRAM_MAX_TOKENS`, `ENGRAM_MAX_BODY_MB`, `PORT`, `ENGRAM_TRUST_PROXY` | 32000, 12, 8787, — | Limites et réseau |
+| `ENGRAM_TRUST_PROXY` | — | Nombre de relais de confiance devant le serveur : `1` (ou `true`) derrière un seul (hébergeur ou nginx), `2` si un second (Cloudflare…) s'y ajoute. L'adresse comptée par la limite de débit est la n-ième en partant de la droite de `X-Forwarded-For` (les valeurs plus à gauche viennent du client) |
+| `ENGRAM_MAX_TOKENS`, `ENGRAM_MAX_BODY_MB`, `PORT` | 32000, 12, 8787 | Limites et réseau |
 
 **Ce qu'il fait** : flux de texte en direct (NDJSON), photos, outils de Mentor, mode JSON pour la génération et la correction ; **mise en cache automatique** du début de conversation (les tours successifs de Mentor coûtent moins cher) ; **repli automatique** : si le modèle demandé décline une requête (classifieurs de sécurité), l'API la relance sur le modèle recommandé dans le même appel (paramètre bêta `fallbacks: "default"`) ; si toute la chaîne décline, la réponse partielle est écartée et l'app affiche un message clair ; contrôle du code d'accès (comparaison à temps constant), limite de débit, taille maximale des requêtes, validation des messages.
 
