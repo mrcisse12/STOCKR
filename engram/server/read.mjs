@@ -1,12 +1,16 @@
 // Lecture d'une page web pour en faire des fiches : GET /api/read?url=… → { title, text, url }.
 // Le navigateur ne peut pas lire une autre page (CORS) : le serveur la télécharge et n'en renvoie que le texte.
 // Garde-fous : http(s) seulement, ports 80/443, aucune adresse privée ou interne (vérifiée à chaque
-// redirection), 2,5 Mo et 8 s au plus, 20 lectures par minute et par adresse.
+// redirection, et de nouveau au moment de la connexion : un DNS qui change de réponse entre les deux ne
+// mène pas à une adresse interne), 2,5 Mo et 8 s au plus, 20 lectures par minute et par adresse.
 // Wikipédia : l'article est lu par l'API de Wikipédia (texte propre, sections, sans renvois ni bandeaux).
 // Élite (code d'abonnement présenté) : jusqu'à 150 000 signes, pour que l'IA lise l'article en entier.
 
 import dns from 'node:dns/promises';
+import http from 'node:http';
+import https from 'node:https';
 import net from 'node:net';
+import { Readable } from 'node:stream';
 import { licenseSecret, readLicense } from './pay.mjs';
 
 const MAX_BYTES = 2.5 * 1024 * 1024, TIMEOUT = 8000, MAX_REDIRECTS = 4, MAX_TEXT = 60000, MAX_TEXT_ELITE = 150000;
@@ -31,15 +35,54 @@ async function wikipedia(u, fetchImpl, signal) {
   return { title: pg.title, text, url: `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(pg.title.replace(/ /g, '_'))}`, source: 'wikipedia' };
 }
 
-/** Adresse privée, locale, réservée ou de métadonnées : jamais lue. */
+/** Les 16 octets d'une adresse IPv6 (« ::ffff:7f00:1 », « ::ffff:127.0.0.1 »…) ; null si elle est mal formée. */
+function v6bytes(ip) {
+  let s = String(ip).toLowerCase().split('%')[0];
+  const m = s.match(/^(.*:)(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
+  if (m) { const p = m.slice(2).map(Number); if (p.some(x => x > 255)) return null; s = m[1] + (p[0] << 8 | p[1]).toString(16) + ':' + (p[2] << 8 | p[3]).toString(16); }
+  const parts = s.split('::'); if (parts.length > 2) return null;
+  const head = parts[0] ? parts[0].split(':') : [], tail = parts[1] ? parts[1].split(':') : [];
+  const fill = parts.length === 2 ? 8 - head.length - tail.length : 0; if (fill < 0) return null;
+  const words = [...head, ...Array(fill).fill('0'), ...tail];
+  if (words.length !== 8 || words.some(w => !/^[0-9a-f]{1,4}$/.test(w))) return null;
+  return words.flatMap(w => { const n = parseInt(w, 16); return [n >> 8, n & 255]; });
+}
+
+/** Adresse privée, locale, réservée ou de métadonnées : jamais lue. Une adresse IPv4 cachée dans une IPv6
+ *  (::ffff:a.b.c.d sous toutes ses écritures, NAT64, 6to4) est jugée comme l'IPv4 qu'elle désigne. */
 export function privateIp(ip) {
   if (net.isIPv4(ip)) {
     const [a, b] = ip.split('.').map(Number);
     return a === 0 || a === 10 || a === 127 || (a === 100 && b >= 64 && b <= 127) || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 192 && b === 0) || (a === 198 && (b === 18 || b === 19)) || a >= 224;
   }
-  const x = ip.toLowerCase();
-  if (x.startsWith('::ffff:')) return privateIp(x.slice(7));
-  return x === '::' || x === '::1' || x.startsWith('fc') || x.startsWith('fd') || x.startsWith('fe8') || x.startsWith('fe9') || x.startsWith('fea') || x.startsWith('feb') || x.startsWith('ff');
+  const b = v6bytes(ip); if (!b) return true; // illisible : refusée
+  const zero = n => b.slice(0, n).every(x => x === 0), v4 = i => b.slice(i, i + 4).join('.');
+  if (zero(10) && b[10] === 255 && b[11] === 255) return privateIp(v4(12)); // ::ffff:a.b.c.d
+  if (zero(12)) return true; // ::, ::1 et l'ancienne forme ::a.b.c.d
+  if (b[0] === 0 && b[1] === 0x64 && b[2] === 0xff && b[3] === 0x9b) return privateIp(v4(12)); // NAT64, 64:ff9b::/96
+  if (b[0] === 0x20 && b[1] === 0x02) return privateIp(v4(2)); // 6to4, 2002::/16
+  if (b[0] === 0x20 && b[1] === 0x01 && b[2] === 0 && b[3] === 0) return true; // Teredo, 2001::/32
+  return (b[0] & 0xfe) === 0xfc || (b[0] === 0xfe && (b[1] & 0x80) === 0x80) || b[0] === 0xff; // fc00::/7, fe80::/9 (lien local, ancien site local), multicast
+}
+
+/** Résolution au moment même de la connexion : une adresse interne est refusée là aussi (DNS « rebinding »). */
+function safeLookup(host, opts, cb) {
+  dns.lookup(host, { ...opts, all: true }).then(list => {
+    if (!list.length || list.some(a => privateIp(a.address))) return cb(Object.assign(new Error('private address'), { code: 'EPRIVATE' }));
+    if (opts.all) cb(null, list); else cb(null, list[0].address, list[0].family);
+  }, cb);
+}
+
+/** GET minimal (statut, en-têtes, corps en flux) dont chaque connexion passe par safeLookup. */
+export function pinnedFetch(url, { signal, headers } = {}) {
+  return new Promise((resolve, reject) => {
+    const u = new URL(url), mod = u.protocol === 'https:' ? https : http;
+    const req = mod.request(u, { method: 'GET', headers, signal, lookup: safeLookup }, res => {
+      const h = new Headers(); for (const [k, v] of Object.entries(res.headers)) if (v != null) h.set(k, Array.isArray(v) ? v.join(', ') : String(v));
+      resolve({ status: res.statusCode, ok: res.statusCode >= 200 && res.statusCode < 300, headers: h, body: Readable.toWeb(res) });
+    });
+    req.on('error', reject); req.end();
+  });
 }
 
 async function safeUrl(raw) {
@@ -72,7 +115,7 @@ export function htmlToReadable(html) {
   return { title, text: text.replace(/ \| \n/g, '\n') };
 }
 
-export function createReader(env = process.env, { fetchImpl = fetch, resolve = safeUrl } = {}) {
+export function createReader(env = process.env, { fetchImpl = fetch, pageFetch = fetchImpl === fetch ? pinnedFetch : fetchImpl, resolve = safeUrl } = {}) {
   const hits = new Map(), PER_MIN = +env.ENGRAM_READ_PER_MIN || 20, LIC = licenseSecret(env);
   const json = (status, obj) => new Response(JSON.stringify(obj), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } });
   return {
@@ -93,7 +136,7 @@ export function createReader(env = process.env, { fetchImpl = fetch, resolve = s
         if (wiki) return json(200, { ...wiki, text: wiki.text.slice(0, max), full: wiki.text.length <= max });
         let res;
         for (let i = 0; ; i++) {
-          res = await fetchImpl(target.href, { redirect: 'manual', signal: ctl.signal, headers: { 'user-agent': 'Mozilla/5.0 (compatible; EngramReader/1.0)', accept: 'text/html,text/plain;q=0.9,*/*;q=0.1' } });
+          res = await pageFetch(target.href, { redirect: 'manual', signal: ctl.signal, headers: { 'user-agent': 'Mozilla/5.0 (compatible; EngramReader/1.0)', accept: 'text/html,text/plain;q=0.9,*/*;q=0.1' } });
           if (res.status < 300 || res.status >= 400) break;
           const next = res.headers.get('location'); if (!next || i >= MAX_REDIRECTS) return json(400, { code: 'bad_url' });
           target = await resolve(new URL(next, target).href); if (!target) return json(400, { code: 'bad_url' });
