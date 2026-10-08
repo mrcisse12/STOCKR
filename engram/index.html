@@ -3219,7 +3219,7 @@ const Store = {
   ready: false, fromLS: false, stub: false, pend: false, frozen: false, saveT: 0, lsMax: Infinity, lsFat: false, imgs: new Map(), warned: false,
   // Plusieurs onglets (ou l'app installée à côté d'un onglet) : chaque enregistrement laisse un repère (GEN).
   // Un onglet qui voit un repère qu'il n'a ni lu ni écrit n'écrit plus par-dessus : il suit l'autre (follow) ou se fige (stale).
-  GEN: 'engram.v1.gen', seen: '', following: false, staleEl: null, retry: 0,
+  GEN: 'engram.v1.gen', seen: '', following: false, staleEl: null, retry: 0, goneAt: {},
   diskGen() { try { return localStorage.getItem(this.GEN) || ''; } catch { return ''; } },
   load() {
     this.seen = this.diskGen();
@@ -3399,23 +3399,31 @@ const Store = {
     }
     st.decks.sort((a, b) => (order.indexOf(a.id) + 1 || 1e9) - (order.indexOf(b.id) + 1 || 1e9));
     for (const d of docs) if (d.id.startsWith('img_')) st.images[d.id.slice(4)] = d.data().data;
+    // Pierres tombales : chacune son document (gone_<id>) ; celles du profil (versions d'avant) comptent aussi.
+    const g = st.profile.gone = isObj(st.profile.gone) ? { ...st.profile.gone } : {}; this.goneAt = {};
+    for (const d of docs) if (d.id.startsWith('gone_')) { const id = d.id.slice(5), at = +d.data()?.at || 0; this.goneAt[id] = at; if (!(g[id] >= at)) g[id] = at; }
     return normalizeState(st);
   },
-  /** Pierres tombales : un paquet supprimé ici ne revient pas d'un autre appareil (gardées six mois). */
+  /** Pierres tombales : un paquet supprimé ici ne revient pas d'un autre appareil (gardées six mois).
+   *  Chacune a son document dans le nuage : le profil, réécrit en entier par chaque appareil, les perdait. */
   bury(ids) {
     const g = S.profile.gone = S.profile.gone && typeof S.profile.gone === 'object' ? S.profile.gone : {}, now = Date.now();
-    for (const k of Object.keys(g)) if (!(g[k] > now - 180 * DAY)) delete g[k];
-    ids.forEach(id => g[id] = now);
+    for (const k of Object.keys(g)) if (!(g[k] > now - 180 * DAY)) { delete g[k]; this.dirty.add('gone:' + k); }
+    ids.forEach(id => { g[id] = now; this.dirty.add('gone:' + id); });
   },
   merge(remote) {
     // Fusion : pour chaque paquet, la version la plus récente l'emporte ; un paquet supprimé après sa dernière modification ne revient pas.
-    const obj = o => o && typeof o === 'object' ? o : {}, gone = { ...obj(remote.profile.gone) };
-    for (const [k, v] of Object.entries(obj(S.profile.gone))) if (!(gone[k] >= v)) gone[k] = v;
-    const dead = d => (+gone[d.id] || 0) >= (d.updatedAt || 0);
+    const obj = o => o && typeof o === 'object' ? o : {}, gone = { ...obj(remote.profile.gone) }, old = Date.now() - 180 * DAY;
+    if (!S.demo) for (const [k, v] of Object.entries(obj(S.profile.gone))) if (!(gone[k] >= v)) gone[k] = v;
+    // Plus de six mois : oubliée partout, son document aussi. Les autres ont toutes leur document (posées ici, ou dans le profil par une version d'avant).
+    for (const k of Object.keys(gone)) if (!(gone[k] > old)) { delete gone[k]; if (k in this.goneAt) this.dirty.add('gone:' + k); }
+    for (const k in gone) if (!(this.goneAt[k] >= gone[k])) this.dirty.add('gone:' + k);
+    const dead = d => (+gone[d.id] || 0) >= (d.updatedAt || 0), deadCards = [];
     // Encore dans le nuage (effacement raté) : le prochain envoi le retire.
-    for (const rd of remote.decks) if (dead(rd)) this.dirty.add('deck:' + rd.id);
+    for (const rd of remote.decks) if (dead(rd)) { this.dirty.add('deck:' + rd.id); deadCards.push(...rd.cards); }
     remote.decks = remote.decks.filter(d => !dead(d));
-    if (S.demo) { S = remote; S.demo = false; S.profile.onboarded = true; this.saveLocal(); if (this.dirty.size) this.schedule(); return; }
+    if (S.demo) { S = remote; S.demo = false; S.profile.onboarded = true; S.profile.gone = gone; dropUnusedImages(deadCards); this.saveLocal(); if (this.dirty.size) this.schedule(); return; }
+    const was = JSON.stringify([S.decks, S.profile, Object.keys(S.images).sort()]);
     const local = new Map(S.decks.map(d => [d.id, d]));
     const out = [];
     for (const rd of remote.decks) {
@@ -3423,17 +3431,22 @@ const Store = {
       if (ld && ld.updatedAt > rd.updatedAt) { out.push(ld); this.dirty.add('deck:' + ld.id); } else out.push(rd);
       local.delete(rd.id);
     }
-    for (const ld of local.values()) { if (dead(ld)) continue; out.push(ld); this.dirty.add('deck:' + ld.id); }
+    for (const ld of local.values()) { if (dead(ld)) { deadCards.push(...ld.cards); continue; } out.push(ld); this.dirty.add('deck:' + ld.id); }
     const useLocalProfile = (S.profile.updatedAt || 0) > (remote.profile.updatedAt || 0);
     S = normalizeState({ ...S, decks: out, images: { ...remote.images, ...S.images }, profile: useLocalProfile ? S.profile : remote.profile });
     const kept = obj(S.profile.gone); S.profile.gone = gone;
     if (useLocalProfile || Object.keys(gone).some(k => kept[k] !== gone[k])) this.dirty.add('profile');
+    // Les photos des paquets supprimés ailleurs ne restent pas ici (ni dans le nuage).
+    dropUnusedImages(deadCards);
     // Une image d'une fiche absente du nuage (envoi raté) : on la renvoie.
     for (const d of S.decks) for (const c of d.cards) for (const f of ['img', 'fimg', 'bimg']) { const id = c[f]; if (id && S.images[id] && !(id in remote.images)) this.dirty.add('img:' + id); }
-    this.saveLocal(); if (this.dirty.size) this.schedule();
+    // Rien de neuf (un autre onglet qui s'ouvre, par exemple) : on n'écrit rien, un onglet en séance n'est pas dérangé.
+    if (JSON.stringify([S.decks, S.profile, Object.keys(S.images).sort()]) !== was) this.saveLocal();
+    if (this.dirty.size) this.schedule();
   },
   async flush() {
-    if (!this.col || this.busy || S.demo) return;
+    // Figé par un autre onglet : sa copie n'est pas la dernière, elle n'écrase rien dans le nuage non plus.
+    if (!this.col || this.busy || S.demo || this.frozen) return;
     this.busy = true;
     // Une écriture ratée garde sa clé pour la prochaine fois (sauf une donnée refusée pour de bon) ; les autres passent quand même.
     let fail = null;
@@ -3450,6 +3463,10 @@ const Store = {
             const id = k.slice(4);
             if (S.images[id]) await this.col.doc('img_' + id).set({ data: S.images[id], updatedAt: Date.now() });
             else await this.col.doc('img_' + id).delete();
+          } else if (k.startsWith('gone:')) {
+            const id = k.slice(5), at = S.profile.gone?.[id];
+            if (at) await this.col.doc('gone_' + id).set({ at }); else await this.col.doc('gone_' + id).delete();
+            if (at) this.goneAt[id] = at; else delete this.goneAt[id];
           }
         } catch (e) { keep(k, e); }
       }
@@ -3512,7 +3529,11 @@ const Store = {
   snapshot() { return JSON.stringify({ decks: S.decks, images: S.images, profile: S.profile, demo: S.demo }); },
   restore(snap) {
     const o = JSON.parse(snap); const before = new Set(S.decks.map(d => d.id)), imgs = new Set(Object.keys(S.images));
+    const prev = new Map(S.decks.map(d => [d.id, JSON.stringify(d)]));
     S = normalizeState({ ...S, ...o });
+    // L'annulation est la version la plus récente : un appareil synchronisé entre-temps ne la défait pas, un paquet retiré ne revient pas.
+    const now = Date.now(); for (const d of S.decks) if (prev.get(d.id) !== JSON.stringify(d)) d.updatedAt = now;
+    const removed = [...before].filter(id => !S.decks.some(d => d.id === id)); if (removed.length) this.bury(removed);
     for (const id of before) this.dirty.add('deck:' + id);
     // Images remises (fiches supprimées puis rétablies) ou retirées : le nuage suit aussi.
     for (const k of new Set([...imgs, ...Object.keys(S.images)])) if (imgs.has(k) !== (k in S.images)) this.dirty.add('img:' + k);
@@ -5797,7 +5818,7 @@ function openNote(deckId, id) {
   m.querySelector('#nSave').onclick = () => saveFile(slug(n.title) + '.md', n.md);
   m.querySelector('#nDel').onclick = () => {
     const at = d.notes.indexOf(n); d.notes = d.notes.filter(x => x !== n); Store.touchDeck(d); Modal.close(); App.render();
-    toastUndo(t('Note supprimée'), () => { if (!d.notes.includes(n)) d.notes.splice(Math.min(at, d.notes.length), 0, n); Store.touchDeck(d); App.render(); });
+    toastUndo(t('Note supprimée'), () => { const dk = deckById(d.id); if (!dk) return; if (!dk.notes.some(x => x.id === n.id)) dk.notes.splice(Math.min(at, dk.notes.length), 0, n); Store.touchDeck(dk); App.render(); });
   };
 }
 
@@ -6155,12 +6176,13 @@ function deleteDeck(d) {
   }
   S.decks = S.decks.filter(x => x !== d);
   for (const x of S.profile.exams) x.deckIds = (x.deckIds || []).filter(id => id !== d.id);
-  Store.bury([d.id]); Store.touch('deck:' + d.id, 'profile');
+  Store.touch('deck:' + d.id, 'profile'); Store.bury([d.id]);
+  // Annuler agit sur l'état vivant (par identifiants) : un autre onglet a pu le remplacer entre-temps.
   return () => {
-    if (S.decks.includes(d)) return;
-    delete S.profile.gone?.[d.id];
+    if (S.decks.some(x => x.id === d.id)) return;
+    if (S.profile.gone) delete S.profile.gone[d.id]; Store.dirty.add('gone:' + d.id);
     S.decks.splice(Math.min(at, S.decks.length), 0, d); Object.assign(S.images, imgs);
-    for (const [x, ids] of exams) if (S.profile.exams.includes(x)) x.deckIds = ids;
+    for (const [x, ids] of exams) { const e = S.profile.exams.find(y => y.id === x.id), i = ids.indexOf(d.id); if (e && i >= 0 && !(e.deckIds || []).includes(d.id)) (e.deckIds = e.deckIds || []).splice(Math.min(i, e.deckIds.length), 0, d.id); }
     Object.keys(imgs).forEach(k => Store.dirty.add('img:' + k));
     Store.touchDeck(d); Store.touch('profile');
   };
@@ -6173,7 +6195,12 @@ function openDeckSettings(id) {
       <div style="display:flex;gap:8px"><button class="btn btn-ghost" data-act="close">${t('Annuler')}</button><button class="btn btn-brass" id="dSave">${icon('check')}${t('Enregistrer')}</button></div>
     </div>`);
   bindColorChips(m);
-  m.querySelector('#dSave').onclick = () => { Object.assign(d, readDeckForm(m)); if (!d.name) d.name = t('Sans titre'); Store.touchDeck(d); Store.touch('profile'); Modal.close(); App.render(); toast(t('Paquet enregistré')); };
+  m.querySelector('#dSave').onclick = () => {
+    const o = readDeckForm(m), mod = Object.keys(o).some(k => o[k] !== d[k]);
+    Object.assign(d, o); if (!d.name) d.name = t('Sans titre');
+    if (S.demo && d.example && mod) Store.leaveDemo(false); // un paquet d'exemple renommé devient le vôtre : un changement de langue ne le refait plus
+    Store.touchDeck(d); Store.touch('profile'); Modal.close(); App.render(); toast(t('Paquet enregistré'));
+  };
   const del = m.querySelector('#dDel');
   del.onclick = () => {
     if (!del.dataset.sure) { del.dataset.sure = 1; del.innerHTML = icon('trash', 'i-sm') + t('Confirmer : supprimer {x}', { x: plural(d.cards.length, 'fiche|fiches') }); return; }
@@ -6324,7 +6351,8 @@ function openEditor(cardId, deckId, preset) {
       const was = deck.cards.map((x, i) => [x, i]).filter(([x]) => gone(x));
       deck.cards = deck.cards.filter(x => !gone(x)); const imgs = dropUnusedImages(was.map(([x]) => x));
       Store.touchDeck(deck); Modal.close(); App.render();
-      toastUndo(t('Fiche supprimée'), () => { for (const [x, i] of was) if (!deck.cards.includes(x)) deck.cards.splice(Math.min(i, deck.cards.length), 0, x); Object.assign(S.images, imgs); Object.keys(imgs).forEach(k => Store.dirty.add('img:' + k)); Store.touchDeck(deck); App.render(); });
+      // Annuler agit sur le paquet vivant : un autre onglet a pu remplacer l'état entre-temps.
+      toastUndo(t('Fiche supprimée'), () => { const dk = deckById(deck.id); if (!dk) return; for (const [x, i] of was) if (!dk.cards.some(y => y.id === x.id)) dk.cards.splice(Math.min(i, dk.cards.length), 0, x); Object.assign(S.images, imgs); Object.keys(imgs).forEach(k => Store.dirty.add('img:' + k)); Store.touchDeck(dk); App.render(); });
     };
     root.querySelector('#eSave').onclick = save;
   };
@@ -11782,7 +11810,7 @@ ${JSON.stringify(this.snapshot())}`;
         execute: i => { const d = createDeck({ name: str(i.name).slice(0, 80), desc: str(i.description).slice(0, 200), lang: CARD_LANGS.includes(str(i.language)) ? str(i.language) : LANG, color: str(i.color) }); mark(); say(t('Paquet créé : « {name} »', { name: d.name })); return { deck_id: d.id }; } },
       { name: 'update_deck', description: 'Rename a deck or change its description, colour or card language.',
         inputSchema: { type: 'object', properties: { deck_id: { type: 'string' }, name: { type: 'string' }, description: { type: 'string' }, language: { type: 'string' }, color: { type: 'string', enum: Object.keys(DECK_COLORS) } }, required: ['deck_id'] },
-        execute: i => { const d = deckOf(i.deck_id); if (str(i.name)) d.name = str(i.name).slice(0, 80); if (i.description != null) d.desc = str(i.description).slice(0, 200); if (CARD_LANGS.includes(str(i.language))) d.lang = str(i.language); if (DECK_COLORS[str(i.color)]) d.color = str(i.color); Store.touchDeck(d); Store.touch('profile'); mark(); say(t('Paquet mis à jour : « {name} »', { name: d.name })); return 'ok'; } },
+        execute: i => { const d = deckOf(i.deck_id); if (S.demo && d.example) Store.leaveDemo(false); if (str(i.name)) d.name = str(i.name).slice(0, 80); if (i.description != null) d.desc = str(i.description).slice(0, 200); if (CARD_LANGS.includes(str(i.language))) d.lang = str(i.language); if (DECK_COLORS[str(i.color)]) d.color = str(i.color); Store.touchDeck(d); Store.touch('profile'); mark(); say(t('Paquet mis à jour : « {name} »', { name: d.name })); return 'ok'; } },
       { name: 'add_cards', description: 'Add flashcards to a deck. Types: basic {front, back, extra?}, reverse {front, back} (creates both directions), cloze {text with {{c1::...}}}, mcq {front, options[4], answer (index), back?}, tf {front, answer (boolean), back?}, order {front, items (in correct order)}. Returns how many were added.',
         inputSchema: { type: 'object', properties: { deck_id: { type: 'string' }, cards: { type: 'array', maxItems: 30, items: { type: 'object', properties: { type: { type: 'string', enum: ['basic', 'reverse', 'cloze', 'mcq', 'tf', 'order'] }, front: { type: 'string' }, back: { type: 'string' }, text: { type: 'string' }, options: { type: 'array', items: { type: 'string' } }, answer: {}, items: { type: 'array', items: { type: 'string' } }, extra: { type: 'string' }, tags: { type: 'array', items: { type: 'string' } } }, required: ['type'] } } }, required: ['deck_id', 'cards'] },
         execute: i => {
@@ -11811,6 +11839,8 @@ ${JSON.stringify(this.snapshot())}`;
             ans = a == null || a === '' ? at(c.options?.[c.answer]) : typeof a === 'number' ? a : at(a) >= 0 ? at(a) : /^\d+$/.test(str(a)) ? +str(a) : -1;
             if (opts.length < 2 || !(Number.isInteger(ans) && ans >= 0 && ans < opts.length)) throw new Error('mcq: give at least 2 options and answer = the 0-based index of the correct option.');
           }
+          // Une fiche d'exemple modifiée devient la vôtre : un changement de langue ne la refait plus.
+          if (S.demo && d.example) Store.leaveDemo(false);
           if (cz) c = setClozeText(d, c, cz);
           if (str(i.front)) c.front = str(i.front); if (i.back != null && c.type !== 'mcq') c.back = str(i.back); if (i.extra != null) c.extra = str(i.extra) || undefined;
           if (opts) { c.options = opts; c.answer = ans; }
@@ -11883,7 +11913,7 @@ ${JSON.stringify(this.snapshot())}`;
         } },
       { name: 'remember', description: 'Save a durable fact about the student (weakness, goal, preference, constraint) so you and the app can personalise later sessions. One short sentence.',
         inputSchema: { type: 'object', properties: { fact: { type: 'string' } }, required: ['fact'] },
-        execute: i => { const f = str(i.fact).slice(0, 200); if (!f) throw new Error('empty fact'); if (!S.profile.memory.some(m => normTxt(m) === normTxt(f))) S.profile.memory.push(f); if (S.profile.memory.length > 40) S.profile.memory.shift(); Store.touch('profile'); mark(); say(t('Retenu : « {f} »', { f })); return 'saved'; } },
+        execute: i => { const f = str(i.fact).slice(0, 200); if (!f) throw new Error('empty fact'); if (S.demo) Store.leaveDemo(false); if (!S.profile.memory.some(m => normTxt(m) === normTxt(f))) S.profile.memory.push(f); if (S.profile.memory.length > 40) S.profile.memory.shift(); Store.touch('profile'); mark(); say(t('Retenu : « {f} »', { f })); return 'saved'; } },
       { name: 'forget', description: 'Remove a saved fact about the student (index in memory_about_student).', inputSchema: { type: 'object', properties: { index: { type: 'number' } }, required: ['index'] },
         execute: i => { const k = Math.round(+i.index); if (!(k >= 0 && k < S.profile.memory.length)) throw new Error('bad index'); const [f] = S.profile.memory.splice(k, 1); Store.touch('profile'); mark(); say(t('Oublié : « {f} »', { f })); return 'ok'; } },
       { name: 'get_stats', description: 'Detailed statistics over a period (default 30 days, optionally one deck): success rate, reviews, study time and active days vs the previous period of the same length, grades used, success by time of day, per-deck table, how long cards hold (FSRS stability), weakest tags, 14-day workload, exam readiness, and the takeaways the stats page shows the student.',
@@ -11939,7 +11969,7 @@ ${JSON.stringify(this.snapshot())}`;
         execute: i => { const v = str(i.view); if (v === 'deck') { deckOf(i.deck_id); ctx.after.push(() => App.go('deck', str(i.deck_id))); } else ctx.after.push(() => App.go(v)); return 'ok'; } },
       { name: 'save_note', description: 'Save a note or summary sheet (Markdown: ## title, ### sections, - bullets, **bold**) inside a deck, where the student can reread and export it.',
         inputSchema: { type: 'object', properties: { deck_id: { type: 'string' }, title: { type: 'string' }, markdown: { type: 'string' } }, required: ['deck_id', 'title', 'markdown'] },
-        execute: i => { const d = deckOf(i.deck_id); d.notes.unshift({ id: uid('note'), title: str(i.title).slice(0, 100), md: str(i.markdown).slice(0, 20000), created: Date.now() }); Store.touchDeck(d); mark(); say(t('Note enregistrée : « {t} »', { t: str(i.title) })); return 'saved'; } },
+        execute: i => { const d = deckOf(i.deck_id); if (S.demo && d.example) Store.leaveDemo(false); d.notes.unshift({ id: uid('note'), title: str(i.title).slice(0, 100), md: str(i.markdown).slice(0, 20000), created: Date.now() }); Store.touchDeck(d); mark(); say(t('Note enregistrée : « {t} »', { t: str(i.title) })); return 'saved'; } },
       { name: 'run_agent', description: 'Hand a task to one of Engram\'s specialised assistants. It opens its mission window; its proposals wait for the student\'s approval. agent: planner | proof | coach | librarian | examiner | chronicler. deck_id is used by proof, coach and librarian (and optionally examiner).',
         inputSchema: { type: 'object', properties: { agent: { type: 'string', enum: AGENTS.map(a => a.id) }, deck_id: { type: 'string' } }, required: ['agent'] },
         execute: i => { const a = AGENT[str(i.agent)]; if (!a) throw new Error('Unknown agent.'); const deckId = str(i.deck_id) && deckById(str(i.deck_id)) ? str(i.deck_id) : undefined; ctx.after.push(() => { this.close(); Agents.run(a.id, { deckId }); }); say(t('Mission confiée : {a}', { a: t(a.name) })); return 'The assistant\'s window opens when you finish your reply. Tell the student in one sentence.'; } },
@@ -11966,8 +11996,9 @@ ${JSON.stringify(this.snapshot())}`;
     const max = AI.limits?.tools?.maxCount || tools.length;
     return tools.slice(0, max);
   },
-  /** Empreinte de ce que Mentor peut changer (paquets, profil hors compteurs) : « Annuler ces actions » ne s'applique que si elle n'a pas bougé depuis. */
-  print() { const { usage, cmd, updatedAt, ...p } = S.profile; return hash(JSON.stringify([S.decks, p, !!S.demo])); },
+  /** Empreinte de ce que Mentor peut changer (paquets, profil hors compteurs) : « Annuler ces actions » ne s'applique que si elle n'a pas bougé depuis.
+   *  Sans les dates des paquets ni les pierres tombales : une annulation les met à jour (Store.restore), l'annulation du message d'avant reste possible. */
+  print() { const { usage, cmd, updatedAt, gone, ...p } = S.profile; return hash(JSON.stringify([S.decks.map(({ updatedAt, ...d }) => d), p, !!S.demo])); },
   async send(text) {
     text = String(text || '');
     if (this.busy || (!text.trim() && !this.files.length)) return;
