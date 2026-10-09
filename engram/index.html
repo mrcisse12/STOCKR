@@ -9862,22 +9862,53 @@ const Study = {
       await Store.follow(true);
       // Pas encore possible (fenêtre ouverte, autre lecture en cours) : on réessaie un peu plus tard.
       if (S === old) { setTimeout(() => this.rejoin(), 2000); return; }
-      const add = (o, a, b) => { for (const k in a) { const x = a[k], y = b?.[k]; if (typeof x === 'number') o[k] = (+o[k] || 0) + x - (+y || 0); else if (x && typeof x === 'object') add(o[k] || (o[k] = Array.isArray(x) ? [] : {}), x, y); } };
-      const decks = new Set();
-      for (const h of this.unsaved.splice(0)) {
-        const [c, d] = findCard(h.item[0].id);
-        if (!c || (c.srs.last || 0) >= h.at) continue; // déjà dans l'autre version, ou fiche supprimée là-bas
-        c.srs = { ...h.after }; if (h.leech && !c.tags.includes('leech')) c.tags.push('leech');
-        if (h.logAfter) add(S.profile.log[h.day] || (S.profile.log[h.day] = {}), h.logAfter, h.logBefore);
-        S.profile.xp += h.xp || 0; decks.add(d);
-      }
-      for (const [k, v] of Object.entries(flags)) if (v && !S.profile.flags[k]) S.profile.flags[k] = v;
-      S.profile.bestStreak = Math.max(S.profile.bestStreak || 0, streak());
+      const decks = this.report(this.unsaved.splice(0), flags);
       decks.forEach(d => Store.touchDeck(d)); Store.touch('profile'); Store.saveLocal();
       Store.staleEl?.remove?.(); Store.staleEl = null;
       if (decks.size) toast(t("Notes de la séance enregistrées, avec les changements de l'autre onglet."), 'check');
       if (!this.active) App.render();
     } finally { this.joining = false; }
+  },
+  /** Reporte sur la version courante (S) les notes qu'elle n'a pas encore, et en retire celles annulées après le retard
+   *  (marquées undo). Sans effet sur une note déjà reportée : rejoin peut repasser après leave. Renvoie les paquets touchés. */
+  report(list, flags) {
+    const add = (o, a, b, s = 1) => { for (const k in a) { const x = a[k], y = b?.[k]; if (typeof x === 'number') o[k] = (+o[k] || 0) + s * (x - (+y || 0)); else if (x && typeof x === 'object') add(o[k] || (o[k] = Array.isArray(x) ? [] : {}), x, y, s); } };
+    const decks = new Set();
+    for (const h of list) {
+      const [c, d] = findCard(h.item[0].id);
+      if (!c) continue; // fiche supprimée là-bas
+      if (h.undo) {
+        // Enregistrée avant le retard, puis annulée : retirée de l'autre version si elle y est encore telle quelle.
+        if (c.srs.last !== h.after.last || c.srs.reps !== h.after.reps) continue;
+        c.srs = { ...h.before }; if (h.leech) c.tags = c.tags.filter(x => x !== 'leech');
+        if (h.logAfter) add(S.profile.log[h.day] || (S.profile.log[h.day] = {}), h.logAfter, h.logBefore, -1);
+        S.profile.xp = Math.max(0, (S.profile.xp || 0) - (h.xp || 0)); decks.add(d); continue;
+      }
+      if ((c.srs.last || 0) >= h.at) continue; // déjà dans l'autre version
+      c.srs = { ...h.after }; if (h.leech && !c.tags.includes('leech')) c.tags.push('leech');
+      if (h.logAfter) add(S.profile.log[h.day] || (S.profile.log[h.day] = {}), h.logAfter, h.logBefore);
+      S.profile.xp += h.xp || 0; decks.add(d);
+    }
+    for (const [k, v] of Object.entries(flags || {})) if (v && !S.profile.flags[k]) S.profile.flags[k] = v;
+    S.profile.bestStreak = Math.max(S.profile.bestStreak || 0, streak());
+    return decks;
+  },
+  /** Page quittée (ou passée en arrière-plan, où le téléphone peut la fermer) en pleine séance, en retard sur un autre onglet :
+   *  les notes sont reportées tout de suite sur sa version, lue dans localStorage (IndexedDB ne répondrait pas à temps).
+   *  Cet onglet reste figé et garde sa séance : s'il revient, rejoin finira le travail sans rien compter deux fois. */
+  leave() {
+    if (!Store.frozen || Store.staleEl !== true || this.joining) return;
+    const list = [...this.unsaved, ...this.history]; if (!list.length) return;
+    const ls = LS.get(Store.KEY); if (!ls?.decks || ls.stub) return;
+    const old = S, flags = { ...S.profile.flags };
+    try {
+      S = normalizeState(ls);
+      if (!this.report(list, flags).size) return;
+      S.updatedAt = Date.now();
+      if (IDB.ok) IDB.write([['state', JSON.stringify({ ...S, images: {} })]]);
+      try { localStorage.setItem(Store.KEY, JSON.stringify(S)); } catch { }
+      try { localStorage.setItem(Store.GEN, S.updatedAt.toString(36) + 'away'); } catch { }
+    } catch { } finally { S = old; }
   },
   counts() {
     const m = { n: 0, l: 0, r: 0 };
@@ -10229,6 +10260,7 @@ const Study = {
   skip() { if (this.busy) { this.tok++; this.next(); } },
   undo() {
     const h = this.history.pop(); if (!h) return;
+    if (Store.frozen && Store.staleEl === true) this.unsaved.push({ ...h, undo: true }); // déjà enregistrée peut-être : rejoin la retirera
     const [c, d] = h.item;
     c.srs = h.before; S.profile.xp = h.xpBefore; S.profile.flags = h.flagsBefore;
     if (h.logBefore) S.profile.log[dayKey()] = h.logBefore; else delete S.profile.log[dayKey()];
@@ -11997,8 +12029,8 @@ ${JSON.stringify(this.snapshot())}`;
     return tools.slice(0, max);
   },
   /** Empreinte de ce que Mentor peut changer (paquets, profil hors compteurs) : « Annuler ces actions » ne s'applique que si elle n'a pas bougé depuis.
-   *  Sans les dates des paquets ni les pierres tombales : une annulation les met à jour (Store.restore), l'annulation du message d'avant reste possible. */
-  print() { const { usage, cmd, updatedAt, gone, ...p } = S.profile; return hash(JSON.stringify([S.decks.map(({ updatedAt, ...d }) => d), p, !!S.demo])); },
+   *  Sans les dates des paquets, les pierres tombales ni les badges (flags) : une annulation les met à jour (Store.restore), l'annulation du message d'avant reste possible. */
+  print() { const { usage, cmd, updatedAt, gone, flags, ...p } = S.profile; return hash(JSON.stringify([S.decks.map(({ updatedAt, ...d }) => d), p, !!S.demo])); },
   async send(text) {
     text = String(text || '');
     if (this.busy || (!text.trim() && !this.files.length)) return;
@@ -16575,8 +16607,8 @@ TR = {
 async function boot() {
   Store.load();
   Install.init();
-  addEventListener('pagehide', () => Store.flushLocal());
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') Store.flushLocal(); else Store.follow(); });
+  addEventListener('pagehide', () => { Study.leave(); Store.flushLocal(); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { Study.leave(); Store.flushLocal(); } else Store.follow(); });
   addEventListener('pageshow', e => { if (e.persisted) Store.follow(); });
   // Un autre onglet a enregistré : on suit sa version. Une version plus ancienne d'Engram ne pose pas de repère, seul l'état change.
   addEventListener('storage', e => {
