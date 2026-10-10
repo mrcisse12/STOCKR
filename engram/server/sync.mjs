@@ -201,6 +201,8 @@ export function createSync(env = process.env, { backend, accounts = null } = {})
         let id = null;
         try { id = m && decodeURIComponent(m[1]); } catch { /* %XX mal formé */ }
         if (!id || !ID_RE.test(id)) return json(400, { code: 'bad_id' });
+        // Un seul document : l'appareil vérifie, juste avant d'écrire un paquet, qu'un autre ne l'a pas changé entre-temps.
+        if (request.method === 'GET') { const raw = await store.get(user, id); return raw == null ? json(404, { code: 'not_found' }) : json(200, { id, data: JSON.parse(raw) }); }
         if (request.method === 'DELETE') { await store.del(user, id); return json(200, { ok: true }); }
         if (request.method === 'PUT') {
           const raw = await request.text();

@@ -1767,7 +1767,8 @@ button,a,label,select,.chip,.opt,.ochip{touch-action:manipulation}
 .bill.y .knob{transform:translateX(100%)}
 .tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}
 @media (max-width:900px){.tiers{grid-template-columns:1fr}}
-.tier{position:relative;display:flex;flex-direction:column;gap:16px;padding:24px 22px;border-radius:16px;border:1px solid var(--hair-2);background:var(--folder-2);transition:transform .5s var(--spring),box-shadow .4s}
+.tier{position:relative;display:flex;flex-direction:column;gap:16px;padding:24px 22px;border-radius:16px;border:1px solid var(--hair-2);transition:transform .5s var(--spring),box-shadow .4s}
+.tier:not(.leather){background:var(--folder-2)}
 .tier:hover{transform:translateY(-3px)}
 .tier h3{margin:0;font:400 28px/1 var(--f-display)}
 .tier .t-sub{font-size:13.5px;color:var(--muted);margin-top:-8px;min-height:2.6em}
@@ -3216,7 +3217,10 @@ function ServerDB(base, license, session) {
     who: !!session,
     collection: () => ({
       get: async () => { const j = await call('GET', ''); const docs = (j.docs || []).map(d => ({ id: d.id, data: () => d.data })); return { empty: !docs.length, docs }; },
-      doc: id => ({ set: data => call('PUT', '/doc/' + encodeURIComponent(id), data), delete: () => call('DELETE', '/doc/' + encodeURIComponent(id)) })
+      doc: id => ({
+        get: () => call('GET', '/doc/' + encodeURIComponent(id)).then(j => ({ id, exists: true, data: () => j.data }), e => { if (e?.code === 'not_found') return { id, exists: false, data: () => undefined }; throw e; }),
+        set: data => call('PUT', '/doc/' + encodeURIComponent(id), data), delete: () => call('DELETE', '/doc/' + encodeURIComponent(id))
+      })
     })
   };
 }
@@ -3373,7 +3377,7 @@ const Store = {
       db = ServerDB(AI.serverUrl().replace(/\/api\/ai$/, ''), Pro.paid ? S.profile.pro.license || '' : '', sess ? () => Sess.get() : null); id = sess ? 'compte' : 'abonnement';
     }
     if (!db || !id) return;
-    this.db = db; this.uid = id; this.pulled = Date.now();
+    this.db = db; this.uid = id; this.pulled = Date.now(); this.base = {};
     try {
       this.col = db.collection('data/users/' + id);
       const snap = await this.col.get();
@@ -3402,8 +3406,9 @@ const Store = {
     const st = { decks: [], images: {}, profile: prof.profile || {}, updatedAt: prof.updatedAt || 0 };
     const order = prof.order || [];
     for (const dd of docs.filter(d => d.id.startsWith('deck_') && !d.id.includes('~'))) {
-      const body = dd.data(); const deck = { ...body.deck, cards: [...(body.cards || [])] };
-      for (let p = 1; p < (body.parts || 1); p++) { const part = byId[dd.id + '~p' + p]; if (part) deck.cards.push(...(part.cards || [])); }
+      // Copies : les documents lus peuvent être figés (Object.freeze), les fiches seront modifiées ici.
+      const body = structuredClone(dd.data()); const deck = { ...body.deck, cards: [...(body.cards || [])] };
+      for (let p = 1; p < (body.parts || 1); p++) { const part = byId[dd.id + '~p' + p]; if (part) deck.cards.push(...structuredClone(part.cards || [])); }
       this.parts[deck.id] = body.parts || 1;
       st.decks.push(deck);
     }
@@ -3421,6 +3426,52 @@ const Store = {
     for (const k of Object.keys(g)) if (!(g[k] > now - 180 * DAY)) { delete g[k]; this.dirty.add('gone:' + k); }
     ids.forEach(id => { g[id] = now; this.dirty.add('gone:' + id); });
   },
+  /** Dernière version d'un paquet commune avec le nuage (lue ou écrite) : une empreinte par fiche et par note.
+   *  Deux appareils ouverts changent le même paquet : chacun garde ce que l'autre a fait (mergeDeck). */
+  base: {},
+  snap(d) { const h = list => new Map((list || []).map(x => [x.id, hash(JSON.stringify(x))])); return { at: d.updatedAt, cards: h(d.cards), notes: h(d.notes) }; },
+  /** Fusion, sur place dans ld (une séance en cours garde ses fiches), d'un paquet changé ici et dans le nuage (rd) depuis la dernière version commune.
+   *  Chaque fiche (et chaque note) garde le côté qui l'a changée ; changée des deux côtés, la plus récemment révisée l'emporte, sinon le paquet le plus récent.
+   *  Retirée d'un côté et intacte de l'autre, elle s'en va. Le nom et les réglages du paquet viennent du côté le plus récent. */
+  mergeDeck(ld, rd) {
+    const b = this.base[rd.id], lCh = ld.updatedAt !== b.at, rCh = rd.updatedAt !== b.at, lNew = !rCh || (lCh && ld.updatedAt > rd.updatedAt);
+    const h = x => hash(JSON.stringify(x)), put = (o, from) => { for (const k of Object.keys(o)) delete o[k]; Object.assign(o, from); };
+    const one = (L = [], R = [], B) => {
+      const rm = new Map(R.map(x => [x.id, x])), lid = new Set(L.map(x => x.id)), out = [];
+      for (const lx of L) {
+        const rx = rm.get(lx.id), bh = B.get(lx.id), lh = h(lx);
+        // Seulement ici : nouvelle, ou retirée là-bas mais changée ici depuis.
+        if (!rx) { if (bh === undefined || lh !== bh) out.push(lx); continue; }
+        const rh = h(rx), rl = rx.srs?.last || 0, ll = lx.srs?.last || 0;
+        if (lh !== rh && rh !== bh && (lh === bh || rl > ll || (rl === ll && !lNew))) put(lx, rx);
+        out.push(lx);
+      }
+      for (const rx of R) if (!lid.has(rx.id)) { const bh = B.get(rx.id); if (bh === undefined || h(rx) !== bh) out.push(rx); }
+      return out;
+    };
+    const cards = one(ld.cards, rd.cards, b.cards), notes = one(ld.notes, rd.notes, b.notes);
+    if (!lNew) { const { cards: _c, notes: _n, ...meta } = rd; for (const k of Object.keys(ld)) if (!(k in meta) && k !== 'cards' && k !== 'notes') delete ld[k]; Object.assign(ld, meta); }
+    ld.cards = cards; ld.notes = notes;
+    ld.updatedAt = !lCh ? rd.updatedAt : !rCh ? ld.updatedAt : Math.max(Date.now(), ld.updatedAt, rd.updatedAt + 1);
+    return !lCh ? 'remote' : !rCh ? 'local' : 'merged';
+  },
+  /** Juste avant d'écrire un paquet : un autre appareil l'a-t-il changé dans le nuage depuis la dernière version commune ? On fusionne d'abord. */
+  async fresh(deck) {
+    const b = this.base[deck.id], doc = this.col.doc('deck_' + deck.id);
+    if (!b || typeof doc.get !== 'function') return;
+    let rd, body;
+    try {
+      const s = await doc.get(); body = s?.exists ? structuredClone(s.data()) : null;
+      if (!body || body.updatedAt === b.at || !isObj(body.deck)) return;
+      rd = { ...body.deck, cards: [...(Array.isArray(body.cards) ? body.cards : [])] };
+      for (let p = 1; p < (body.parts || 1); p++) { const q = await this.col.doc('deck_' + deck.id + '~p' + p).get(); if (!q?.exists) return; rd.cards.push(...structuredClone(q.data().cards || [])); }
+      this.parts[deck.id] = Math.max(this.parts[deck.id] || 1, body.parts || 1);
+    } catch { return; } // ancien serveur, réseau : on écrit comme avant
+    rd.updatedAt = +body.updatedAt || rd.updatedAt || 0;
+    rd.cards = rd.cards.filter(isObj); rd.cards.forEach(fixCard); rd.notes = Array.isArray(rd.notes) ? rd.notes.filter(isObj) : [];
+    this.mergeDeck(deck, rd); this.base[deck.id] = this.snap(rd);
+    this.saveLocal(); if (!Study.active && !Modal.stack.length) App.render();
+  },
   merge(remote) {
     // Fusion : pour chaque paquet, la version la plus récente l'emporte ; un paquet supprimé après sa dernière modification ne revient pas.
     const obj = o => o && typeof o === 'object' ? o : {}, gone = { ...obj(remote.profile.gone) }, old = Date.now() - 180 * DAY;
@@ -3432,13 +3483,16 @@ const Store = {
     // Encore dans le nuage (effacement raté) : le prochain envoi le retire.
     for (const rd of remote.decks) if (dead(rd)) { this.dirty.add('deck:' + rd.id); deadCards.push(...rd.cards); }
     remote.decks = remote.decks.filter(d => !dead(d));
-    if (S.demo) { S = remote; S.demo = false; S.profile.onboarded = true; S.profile.gone = gone; dropUnusedImages(deadCards); this.saveLocal(); if (this.dirty.size) this.schedule(); return; }
+    if (S.demo) { for (const rd of remote.decks) this.base[rd.id] = this.snap(rd); S = remote; S.demo = false; S.profile.onboarded = true; S.profile.gone = gone; dropUnusedImages(deadCards); this.saveLocal(); if (this.dirty.size) this.schedule(); return; }
     const was = JSON.stringify([S.decks, S.profile, Object.keys(S.images).sort()]);
     const local = new Map(S.decks.map(d => [d.id, d]));
     const out = [];
     for (const rd of remote.decks) {
       const ld = local.get(rd.id);
-      if (ld && ld.updatedAt > rd.updatedAt) { out.push(ld); this.dirty.add('deck:' + ld.id); } else out.push(rd);
+      // Changé des deux côtés depuis la dernière version commune : fiche par fiche. Sans elle (tout juste ouvert), le plus récent l'emporte.
+      if (ld && this.base[rd.id] && ld.updatedAt !== rd.updatedAt) { if (this.mergeDeck(ld, rd) !== 'remote') this.dirty.add('deck:' + ld.id); out.push(ld); }
+      else if (ld && ld.updatedAt > rd.updatedAt) { out.push(ld); this.dirty.add('deck:' + ld.id); } else out.push(rd);
+      this.base[rd.id] = this.snap(rd);
       local.delete(rd.id);
     }
     for (const ld of local.values()) { if (dead(ld)) { deadCards.push(...ld.cards); continue; } out.push(ld); this.dirty.add('deck:' + ld.id); }
@@ -3468,7 +3522,7 @@ const Store = {
         try {
           if (k.startsWith('deck:')) {
             const id = k.slice(5); const deck = deckById(id);
-            if (!deck) await this.dropDeck(id); else await this.writeDeck(deck);
+            if (!deck) await this.dropDeck(id); else { await this.fresh(deck); await this.writeDeck(deck); }
           } else if (k.startsWith('img:')) {
             const id = k.slice(4);
             if (S.images[id]) await this.col.doc('img_' + id).set({ data: S.images[id], updatedAt: Date.now() });
@@ -3503,7 +3557,8 @@ const Store = {
     } catch { }
   },
   async writeDeck(deck) {
-    const { cards, ...meta } = deck;
+    // L'empreinte de ce qui part, prise avant d'attendre le réseau : une fiche changée pendant l'envoi reste à envoyer.
+    const { cards, ...meta } = deck, snap = this.snap(deck);
     const chunks = []; let cur = [], size = 0;
     for (const c of cards) { const b = bytes(c); if (size + b > 190000 && cur.length) { chunks.push(cur); cur = []; size = 0; } cur.push(c); size += b; }
     chunks.push(cur);
@@ -3511,13 +3566,13 @@ const Store = {
     await this.col.doc('deck_' + deck.id).set({ deck: meta, cards: chunks[0], parts: chunks.length, updatedAt: deck.updatedAt });
     for (let p = 1; p < chunks.length; p++) await this.col.doc('deck_' + deck.id + '~p' + p).set({ cards: chunks[p] });
     for (let p = chunks.length; p < prev; p++) await this.col.doc('deck_' + deck.id + '~p' + p).delete();
-    this.parts[deck.id] = chunks.length;
+    this.parts[deck.id] = chunks.length; this.base[deck.id] = snap;
   },
   async dropDeck(id) {
     const n = this.parts[id] || 1;
     await this.col.doc('deck_' + id).delete();
     for (let p = 1; p < n; p++) await this.col.doc('deck_' + id + '~p' + p).delete();
-    delete this.parts[id];
+    delete this.parts[id]; delete this.base[id];
   },
   // Sortie du mode démo : on garde (ou retire) les paquets d'exemple, on retire l'historique simulé.
   leaveDemo(removeExamples = false) {
@@ -3661,6 +3716,8 @@ const AI = {
     if (s) return s.replace(/\/+$/, '');
     return location.protocol.startsWith('http') ? location.origin + '/api/ai' : '';
   },
+  /** Niveau que le serveur sert vraiment : il ramène la demande au plus haut niveau de l'offre (server/core.mjs). Les plafonds de /health ne valent que pour l'offre vue à ce moment-là. */
+  applied(want = 'default') { const c = this.info?.caps, tiers = c?.tiers && this.info.plan === Brain.plan() ? c.tiers : null; return !tiers || tiers.includes(want) ? want : tiers.at(-1); },
   async probeServer() {
     const url = this.serverUrl(); this.nokey = false; this.netErr = false; this.probedAt = Date.now();
     if (!url) { this.status = 'off'; this.health = null; return; }
@@ -3739,7 +3796,7 @@ const ServerAI = {
       const r = await this.round({ messages, tools, modelTier: opts.modelTier || 'default', ...(opts.effort ? { effort: opts.effort } : {}), ...(opts.purpose ? { purpose: opts.purpose } : {}), json: !!opts._json, final: rounds >= (opts.rounds || 7) }, opts.signal, d => emit(d));
       messages.push({ role: 'assistant', content: r.content });
       const uses = r.content.filter(b => b.type === 'tool_use');
-      if (r.stop_reason !== 'tool_use' || !uses.length || !opts.tools) return { text, truncated: r.stop_reason === 'max_tokens', modelTierApplied: opts.modelTier || 'default' };
+      if (r.stop_reason !== 'tool_use' || !uses.length || !opts.tools) return { text, truncated: r.stop_reason === 'max_tokens', modelTierApplied: AI.applied(opts.modelTier) };
       if (text && !text.endsWith('\n\n')) emit('\n\n');
       const results = await Promise.all(uses.map(async u => {
         const tool = opts.tools.find(x => x.name === u.name);
@@ -5171,22 +5228,35 @@ function toast(msg, ic = 'check', lead = '') {
 /** Le bouton Retour (téléphone, navigateur) ferme d'abord la fenêtre ouverte ou la séance, au lieu de quitter l'app.
  *  Chaque couche ouverte ajoute une entrée d'historique ; fermée depuis l'app, elle reprend la sienne (history.go). */
 const Back = {
-  depth: 0, pend: 0, skip: 0, t: 0, popping: false,
-  push() { try { history.pushState({ engram: 1 }, ''); this.depth++; } catch { } },
+  depth: 0, pend: 0, skip: 0, t: 0, popping: false, href: '',
+  // Chaque entrée porte son niveau : on ne revient jamais au-delà des nôtres (ni hors de l'app).
+  push() { try { history.pushState({ engram: this.depth + 1 }, ''); this.depth++; this.href = location.href; } catch { } },
   drop() {
     if (this.popping || this.depth <= 0) return;
     this.depth--; this.pend++;
-    this.t ||= setTimeout(() => { const n = this.pend; this.pend = 0; this.t = 0; if (!n) return; this.skip++; try { history.go(-n); } catch { this.skip--; } });
+    this.t ||= setTimeout(() => {
+      const n = this.pend; this.pend = 0; this.t = 0;
+      // L'app a changé d'écran entre-temps (une entrée par-dessus les nôtres) : on la laisse, sinon le changement d'écran serait annulé.
+      const k = Math.min(n, +history.state?.engram || 0); if (!k) return;
+      this.skip++; try { history.go(-k); } catch { this.skip--; }
+    });
   },
-  pop() {
+  pop(e) {
+    const moved = location.href !== this.href; this.href = location.href;
     if (this.skip) { this.skip--; return; }
-    if (this.depth <= 0) return;
-    this.depth--; this.popping = true;
-    try { if (Modal.stack.length) Modal.close(); else if (Study.active || !$('#study').hidden) Study.close(); }
-    finally { this.popping = false; }
+    // Un changement d'écran (#route, lien) n'est pas un retour : la fenêtre ou la séance restent ouvertes.
+    if (moved) return;
+    const lvl = +e?.state?.engram || 0;
+    this.popping = true;
+    try {
+      while (this.depth > lvl) {
+        this.depth--;
+        if (Modal.stack.length) Modal.close(); else if (Study.active || !$('#study').hidden) Study.close(); else break;
+      }
+    } finally { this.popping = false; }
   }
 };
-addEventListener('popstate', () => Back.pop());
+addEventListener('popstate', e => Back.pop(e));
 /** Seule la couche du dessus prend le clavier : une fenêtre ouverte, sinon la séance de révision. Ce qui est dessous devient inerte. */
 function layers() {
   const modal = Modal.stack.length > 0, study = !$('#study')?.hidden;
@@ -5413,6 +5483,7 @@ const App = {
   route: { v: 'today', arg: null },
   go(v, arg = null) {
     if (Study.active) Study.close(true);
+    if (typeof CourseSheet !== 'undefined') CourseSheet.yield();
     const same = this.route.v === v && this.route.arg === arg, from = this.route;
     // Ouvrir un paquet retient la hauteur de la page d'où l'on vient ; y revenir la rend, pour retrouver son tiroir.
     let y = same ? null : 0;
@@ -9897,6 +9968,7 @@ const Study = {
     // Fiches préparées à l'avance (mission, Mentor, examen) : on reprend les fiches vivantes, une annulation a pu remplacer les objets.
     const items = o.items ? o.items.map(([c]) => findCard(c?.id)).filter(x => x[0]) : this.build(o.deckId, o.cram, o.weak);
     if (!items.length) { toast(o.cram || o.weak ? t('Aucune fiche à réviser dans ce paquet.') : t('Rien à réviser pour le moment. Revenez plus tard !'), 'check'); return; }
+    CourseSheet.yield();
     if (Mentor.isOpen) Mentor.close();
     this.active = true; this.summaryOn = false; this.queue = items.slice(); this.learn = []; this.cram = !!o.cram;
     this.deckName = o.title || (o.deckId ? deckById(o.deckId)?.name : o.weak ? t('Points faibles') : t('Toutes les fiches'));
@@ -11707,6 +11779,7 @@ const Mentor = {
   toggle() { this.isOpen ? this.close() : this.open(); },
   open(text = '', autoSend = false, deckId = null) {
     if (Study.active) Study.close(true);
+    CourseSheet.yield();
     if (deckId) this.deckId = deckId; else if (App.route.v === 'deck') this.deckId = App.route.arg; else this.deckId = null;
     this.isOpen = true; document.body.classList.add('mentor-on');
     const el = $('#mentor'); el.hidden = false; this.render();
@@ -12626,6 +12699,8 @@ const DocRead = {
 /* ── La fiche de cours : rédaction, liseuse, rangement ──────────────── */
 const CourseSheet = {
   cur: null,
+  /** Une séance, Mentor ou un autre écran prend la main : la liseuse (plein écran, au-dessus de tout) se ferme, sauf pendant la rédaction. */
+  yield() { if (this.cur && !this.cur.busy) this.cur.close(true); },
   prompt({ src, focus, title, hasImages, knowledge, lang }) {
     const elite = Pro.expert;
     return `You are an outstanding teacher. Write a COURSE SHEET ("fiche de cours") for this student${knowledge ? ` on the topic "${knowledge}", from well-established knowledge at their level` : ' from the material below'}${focus ? `, focused on: ${focus}` : ''}.
@@ -12715,6 +12790,7 @@ LENGTH: as long as needed to be complete${elite ? ' — be exhaustive, up to abo
     };
     const R = {
       ctl, el,
+      get busy() { return busy; },
       status(m) { const s = el.querySelector('#rdStatus'); if (s) s.innerHTML = m ? `<span class="thinking"><i></i><i></i><i></i></span><span>${esc(m)}</span>` : ''; },
       draw(md) { src = md; if (raf) return; const wait = Math.max(0, 260 - (performance.now() - last)); raf = setTimeout(() => { raf = 0; last = performance.now(); paint(); }, wait); },
       done: (deck, note, quiet) => {
@@ -16717,7 +16793,8 @@ async function boot() {
   Install.init();
   addEventListener('pagehide', () => { Study.leave(); Store.flushLocal(); });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { Study.leave(); Store.flushLocal(); } else Store.follow(); });
-  addEventListener('pageshow', e => { if (e.persisted) Store.follow(); });
+  // Retour depuis Stripe par le bouton Retour (page restaurée telle quelle) : les boutons de paiement reprennent.
+  addEventListener('pageshow', e => { if (e.persisted) { Pay.busy = false; Store.follow(); } });
   // Un autre onglet a enregistré : on suit sa version. Une version plus ancienne d'Engram ne pose pas de repère, seul l'état change.
   addEventListener('storage', e => {
     if (e.key === Store.GEN) Store.follow();
