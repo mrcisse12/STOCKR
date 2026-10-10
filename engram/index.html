@@ -498,7 +498,7 @@ html.cam-on{overflow:hidden}
 .cam.flash .cam-stage::after{content:'';position:absolute;inset:0;background:#fff;animation:fadeOut .22s ease both}
 @keyframes fadeOut{from{opacity:.85}to{opacity:0}}
 .cam-review{position:absolute;inset:0;z-index:2;display:grid;grid-template-rows:1fr auto;background:#0D0B08}
-.cr-stage{position:relative;display:grid;place-items:center;padding:calc(64px + env(safe-area-inset-top,0px)) 16px 12px;min-height:0}
+.cr-stage{position:relative;display:grid;place-items:center;padding:calc(64px + env(safe-area-inset-top,0px)) 16px 12px;min-height:0;grid-template-rows:minmax(0,1fr);grid-template-columns:minmax(0,1fr)}
 .cr-out{max-width:100%;max-height:100%;border-radius:4px;box-shadow:0 18px 50px rgba(0,0,0,.6)}
 .cr-img{position:relative;max-width:100%;max-height:100%;touch-action:none}
 .cr-img img{display:block;max-width:100%;max-height:calc(100dvh - 190px)}
@@ -10341,6 +10341,7 @@ const Study = {
   skip() { if (this.busy) { this.tok++; this.next(); } },
   undo() {
     const h = this.history.pop(); if (!h) return;
+    this.summaryOn = false; // la note de la dernière fiche s'annule aussi depuis le bilan de fin
     if (Store.frozen && Store.staleEl === true) this.unsaved.push({ ...h, undo: true }); // déjà enregistrée peut-être : rejoin la retirera
     const [c, d] = h.item;
     c.srs = h.before; S.profile.xp = h.xpBefore; S.profile.flags = h.flagsBefore;
@@ -10431,7 +10432,7 @@ Explain the idea differently, in 4 sentences at most, with a concrete everyday a
     const k = e.key.toLowerCase();
     // Les raccourcis du navigateur (copier, chercher, tout sélectionner…) ne répondent pas à la fiche ; seul Ctrl/Cmd+Z annule.
     if ((e.ctrlKey || e.metaKey || e.altKey) && k !== 'z') return;
-    if (this.summaryOn) { if (k === ' ' || k === 'enter') { e.preventDefault(); this.close(); } return; }
+    if (this.summaryOn) { if (k === ' ' || k === 'enter') { e.preventDefault(); this.close(); } else if (k === 'z' && !e.metaKey && !e.ctrlKey && this.history.length) { e.preventDefault(); this.undo(); } return; }
     if (this.busy) { if ([' ', 'enter', '1', '2', '3', '4'].includes(k)) { e.preventDefault(); this.skip(); } return; }
     const [c] = this.cur;
     // Correction IA en route : un double appui (Entrée, Entrée) ne l'abandonne pas ; plus tard, la touche montre la réponse.
@@ -10484,6 +10485,7 @@ Explain the idea differently, in 4 sentences at most, with a concrete everyday a
           ${this.lastItems.length ? `<button class="btn btn-lg" data-act="st-again">${icon('flip')}${t('Revoir ces fiches')}</button>` : ''}
           ${AI.on && s.n ? `<button class="btn btn-lg" data-act="st-debrief">${icon('sparkles')}${t('Débrief avec Mentor')}</button>` : ''}
           <button class="btn btn-lg btn-ghost" data-act="st-share">${icon('share')}${t('Partager')}</button>
+          ${this.history.length ? `<button class="btn btn-lg btn-ghost" data-act="st-undo">${icon('undo')}${t('Annuler la dernière note')} <kbd>Z</kbd></button>` : ''}
         </div>
       </div>`;
     if (redraw) return;
@@ -14801,6 +14803,7 @@ TR = {
   "Écrire la réponse": ["Type the answer","Escribir la respuesta","Antwort tippen","Escrever a resposta"],
   "Ambiance : {x}": ["Ambience: {x}","Ambiente: {x}","Atmosphäre: {x}","Ambiente: {x}"],
   "Lire à voix haute (T)": ["Read aloud (T)","Leer en voz alta (T)","Vorlesen (T)","Ler em voz alta (T)"],
+  "Annuler la dernière note": ["Undo last grade","Deshacer la última nota","Letzte Bewertung rückgängig","Desfazer a última nota"],
   "Annuler la dernière note (Z)": ["Undo last grade (Z)","Deshacer la última nota (Z)","Letzte Bewertung rückgängig (Z)","Desfazer a última nota (Z)"],
   "Modifier la fiche (E)": ["Edit card (E)","Editar la tarjeta (E)","Karte bearbeiten (E)","Editar o cartão (E)"],
   "sangsue": ["leech","sanguijuela","Blutsauger","sanguessuga"],
