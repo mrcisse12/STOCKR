@@ -728,6 +728,11 @@ export function createAccount(env = process.env, { backend, syncBackend, fetchIm
       } catch (e) { console.error('[engram] account session', e.message); return null; }
     },
     linkStripe,
+    /** Vrai si ce client Stripe est rattaché à un compte (l'abonnement et les paquets suivent alors le compte). */
+    async customerAccount(customer) {
+      if (typeof customer !== 'string' || !customer) return false;
+      try { return !!(await byIndex('stripe.' + spaceOfCustomer(customer))); } catch { return false; }
+    },
     /** Répond aux routes /api/account… ; renvoie null pour toute autre adresse. */
     async handle(request, { ip = '?' } = {}) {
       const url = new URL(request.url);

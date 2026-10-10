@@ -284,7 +284,7 @@ export function createPay(env = process.env, { fetchImpl = fetch, accounts = nul
           return json(request, 200, issue(sub, await prices()));
         }
         if (route === 'portal') {
-          const p = await stripe('POST', '/billing_portal/sessions', { customer: lic.c, return_url: `${siteOrigin(request)}/#pro`, configuration: await portalConfig() });
+          const p = await stripe('POST', '/billing_portal/sessions', { customer: lic.c, return_url: `${siteOrigin(request)}/#portal`, configuration: await portalConfig() });
           return json(request, 200, { url: p.url });
         }
         return json(request, 404, { code: 'not_found' });

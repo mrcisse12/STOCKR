@@ -894,6 +894,7 @@ body.studying .shell,body.studying .dock{visibility:hidden}
 /* ── Modales, toasts, palette, infobulle ─────────────────────────── */
 .modal-back{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:20px 16px;background:rgba(4,8,6,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:fadeIn .3s both;overflow-y:auto}
 .modal{position:relative;width:min(640px,100%);max-height:calc(100vh - 40px);overflow:auto;border-radius:16px;background:var(--folder);border:1px solid var(--hair-2);box-shadow:var(--sh-pop);padding:26px;animation:pop .5s var(--snap) both}
+.modal:focus{outline:none}
 .modal.wide{width:min(940px,100%)}
 @keyframes pop{from{opacity:0;transform:translateY(18px) scale(.97)}}
 .modal-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px}
@@ -2262,7 +2263,7 @@ html[data-vt="out"]::view-transition-new(root){animation:vtLift .46s .12s cubic-
 .ac-eye.on{color:var(--brass-text)}
 .ac-eye .i{width:18px;height:18px}
 .ac-hint{font-size:12.5px;line-height:1.45;color:var(--muted)}
-.field>label .opt{font:500 12px/1 var(--f-ui);letter-spacing:0;text-transform:none}
+.field>label .lbl-opt{font:500 12px/1 var(--f-ui);letter-spacing:0;text-transform:none;color:var(--muted)}
 .ac-mono{font-family:var(--f-type);letter-spacing:.06em;text-transform:uppercase}
 .ac-mono::placeholder{letter-spacing:.04em}
 .input[aria-invalid="true"]{border-color:var(--again)}
@@ -2551,6 +2552,7 @@ details.d-box[open] .d-show{display:none}
 .ag-side .panel-h{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
 .ag-side .panel-h .i{color:var(--brass-text)}
 .ag-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.ag-row .btn{max-width:100%;height:auto;min-height:44px;padding-block:9px;white-space:normal;text-align:left;line-height:1.25}
 .ag-note{font-size:17px}
 .ag-hint{margin:10px 0 0;font-size:12.5px;line-height:1.5}
 .ag-hint.warn{display:flex;gap:8px;align-items:flex-start;color:var(--hard);margin:0 0 12px}
@@ -3388,7 +3390,11 @@ const Store = {
         this.schedule();
       }
       this.mode = 'cloud';
-    } catch (e) { this.mode = 'local'; this.db = null; this.col = null; }
+    } catch (e) {
+      this.mode = 'local'; this.db = null; this.col = null;
+      // Le code d'abonnement appartient à un compte : ses paquets sont dans le compte, pas dans un espace à part.
+      if (e?.code === 'sign_in' && !this.signHint) { this.signHint = true; toastAct(t('Cet abonnement est rattaché à un compte Engram : connectez-vous pour retrouver vos paquets.'), 'cloud', t('Se connecter@@compte'), 'arrow', () => Account.open(), 12000); }
+    }
   },
   assemble(docs) {
     const byId = Object.fromEntries(docs.map(d => [d.id, d.data()]));
@@ -3928,7 +3934,7 @@ function brainHTML() {
       <div><small>${t('Réflexion')}</small><b>${t(P.think)}</b>${dots(P.level, 3)}</div>
       <div><small>${t('Exigence')}</small><b>${t(RIGOR[r].name)}</b>${dots(r, 5)}</div>
     </div>
-    <p>${rigorLine()}${Brain.prepa() ? ' ' + t('Mode prépa : exercices façon DS et colle, démonstrations exigées, indices avant la solution.') : ''}</p>
+    <p>${rigorLine()}${Brain.prepa() && Brain.rigor() === 5 ? ' ' + t('Mode prépa : exercices façon DS et colle, démonstrations exigées, indices avant la solution.') : ''}</p>
     ${P.plan !== 'elite' ? `<button class="btn btn-sm btn-gilt" data-act="go" data-v="pro">${icon('crown', 'i-sm')}${P.plan === 'free' ? t('Plus de réflexion avec Pro') : t('Le modèle le plus puissant avec Élite')}</button>` : ''}
   </div>`;
 }
@@ -5162,22 +5168,60 @@ function toast(msg, ic = 'check', lead = '') {
   $('#toasts').append(el);
   setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 400); }, lead ? 4200 : 3200);
 }
+/** Le bouton Retour (téléphone, navigateur) ferme d'abord la fenêtre ouverte ou la séance, au lieu de quitter l'app.
+ *  Chaque couche ouverte ajoute une entrée d'historique ; fermée depuis l'app, elle reprend la sienne (history.go). */
+const Back = {
+  depth: 0, pend: 0, skip: 0, t: 0, popping: false,
+  push() { try { history.pushState({ engram: 1 }, ''); this.depth++; } catch { } },
+  drop() {
+    if (this.popping || this.depth <= 0) return;
+    this.depth--; this.pend++;
+    this.t ||= setTimeout(() => { const n = this.pend; this.pend = 0; this.t = 0; if (!n) return; this.skip++; try { history.go(-n); } catch { this.skip--; } });
+  },
+  pop() {
+    if (this.skip) { this.skip--; return; }
+    if (this.depth <= 0) return;
+    this.depth--; this.popping = true;
+    try { if (Modal.stack.length) Modal.close(); else if (Study.active || !$('#study').hidden) Study.close(); }
+    finally { this.popping = false; }
+  }
+};
+addEventListener('popstate', () => Back.pop());
+/** Seule la couche du dessus prend le clavier : une fenêtre ouverte, sinon la séance de révision. Ce qui est dessous devient inerte. */
+function layers() {
+  const modal = Modal.stack.length > 0, study = !$('#study')?.hidden;
+  for (const id of ['shell', 'dock', 'study', 'onb']) {
+    const el = document.getElementById(id); if (!el) continue;
+    const want = modal ? true : study ? id === 'shell' || id === 'dock' : false;
+    if (want && !el.inert) { el.inert = true; el.dataset.layer = '1'; }
+    else if (!want && el.dataset.layer) { el.inert = false; delete el.dataset.layer; }
+  }
+}
 const Modal = {
   stack: [],
   open(html, cls = '') {
     const back = document.createElement('div'); back.className = 'modal-back';
-    back.innerHTML = `<div class="modal ${cls}" role="dialog" aria-modal="true"><i class="m-grip" aria-hidden="true"></i>${html}</div>`;
+    back.innerHTML = `<div class="modal ${cls}" role="dialog" aria-modal="true" tabindex="-1"><i class="m-grip" aria-hidden="true"></i>${html}</div>`;
     back.addEventListener('pointerdown', e => { back._down = e.target === back; });
     back.addEventListener('click', e => { if (e.target === back && back._down) this.close(); });
     // Une fenêtre qui repart garde ses identifiants le temps de s'effacer : la nouvelle les reprend.
     $$('#modals > .out [id]').forEach(e => { if (!e.closest('svg')) e.removeAttribute('id'); });
-    $('#modals').append(back); this.stack.push(back); Motion.sheet(back);
-    setTimeout(() => back.querySelector('[autofocus]')?.focus(), 60);
+    back._ret = document.activeElement;
+    $('#modals').append(back); this.stack.push(back); Motion.sheet(back); layers(); Back.push();
+    // Le clavier entre dans la fenêtre : le champ marqué autofocus, sinon la fenêtre elle-même (Tab mène à son premier bouton).
+    setTimeout(() => { if (!back.isConnected) return; const f = back.querySelector('[autofocus]') || back.querySelector('.modal'); if (!back.contains(document.activeElement) || document.activeElement === back.querySelector('.modal')) f?.focus({ preventScroll: true }); }, 60);
     return back.querySelector('.modal');
   },
-  close() { const b = this.stack.pop(); if (!b) return; this.out(b); b._onclose?.(); },
+  close() { const b = this.stack.pop(); if (!b) return; this.out(b); this.after(b); b._onclose?.(); },
   /** Ferme cette fenêtre-là, où qu'elle soit dans la pile (rien si elle est déjà fermée) : pas celle du dessus. */
-  closeEl(b) { const i = this.stack.indexOf(b); if (i < 0) return; this.stack.splice(i, 1); this.out(b); b._onclose?.(); },
+  closeEl(b) { const i = this.stack.indexOf(b); if (i < 0) return; this.stack.splice(i, 1); this.out(b); this.after(b); b._onclose?.(); },
+  /** Le focus revient où il était avant la fenêtre (ou dans celle de dessous). */
+  after(b) {
+    layers(); Back.drop();
+    const top = this.stack.at(-1), r = b._ret;
+    if (top) { if (!top.contains(document.activeElement)) (r && top.contains(r) ? r : top.querySelector('.modal'))?.focus({ preventScroll: true }); }
+    else if (r?.isConnected && !r.closest('[inert]')) r.focus({ preventScroll: true });
+  },
   /** Elle repart comme elle est venue : glissée vers le bas sur téléphone, fondue ailleurs. */
   out(b) { if (!Motion.some) { b.remove(); return; } b.classList.add('out'); b.style.pointerEvents = 'none'; b.inert = true; setTimeout(() => b.remove(), 320); },
   onClose(m, fn) { m.closest('.modal-back')._onclose = fn; }
@@ -7007,7 +7051,8 @@ function changeLang(l) {
   if (S.demo && (S.profile.exams.some(x => !x.example) || S.decks.some(d => !d.example || d.cards.some(c => c.src && c.src !== 'exemple')))) Store.leaveDemo(false);
   const wasDemo = S.demo;
   setLang(l); S.profile.settings.lang = l;
-  if (wasDemo) { const keep = S.profile.settings, study = S.profile.study, onb = S.profile.onboarded; S = seedDemo(l); S.profile.settings = { ...keep, lang: l }; S.profile.study = study; S.profile.onboarded = onb; }
+  // Seuls les exemples changent de langue : l'abonnement, le parrainage, le planning et la mémoire de Mentor restent.
+  if (wasDemo) { const old = S.profile, { log, xp, bestStreak, exams, badges } = (S = seedDemo(l)).profile; S.profile = { ...old, log, xp, bestStreak, exams, badges, settings: { ...old.settings, lang: l } }; }
   Store.touch('profile'); Custom.apply(); applyStatic();
   if (Study.active) Study.render(); else App.render(true);
   Mentor.refresh(true);
@@ -7418,9 +7463,15 @@ const Account = {
         if (j.user?.id !== this.user?.id) throw { code: 'passkey_failed' };
         Sess.set(j.session); return run({});
       }
-      return new Promise(res => this.ask({ title: t('Confirmez que c\'est vous'), text: t('Par sécurité, confirmez avec votre mot de passe.'), ok: t('Continuer'),
-        fields: [{ id: 'acCur', label: t('Mot de passe'), pw: true, ac: 'current-password' }],
-        run: async el => { const j = await run({ password: el('acCur').value }); Modal.close(); res(j); } }));
+      // La fenêtre de confirmation a son propre bouton : le geste en cours lui laisse la main, et la fermer annule le geste.
+      const held = this.busy; this.busy = false;
+      return new Promise((res, rej) => {
+        let done = false;
+        const m = this.ask({ title: t('Confirmez que c\'est vous'), text: t('Par sécurité, confirmez avec votre mot de passe.'), ok: t('Continuer'),
+          fields: [{ id: 'acCur', label: t('Mot de passe'), pw: true, ac: 'current-password' }],
+          run: async el => { const j = await run({ password: el('acCur').value }); done = true; Modal.close(); res(j); } });
+        Modal.onClose(m, () => { if (!done) rej({ code: 'cancelled' }); });
+      }).finally(() => { this.busy = held; });
     }
   },
 
@@ -7544,7 +7595,7 @@ const Account = {
       ${quick.length ? `<div class="ac-quick">${quick.join('')}<p class="ac-err" role="alert"></p></div><div class="ac-or">${t('ou avec votre e-mail')}</div>` : ''}
       <div class="seg ac-tabs" role="tablist"><button type="button" role="tab" data-tab="in" class="${up ? '' : 'on'}" aria-selected="${!up}">${t('Se connecter@@compte')}</button><button type="button" role="tab" data-tab="up" class="${up ? 'on' : ''}" aria-selected="${up}">${t('Créer un compte')}</button></div>
       <form class="ac-form" novalidate>
-        ${up ? `<div class="field"><label for="acName">${t('Prénom')} <span class="opt">· ${t('facultatif')}</span></label><input class="input" id="acName" name="given" autocomplete="given-name" maxlength="60" value="${esc(S.profile.study?.name || '')}"></div>` : ''}
+        ${up ? `<div class="field"><label for="acName">${t('Prénom')} <span class="lbl-opt">· ${t('facultatif')}</span></label><input class="input" id="acName" name="given" autocomplete="given-name" maxlength="60" value="${esc(S.profile.study?.name || '')}"></div>` : ''}
         ${this.fEmail()}
         ${this.fPw('acPw', 'password', t('Mot de passe'), up ? 'new-password' : 'current-password', up ? t('8 caractères au moins. Une phrase facile à retenir fait très bien l\'affaire.') : '')}
         <p class="ac-err" role="alert"></p>
@@ -7756,9 +7807,9 @@ function payHTML() {
   if (!Pay.on) return '';
   const p = S.profile.pro || {}, D = d => fmtDate(d, { day: 'numeric', month: 'long', year: 'numeric' });
   if (Pro.paid) return `<section class="sec"><div class="sec-h"><div><h2 class="h2">${t('Votre abonnement')}</h2><p>${esc(p.ends ? t('{p} jusqu\'au {d}, puis retour à Découverte.', { p: Pro.name(), d: D(p.until) }) : t('{p}, renouvelé le {d}.', { p: Pro.name(), d: D(p.until) }))}</p></div></div>
-    <article class="panel pay-box rise"><div class="pay-row"><button class="btn btn-gilt" data-act="payPortal">${icon('settings')}${t('Gérer mon abonnement')}</button><button class="btn" data-act="payCopy">${icon('link')}${t('Copier mon code d\'abonnement')}</button></div>
+    <article class="panel pay-box rise"><div class="pay-row"><button class="btn btn-gilt" data-act="payPortal">${icon('settings')}${t('Gérer mon abonnement')}</button>${p.acct ? '' : `<button class="btn" data-act="payCopy">${icon('link')}${t('Copier mon code d\'abonnement')}</button>`}</div>
     <p class="muted sync-line">${icon('cloud')}<span>${Store.mode === 'cloud' ? t('Synchronisation active : vos paquets et votre progression suivent sur tous vos appareils.') : t('La synchronisation démarre dès que le serveur répond.')}</span></p>
-    <p class="muted">${t('Changer de formule, de carte bancaire, télécharger une facture ou arrêter : tout se fait sur la page sécurisée de Stripe. Pour utiliser votre abonnement sur un autre appareil, collez-y votre code d\'abonnement.')}</p></article></section>`;
+    <p class="muted">${p.acct ? t('Changer de formule, de carte bancaire, télécharger une facture ou arrêter : tout se fait sur la page sécurisée de Stripe. Sur un autre appareil, connectez-vous à votre compte Engram : l\'abonnement et vos paquets suivent.') : t('Changer de formule, de carte bancaire, télécharger une facture ou arrêter : tout se fait sur la page sécurisée de Stripe. Pour utiliser votre abonnement sur un autre appareil, collez-y votre code d\'abonnement.')}</p></article></section>`;
   return `<section class="sec"><article class="panel pay-box rise"><b>${t('Déjà abonné sur un autre appareil ?')}</b><p class="muted">${t('Collez ici votre code d\'abonnement (page Pro de l\'autre appareil, « Copier mon code d\'abonnement »).')}</p>
     <div class="pay-row"><input class="input" id="payCode" autocomplete="off" spellcheck="false" placeholder="v1.…"><button class="btn" data-act="payRestore">${icon('check')}${t('Retrouver mon abonnement')}</button></div></article></section>`;
 }
@@ -7831,7 +7882,7 @@ function tierHTML(k) {
   const price = k === 'free' ? money(0) : money(y ? Pay.price(k, 'year') / 12 : Pay.price(k, 'month'));
   const note = k === 'free' ? t('Pour toujours') : y ? t('soit {x} par an', { x: money(Pay.price(k, 'year')) }) : t('Sans engagement');
   const feats = (k === 'pro' ? [t('Tout Découverte, et :')] : []).concat(PRO_FEATURES[k].map(x => t(x)));
-  const btn = cur && (Pro.paid || !Pay.on) ? `<button class="btn" disabled>${icon('check')}${t('Votre formule')}</button>`
+  const btn = cur && (Pro.paid || !Pay.on || k === 'free') ? `<button class="btn" disabled>${icon('check')}${t('Votre formule')}</button>`
     : Pay.on && k !== 'free' ? `<button class="btn ${hi ? 'btn-gilt' : 'btn-brass'}" data-act="proPick" data-plan="${k}">${Pro.paid ? t('Passer à {p}', { p: Pro.name(k) }) : t('S\'abonner à {p}', { p: Pro.name(k) })}</button>`
     : k === 'free' ? `<button class="btn" data-act="proPick" data-plan="free">${t('Revenir à Découverte')}</button>`
     : `<button class="btn ${hi ? 'btn-gilt' : 'btn-brass'}" data-act="proPick" data-plan="${k}">${Pro.canTrial && !Pro.on ? t('Essayer 14 jours') : t('Choisir {p}', { p: P.name })}</button>`;
@@ -9853,7 +9904,8 @@ const Study = {
     this.mode = S.profile.settings.answerMode; this.history = []; this.fails = {};
     this.stats = { n: 0, ok: 0, xp: 0, t0: Date.now(), g: [0, 0, 0, 0, 0], wrong: [] }; this.lvl0 = level().i;
     document.body.classList.add('studying');
-    $('#study').hidden = false;
+    if ($('#study').hidden) Back.push();
+    $('#study').hidden = false; layers();
     if (!this.lampBound && matchMedia('(hover:hover)').matches) {
       this.lampBound = true; let raf = 0;
       $('#study').addEventListener('pointermove', e => {
@@ -9872,7 +9924,7 @@ const Study = {
     this.pad?.destroy(); this.scratchPad?.destroy(); this.pad = this.scratchPad = null;
     try { speechSynthesis.cancel(); } catch { }
     try { this.wake?.release(); } catch { } this.wake = null;
-    const el = $('#study'); el.hidden = true; el.innerHTML = '';
+    const el = $('#study'); if (!el.hidden) Back.drop(); el.hidden = true; el.innerHTML = ''; layers();
     document.body.classList.remove('studying');
     if (!silent) App.render();
   },
@@ -10292,7 +10344,8 @@ const Study = {
     if (Store.frozen && Store.staleEl === true) this.unsaved.push({ ...h, undo: true }); // déjà enregistrée peut-être : rejoin la retirera
     const [c, d] = h.item;
     c.srs = h.before; S.profile.xp = h.xpBefore; S.profile.flags = h.flagsBefore;
-    if (h.logBefore) S.profile.log[dayKey()] = h.logBefore; else delete S.profile.log[dayKey()];
+    const day = h.day || dayKey(); // le jour de la note, même si 4 h du matin est passé depuis
+    if (h.logBefore) S.profile.log[day] = h.logBefore; else delete S.profile.log[day];
     this.stats.n--; this.stats.g[h.g]--; if (h.g >= 2) this.stats.ok--; this.stats.xp -= h.xp || 0;
     // Un « À revoir » annulé ne compte plus comme oubli de la séance.
     if (h.g === 1) { this.fails[c.id] = Math.max(0, (this.fails[c.id] || 0) - 1); const w = this.stats.wrong.lastIndexOf(c.id); if (w >= 0) this.stats.wrong.splice(w, 1); }
@@ -10302,6 +10355,7 @@ const Study = {
     this.order = []; this.pool = c.type === 'order' ? shuffle((c.items || []).map((_, i) => i)) : [];
     Store.touchDeck(d); Store.touch('profile');
     this.render(true); toast(t('Dernière note annulée'), 'undo');
+    if (HandsFree.on) HandsFree.cycle(); else if (S.profile.settings.tts) this.speakCur(); // la fiche rendue est relue, et l'écoute reprend
   },
   async tutor() {
     const [c] = this.cur; const f = cardFaces(c);
@@ -11297,7 +11351,7 @@ function examView() {
     const sc = gradeScale(ok / tot);
     const errs = G.results.filter(r => !r.ok);
     return `<article class="exam-paper rise" style="text-align:center">
-        <div class="kick">${t("Résultat de l'examen blanc")} · ${esc(G.deckId ? deckById(G.deckId)?.name || '' : t('tous les paquets'))}</div>
+        <div class="kick">${t("Résultat de l'examen blanc")} · ${esc(((ds) => ds.length === 1 ? ds[0] : ds.length < gameDecks().length ? plural(ds.length, 'paquet|paquets') : t('tous les paquets'))([...new Set((G.qs || []).map(q => q.d?.name).filter(Boolean))]))}</div>
         <div class="note20 tnum"><svg viewBox="0 0 220 120" preserveAspectRatio="none"><path d="M18,64 C14,22 200,6 206,52 C212,98 40,116 22,82 C12,62 40,34 92,24"/></svg>${esc(sc.main)}${sc.sub ? `<small style="font-size:.42em">${esc(sc.sub)}</small>` : ''}</div>
         <div style="font:700 30px/1.2 var(--f-pen);color:var(--pen)">${esc(sc.label)}</div>
         <p style="margin:10px 0 0;font:400 14px var(--f-type);color:var(--p-muted)">${t('{x} sur {n}.', { x: plural(ok, 'bonne réponse|bonnes réponses'), n: tot })}</p>
@@ -11507,7 +11561,7 @@ const Plan = {
         'BEGIN:VALARM', 'ACTION:DISPLAY', 'TRIGGER:-PT10M', 'DESCRIPTION:Engram', 'END:VALARM', 'END:VEVENT');
     }
     for (const x of upcomingExams()) {
-      const d = keyToDate(x.date), e = new Date(d.getTime() + DAY);
+      const d = keyToDate(x.date), e = new Date(d); e.setDate(e.getDate() + 1); // le lendemain, même un jour de 25 h
       L.push('BEGIN:VEVENT', `UID:engram-exam-${x.id}@engram.app`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${ds(d)}`, `DTEND;VALUE=DATE:${ds(e)}`, fold('SUMMARY:' + escI('📝 ' + x.name)), 'END:VEVENT');
     }
     L.push('END:VCALENDAR');
@@ -12742,6 +12796,10 @@ const ICS = {
   fold(line) { const enc = new TextEncoder(), out = []; let cur = '', n = 0; for (const ch of line) { const b = enc.encode(ch).length; if (n + b > 75) { out.push(cur); cur = ' ' + ch; n = 1 + b; } else { cur += ch; n += b; } } out.push(cur); return out.join('\r\n'); },
   stamp: () => new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z')
 };
+/** Créneaux [début, fin] en minutes, triés, ceux qui se chevauchent réunis en un seul. */
+function mergeWins(list) {
+  return list.slice().sort((a, b) => a[0] - b[0]).reduce((acc, w) => { const p = acc.at(-1); if (p && w[0] <= p[1]) p[1] = Math.max(p[1], w[1]); else acc.push([w[0], w[1]]); return acc; }, []);
+}
 const Agenda = {
   timers: [],
   get st() { const a = S.profile.agenda; return a; },
@@ -12749,7 +12807,7 @@ const Agenda = {
   /** Les créneaux libres d'un jour de la semaine (0 = lundi), en minutes depuis minuit. */
   windows(wd) {
     const w = this.st.windows?.[wd];
-    if (Array.isArray(w)) return w.filter(x => Array.isArray(x) && x[1] > x[0]).map(x => [x[0], x[1]]).sort((a, b) => a[0] - b[0]);
+    if (Array.isArray(w)) return mergeWins(w.filter(x => Array.isArray(x) && x[1] > x[0]).map(x => [x[0], x[1]]));
     const m = S.profile.study.weekly[wd] || 0; if (!m) return [];
     const [h, mi] = STUDY_HOUR[S.profile.study.time] || STUDY_HOUR.evening, start = h * 60 + mi;
     const len = Math.max(25, Math.ceil(m * 1.2 / 5) * 5);
@@ -12907,13 +12965,15 @@ const Agenda = {
     if (p !== 'granted') toast(t('Notifications refusées : Engram sonnera quand il est ouvert. Pour des alarmes même app fermée, ajoutez le planning à votre agenda.'), 'bell');
     return p === 'granted';
   },
+  /** L'heure murale « minuit + m minutes » de ce jour : un jour de changement d'heure dure 23 ou 25 h. */
+  at(d0, m) { const x = new Date(d0); x.setHours(0, m, 0, 0); return x; },
   arm() {
     this.timers.forEach(clearTimeout); this.timers = [];
     if (!this.on() || !this.st.remind || !S.profile.onboarded) return;
-    const day = this.day(0), midnight = this.date(0).getTime(), lead = (+this.st.lead || 0) * MIN, now = Date.now();
+    const day = this.day(0), d0 = this.date(0), lead = (+this.st.lead || 0) * MIN, now = Date.now();
     for (const b of day.blocks) {
       if (b.kind === 'break' || b.done) continue;
-      const at = midnight + b.s * MIN - lead + (this.st.snooze?.[b.id] || 0) * MIN;
+      const at = this.at(d0, b.s).getTime() - lead + (this.st.snooze?.[b.id] || 0) * MIN;
       if (at > now && at - now < DAY) this.timers.push(setTimeout(() => this.ring(b), at - now));
     }
   },
@@ -12935,7 +12995,7 @@ const Agenda = {
       const d0 = this.date(i);
       for (const b of this.day(i).blocks) {
         if (b.kind === 'break' || b.done) continue;
-        const s = new Date(d0.getTime() + b.s * MIN), e = new Date(d0.getTime() + b.e * MIN);
+        const s = this.at(d0, b.s), e = this.at(d0, b.e);
         L.push('BEGIN:VEVENT', `UID:engram-ag-${b.id}-${hash(b.title)}@engram.app`, `DTSTAMP:${stamp}`, `DTSTART:${ICS.loc(s)}`, `DTEND:${ICS.loc(e)}`,
           ICS.fold('SUMMARY:' + ICS.esc('Engram · ' + b.title + (b.n ? ` (${b.n})` : ''))), ICS.fold('DESCRIPTION:' + ICS.esc(b.why + (link ? '\n' + link : ''))), ...(link ? [ICS.fold('URL:' + link)] : []),
           'BEGIN:VALARM', 'ACTION:DISPLAY', `TRIGGER:-PT${lead}M`, ICS.fold('DESCRIPTION:' + ICS.esc(t('C\'est l\'heure : {x}', { x: b.title }))), 'END:VALARM', 'END:VEVENT');
@@ -13146,7 +13206,7 @@ function openAgWindows() {
   m.querySelector('#agwSave').onclick = () => {
     const out = {};
     for (const r of m.querySelectorAll('.agw-row')) {
-      out[r.dataset.k] = [...r.querySelectorAll('.agw')].map(x => { const [a, b] = [...x.querySelectorAll('input')].map(i => toMin(i.value)); return a != null && b != null && b - a >= 10 ? [a, b] : null; }).filter(Boolean).sort((a, b) => a[0] - b[0]).filter((w, i, arr) => !i || w[0] >= arr[i - 1][1]);
+      out[r.dataset.k] = mergeWins([...r.querySelectorAll('.agw')].map(x => { const [a, b] = [...x.querySelectorAll('input')].map(i => toMin(i.value)); return a != null && b != null && b - a >= 10 ? [a, b] : null; }).filter(Boolean));
     }
     Agenda.st.windows = out; Agenda.st.ai = null; Store.touch('profile'); Modal.close(); Agenda.arm(); App.render(); toast(t('Créneaux enregistrés'), 'clock');
   };
@@ -13906,7 +13966,7 @@ function calendarLinks() {
   const title = t('Engram · séance de révision');
   const google = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${g(start)}/${g(end)}&details=${encodeURIComponent(t('Programme Engram du jour.'))}&recur=${encodeURIComponent('RRULE:FREQ=DAILY;COUNT=60')}`;
   const outlook = `https://outlook.live.com/calendar/0/action/compose?subject=${encodeURIComponent(title)}&startdt=${encodeURIComponent(start.toISOString())}&enddt=${encodeURIComponent(end.toISOString())}`;
-  const exams = upcomingExams().map(x => { const d = keyToDate(x.date), e = new Date(d.getTime() + DAY); const ds = z => `${z.getFullYear()}${String(z.getMonth() + 1).padStart(2, '0')}${String(z.getDate()).padStart(2, '0')}`; return [x.name, `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('📝 ' + x.name)}&dates=${ds(d)}/${ds(e)}`]; });
+  const exams = upcomingExams().map(x => { const d = keyToDate(x.date), e = new Date(d); e.setDate(e.getDate() + 1); const ds = z => `${z.getFullYear()}${String(z.getMonth() + 1).padStart(2, '0')}${String(z.getDate()).padStart(2, '0')}`; return [x.name, `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('📝 ' + x.name)}&dates=${ds(d)}/${ds(e)}`]; });
   return { google, outlook, exams, avg };
 }
 /* ── Glisser-déposer un fichier n'importe où ───────────────────────── */
@@ -16168,6 +16228,8 @@ TR = {
   "{p}, renouvelé le {d}.": ["{p}, renews on {d}.", "{p}, se renueva el {d}.", "{p}, verlängert sich am {d}.", "{p}, renova em {d}."],
   "Gérer mon abonnement": ["Manage my subscription", "Gestionar mi suscripción", "Mein Abo verwalten", "Gerenciar minha assinatura"],
   "Copier mon code d'abonnement": ["Copy my subscription code", "Copiar mi código de suscripción", "Meinen Abo-Code kopieren", "Copiar meu código de assinatura"],
+  "Changer de formule, de carte bancaire, télécharger une facture ou arrêter : tout se fait sur la page sécurisée de Stripe. Sur un autre appareil, connectez-vous à votre compte Engram : l'abonnement et vos paquets suivent.": ["Change plan or card, download an invoice or cancel: it all happens on Stripe's secure page. On another device, sign in to your Engram account: your subscription and decks follow.", "Cambiar de plan o de tarjeta, descargar una factura o cancelar: todo se hace en la página segura de Stripe. En otro dispositivo, inicia sesión en tu cuenta de Engram: la suscripción y tus mazos te siguen.", "Tarif oder Karte wechseln, eine Rechnung laden oder kündigen: alles auf der sicheren Seite von Stripe. Melde dich auf einem anderen Gerät bei deinem Engram-Konto an: Abo und Stapel kommen mit.", "Mudar de plano ou de cartão, baixar uma fatura ou cancelar: tudo acontece na página segura da Stripe. Em outro aparelho, entre na sua conta Engram: a assinatura e seus baralhos acompanham você."],
+  "Cet abonnement est rattaché à un compte Engram : connectez-vous pour retrouver vos paquets.": ["This subscription belongs to an Engram account: sign in to get your decks.", "Esta suscripción está vinculada a una cuenta de Engram: inicia sesión para recuperar tus mazos.", "Dieses Abo gehört zu einem Engram-Konto: melde dich an, um deine Stapel zu finden.", "Esta assinatura está ligada a uma conta Engram: entre para recuperar seus baralhos."],
   "Changer de formule, de carte bancaire, télécharger une facture ou arrêter : tout se fait sur la page sécurisée de Stripe. Pour utiliser votre abonnement sur un autre appareil, collez-y votre code d'abonnement.": ["Change plan or card, download an invoice or cancel: it all happens on Stripe's secure page. To use your subscription on another device, paste your subscription code there.", "Cambiar de plan o de tarjeta, descargar una factura o cancelar: todo se hace en la página segura de Stripe. Para usar tu suscripción en otro dispositivo, pega allí tu código de suscripción.", "Tarif oder Karte wechseln, eine Rechnung laden oder kündigen: alles auf der sicheren Seite von Stripe. Um dein Abo auf einem anderen Gerät zu nutzen, füge dort deinen Abo-Code ein.", "Mudar de plano ou de cartão, baixar uma fatura ou cancelar: tudo acontece na página segura da Stripe. Para usar sua assinatura em outro aparelho, cole lá seu código de assinatura."],
   "Déjà abonné sur un autre appareil ?": ["Already subscribed on another device?", "¿Ya te suscribiste en otro dispositivo?", "Schon auf einem anderen Gerät abonniert?", "Já assinou em outro aparelho?"],
   "Collez ici votre code d'abonnement (page Pro de l'autre appareil, « Copier mon code d'abonnement »).": ["Paste your subscription code here (Pro page on the other device, “Copy my subscription code”).", "Pega aquí tu código de suscripción (página Pro del otro dispositivo, «Copiar mi código de suscripción»).", "Füge hier deinen Abo-Code ein (Pro-Seite auf dem anderen Gerät, „Meinen Abo-Code kopieren“).", "Cole aqui seu código de assinatura (página Pro do outro aparelho, “Copiar meu código de assinatura”)."],
@@ -16680,7 +16742,7 @@ async function boot() {
   document.fonts?.addEventListener?.('loadingdone', reRule);
   document.fonts?.ready?.then(reRule);
   // Raccourcis de l'app installée (appui long sur l'icône) : #scan, #study.
-  // Depuis la page de présentation : #pro, #teams, #invite. Après une mise en ligne : #bilan. Lien de partage ou d'invitation : #deck=…&ref=…&n=… (voir PARTAGE ET PARRAINAGE).
+  // Depuis la page de présentation : #pro, #teams, #invite. Retour du portail Stripe : #portal. Après une mise en ligne : #bilan. Lien de partage ou d'invitation : #deck=…&ref=…&n=… (voir PARTAGE ET PARRAINAGE).
   // Aussi quand le lien s'ouvre dans un onglet où Engram tourne déjà : la page ne se recharge pas, seul le hash change.
   const follow = () => {
     const h = location.hash.slice(1); if (!h) return;
@@ -16688,6 +16750,7 @@ async function boot() {
     else if (h === 'now' && S.profile.onboarded) setTimeout(() => Agenda.startNow(), 300);
     else if (h === 'agenda') App.go('agenda');
     else if (h === 'pro' || h === 'teams') App.go(h);
+    else if (h === 'portal') { App.go('pro'); Pay.refresh(true); } // retour du portail Stripe : formule changée ou arrêtée
     else if (h === 'invite') { App.go('pro'); if (S.profile.onboarded) setTimeout(() => openInvite(), 400); }
     else if (h === 'bilan') setTimeout(() => openCheckup(), 300);
     else if (/^paid=cs_(test|live)_\w+$/.test(h)) { App.go('pro'); Pay.claim(h.slice(5)); }

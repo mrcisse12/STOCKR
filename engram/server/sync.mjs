@@ -179,6 +179,8 @@ export function createSync(env = process.env, { backend, accounts = null } = {})
       return { space: 'u_' + u.id, quota: paid ? MAX_TOTAL : FREE_TOTAL };
     }
     const d = licenseOf(request);
+    // Un abonnement rattaché à un compte se synchronise dans le compte : un code seul ouvrirait un espace à part, vide.
+    if (d && accounts?.customerAccount && await accounts.customerAccount(d.c)) return { error: 'sign_in' };
     const space = d && (String(d.c).replace(/[^A-Za-z0-9_]/g, '').slice(0, 60) || null);
     return space ? { space, quota: MAX_TOTAL } : { error: 'not_granted' };
   }
