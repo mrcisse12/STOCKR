@@ -41,10 +41,15 @@ const clientIp = req => {
   return xff[xff.length - HOPS] || req.socket.remoteAddress || '?';
 };
 
-function readBody(req) {
+// Taille de corps admise par route, vérifiée avant de lire (Content-Length) puis en lisant : un compte ou un paiement
+// n'envoie que quelques Ko, un document de synchronisation au plus 2,5 Mo ; seule l'IA reçoit des photos (ENGRAM_MAX_BODY_MB).
+const KB = 1024;
+const bodyLimit = pathname => pathname.startsWith('/api/ai') ? engram.MAX_BODY : pathname.startsWith('/api/sync') ? 2600 * KB : 64 * KB;
+
+function readBody(req, limit) {
   return new Promise((resolve, reject) => {
     let size = 0; const chunks = [];
-    req.on('data', c => { size += c.length; if (size > engram.MAX_BODY) { reject(Object.assign(new Error('too large'), { code: 'prompt_too_large' })); req.destroy(); } else chunks.push(c); });
+    req.on('data', c => { size += c.length; if (size > limit) { reject(Object.assign(new Error('too large'), { code: 'prompt_too_large' })); req.destroy(); } else chunks.push(c); });
     req.on('end', () => resolve(Buffer.concat(chunks)));
     req.on('error', reject);
   });
@@ -64,7 +69,11 @@ async function relay(req, res, url, target = engram) {
   if (!response) {
     let body;
     if (req.method === 'POST' || req.method === 'PUT') {
-      try { body = await readBody(req); }
+      const limit = bodyLimit(url.pathname);
+      try {
+        if (+(req.headers['content-length'] || 0) > limit) throw Object.assign(new Error('too large'), { code: 'prompt_too_large' });
+        body = await readBody(req, limit);
+      }
       catch (e) {
         res.writeHead(e.code === 'prompt_too_large' ? 413 : 400, { 'content-type': 'application/json; charset=utf-8' });
         return res.end(JSON.stringify({ code: e.code === 'prompt_too_large' ? 'prompt_too_large' : 'upstream_error', message: 'bad body' }));

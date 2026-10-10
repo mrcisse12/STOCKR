@@ -32,7 +32,7 @@ Ou avec Docker, depuis `engram/` :
 
 ```bash
 docker build -f server/Dockerfile -t engram .
-docker run -p 8787:8787 -e ANTHROPIC_API_KEY=sk-ant-... -e ENGRAM_ACCESS_CODE=un-code engram
+docker run -p 8787:8787 -v engram-data:/app/server/data -e ANTHROPIC_API_KEY=sk-ant-... -e ENGRAM_ACCESS_CODE=un-code engram
 ```
 
 ### Sur Netlify

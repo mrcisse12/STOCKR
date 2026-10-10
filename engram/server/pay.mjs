@@ -50,14 +50,17 @@ export function signLicense(secret, data) {
   const sig = b64u.enc(crypto.createHmac('sha256', secret).update(body).digest());
   return `v1.${body}.${sig}`;
 }
-/** Renvoie les données du code s'il est authentique (même expiré : o.expired le dit), sinon null. */
-export function readLicense(secret, token) {
+/** Le mode des clés Stripe du serveur (« live » ou « test »), null sans clé. */
+export function stripeMode(env) { return env.STRIPE_SECRET_KEY ? (/^(sk|rk)_live_/.test(env.STRIPE_SECRET_KEY) ? 'live' : 'test') : null; }
+/** Renvoie les données du code s'il est authentique (même expiré : o.expired le dit), sinon null.
+ *  mode : un code payé en mode test ne vaut rien sur un serveur en mode réel (et l'inverse), même avec le même secret. */
+export function readLicense(secret, token, mode) {
   if (!secret || typeof token !== 'string' || token.length > 2000) return null;
   const [v, body, sig] = token.trim().split('.');
   if (v !== 'v1' || !body || !sig) return null;
   const want = crypto.createHmac('sha256', secret).update(body).digest(), got = b64u.dec(sig);
   if (got.length !== want.length || !crypto.timingSafeEqual(got, want)) return null;
-  try { const d = JSON.parse(b64u.dec(body).toString('utf8')); return { ...d, expired: !(d.e > Date.now()) }; } catch { return null; }
+  try { const d = JSON.parse(b64u.dec(body).toString('utf8')); if (mode && d.m && d.m !== mode) return null; return { ...d, expired: !(d.e > Date.now()) }; } catch { return null; }
 }
 
 export function createPay(env = process.env, { fetchImpl = fetch, accounts = null } = {}) {
@@ -69,6 +72,7 @@ export function createPay(env = process.env, { fetchImpl = fetch, accounts = nul
   const enabled = !!KEY && !!SECRET;
   const mode = /^(sk|rk)_live_/.test(KEY) ? 'live' : 'test';
   const CORS = env.ENGRAM_CORS_ORIGIN || '';
+  const TRUST = !!String(env.ENGRAM_TRUST_PROXY || '').trim() && !/^(0|off|false|no)$/i.test(String(env.ENGRAM_TRUST_PROXY).trim());
 
   /* ── API Stripe (formulaire encodé, sans dépendance) ──────────────── */
   function form(obj, prefix = '', out = new URLSearchParams()) {
@@ -129,14 +133,20 @@ export function createPay(env = process.env, { fetchImpl = fetch, accounts = nul
   }
   const json = (request, status, obj) => new Response(JSON.stringify(obj), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...corsHeaders(request) } });
 
-  /** Adresse publique de l'app, pour les retours de Stripe : celle de la page qui appelle, si elle est autorisée. */
+  /** Adresse publique de l'app, pour les retours de Stripe. Jamais un en-tête que le visiteur peut écrire (X-Forwarded-Host sans
+   *  relais de confiance, Origin quelconque) : le retour emporte le numéro de la session de paiement, qui se change en abonnement.
+   *  Dans l'ordre : une app hébergée ailleurs et nommée dans ENGRAM_CORS_ORIGIN, ENGRAM_SITE_URL, l'adresse de la requête
+   *  (sur Netlify, celle du site : Netlify n'y amène que ses domaines), l'en-tête Host (serveur Node : réglez ENGRAM_SITE_URL
+   *  s'il est joignable sous d'autres noms). X-Forwarded-Host seulement derrière un relais de confiance (ENGRAM_TRUST_PROXY). */
   function siteOrigin(request) {
-    const h = request.headers, host = h.get('x-forwarded-host') || h.get('host') || new URL(request.url).host;
-    const proto = (h.get('x-forwarded-proto') || new URL(request.url).protocol.replace(':', '')).split(',')[0].trim();
-    const own = `${proto}://${host}`, origin = h.get('origin') || '';
-    if (!origin || origin === own) return env.ENGRAM_SITE_URL?.replace(/\/+$/, '') || own;
-    if (CORS === '*' || CORS.split(',').map(s => s.trim()).includes(origin)) return origin;
-    return env.ENGRAM_SITE_URL?.replace(/\/+$/, '') || own;
+    const h = request.headers, u = new URL(request.url), origin = h.get('origin') || '';
+    if (origin && CORS && CORS !== '*' && CORS.split(',').map(s => s.trim()).includes(origin)) return origin;
+    const fixed = (env.ENGRAM_SITE_URL || '').replace(/\/+$/, '');
+    if (/^https?:\/\/[^\s]+$/.test(fixed)) return fixed;
+    const fwd = TRUST ? (h.get('x-forwarded-host') || '').split(',')[0].trim() : '';
+    const host = [fwd, u.hostname === 'engram.local' ? h.get('host') : u.host].find(x => /^[A-Za-z0-9.-]+(:\d{1,5})?$/.test(x || '')) || u.host;
+    const proto = (h.get('x-forwarded-proto') || u.protocol.replace(':', '')).split(',')[0].trim() === 'https' ? 'https' : 'http';
+    return `${proto}://${host}`;
   }
 
   /** Portail client d'Engram : retrouvé (metadata app=engram) ou créé une fois, avec le changement de formule entre Pro et Élite. */
@@ -179,7 +189,7 @@ export function createPay(env = process.env, { fetchImpl = fetch, accounts = nul
   return {
     enabled, mode,
     /** Vérifie un code d'abonnement présenté par l'app (appels à l'IA). */
-    license(token) { const d = readLicense(SECRET, token); return d && !d.expired && PLAN_KEYS.includes(d.p) ? d : null; },
+    license(token) { const d = readLicense(SECRET, token, mode); return d && !d.expired && PLAN_KEYS.includes(d.p) ? d : null; },
     /** L'abonnement Engram en cours d'un client Stripe (le meilleur s'il y en a plusieurs), avec un code neuf ; sinon null. */
     async subscriptionFor(customer) {
       if (!enabled || !customer) return null;
@@ -209,13 +219,13 @@ export function createPay(env = process.env, { fetchImpl = fetch, accounts = nul
           const plan = PLAN_KEYS.includes(b.plan) ? b.plan : 'pro', bill = BILLS.includes(b.bill) ? b.bill : 'month';
           const { v } = await prices(), price = v[plan]?.[bill];
           if (!price) return json(request, 400, { code: 'no_price', message: `engram_${plan}_${bill}` });
-          const site = siteOrigin(request);
+          const back = siteOrigin(request);
           const user = await who(request), ref = /^[2-9A-HJKMNP-Z]{6}$/.test(b.ref || '') ? b.ref : '';
           const params = {
             mode: 'subscription',
             line_items: [{ price: price.id, quantity: 1 }],
-            success_url: `${site}/#paid={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${site}/#pro`,
+            success_url: `${back}/#paid={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${back}/#pro`,
             allow_promotion_codes: 'true',
             // Connecté : le client Stripe du compte s'il existe, sinon l'e-mail du compte ; l'identifiant du compte revient au retour.
             customer: user?.stripe?.customer || '',
@@ -258,7 +268,7 @@ export function createPay(env = process.env, { fetchImpl = fetch, accounts = nul
           const account = !!(a && uid && customer) && await a.linkStripe(uid, customer, { sub: sub.id, ...out });
           return json(request, 200, { ...out, email: s.customer_details?.email || '', account });
         }
-        const lic = readLicense(SECRET, b.license);
+        const lic = readLicense(SECRET, b.license, mode);
         if (!lic) return json(request, 401, { code: 'bad_license' });
         if (route === 'status') {
           let sub;

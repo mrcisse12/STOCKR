@@ -38,6 +38,7 @@
 import crypto from 'node:crypto';
 import { promisify } from 'node:util';
 import { createPay, GRACE } from './pay.mjs';
+import { ipKey } from './net.mjs';
 
 const scrypt = promisify(crypto.scrypt);
 const b64u = { enc: b => Buffer.from(b).toString('base64url'), dec: s => Buffer.from(typeof s === 'string' ? s : '', 'base64url') };
@@ -51,7 +52,10 @@ const NS = 'acct', NS_CH = 'acct-ch', NS_RL = 'acct-rl';
 const MB = 1024 * 1024;
 export const QUOTA = { free: 25 * MB, paid: 300 * MB };
 const SESSION_TTL = 60 * 864e5, CHALLENGE_TTL = 5 * 60e3, RECENT = 10 * 60e3, PLAN_CACHE = 10 * 60e3;
-const WINDOW = 15 * 60e3, LIMITS = { email: 10, ip: 20, signup: 10, passkey: 20, fed: 20 };
+// Essais par 15 minutes. Un compte n'est bloqué que pour l'adresse qui se trompe (email + adresse IP, 10 essais) ; au-delà
+// de 100 essais faux de partout, la connexion par mot de passe attend, mais pas le code de secours (compté à part), ni
+// les clés d'accès, Google ou Apple. Une classe derrière la même adresse peut créer 40 comptes.
+const WINDOW = 15 * 60e3, LIMITS = { email: 10, emailAll: 100, rcAll: 200, ip: 60, signup: 40, passkey: 20, fed: 20 };
 const SCRYPT = { N: 2 ** 15, r: 8, p: 1, maxmem: 96 * MB };
 const PW_MIN = 8, PW_MAX = 1024, MAX_PASSKEYS = 20, MAX_BODY = 64 * 1024;
 const UID_RE = /^[0-9a-f]{24}$/, NO_UID = '0'.repeat(24);
@@ -315,8 +319,8 @@ export function createAccount(env = process.env, { backend, syncBackend, fetchIm
   /** Confirme une action sensible : mot de passe, ou session ouverte depuis moins de 10 minutes. */
   async function confirm(s, password, ip) {
     if (typeof password === 'string' && password && s.rec.pw) {
-      const k = 'email:' + (s.rec.email || s.rec.id);
-      if (await attempt([['ip:' + ip, LIMITS.ip], [k, LIMITS.email, true]], () => passwordOk(s.rec, password))) return;
+      // Déjà connecté : compté pour ce compte et cette adresse (un inconnu ne peut pas bloquer la confirmation).
+      if (await attempt([['ip:' + ip, LIMITS.ip], ['cf:' + s.rec.id + '|' + ip, LIMITS.email, true]], () => passwordOk(s.rec, password))) return;
       throw E(401, 'bad_credentials', 'wrong password');
     }
     if (s.iat > Date.now() - RECENT) return;
@@ -343,7 +347,9 @@ export function createAccount(env = process.env, { backend, syncBackend, fetchIm
       id: rec.id, email: rec.email || null, emailVerified: !!rec.emailVerified, name: rec.name || '', created: rec.created,
       providers: [rec.pw && 'password', rec.passkeys?.length && 'passkey', rec.google && 'google', rec.apple && 'apple'].filter(Boolean),
       passkeys: (rec.passkeys || []).map(k => ({ id: k.id, label: k.label || '', created: k.created, lastUsed: k.lastUsed || null })),
-      recovery: !!rec.rc, subscription: !!rec.stripe?.customer
+      recovery: !!rec.rc, subscription: !!rec.stripe?.customer,
+      // Quel compte Google ou Apple ouvre celui-ci (son adresse), pour le reconnaître et le retirer.
+      links: Object.fromEntries(['google', 'apple'].filter(p => rec[p]).map(p => [p, { email: rec[p].email || '' }]))
     };
   }
   const paidOf = rec => !!(rec?.stripe?.sub?.ok && rec.stripe.sub.until + GRACE > Date.now());
@@ -388,9 +394,11 @@ export function createAccount(env = process.env, { backend, syncBackend, fetchIm
       rec.stripe?.customer && 'stripe.' + spaceOfCustomer(rec.stripe.customer), ...(rec.passkeys || []).map(k => 'cred.' + hkey(k.id))].filter(Boolean);
     await store.del(NS, 'user.' + rec.id); // d'abord : toutes les sessions tombent tout de suite
     for (const k of idx) await dropIndex(k, rec.id);
-    const space = 'u_' + rec.id;
-    if (spaces.clear) await spaces.clear(space);
-    else if (spaces.list) for (const d of await spaces.list(space)) await spaces.del(space, d.id);
+    // L'espace du compte, et celui de l'abonnement d'avant le compte (copié au rattachement) : « la copie de vos paquets sur le serveur ».
+    for (const space of ['u_' + rec.id, rec.stripe?.customer && spaceOfCustomer(rec.stripe.customer)].filter(Boolean)) {
+      if (spaces.clear) await spaces.clear(space);
+      else if (spaces.list) for (const d of await spaces.list(space)) await spaces.del(space, d.id);
+    }
   }
 
   /* ── Clés d'accès (WebAuthn) ─────────────────────────────────────── */
@@ -518,7 +526,7 @@ export function createAccount(env = process.env, { backend, syncBackend, fetchIm
       const email = normEmail(b.email);
       if (!email || typeof b.password !== 'string' || !b.password) throw E(400, 'bad_request', 'email and password required');
       let rec = null;
-      const ok = await attempt([['ip:' + ip, LIMITS.ip], ['email:' + email, LIMITS.email, true]], async () => {
+      const ok = await attempt([['ip:' + ip, LIMITS.ip], ['email:' + email + '|' + ip, LIMITS.email, true], ['email:' + email, LIMITS.emailAll, true]], async () => {
         // Autant de lectures que l'adresse existe ou non : la durée ne dit pas si le compte existe.
         const i = await getDoc(NS, 'email.' + hkey(email));
         rec = await getUser(i?.u || NO_UID);
@@ -532,7 +540,8 @@ export function createAccount(env = process.env, { backend, syncBackend, fetchIm
       if (!email || typeof b.recoveryCode !== 'string') throw E(400, 'bad_request', 'email and recovery code required');
       checkNewPassword(b.newPassword);
       let rec = null, pw = null;
-      const ok = await attempt([['ip:' + ip, LIMITS.ip], ['email:' + email, LIMITS.email, true]], async () => {
+      // Compteurs à part de ceux de la connexion : quelqu'un qui bloque la connexion par mot de passe ne bloque pas le code de secours.
+      const ok = await attempt([['ip:' + ip, LIMITS.ip], ['rc:' + email + '|' + ip, LIMITS.email, true], ['rc:' + email, LIMITS.rcAll, true]], async () => {
         const i = await getDoc(NS, 'email.' + hkey(email));
         rec = await getUser(i?.u || NO_UID);
         pw = await hashPassword(b.newPassword); // calculé dans tous les cas : même durée
@@ -666,6 +675,17 @@ export function createAccount(env = process.env, { backend, syncBackend, fetchIm
       await dropIndex('cred.' + hkey(pk.id), rec.id);
       return [200, { user: pub(r) }];
     },
+    /** Retirer Google ou Apple : il n'ouvre plus le compte, et les sessions ouvertes ailleurs tombent. */
+    async unlink(b, request, ip) {
+      const s = await auth(request), rec = s.rec, provider = b.provider;
+      if (!['google', 'apple'].includes(provider) || !rec[provider]) throw E(404, 'not_found', 'not linked');
+      if (!rec.pw && !rec.passkeys?.length && !rec[provider === 'google' ? 'apple' : 'google']) throw E(409, 'last_method', 'add another way to sign in first');
+      await confirm(s, b.password, ip);
+      const sub = rec[provider].sub;
+      const r = await mutate(rec.id, x => { x[provider] = null; x.sv++; });
+      await dropIndex(provider + '.' + hkey(sub), rec.id);
+      return [200, { session: await issue(r), user: pub(r) }];
+    },
     async google(b, request, ip) { const o = await federated('google', request, b, ip); return [200, { session: await issue(o.rec), user: pub(o.rec), ...(o.created ? { created: true } : {}), ...(o.linked ? { linked: true } : {}) }]; },
     async apple(b, request, ip) { const o = await federated('apple', request, b, ip); return [200, { session: await issue(o.rec), user: pub(o.rec), ...(o.created ? { created: true } : {}), ...(o.linked ? { linked: true } : {}) }]; }
   };
@@ -708,7 +728,7 @@ export function createAccount(env = process.env, { backend, syncBackend, fetchIm
         if (request.method !== 'POST') return json(405, { code: 'method' });
         if (!Object.hasOwn(ROUTES, route)) return json(404, { code: 'not_found' });
         const b = await readBody(request);
-        const [status, obj] = await ROUTES[route](b, request, String(ip || '?'));
+        const [status, obj] = await ROUTES[route](b, request, ipKey(String(ip || '?')));
         return json(status, obj);
       } catch (e) {
         if (e.http) return json(e.status, { code: e.code, message: e.message, ...(e.retryAfter ? { retryAfter: e.retryAfter } : {}) }, e.retryAfter ? { 'retry-after': String(e.retryAfter) } : {});

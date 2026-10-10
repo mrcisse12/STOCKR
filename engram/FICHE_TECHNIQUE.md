@@ -443,7 +443,7 @@ npm install
 ANTHROPIC_API_KEY=sk-ant-... npm start      # → http://localhost:8787
 ```
 
-ou avec Docker, depuis `engram/` : `docker build -f server/Dockerfile -t engram . && docker run -p 8787:8787 -e ANTHROPIC_API_KEY=... engram`.
+ou avec Docker, depuis `engram/` : `docker build -f server/Dockerfile -t engram . && docker run -p 8787:8787 -v engram-data:/app/server/data -e ANTHROPIC_API_KEY=... engram`.
 
 | Variable | Défaut | Rôle |
 |---|---|---|

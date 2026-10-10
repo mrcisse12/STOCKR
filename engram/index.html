@@ -2298,6 +2298,10 @@ html[data-vt="out"]::view-transition-new(root){animation:vtLift .46s .12s cubic-
 .ac-chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:999px;border:1px solid var(--hair-2);font-size:12.5px;font-weight:500;color:var(--text-2);white-space:nowrap}
 .ac-chip .i{width:14px;height:14px;color:var(--brass-text)}
 .ac-chip.gilt{border-color:var(--brass);color:var(--brass-text)}
+.ac-chip small{color:var(--muted);font-size:11.5px;max-width:170px;overflow:hidden;text-overflow:ellipsis}
+.ac-chip .ac-unlink{margin:0 -7px 0 0;width:22px;height:22px;display:inline-grid;place-items:center;border:0;border-radius:50%;background:none;color:var(--muted);cursor:pointer;flex:none}
+.ac-chip .ac-unlink:hover,.ac-chip .ac-unlink:focus-visible{background:var(--hair);color:var(--text)}
+.ac-chip .ac-unlink .i{width:12px;height:12px;color:inherit}
 .ac-sync{display:flex;align-items:center;gap:12px;margin-top:22px;padding:14px 16px;border-radius:12px;background:var(--folder-2);border:1px solid var(--hair);font-size:13.5px;line-height:1.45;color:var(--text-2);text-align:left}
 .ac-sync .i{flex:none;color:var(--brass-text)}
 .modal.ask .modal-h{margin-bottom:12px}
@@ -7639,7 +7643,11 @@ const Account = {
     const links = (P.google && !has('google') ? '<div class="ac-g sm"></div>' : '') + (P.apple && !has('apple') ? `<button type="button" class="btn btn-sm btn-apple ac-apple">${APPLE_LOGO}${t('Lier Apple')}</button>` : '');
     return wrap(`
       <div class="set-row"><div class="ac-id">${this.avatar('av-lg')}<div><b>${esc(u.name || u.email || t('Votre compte'))}</b>${u.name && u.email ? `<span>${esc(u.email)}</span>` : ''}${since ? `<small>${esc(since)}</small>` : ''}</div></div><span class="pill ${synced ? 'on' : ''}"><i></i>${synced ? t('Synchronisé') : t('Connecté')}</span></div>
-      ${setRow(t('Moyens de connexion'), t('Chacun ouvre le même compte.'), `<div class="ac-chips l">${(u.providers || []).map(p => `<span class="ac-chip">${icon('check', 'i-sm')}${esc(this.pName(p))}</span>`).join('')}${links}</div>`)}
+      ${setRow(t('Moyens de connexion'), t('Chacun ouvre le même compte.'), `<div class="ac-chips l">${(u.providers || []).map(p => {
+        // Google et Apple : l'adresse du compte lié, et une croix pour le retirer (il n'ouvre alors plus ce compte).
+        const fed = p === 'google' || p === 'apple', mail = fed ? u.links?.[p]?.email || '' : '';
+        return `<span class="ac-chip">${icon('check', 'i-sm')}${esc(this.pName(p))}${mail ? `<small>${esc(mail)}</small>` : ''}${fed ? `<button type="button" class="ac-unlink" data-unlink="${p}" aria-label="${esc(t('Retirer {x}', { x: this.pName(p) }))}" data-tip="${esc(t('Retirer'))}">${icon('x', 'i-sm')}</button>` : ''}</span>`;
+      }).join('')}${links}</div>`)}
       <div class="set-row col"><div class="t"><b>${t('Clés d\'accès')}</b><span>${t('Face ID, Touch ID, Windows Hello ou votre gestionnaire de mots de passe, à la place du mot de passe.')}</span></div><div class="pk-list">${keys}${this.pkOk ? `<button type="button" class="btn btn-sm ac-pkadd">${icon('plus', 'i-sm')}${this.keyLabel()}</button>` : `<span class="muted" style="font-size:13px">${t('Ce navigateur ne gère pas les clés d\'accès.')}</span>`}</div></div>
       ${u.email ? setRow(t('Mot de passe'), has('password') ? t('Changer de mot de passe déconnecte vos autres appareils.') : t('Ajoutez-en un pour vous connecter aussi avec votre e-mail.'), `<button type="button" class="btn btn-sm ac-pwd">${icon('pen', 'i-sm')}${has('password') ? t('Changer') : t('Ajouter')}</button>`) : ''}
       ${has('password') ? setRow(t('Code de secours'), t('Il remplace votre mot de passe si vous l\'oubliez. Un nouveau code annule l\'ancien.'), `<button type="button" class="btn btn-sm ac-code-new">${icon('refresh', 'i-sm')}${t('Nouveau code')}</button>`) : ''}
@@ -7664,6 +7672,7 @@ const Account = {
       const b = e.target.closest('button'); if (!b || b.disabled) return;
       if (b.matches('.ac-pkadd')) this.busyDo(b, async () => { await this.addKey(); toast(this.keyDone(), 'check'); }, sec);
       else if (b.dataset.pkdel) this.busyDo(b, async () => { const j = await this.call('/passkey/delete', { id: b.dataset.pkdel }); this.user = j.user; this.repaint(); toast(t('Clé d\'accès retirée. Vous pouvez aussi l\'effacer des réglages de l\'appareil.'), 'check'); }, sec);
+      else if (b.dataset.unlink) this.unlink(b.dataset.unlink);
       else if (b.matches('.ac-code-new')) this.newCode();
       else if (b.matches('.ac-pwd')) this.changePw();
       else if (b.matches('.ac-out')) this.signOut(false);
@@ -7691,13 +7700,27 @@ const Account = {
       fields: [{ id: 'acCur', label: t('Mot de passe'), pw: true, ac: 'current-password' }],
       run: async el => { const j = await this.call('/recovery-code', { password: el('acCur').value }); Modal.close(); setTimeout(() => this.open('code', { code: j.recoveryCode }), 60); } });
   },
+  /** Retirer Google ou Apple du compte (il en faut un autre moyen de connexion). */
+  unlink(p) {
+    const x = this.pName(p), u = this.user || {};
+    if (!(u.providers || []).some(q => q !== p)) { toast(t('Ajoutez d\'abord un autre moyen de vous connecter.'), 'key'); return; }
+    this.ask({ title: t('Retirer {x} ?', { x: esc(x) }), ok: t('Retirer'), fields: [],
+      text: t('{x} n\'ouvrira plus ce compte, et vos autres appareils seront déconnectés. Vous pourrez le lier de nouveau.', { x: esc(x) }),
+      run: async () => {
+        const j = await this.sudo(y => this.call('/unlink', { provider: p, ...y }));
+        if (j.session) Sess.set(j.session); this.user = j.user; Sess.who(j.user); Modal.close(); this.repaint();
+        toast(t('{x} est retiré de votre compte.', { x }), 'check');
+      } });
+  },
   changePw() {
     const has = !!this.user?.providers?.includes('password');
     this.ask({ title: has ? t('Changer le mot de passe') : t('Ajouter un mot de passe'), text: has ? t('Vos autres appareils seront déconnectés.') : t('Vous pourrez aussi vous connecter avec {x}.', { x: esc(this.user?.email || '') }), ok: t('Enregistrer'),
       fields: [...(has ? [{ id: 'acCur', label: t('Mot de passe actuel'), pw: true, ac: 'current-password' }] : []), { id: 'acNew', label: t('Nouveau mot de passe'), pw: true, ac: 'new-password', hint: t('8 caractères au moins.') }],
       run: async el => {
         if ([...el('acNew').value].length < 8) throw { code: 'weak_password' };
-        const j = await this.call('/password', { password: el('acNew').value, ...(has ? { current: el('acCur').value } : {}) });
+        // Sans mot de passe encore (Google, Apple, clé d'accès) : une session de plus de 10 minutes se confirme par la clé d'accès,
+        // ou en se reconnectant (sudo), pas par un mot de passe qui n'existe pas.
+        const j = has ? await this.call('/password', { password: el('acNew').value, current: el('acCur').value }) : await this.sudo(() => this.call('/password', { password: el('acNew').value }));
         Sess.set(j.session); this.user = j.user; Sess.who(j.user); this.repaint(); Modal.close();
         if (j.recoveryCode) setTimeout(() => this.open('code', { code: j.recoveryCode }), 60); else toast(t('Mot de passe enregistré.'), 'check');
       } });
@@ -12180,7 +12203,8 @@ const TeX = {
   load() {
     if (window.MathJax?.tex2svgPromise) return Promise.resolve(window.MathJax);
     if (this.p) return this.p;
-    if (!window.MathJax?.version) window.MathJax = { tex: { inlineMath: [], displayMath: [], packages: { '[+]': ['ams'] } }, svg: { fontCache: 'local' }, startup: { typeset: false }, options: { enableMenu: false } };
+    // \href ne fait plus de lien (le texte reste) : une formule vient de l'IA, d'un paquet partagé ou d'un kit importé.
+    if (!window.MathJax?.version) window.MathJax = { tex: { inlineMath: [], displayMath: [], packages: { '[+]': ['ams'] }, macros: { href: ['{#2}', 2] } }, svg: { fontCache: 'local' }, startup: { typeset: false }, options: { enableMenu: false } };
     return this.p = lib('mathjax').then(MJ => MJ.startup.promise.then(() => MJ)).catch(e => { this.p = null; throw e; });
   },
   /** Dessine les formules d'un bloc ; sans réseau, le texte lisible reste. */
@@ -12189,8 +12213,13 @@ const TeX = {
     let MJ; try { MJ = await this.load(); } catch { return; }
     for (const el of els) {
       if (!el.isConnected || el.dataset.done) continue;
-      try { const node = await MJ.tex2svgPromise(el.dataset.tex, { display: el.classList.contains('mx-d') }); const svg = node.querySelector('svg'); if (svg) { svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', el.textContent); el.replaceChildren(svg); el.dataset.done = '1'; el.classList.add('on'); } }
-      catch { el.dataset.done = 'x'; }
+      try {
+        const node = await MJ.tex2svgPromise(el.dataset.tex, { display: el.classList.contains('mx-d') }); const svg = node.querySelector('svg');
+        // Et par sûreté, aucun lien ni gestionnaire dans le dessin rendu (javascript:, data:… cliquables) ; seuls restent les
+        // renvois internes des glyphes (<use href="#MJX-…">, fontCache local).
+        if (svg) for (const x of [svg, ...svg.querySelectorAll('*')]) for (const at of [...x.attributes]) if (/^on/i.test(at.name) || /(^|:)href$/i.test(at.name) && (x.localName === 'a' || !at.value.trim().startsWith('#'))) x.removeAttributeNode(at);
+        if (svg) { svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', el.textContent); el.replaceChildren(svg); el.dataset.done = '1'; el.classList.add('on'); }
+      } catch { el.dataset.done = 'x'; }
     }
   }
 };
@@ -16324,6 +16353,10 @@ TR = {
   "utilisée le {d}": ["used on {d}","usada el {d}","verwendet am {d}","usada em {d}"],
   "Retirer la clé {x}": ["Remove the {x} passkey","Quitar la llave {x}","Passkey {x} entfernen","Remover a chave {x}"],
   "Lier Apple": ["Link Apple","Vincular Apple","Apple verknüpfen","Vincular Apple"],
+  "Retirer {x}": ["Remove {x}","Quitar {x}","{x} entfernen","Remover {x}"],
+  "Retirer {x} ?": ["Remove {x}?","¿Quitar {x}?","{x} entfernen?","Remover {x}?"],
+  "{x} n'ouvrira plus ce compte, et vos autres appareils seront déconnectés. Vous pourrez le lier de nouveau.": ["{x} will no longer open this account, and your other devices will be signed out. You can link it again later.","{x} ya no abrirá esta cuenta y tus otros dispositivos se desconectarán. Podrás vincularlo de nuevo.","{x} öffnet dieses Konto nicht mehr, und deine anderen Geräte werden abgemeldet. Du kannst es später wieder verknüpfen.","{x} não abrirá mais esta conta, e seus outros dispositivos serão desconectados. Você poderá vinculá-lo de novo."],
+  "{x} est retiré de votre compte.": ["{x} has been removed from your account.","{x} se ha quitado de tu cuenta.","{x} wurde aus deinem Konto entfernt.","{x} foi removido da sua conta."],
   "Connecté": ["Signed in","Conectado","Angemeldet","Conectado"],
   "Moyens de connexion": ["Sign-in methods","Métodos de acceso","Anmeldemethoden","Formas de acesso"],
   "Chacun ouvre le même compte.": ["Each one opens the same account.","Todos abren la misma cuenta.","Jede öffnet dasselbe Konto.","Todas abrem a mesma conta."],

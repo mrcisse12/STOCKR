@@ -15,7 +15,8 @@
 
 import crypto from 'node:crypto';
 import Anthropic from '@anthropic-ai/sdk';
-import { licenseSecret, readLicense } from './pay.mjs';
+import { licenseSecret, readLicense, stripeMode } from './pay.mjs';
+import { ipKey } from './net.mjs';
 
 const SYSTEM = 'You are the AI engine inside Engram, a spaced-repetition flashcard app. The page sends you the full instructions for each task inside the conversation; follow them.';
 const JSON_RULE = 'Reply with valid JSON only: no prose before or after, no code fences.';
@@ -44,7 +45,7 @@ export function sanitize(content, stopReason) {
  * Crée le relais. `env` : les variables d'environnement (process.env en général).
  * `client` : un client Anthropic déjà construit (pour les tests).
  */
-export function createEngram(env = process.env, { client, log = (...a) => { if (env.ENGRAM_LOG !== 'off') console.log('[engram]', new Date().toISOString(), ...a); } } = {}) {
+export function createEngram(env = process.env, { client, freeStore = null, log = (...a) => { if (env.ENGRAM_LOG !== 'off') console.log('[engram]', new Date().toISOString(), ...a); } } = {}) {
   const ACCESS_CODE = env.ENGRAM_ACCESS_CODE || '';
   const RATE_PER_MIN = +env.ENGRAM_RATE_PER_MIN || 30;
   const MAX_BODY = (+env.ENGRAM_MAX_BODY_MB || 12) * 1024 * 1024;
@@ -87,14 +88,17 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
   /* ── Abonnements (Stripe) ────────────────────────────────────────── */
   // Avec STRIPE_SECRET_KEY, l'IA s'ouvre à tous : les abonnés (code d'abonnement signé par pay.mjs) sans limite,
   // les autres dans la limite gratuite du jour. Le modèle le plus puissant est réservé à Élite (et au code d'accès).
-  const PAY = !!env.STRIPE_SECRET_KEY, LIC = licenseSecret(env);
+  const PAY = !!env.STRIPE_SECRET_KEY, LIC = licenseSecret(env), MODE = stripeMode(env);
   const FREE_DAILY = +env.ENGRAM_FREE_DAILY || 60;
   const freeDays = new Map();
   function licenseOf(headers) {
-    const d = readLicense(LIC, headers.get('x-engram-license') || '');
+    const d = readLicense(LIC, headers.get('x-engram-license') || '', MODE);
     return d && !d.expired && (d.p === 'pro' || d.p === 'elite') ? d : null;
   }
+  // Compté par visiteur (ipKey : l'adresse IPv4, ou le /64 d'une adresse IPv6), ici en mémoire ; sur Netlify, freeStore
+  // tient aussi le compte entre les instances de la fonction (voir handleAI).
   function overFree(ip) {
+    ip = ipKey(ip);
     const day = new Date().toISOString().slice(0, 10), u = freeDays.get(ip);
     if (!u || u.day !== day) { freeDays.set(ip, { day, n: 1 }); if (freeDays.size > 20000) freeDays.clear(); return false; }
     return ++u.n > FREE_DAILY;
@@ -103,6 +107,7 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
   /* ── Garde-fous ──────────────────────────────────────────────────── */
   const hits = new Map();
   function rateLimited(ip) {
+    ip = ipKey(ip);
     const now = Date.now(), win = hits.get(ip)?.filter(x => now - x < 60_000) || [];
     win.push(now); hits.set(ip, win);
     // Ménage paresseux (pas de minuterie : une fonction serverless peut être gelée entre deux appels).
@@ -112,6 +117,7 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
   // Codes faux comptés à part, avant toute comparaison : au-delà de FAIL_MAX en 10 minutes, l'adresse attend.
   const fails = new Map(), FAIL_MAX = 10, FAIL_WIN = 10 * 60_000;
   function guessing(ip, failed) {
+    ip = ipKey(ip);
     const now = Date.now(), win = fails.get(ip)?.filter(x => now - x < FAIL_WIN) || [];
     if (failed) win.push(now);
     if (win.length) fails.set(ip, win); else fails.delete(ip);
@@ -173,6 +179,11 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
     const stop = checked ? null : precheck(request.headers, ip);
     if (stop) return stop;
     const lic = PAY ? licenseOf(request.headers) : null, owner = !!ACCESS_CODE && codeOk(request.headers);
+    // Quota gratuit partagé entre les instances (Netlify) : s'il ne répond pas, la limite en mémoire reste.
+    if (PAY && !lic && !owner && freeStore) {
+      let over = false; try { over = await freeStore.over(ipKey(ip), FREE_DAILY); } catch (e) { log('free quota store', e?.message || e); }
+      if (over) return json(request, 429, { code: 'quota', message: 'free daily limit' });
+    }
     let body;
     try {
       const raw = await request.text();
@@ -277,6 +288,10 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
       if (!pathname.startsWith('/api/ai')) return null;
       if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders(request) });
       if (pathname === '/api/ai/health' && request.method === 'GET') {
+        // Le bilan dit si le code ouvre tout (caps) : un code faux y compte comme un essai, comme sur POST /api/ai.
+        const sent = !!ACCESS_CODE && !!request.headers.get('x-engram-code');
+        if (sent && guessing(ip)) return json(request, 429, { code: 'rate_limited', message: 'too many wrong codes' });
+        if (sent && !codeOk(request.headers)) guessing(ip, true);
         return json(request, 200, { ok: true, accounts: true, key: HAS_KEY, images: true, tools: true, locked: !!ACCESS_CODE && !PAY, pay: PAY, plan: PAY ? licenseOf(request.headers)?.p || 'free' : null, caps: (() => { const c = CAPS[!PAY || codeOk(request.headers) && ACCESS_CODE ? 'elite' : licenseOf(request.headers)?.p || 'free']; return { tiers: c.tiers, effort: c.effort, scan: c.scan }; })(), fallbacks: FALLBACKS, models: Object.fromEntries(Object.entries(TIERS).map(([k, v]) => [k, v.model])) });
       }
       if (pathname === '/api/ai' && request.method === 'POST') return handleAI(request, ip, checked);
