@@ -3,8 +3,10 @@
 // Variables à définir dans Netlify (Site configuration → Environment variables) :
 // ANTHROPIC_API_KEY (obligatoire), ENGRAM_ACCESS_CODE (conseillé), ENGRAM_MODEL_* …
 import { createEngram } from '../../server/core.mjs';
+import { blobsCounter } from '../../server/sync.mjs';
 
-const engram = createEngram(process.env);
+// Le quota gratuit du jour est compté dans Netlify Blobs : chaque instance de la fonction voit le même compte.
+const engram = createEngram(process.env, { freeStore: blobsCounter() });
 
 export default async (request, context) =>
   (await engram.handle(request, { ip: context?.ip || request.headers.get('x-nf-client-connection-ip') || '?' })) ||
