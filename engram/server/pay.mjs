@@ -9,7 +9,7 @@
 // au retour, et /api/account/me redonne un code neuf sur chaque appareil. Sans compte, on recopie le code.
 //
 //   GET  /api/pay/config   → { enabled, mode, prices: { pro: { month, year }, elite: { month, year } } }
-//   POST /api/pay/checkout ← { plan, bill, email?, ref? }  → { url }  (page de paiement Stripe)
+//   POST /api/pay/checkout ← { plan, bill, email?, ref?, trial? }  → { url }  (page de paiement Stripe ; trial : essai d'Élite)
 //   POST /api/pay/claim    ← { session }                   → { license, plan, bill, until, email }
 //   POST /api/pay/status   ← { license }                   → { license, plan, until, ends } ou { plan: 'free', reason }
 //   POST /api/pay/portal   ← { license }                   → { url }  (portail client Stripe)
@@ -30,6 +30,7 @@ export const PLAN_KEYS = ['pro', 'elite'];
 const BILLS = ['month', 'year'];
 export const GRACE = 3 * 864e5; // trois jours de marge après la fin de période (paiement en cours de relance)
 const OK_STATUS = new Set(['active', 'trialing', 'past_due']);
+const TRIAL_DAYS = 14;
 const PRODUCTS = {
   pro: { name: 'Engram Pro', description: 'Scans, corrections et assistants IA sans limite.', month: 7.99, year: 79.9 },
   elite: { name: 'Engram Élite', description: "Tout Pro, le modèle d'IA le plus puissant et l'atelier de personnalisation.", month: 14.99, year: 149.9 }
@@ -181,7 +182,7 @@ export function createPay(env = process.env, { fetchImpl = fetch, accounts = nul
     const found = map.byId[pr.id] || { plan: /elite/.test(pr.lookup_key || '') ? 'elite' : 'pro', bill: pr.recurring?.interval === 'year' ? 'year' : 'month' };
     const until = periodEnd(sub);
     const data = { c: typeof sub.customer === 'string' ? sub.customer : sub.customer?.id, s: sub.id, p: found.plan, b: found.bill, e: until + GRACE, m: mode };
-    return { license: signLicense(SECRET, data), plan: found.plan, bill: found.bill, until, ends: !!sub.cancel_at_period_end, status: sub.status };
+    return { license: signLicense(SECRET, data), plan: found.plan, bill: found.bill, until, ends: !!sub.cancel_at_period_end, status: sub.status, ...(sub.status === 'trialing' ? { trial: true } : {}) };
   }
 
   async function read(request) { try { return await request.json(); } catch { return {}; } }
@@ -221,6 +222,10 @@ export function createPay(env = process.env, { fetchImpl = fetch, accounts = nul
           if (!price) return json(request, 400, { code: 'no_price', message: `engram_${plan}_${bill}` });
           const back = siteOrigin(request);
           const user = await who(request), ref = /^[2-9A-HJKMNP-Z]{6}$/.test(b.ref || '') ? b.ref : '';
+          // L'essai de 14 jours d'Élite passe par Stripe dès que les paiements sont branchés : le serveur sait alors qu'il est
+          // en cours (le relais IA donne le niveau d'Élite). Carte demandée, rien n'est prélevé avant la fin de l'essai ;
+          // sans carte enregistrée à la fin, l'abonnement s'arrête. Un compte qui a déjà été client n'y a plus droit.
+          const trial = b.trial === true && plan === 'elite' && !user?.stripe?.customer;
           const params = {
             mode: 'subscription',
             line_items: [{ price: price.id, quantity: 1 }],
@@ -233,7 +238,8 @@ export function createPay(env = process.env, { fetchImpl = fetch, accounts = nul
             client_reference_id: user ? user.id : ref,
             locale: 'auto',
             metadata: { app: 'engram', plan, bill, uid: user?.id || '', ref: user ? ref : '' },
-            subscription_data: { metadata: { app: 'engram', plan, bill, uid: user?.id || '' } },
+            subscription_data: { metadata: { app: 'engram', plan, bill, uid: user?.id || '' }, ...(trial ? { trial_period_days: TRIAL_DAYS, trial_settings: { end_behavior: { missing_payment_method: 'cancel' } } } : {}) },
+            ...(trial ? { payment_method_collection: 'always' } : {}),
             ...(env.STRIPE_TAX === 'on' ? { automatic_tax: { enabled: 'true' } } : {})
           };
           // Page de paiement aux couleurs d'Engram (papier, laiton) ; si l'API du compte ne connaît pas ce réglage, sans.

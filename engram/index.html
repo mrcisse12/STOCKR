@@ -7069,6 +7069,8 @@ const Pro = {
   },
   /** o.trial : essai (14 jours, ou o.days) ; o.gift : le mois offert par un ami (son prénom, ou true). */
   start(plan, o = {}) {
+    // Avec les paiements branchés, l'essai passe par Stripe : le serveur le connaît et donne à l'IA le niveau d'Élite.
+    if (o.trial && !o.gift && Pay.on && !this.paid) return Pay.checkout(plan, { trial: true });
     const prev = S.profile.pro || {}, now = Date.now();
     const until = o.trial ? Math.max(now + (o.days || 14) * DAY, prev.trial && prev.until > now ? prev.until : 0) : null;
     S.profile.pro = { plan, trial: !!o.trial, gift: o.gift ? { from: typeof o.gift === 'string' ? o.gift : '' } : null, since: prev.plan && prev.plan !== 'free' && prev.since ? prev.since : now, until, billing: o.trial ? null : this.bill };
@@ -7083,8 +7085,9 @@ const Pro = {
   welcome(trial) {
     const el = document.createElement('div'), gift = trial === 'gift', from = S.profile.pro.gift?.from; el.className = 'pro-welcome';
     const txt = gift ? (from ? t('{x} vous offre un mois de Pro : scans illimités, les six assistants, Mentor sans limite et l\'autopilote. Aucun paiement n\'est demandé.', { x: esc(from) }) : t('Un ami vous offre un mois de Pro : scans illimités, les six assistants, Mentor sans limite et l\'autopilote. Aucun paiement n\'est demandé.'))
+      : trial === 'paid' ? t('Quatorze jours pour tout essayer : scans illimités, les six assistants, l\'autopilote et l\'IA la plus puissante. Rien n\'est prélevé avant la fin de l\'essai, et vous pouvez l\'arrêter à tout moment dans « Gérer mon abonnement ».')
       : trial ? t('Quatorze jours pour tout essayer : scans illimités, les six assistants, l\'autopilote et le mode Expert. Aucun paiement n\'est demandé.') : t('Votre formule est active. Les six assistants sont à votre service.');
-    el.innerHTML = `<div class="pw-in">${proCard()}<h2>${gift ? t('Un mois de Pro, offert') : t('Bienvenue dans Engram Pro')}</h2><p>${txt}</p><button class="btn btn-gilt btn-lg">${icon('sparkles')}${t('Rencontrer les assistants')}</button>${gift ? `<button class="btn btn-ghost pw-later">${t('Plus tard')}</button>` : ''}</div>`;
+    el.innerHTML = `<div class="pw-in">${proCard()}<h2>${gift ? t('Un mois de Pro, offert') : t('Bienvenue dans Engram {x}', { x: esc(Pro.name()) })}</h2><p>${txt}</p><button class="btn btn-gilt btn-lg">${icon('sparkles')}${t('Rencontrer les assistants')}</button>${gift ? `<button class="btn btn-ghost pw-later">${t('Plus tard')}</button>` : ''}</div>`;
     $$('#toasts .toast').forEach(x => x.remove()); // la carte dit tout : pas de bulles par-dessus
     document.body.append(el);
     Sound.play('seal'); haptic(30); App.chrome();
@@ -7160,14 +7163,14 @@ const Pay = {
     this.busy = false;
     toast(e?.code === 'not_paid' ? t('Le paiement n\'est pas encore confirmé. Réessayez dans un instant.') : e?.code === 'bad_license' ? t('Ce code d\'abonnement n\'est pas valable.') : t('Le service de paiement ne répond pas. Réessayez dans un instant.'), 'eye');
   },
-  async checkout(plan) {
+  async checkout(plan, o = {}) {
     if (this.busy) return; this.busy = true;
     toast(t('Ouverture de la page de paiement sécurisée…'), 'shield');
-    try { const { url } = await this.post('/checkout', { plan: plan === 'expert' ? 'elite' : 'pro', bill: Pro.bill, ref: S.profile.ref?.by || '' }); location.href = url; }
+    try { const { url } = await this.post('/checkout', { plan: plan === 'expert' ? 'elite' : 'pro', bill: Pro.bill, ref: S.profile.ref?.by || '', ...(o.trial ? { trial: true } : {}) }); location.href = url; }
     catch (e) { this.fail(e); }
   },
   async claim(session) {
-    try { const j = await this.post('/claim', { session }); this.save(j); Pro.welcome(false); if (j.account) Account.me(true); }
+    try { const j = await this.post('/claim', { session }); if (j.trial) S.profile.flags.proTrial = 1; this.save(j); Pro.welcome(j.trial ? 'paid' : false); if (j.account) Account.me(true); }
     catch (e) { this.fail(e); }
   },
   save(j) {
@@ -12229,7 +12232,7 @@ const TeX = {
 
 /* ── Mise en page d'une fiche de cours (Markdown enrichi) ───────────── */
 const CALLOUT_KIND = { def: 'def', definition: 'def', définition: 'def', formula: 'formula', formule: 'formula', equation: 'formula', thm: 'thm', theorem: 'thm', théorème: 'thm', theoreme: 'thm', prop: 'thm', property: 'thm', propriété: 'thm', law: 'thm', loi: 'thm', method: 'method', méthode: 'method', methode: 'method', howto: 'method', trap: 'trap', piège: 'trap', piege: 'trap', warning: 'trap', attention: 'trap', caution: 'trap', example: 'ex', exemple: 'ex', ex: 'ex', proof: 'proof', demo: 'proof', démonstration: 'proof', preuve: 'proof', remember: 'keep', retenir: 'keep', key: 'keep', essentiel: 'keep', summary: 'keep', note: 'note', remarque: 'note', info: 'note', tip: 'note', astuce: 'note' };
-const CALLOUT_LABEL = { def: N_('Définition'), formula: N_('Formule'), thm: N_('Théorème'), method: N_('Méthode'), trap: N_('Piège'), ex: N_('Exemple'), proof: N_('Démonstration'), keep: N_('À retenir'), note: N_('Remarque') };
+const CALLOUT_LABEL = { def: N_('Définition'), formula: N_('Formule@@maths'), thm: N_('Théorème'), method: N_('Méthode'), trap: N_('Piège'), ex: N_('Exemple'), proof: N_('Démonstration'), keep: N_('À retenir'), note: N_('Remarque') };
 const CALLOUT_ICON = { def: 'book', formula: 'sigma', thm: 'seal', method: 'route', trap: 'alert', ex: 'pen', proof: 'flip', keep: 'bookmark', note: 'sparkles' };
 /** Texte d'une ligne : gras, italique, code, et formules $…$ protégées du Markdown. */
 function docInline(s) {
@@ -15213,6 +15216,8 @@ TR = {
   "Avec Pro, les six assistants travaillent pour vous sans limite. Les analyses sans IA restent libres.": ["With Pro, the six assistants work for you without limits. Analyses without AI stay free.","Con Pro, los seis asistentes trabajan para ti sin límite. Los análisis sin IA siguen siendo libres.","Mit Pro arbeiten die sechs Assistenten unbegrenzt für dich. Analysen ohne KI bleiben frei.","Com o Pro, os seis assistentes trabalham para você sem limite. As análises sem IA continuam livres."],
   "Avec Pro, photographiez autant de cours que vous voulez : pages manuscrites, PDF, notes au stylet.": ["With Pro, photograph as many courses as you like: handwritten pages, PDFs, pen notes.","Con Pro, fotografía todos los cursos que quieras: páginas manuscritas, PDF, notas con lápiz.","Mit Pro fotografierst du so viele Kurse, wie du willst: handschriftliche Seiten, PDFs, Stiftnotizen.","Com o Pro, fotografe quantas aulas quiser: páginas manuscritas, PDF, anotações com a caneta."],
   "Avec l'IA, je vérifie aussi le fond : questions ambiguës, erreurs, fiches à scinder.": ["With AI, I also check the substance: ambiguous questions, mistakes, cards to split.","Con la IA, también reviso el fondo: preguntas ambiguas, errores, tarjetas que dividir.","Mit KI prüfe ich auch den Inhalt: mehrdeutige Fragen, Fehler, Karten zum Aufteilen.","Com a IA, também verifico o conteúdo: perguntas ambíguas, erros, cartões a dividir."],
+  "Quatorze jours pour tout essayer : scans illimités, les six assistants, l'autopilote et l'IA la plus puissante. Rien n'est prélevé avant la fin de l'essai, et vous pouvez l'arrêter à tout moment dans « Gérer mon abonnement ».": ["Fourteen days to try everything: unlimited scans, the six assistants, autopilot and the most powerful AI. Nothing is charged before the trial ends, and you can stop it at any time in “Manage my subscription”.","Catorce días para probarlo todo: escaneos ilimitados, los seis asistentes, el piloto automático y la IA más potente. No se cobra nada antes de que termine la prueba, y puedes pararla cuando quieras en «Gestionar mi suscripción».","Vierzehn Tage, um alles auszuprobieren: unbegrenzte Scans, die sechs Assistenten, der Autopilot und die stärkste KI. Vor dem Ende des Tests wird nichts abgebucht, und du kannst ihn jederzeit unter „Mein Abo verwalten“ beenden.","Catorze dias para experimentar tudo: digitalizações ilimitadas, os seis assistentes, o piloto automático e a IA mais poderosa. Nada é cobrado antes do fim do teste, e você pode pará-lo a qualquer momento em “Gerenciar minha assinatura”."],
+  "Bienvenue dans Engram {x}": ["Welcome to Engram {x}","Bienvenido a Engram {x}","Willkommen bei Engram {x}","Boas-vindas ao Engram {x}"],
   "Bienvenue dans Engram Pro": ["Welcome to Engram Pro","Bienvenido a Engram Pro","Willkommen bei Engram Pro","Boas-vindas ao Engram Pro"],
   "Bilan de la semaine": ["Weekly review","Balance de la semana","Wochenrückblick","Balanço da semana"],
   "Bilan prêt": ["Review ready","Balance listo","Rückblick fertig","Balanço pronto"],
@@ -15263,6 +15268,7 @@ TR = {
   "Fiches, paquets, algorithme FSRS": ["Cards, decks, FSRS algorithm","Tarjetas, mazos, algoritmo FSRS","Karten, Stapel, FSRS-Algorithmus","Cartões, baralhos, algoritmo FSRS"],
   "Forme des questions": ["Question wording","Forma de las preguntas","Form der Fragen","Forma das perguntas"],
   "Formule": ["Plan","Plan","Tarif","Plano"],
+  "Formule@@maths": ["Formula","Fórmula","Formel","Fórmula"],
   "Formule Découverte : encore {n} ce mois-ci avec l'IA. Les analyses locales sont illimitées.": ["Discovery plan: {n} left this month with AI. Local analyses are unlimited.","Plan Descubrimiento: te quedan {n} este mes con IA. Los análisis locales son ilimitados.","Tarif Entdecken: diesen Monat noch {n} mit KI. Lokale Analysen sind unbegrenzt.","Plano Descoberta: restam {n} este mês com IA. As análises locais são ilimitadas."],
   "Formule Découverte : les analyses locales sont illimitées ; avec l'IA, 3 missions par mois.": ["Discovery plan: local analyses are unlimited; with AI, 3 missions a month.","Plan Descubrimiento: los análisis locales son ilimitados; con IA, 3 misiones al mes.","Tarif Entdecken: lokale Analysen sind unbegrenzt; mit KI 3 Aufträge pro Monat.","Plano Descoberta: as análises locais são ilimitadas; com IA, 3 missões por mês."],
   "IA": ["AI","IA","KI","IA"],
