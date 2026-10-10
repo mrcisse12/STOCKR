@@ -55,7 +55,7 @@ const SESSION_TTL = 60 * 864e5, CHALLENGE_TTL = 5 * 60e3, RECENT = 10 * 60e3, PL
 // Essais par 15 minutes. Un compte n'est bloqué que pour l'adresse qui se trompe (email + adresse IP, 10 essais) ; au-delà
 // de 100 essais faux de partout, la connexion par mot de passe attend, mais pas le code de secours (compté à part), ni
 // les clés d'accès, Google ou Apple. Une classe derrière la même adresse peut créer 40 comptes.
-const WINDOW = 15 * 60e3, LIMITS = { email: 10, emailAll: 100, rcAll: 200, ip: 60, signup: 40, passkey: 20, fed: 20 };
+const WINDOW = 15 * 60e3, LIMITS = { email: 10, emailAll: 100, rcAll: 200, ip: 60, signup: 40, taken: 10, passkey: 20, fed: 20 };
 const SCRYPT = { N: 2 ** 15, r: 8, p: 1, maxmem: 96 * MB };
 const PW_MIN = 8, PW_MAX = 1024, MAX_PASSKEYS = 20, MAX_BODY = 64 * 1024;
 const UID_RE = /^[0-9a-f]{24}$/, NO_UID = '0'.repeat(24);
@@ -497,11 +497,29 @@ export function createAccount(env = process.env, { backend, syncBackend, fetchIm
         return { rec: await mutate(rec.id, r => { r[provider] = link; if (email && r.email === email) r.emailVerified = true; if (!r.name && name) r.name = name; }), linked: true };
       };
       if (cur) { await confirm(cur, b.password, ip); return attach(cur.rec); } // lier un service : comme une clé d'accès
+      // Un compte créé avec un mot de passe n'a jamais prouvé son adresse, et Google ou Apple vient de la prouver.
+      // Le lier tel quel laisserait entrer quiconque l'a créé avec votre adresse avant vous (« pré-détournement ») ;
+      // refuser vous fermerait votre propre adresse. On garde le compte et ses données, mais on retire tout ce que
+      // son créateur a pu y mettre : mot de passe, code de secours, clés d'accès, autre service, sessions ouvertes.
+      const takeover = async ex => {
+        if (!(await claimIndex(key, ex.id))) throw E(409, 'already_linked');
+        let gone = null;
+        const rec = await mutate(ex.id, r => {
+          if (r.emailVerified && r[provider]?.sub && r[provider].sub !== p.sub) throw E(409, 'already_linked', 'another ' + provider + ' account is already linked');
+          if (!r.emailVerified) { // pas prouvée entre-temps par un autre moyen
+            gone = [...(r.passkeys || []).map(k => 'cred.' + hkey(k.id)), ...['google', 'apple'].map(x => r[x]?.sub && r[x].sub !== p.sub && x + '.' + hkey(r[x].sub))].filter(Boolean);
+            Object.assign(r, { pw: null, rc: null, passkeys: [], google: null, apple: null, emailVerified: true });
+            r.sv++;
+          }
+          r[provider] = link;
+          if (!r.name && name) r.name = name;
+        });
+        for (const k of gone || []) await dropIndex(k, rec.id);
+        return { rec, linked: true, ...(gone ? { reset: true } : {}) };
+      };
       if (email) {
         const ex = await byIndex('email.' + hkey(email));
-        // Un compte créé avec un mot de passe n'a jamais prouvé son adresse : le lier d'office ouvrirait la porte au
-        // « pré-détournement » (quelqu'un crée le compte avec votre adresse avant vous). On demande de se connecter d'abord.
-        if (ex) { if (!ex.emailVerified) throw E(409, 'link_required', 'an account already uses this email: sign in, then link ' + provider + ' in Settings'); return attach(ex); }
+        if (ex) return ex.emailVerified ? attach(ex) : takeover(ex);
       }
       const rec = await createUser({ email, emailVerified: !!email, name, [provider]: link }, [key]);
       if (!rec) throw E(409, 'link_required', 'an account already uses this email');
@@ -515,11 +533,13 @@ export function createAccount(env = process.env, { backend, syncBackend, fetchIm
       const email = normEmail(b.email);
       if (!email) throw E(400, 'bad_email', 'invalid email');
       checkNewPassword(b.password);
-      await rlCheck(['signup:' + ip, LIMITS.signup]);
+      await rlCheck(['signup:' + ip, LIMITS.signup], ['taken:' + ip, LIMITS.taken]);
       await rlHit('signup:' + ip);
       const pw = await hashPassword(b.password), id = newId(), code = newRecoveryCode();
       const rec = await createUser({ id, email, name: cleanName(b.name), pw, rc: { h: codeHash(id, code), t: Date.now() } });
-      if (!rec) throw E(409, 'unavailable', 'this email cannot be used here: sign in, or use your recovery code');
+      // Sans envoi d'e-mail, l'inscription dit forcément si l'adresse est prise : on borne ces réponses par adresse IP
+      // pour qu'elle ne serve pas à passer une liste d'adresses au crible.
+      if (!rec) { await rlHit('taken:' + ip); throw E(409, 'unavailable', 'this email cannot be used here: sign in, or use your recovery code'); }
       return [201, { session: await issue(rec), user: pub(rec), recoveryCode: code }];
     },
     async login(b, request, ip) {
@@ -686,8 +706,8 @@ export function createAccount(env = process.env, { backend, syncBackend, fetchIm
       await dropIndex(provider + '.' + hkey(sub), rec.id);
       return [200, { session: await issue(r), user: pub(r) }];
     },
-    async google(b, request, ip) { const o = await federated('google', request, b, ip); return [200, { session: await issue(o.rec), user: pub(o.rec), ...(o.created ? { created: true } : {}), ...(o.linked ? { linked: true } : {}) }]; },
-    async apple(b, request, ip) { const o = await federated('apple', request, b, ip); return [200, { session: await issue(o.rec), user: pub(o.rec), ...(o.created ? { created: true } : {}), ...(o.linked ? { linked: true } : {}) }]; }
+    async google(b, request, ip) { const o = await federated('google', request, b, ip); return [200, { session: await issue(o.rec), user: pub(o.rec), ...(o.created ? { created: true } : {}), ...(o.linked ? { linked: true } : {}), ...(o.reset ? { reset: true } : {}) }]; },
+    async apple(b, request, ip) { const o = await federated('apple', request, b, ip); return [200, { session: await issue(o.rec), user: pub(o.rec), ...(o.created ? { created: true } : {}), ...(o.linked ? { linked: true } : {}), ...(o.reset ? { reset: true } : {}) }]; }
   };
 
   function cors(request) {

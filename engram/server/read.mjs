@@ -11,7 +11,8 @@ import http from 'node:http';
 import https from 'node:https';
 import net from 'node:net';
 import { Readable } from 'node:stream';
-import { licenseSecret, readLicense } from './pay.mjs';
+import { licenseSecret, readLicense, stripeMode } from './pay.mjs';
+import { ipKey } from './net.mjs';
 
 const MAX_BYTES = 2.5 * 1024 * 1024, TIMEOUT = 8000, MAX_REDIRECTS = 4, MAX_TEXT = 60000, MAX_TEXT_ELITE = 150000;
 const WIKI = /^([a-z][a-z-]{1,15})\.(?:m\.)?wikipedia\.org$/i;
@@ -116,19 +117,20 @@ export function htmlToReadable(html) {
 }
 
 export function createReader(env = process.env, { fetchImpl = fetch, pageFetch = fetchImpl === fetch ? pinnedFetch : fetchImpl, resolve = safeUrl } = {}) {
-  const hits = new Map(), PER_MIN = +env.ENGRAM_READ_PER_MIN || 20, LIC = licenseSecret(env);
+  const hits = new Map(), PER_MIN = +env.ENGRAM_READ_PER_MIN || 20, LIC = licenseSecret(env), MODE = stripeMode(env);
   const json = (status, obj) => new Response(JSON.stringify(obj), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } });
   return {
     async handle(request, { ip = '?' } = {}) {
       const u = new URL(request.url);
       if (u.pathname !== '/api/read') return null;
       if (request.method !== 'GET') return json(405, { code: 'method' });
+      ip = ipKey(String(ip));
       const now = Date.now(), win = (hits.get(ip) || []).filter(x => now - x < 60_000); win.push(now); hits.set(ip, win);
       if (hits.size > 5000) hits.clear();
       if (win.length > PER_MIN) return json(429, { code: 'rate_limited' });
       let target = await resolve(u.searchParams.get('url') || '');
       if (!target) return json(400, { code: 'bad_url' });
-      const lic = LIC && readLicense(LIC, request.headers.get('x-engram-license') || '');
+      const lic = LIC && readLicense(LIC, request.headers.get('x-engram-license') || '', MODE);
       const max = lic && !lic.expired && lic.p === 'elite' ? MAX_TEXT_ELITE : MAX_TEXT;
       const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), TIMEOUT);
       try {

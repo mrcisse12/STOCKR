@@ -7457,7 +7457,10 @@ const Account = {
     const linking = this.signed && !!this.user;
     const j = linking ? await this.sudo(x => this.call('/' + p, { ...body, ...x })) : await this.call('/' + p, body);
     if (linking) { if (j.session) Sess.set(j.session); this.user = j.user; this.repaint(); toast(t('{x} est maintenant lié à votre compte.', { x: p === 'google' ? 'Google' : 'Apple' }), 'link'); return; }
-    await this.signedIn(j); Modal.close(); this.hello();
+    await this.signedIn(j); Modal.close();
+    // L'adresse n'avait jamais été prouvée : le serveur a retiré le mot de passe et les clés d'accès que son créateur avait mis.
+    if (j.reset) toastAct(t('Votre e-mail est confirmé par {x}. L\'ancien mot de passe et les clés d\'accès de ce compte ont été retirés, par sécurité.', { x: p === 'google' ? 'Google' : 'Apple' }), 'shield', t('Compte'), 'arrow', () => this.open(), 12000);
+    else this.hello();
   },
 
   /* ── La feuille du compte ── */
@@ -16289,6 +16292,7 @@ TR = {
   "{x} est activé pour Engram.": ["{x} is now on for Engram.","{x} está activado para Engram.","{x} ist für Engram aktiviert.","{x} está ativado para o Engram."],
   "Clé d'accès ajoutée.": ["Passkey added.","Llave de acceso añadida.","Passkey hinzugefügt.","Chave de acesso adicionada."],
   "Cet appareil": ["This device","Este dispositivo","Dieses Gerät","Este dispositivo"],
+  "Votre e-mail est confirmé par {x}. L'ancien mot de passe et les clés d'accès de ce compte ont été retirés, par sécurité.": ["Your email is confirmed by {x}. This account's old password and passkeys were removed, for safety.","{x} confirma tu correo. La antigua contraseña y las llaves de acceso de esta cuenta se han quitado, por seguridad.","{x} bestätigt deine E-Mail. Das alte Passwort und die Passkeys dieses Kontos wurden aus Sicherheitsgründen entfernt.","{x} confirma seu e-mail. A senha antiga e as chaves de acesso desta conta foram removidas, por segurança."],
   "{x} est maintenant lié à votre compte.": ["{x} is now linked to your account.","{x} ya está vinculado a tu cuenta.","{x} ist jetzt mit deinem Konto verknüpft.","{x} agora está vinculado à sua conta."],
   "Bienvenue, {x}.": ["Welcome, {x}.","Hola, {x}.","Willkommen, {x}.","Olá, {x}."],
   "Vous êtes connecté.": ["You're signed in.","Has iniciado sesión.","Du bist angemeldet.","Você entrou."],
