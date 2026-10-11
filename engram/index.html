@@ -660,6 +660,178 @@ body.studying .shell,body.studying .dock{visibility:hidden}
 .tray{position:relative;display:flex;flex-direction:column;gap:14px;min-height:420px;padding:18px;border-radius:14px;background:linear-gradient(180deg,var(--folder-4),var(--folder-3));border:1px solid var(--hair-2);box-shadow:0 -14px 24px -18px rgba(0,0,0,.4) inset}
 .tray-empty{display:grid;place-items:center;text-align:center;gap:16px;padding:30px 14px;min-height:380px;border:1.5px dashed var(--hair-2);border-radius:10px;color:var(--muted)}
 .tray-empty .t{font:400 26px/1.15 var(--f-display);color:var(--text)}
+/* ── Récitation orale (Élite) ─────────────────────────────────────── */
+.rc-head .display{font-size:clamp(34px,4.6vw,58px);margin-top:12px}
+.rc-head .lede{margin-top:14px}
+.rc-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;align-items:start}
+.rc-main,.rc-side{display:flex;flex-direction:column;gap:16px;min-width:0}
+@media (max-width:980px){.rc-grid{grid-template-columns:1fr}}
+.rc-desk{display:flex;flex-direction:column;gap:18px;padding:clamp(18px,2.6vw,28px)}
+.rc-course{display:grid;gap:5px}
+.rc-course b{font:400 clamp(24px,2.6vw,30px)/1.12 var(--f-display);letter-spacing:-.01em;text-wrap:balance}
+.rc-course small{color:var(--muted);font-size:13.5px}
+.rc-mic{position:relative;align-self:center;display:grid;place-items:center;width:108px;height:108px;margin:6px 0 2px;border-radius:50%;color:var(--on-brass);
+  background:radial-gradient(circle at 35% 30%,var(--brass-hi),var(--brass-btn) 55%,var(--brass-lo));box-shadow:0 16px 34px -12px var(--brass-glow),0 0 0 8px var(--folder-2),0 0 0 9px var(--hair-2);transition:transform .4s var(--spring)}
+.rc-mic:hover{transform:scale(1.05)}
+.rc-mic:active{transform:scale(.97)}
+.rc-mic .i{width:40px;height:40px;stroke-width:1.6}
+.rc-mic::after{content:"";position:absolute;inset:-9px;border-radius:50%;border:1.5px solid var(--brass);opacity:0;pointer-events:none;animation:rcRing 2.8s var(--ease) infinite}
+@keyframes rcRing{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.42);opacity:0}}
+.rc-say{margin:0;align-self:center;text-align:center;color:var(--text-2);font-size:15px;line-height:1.55;max-width:50ch;text-wrap:pretty}
+.rc-goal{display:flex;align-items:center;justify-content:center;gap:8px;margin:-4px 0 0;font:700 11.5px/1.35 var(--f-type);letter-spacing:.06em;text-transform:uppercase;color:var(--brass-text);text-align:center}
+.rc-acts{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.rc-desk > .rc-acts{justify-content:center}
+.rc-redo{display:flex;align-items:center;gap:10px;width:100%;padding:11px 14px;border-radius:10px;border:1px dashed var(--hair-3);color:var(--text-2);font-size:14px;text-align:left;transition:border-color .25s,background .25s,color .25s}
+.rc-redo:hover{border-color:var(--brass);background:var(--brass-soft);color:var(--text)}
+.rc-redo .i{color:var(--brass-text)}
+.rc-redo span{flex:1}
+.rc-redo b{font:700 12px/1 var(--f-type);padding:4px 7px;border-radius:5px;background:var(--brass-btn);color:var(--on-brass)}
+.rc-note{display:flex;gap:10px;align-items:flex-start;margin:0;padding:11px 14px;border-radius:10px;background:var(--brass-soft);border:1px solid var(--hair-2);color:var(--text-2);font-size:13.5px;line-height:1.5}
+.rc-note .i{color:var(--brass-text);margin-top:2px}
+/* Pendant la récitation : micro, chrono, la page qui s'écrit */
+.rc-bar{display:flex;align-items:center;gap:14px}
+.rc-orb{flex:none;display:grid;place-items:center;width:58px;height:58px;border-radius:50%;color:var(--brass-text);border:1px solid var(--hair-3);background:var(--desk-2);transition:transform .3s var(--spring),box-shadow .3s}
+.rc-desk.on .rc-orb{color:var(--on-brass);border-color:transparent;background:radial-gradient(circle at 35% 30%,var(--brass-hi),var(--brass-btn) 55%,var(--brass-lo));box-shadow:0 0 0 6px var(--brass-soft);animation:rcPulse 1.8s var(--ease) infinite}
+@keyframes rcPulse{50%{box-shadow:0 0 0 11px color-mix(in srgb,var(--brass) 8%,transparent)}}
+.rc-orb .wave{height:24px}
+.rc-desk.on .rc-orb .wave i{background:var(--on-brass)}
+.rc-orb .i{width:24px;height:24px}
+button.rc-orb:hover{transform:scale(1.06)}
+.rc-st{display:grid;gap:3px;min-width:0;flex:1}
+.rc-st b{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15.5px}
+.rc-st small{color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc-meter{display:grid;justify-items:end;gap:4px;flex:none}
+.rc-meter b{font:400 32px/1 var(--f-display);letter-spacing:-.01em}
+.rc-meter small{font:700 10.5px/1 var(--f-type);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.rc-ta{display:block;width:100%;min-height:220px;max-height:52vh;resize:vertical;border:0;outline:0;margin:0;padding:3px 16px 12px 46px;border-radius:5px;font:400 16px/30px var(--f-ui);color:var(--p-ink);
+  background-color:var(--paper);background-image:linear-gradient(90deg,transparent 30px,var(--p-margin) 30px,var(--p-margin) 31.5px,transparent 31.5px),repeating-linear-gradient(180deg,transparent 0 29px,var(--p-rule) 29px 30px);background-attachment:local;box-shadow:var(--sh-card)}
+.rc-ta::placeholder{color:var(--p-muted);font-style:italic}
+.rc-ta:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+.rc-ta[readonly]{cursor:default}
+.rc-live{margin:-8px 2px 0;min-height:21px;font:italic 400 14px/1.5 var(--f-ui);color:var(--muted);overflow-wrap:anywhere}
+.rc-targets{display:flex;flex-wrap:wrap;gap:6px}
+.rc-targets .chip{border-color:var(--brass);color:var(--brass-text);background:var(--brass-soft)}
+/* L'IA travaille */
+.rc-wait{display:flex;align-items:center;gap:14px}
+.rc-wait b{display:block;font:400 clamp(20px,2.2vw,24px)/1.2 var(--f-display);text-wrap:balance}
+.rc-wait small{display:block;margin-top:5px;color:var(--muted);font-size:13.5px;line-height:1.45}
+.rc-quill{flex:none;display:grid;place-items:center;width:52px;height:52px;border-radius:50%;border:1px solid var(--hair-3);color:var(--brass-text);animation:rcPulse 1.8s var(--ease) infinite}
+.rc-scan{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.rc-scan li{display:flex;align-items:center;gap:12px;min-height:44px;padding:8px 14px;border-radius:9px;background:var(--desk-2);border:1px solid var(--hair);font-size:14px;color:var(--text-2);animation:rcBreath 1.7s var(--ease) infinite;animation-delay:calc(var(--k) * .13s)}
+.rc-scan li > i{height:9px;border-radius:5px;background:var(--hair-2)}
+.rc-scan .rc-mk{--vc:var(--hair-3);width:24px;height:24px;color:var(--brass-text)}
+@keyframes rcBreath{0%,100%{opacity:.5}50%{opacity:1}}
+.rc-said summary{cursor:pointer;font:700 11px/1.3 var(--f-type);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.rc-said p{margin:10px 0 0;font-size:14px;line-height:1.6;color:var(--text-2);white-space:pre-wrap}
+.rc-err-msg{display:flex;gap:10px;align-items:flex-start;margin:0;color:var(--again);font-size:14.5px;line-height:1.5}
+.rc-err-msg .i{margin-top:3px}
+/* Le résultat : jauge, palier, XP, tampon */
+.rc-score{position:relative;display:grid;grid-template-columns:minmax(190px,250px) minmax(0,1fr);gap:24px;align-items:center;padding:clamp(18px,2.6vw,28px);overflow:hidden}
+.rc-gauge{position:relative;width:100%;max-width:260px;margin:0 auto}
+.rc-gauge svg{display:block;width:100%;height:auto;overflow:visible}
+.rc-gauge .tr{stroke:var(--hair-2)}
+.rc-gauge .rv{transition:stroke-dashoffset 1.5s var(--ease)}
+.rc-gauge .tk{stroke:var(--folder-2);stroke-width:2.5}
+.rc-gauge .rb{fill:var(--pen);stroke:var(--folder-2);stroke-width:2}
+.rc-num{position:absolute;left:0;right:0;bottom:-2px;display:flex;align-items:baseline;justify-content:center;gap:4px}
+.rc-num b{font:400 clamp(52px,6vw,66px)/1 var(--f-display);letter-spacing:-.02em}
+.rc-num small{font:700 12px/1 var(--f-type);color:var(--muted)}
+.rc-sc-t{display:flex;flex-direction:column;gap:12px;min-width:0}
+.rc-tier{display:flex;align-items:center;gap:12px}
+.rc-tier b{display:block;font:400 30px/1.05 var(--f-display);margin-top:3px}
+.rc-chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.rc-xp,.rc-rec,.rc-dur{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;font:700 12px/1 var(--f-type);letter-spacing:.04em;border:1px solid var(--hair-2);color:var(--text-2)}
+.rc-xp{border-color:transparent;color:var(--on-brass);background:linear-gradient(180deg,var(--brass-hi) -30%,var(--brass-btn) 50%,var(--brass-lo) 140%)}
+.rc-rec.on{border-color:var(--brass);color:var(--brass-text);background:var(--brass-soft)}
+.rc-comment{margin:0;font-size:15.5px;line-height:1.55;color:var(--text);text-wrap:pretty}
+.rc-next{margin:0;font-size:13.5px;line-height:1.45}
+.rc-stamp{position:absolute;top:12px;right:14px;width:min(176px,40%);pointer-events:none;opacity:0;transform:rotate(-11deg)}
+.rc-stamp.on{animation:rcSlam .38s 1s cubic-bezier(.2,.9,.3,1.3) both}
+.rc-stamp svg{display:block;width:100%;height:auto;filter:url(#ink)}
+@keyframes rcSlam{0%{transform:rotate(-26deg) scale(2.1);opacity:0}60%{opacity:1;transform:rotate(-9deg) scale(.93)}100%{transform:rotate(-11deg) scale(1);opacity:.9}}
+.rc-medal{flex:none;display:block;filter:drop-shadow(0 3px 5px rgba(0,0,0,.28))}
+.rc-medal.dim{filter:grayscale(1);opacity:.32}
+/* Point par point */
+.rc-cnt{display:inline-flex;gap:12px}
+.rc-cnt > span{display:inline-flex;align-items:center;gap:4px;font:700 12.5px/1 var(--f-type);color:var(--vc)}
+.rc-cnt .ok,.rc-pt.ok{--vc:var(--good)}.rc-cnt .part,.rc-pt.part{--vc:var(--hard)}.rc-cnt .miss,.rc-pt.miss{--vc:var(--again)}
+.rc-pts{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.rc-pt{display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;align-items:start;padding:12px 14px;border-radius:10px;border:1px solid var(--hair);background:var(--desk-2);animation:rise .55s var(--ease) both;animation-delay:calc(var(--k) * 45ms)}
+.rc-mk{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--vc,var(--hair-3));color:var(--vc,var(--muted));flex:none}
+.rc-pt.ok .rc-mk{background:color-mix(in srgb,var(--good) 14%,transparent)}
+.rc-pt b{display:block;font-weight:600;font-size:15px;line-height:1.35;padding-top:3px}
+.rc-q{display:block;margin-top:6px;font:500 19px/1.3 var(--f-pen);color:var(--brass-text);overflow-wrap:anywhere}
+.rc-exp{display:block;margin-top:6px;font-size:13.5px;line-height:1.5;color:var(--text-2)}
+.rc-exp em{font:700 10px/1 var(--f-type);font-style:normal;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+.rc-pt small{display:block;margin-top:5px;font-size:13px;line-height:1.45;color:var(--vc)}
+.rc-errs ul{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.rc-errs li{display:grid;gap:4px;font-size:14.5px;line-height:1.5}
+.rc-errs s{color:var(--again);text-decoration-thickness:1.5px;font:500 19px/1.3 var(--f-pen)}
+.rc-errs li span{display:flex;gap:8px;align-items:flex-start}
+.rc-errs li span .i{color:var(--good);margin-top:3px;flex:none}
+.rc-tips ul{margin:6px 0 0;padding-left:18px}
+.rc-tips li{margin:2px 0}
+/* Points à reprendre : relus sur bristol */
+.rc-cards{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.rc-cards li{display:grid;gap:4px;padding:14px 16px 14px 20px;border-radius:5px;background:var(--paper);color:var(--p-ink);box-shadow:var(--sh-card);border-left:3px solid var(--p-margin);animation:rise .6s var(--ease) both;animation-delay:calc(var(--k) * 70ms)}
+.rc-cards b{font-weight:700}
+.rc-cards span{font-size:14.5px;line-height:1.5;color:color-mix(in srgb,var(--p-ink) 80%,var(--paper))}
+/* Progression */
+.rc-best{display:flex;align-items:center;gap:16px}
+.rc-best > div{display:grid;gap:4px;min-width:0}
+.rc-best .big small{font-size:13px}
+.rc-none{font:400 22px/1.15 var(--f-display)}
+.rc-bt{font-size:13px;color:var(--text-2)}
+.rc-ladder{list-style:none;margin:16px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.rc-ladder li{display:grid;justify-items:center;gap:4px;padding:9px 4px 8px;border-radius:9px;border:1px solid var(--hair);text-align:center;min-width:0}
+.rc-ladder b{font:700 9.5px/1.2 var(--f-type);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rc-ladder small{font:400 10px/1 var(--f-type);color:var(--muted)}
+.rc-ladder li.got b{color:var(--text-2)}
+.rc-ladder li.on{border-color:var(--brass);background:var(--brass-soft)}
+.rc-ladder li.on b{color:var(--brass-text)}
+.rc-hist{position:relative;display:flex;align-items:flex-end;gap:5px;height:84px;margin-top:16px;border-bottom:1px solid var(--hair-2)}
+.rc-hist span{flex:1;max-width:24px;height:calc(var(--v) * 1%);border-radius:3px 3px 0 0;background:color-mix(in srgb,var(--brass) 50%,transparent);transform-origin:bottom;animation:grow .8s var(--ease) both;animation-delay:calc(var(--k) * 40ms)}
+.rc-hist span.b{background:var(--brass)}
+.rc-hist span.f{background:repeating-linear-gradient(-45deg,color-mix(in srgb,var(--brass) 50%,transparent) 0 3px,transparent 3px 6px);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--brass) 50%,transparent)}
+.rc-hist .rc-90{position:absolute;left:0;right:0;bottom:90%;border-top:1px dashed var(--good);opacity:.7;pointer-events:none}
+.rc-seg{display:flex;width:100%}
+.rc-seg button{flex:1 1 0;min-width:0;justify-content:center}
+.rc-seg button span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rc-seg button:disabled{opacity:.5;cursor:default}
+.rc-hint{display:flex;gap:8px;align-items:flex-start;margin:0;color:var(--muted);font-size:13.5px;line-height:1.5}
+.rc-hint .i{margin-top:2px;flex:none}
+.rc-peek{margin-top:14px}
+.rc-peek summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--brass-text)}
+.rc-peek ol{margin:10px 0 0;padding-left:20px;display:grid;gap:9px}
+.rc-peek li b{display:block;font-weight:600;font-size:14px}
+.rc-peek li span{display:block;font-size:13px;color:var(--text-2);line-height:1.45}
+.rc-src > .btn{margin-top:12px}
+/* Choix du cours, sans IA, hors Élite */
+.rc-decks{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.rc-deck{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:84px;padding:14px 16px;border-radius:12px;border:1px solid var(--hair-2);border-top:3px solid var(--c);background:var(--folder-2);text-align:left;color:inherit;transition:transform .45s var(--spring),border-color .25s,box-shadow .3s}
+.rc-deck:hover{transform:translateY(-3px);border-color:var(--hair-3);border-top-color:var(--c);box-shadow:0 18px 30px -22px rgba(0,0,0,.6)}
+.rc-dk-t{display:grid;gap:4px;min-width:0}
+.rc-dk-t b{font-weight:600;font-size:15px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rc-dk-t small{color:var(--muted);font-size:12.5px}
+.rc-dk-s{display:grid;justify-items:center;gap:3px;flex:none}
+.rc-dk-s b{font:400 20px/1 var(--f-display)}
+.rc-dk-s em{font:700 10px/1.2 var(--f-type);letter-spacing:.08em;text-transform:uppercase;font-style:normal;color:var(--brass-text);padding:5px 7px;border:1px solid var(--hair-3);border-radius:6px}
+.rc-noai{display:flex;gap:16px;align-items:flex-start}
+.rc-noai b{display:block;font:400 24px/1.15 var(--f-display)}
+.rc-noai p{margin:8px 0 0;font-size:14.5px;line-height:1.55;color:var(--text-2)}
+.rc-noai .rc-acts{margin-top:14px}
+.rc-demo{display:flex;flex-direction:column;gap:12px;max-width:760px;pointer-events:none;user-select:none;opacity:.9}
+@media (max-width:620px){
+  .rc-mic{width:94px;height:94px}.rc-mic .i{width:36px;height:36px}
+  .rc-head.slim .lede{display:none}
+  .rc-desk > .rc-acts .btn-lg{flex:1 1 100%;min-width:0;height:auto;min-height:54px;padding-block:10px;white-space:normal;line-height:1.25}
+  .rc-bar{gap:10px}.rc-orb{width:50px;height:50px}.rc-meter b{font-size:26px}
+  .rc-ta{min-height:200px;padding-left:38px;background-image:linear-gradient(90deg,transparent 24px,var(--p-margin) 24px,var(--p-margin) 25.5px,transparent 25.5px),repeating-linear-gradient(180deg,transparent 0 29px,var(--p-rule) 29px 30px)}
+  .rc-score{grid-template-columns:1fr;justify-items:center;text-align:center;gap:16px}
+  .rc-sc-t{align-items:center}.rc-tier,.rc-chips,.rc-score .rc-acts{justify-content:center}.rc-tier{text-align:left}
+  .rc-stamp{top:8px;right:8px;width:128px}
+  .rc-ladder b{font-size:8.5px;letter-spacing:.02em}
+}
 .steps{list-style:none;margin:0;padding:0;display:grid;gap:12px;text-align:left;max-width:390px;counter-reset:s}
 .steps li{display:grid;grid-template-columns:28px 1fr;gap:10px;color:var(--text-2);font-size:14px;counter-increment:s}
 .steps li::before{content:counter(s);display:grid;place-items:center;width:24px;height:24px;border-radius:50%;border:1px solid var(--hair-3);font:700 11px/1 var(--f-type);color:var(--brass-text)}
@@ -5874,6 +6046,7 @@ Views.deck = id => {
       <button class="btn" data-act="game" data-g="match" data-deck="${d.id}">${icon('grid')}${t('Paires')}</button>
       <button class="btn" data-act="game" data-g="exam" data-deck="${d.id}">${icon('timer')}${t('Examen blanc')}</button>
       <button class="btn" data-act="listen" data-deck="${d.id}">${icon('headphones')}${t('Écouter')}</button>
+      <button class="btn" data-act="recite" data-deck="${d.id}">${icon('mic')}${t('Réciter à l\'oral')}${Pro.expert ? (Recite.best(d.id) != null ? ` · ${Recite.best(d.id)}` : '') : ` <span class="elite-tag">${t('Élite')}</span>`}</button>
     </div>
     <div class="toolbar rise" style="margin-top:-24px">
       <button class="btn btn-sm" data-act="mentor" data-deck="${d.id}">${icon('sparkles', 'i-sm')}${t('Mentor')}</button>
@@ -7232,6 +7405,7 @@ const Pro = {
       expert: [t('Le mode Expert fait partie d\'Élite'), t('Le modèle le plus puissant, pour les plans de concours et les raisonnements longs.')],
       atelier: [t('Cet outil fait partie d\'Élite'), t('Thèmes Velours et Marbre, papiers Tableau noir, Tableau blanc et Kraft, couleur d\'accent sur mesure, rétention par paquet et intervalle maximal : Élite règle Engram à votre façon.')],
       agenda: [t('Le planning heure par heure fait partie d\'Élite'), t('Quoi réviser à quelle heure, le plus exigeant à votre meilleur moment, des pauses, une alarme à chaque séance, et Siri pour lancer la séance du moment.')],
+      recite: [t('La récitation orale fait partie d\'Élite'), t('Scannez ou importez votre cours, puis récitez-le à voix haute : l\'IA vérifie le sens, pas les mots exacts, vous donne un score sur 100 à battre et vous montre précisément ce qui manque.')],
       files: [t('Mentor lit vos fichiers avec Pro'), t('PDF, Word, PowerPoint, Excel, ZIP, photos : Mentor les lit, en tire une fiche de cours détaillée et crée vos fiches. Pro : 5 fichiers par demande ; Élite : 20, et les gros cours lus en entier.')],
       sheet: [t('Les fiches de cours font partie de Pro'), t('Notions, définitions, formules, méthodes, pièges et exemples : une fiche complète et bien mise en page, rangée dans votre paquet et transformée en fiches de révision en un appui.')],
       autopilot: [t('L\'autopilote fait partie de Pro'), t('Chaque matin, le Planificateur prépare votre séance ; chaque lundi, le Chroniqueur fait le bilan de la semaine.')]
@@ -9546,6 +9720,7 @@ const Actions = {
   listen: el => openListen(el.dataset.deck),
   chat: el => openChat(el.dataset.deck),
   sheet: el => openSheet(el.dataset.deck),
+  recite: el => Recite.open({ deckId: el.dataset.deck }),
   openNote: el => openNote(el.dataset.deck, el.dataset.id),
   game: el => openGame(el.dataset.g, el.dataset.deck),
   examPlan: el => openExamPlan(el.dataset.deck, el.dataset.exam),
@@ -11277,6 +11452,7 @@ async function commitScan() {
   Scan.reset(); App.go('deck', deck.id);
   toast(t('{x} dans « {deck} »', { x: plural(cards.length, 'fiche rangée|fiches rangées'), deck: deck.name }), 'drawer');
   checkBadges();
+  Recite.offer(deck);
 }
 /* Génération locale (sans IA) à partir d'un texte, en cinq langues */
 const DEF_VERBS = 'est|sont|désigne|désignent|correspond à|correspondent à|signifie|permet de|permettent de|a lieu|se déroule|fixe|produit|is|are|means|refers to|allows|takes place|occurs|produces|fixes|releases|es|son|significa|designa|permite|permiten|tiene lugar|ocurre|produce|fija|libera|ist|sind|bedeutet|bezeichnet|ermöglicht|findet|erzeugt|fixiert|é|são|designa|ocorre|produz|fixa|libera';
@@ -11553,6 +11729,608 @@ Object.assign(Actions, {
 // Après son introduction, une nouvelle fiche revient en moyenne à J+1, J+3, J+9, J+25.
 const ECHO = [[1, 0.35], [3, 1], [9, 0.9], [25, 0.8]];
 const STUDY_HOUR = { morning: [7, 30], noon: [12, 30], evening: [18, 30], night: [21, 30] };
+/* ════════════════════════════════════════════════════════════════════
+   RÉCITATION ORALE (Élite)
+   · On choisit un cours : un paquet (ses fiches) ou sa fiche de cours.
+     L'IA en tire 8 à 15 points clés, ce qu'une bonne restitution orale
+     doit contenir ; ils sont gardés par paquet avec l'empreinte du texte
+     et ne sont refaits que si le cours change.
+   · L'élève récite à voix haute (reconnaissance continue, dans la langue
+     du paquet), avec pause et chronomètre. Sans micro (aperçu, permission
+     refusée, navigateur qui n'écoute pas), il écrit sa restitution.
+   · L'IA corrige le SENS, pas les mots : chaque point acquis, partiel ou
+     manquant, avec les mots de l'élève cités (vérifiés ici), les erreurs
+     relevées, deux ou trois conseils. Le score sur 100 est calculé ici,
+     d'après les points pondérés et les erreurs.
+   · Progression : record et historique par paquet (S.profile.recite),
+     paliers Bronze, Argent, Or, Maîtrisé, XP au journal du jour (l.rec
+     compte les récitations), fête au nouveau record ou dès 90.
+     « Réessayer » relance une restitution complète ; « Les points
+     manqués » les fait relire, puis réciter seuls.
+   · Pour les autres écrans : Recite.open({ deckId, onDone }) et
+     Recite.best(deckId).
+   ════════════════════════════════════════════════════════════════════ */
+const RC_TIERS = [
+  { k: 'bronze', min: 0, name: N_('Bronze'), c: '#CB8A55', c2: '#6B3B17' },
+  { k: 'silver', min: 60, name: N_('Argent'), c: '#D3D8DF', c2: '#646B75' },
+  { k: 'gold', min: 80, name: N_('Or'), c: '#F2D27E', c2: '#906820' },
+  { k: 'master', min: 90, name: N_('Maîtrisé'), c: '#62C9A0', c2: '#14563D' }
+];
+const RC_MARK = { ok: N_('Acquis@@récitation'), part: N_('Partiel'), miss: N_('Manquant') };
+const rcTier = s => RC_TIERS.reduce((a, x) => s >= x.min ? x : a, RC_TIERS[0]);
+const rcStr = (v, n) => (typeof v === 'string' || typeof v === 'number' ? String(v) : '').replace(/\s+/g, ' ').trim().slice(0, n);
+const rcClock = ms => { const s = Math.max(0, Math.floor(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+const rcWords = s => (String(s || '').match(/\S+/g) || []).length;
+/** Les mots cités par l'IA ont-ils vraiment été dits ? (aux accents, à la ponctuation et à quelques mots près) */
+function rcSaid(q, said) {
+  const a = normTxt(q), b = normTxt(said); if (!a || !b) return false;
+  if (b.includes(a)) return true;
+  const ws = a.split(' ').filter(w => w.length > 2), bag = new Set(b.split(' '));
+  return ws.length > 0 && ws.filter(w => bag.has(w)).length / ws.length >= 0.75;
+}
+/** Score sur 100 : points pondérés (acquis 1, partiel ½), moins 5 par erreur (15 au plus). */
+function rcScore(points, marks, errors = 0) {
+  const by = new Map(marks.map(x => [x.id, x.s])), W = points.reduce((a, p) => a + p.w, 0) || 1;
+  const got = points.reduce((a, p) => a + p.w * (by.get(p.id) === 'ok' ? 1 : by.get(p.id) === 'part' ? 0.5 : 0), 0);
+  return clamp(Math.round(100 * got / W - Math.min(15, errors * 5)), 0, 100);
+}
+let rcN = 0;
+/** Médaille d'un palier : métal frappé, grènetis, une à trois étoiles, ou la couronne. */
+function rcMedal(tier, size = 52, dim = false) {
+  const id = 'rcm' + (++rcN), n = { bronze: 1, silver: 2, gold: 3 }[tier.k] || 0;
+  const star = (cx, cy, r) => `<polygon points="${Array.from({ length: 10 }, (_, i) => { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r; return (cx + Math.cos(a) * rr).toFixed(1) + ',' + (cy + Math.sin(a) * rr).toFixed(1); }).join(' ')}"/>`;
+  const xs = n === 1 ? [50] : n === 2 ? [39, 61] : [31, 50, 69];
+  const glyph = n ? `<g fill="rgba(255,250,236,.94)" stroke="rgba(0,0,0,.28)" stroke-width=".9">${xs.map((x, i) => star(x, n === 3 && i === 1 ? 46 : 51, n === 1 ? 15 : n === 2 ? 12 : 10)).join('')}</g>`
+    : `<g transform="translate(29 27) scale(1.75)" fill="none" stroke="rgba(255,250,236,.96)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${I.crown}</g>`;
+  return `<svg class="rc-medal ${dim ? 'dim' : ''}" viewBox="0 0 100 100" width="${size}" height="${size}" aria-hidden="true"><defs><radialGradient id="${id}" cx="36%" cy="30%" r="78%"><stop offset="0" stop-color="#fff" stop-opacity=".6"/><stop offset=".2" stop-color="${tier.c}"/><stop offset="1" stop-color="${tier.c2}"/></radialGradient></defs>
+    <circle cx="50" cy="50" r="46" fill="url(#${id})"/><circle cx="50" cy="50" r="45" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="2"/><circle cx="50" cy="50" r="37.5" fill="none" stroke="rgba(255,250,236,.45)" stroke-width="1.3" stroke-dasharray="2 2.6"/>${glyph}</svg>`;
+}
+/** Jauge en demi-cercle : le score, les paliers 60, 80 et 90, l'ancien record (point rouge). */
+function rcGauge(score, tier, prev = null) {
+  const R = 100, cx = 120, cy = 128, L = Math.PI * R, id = 'rcg' + (++rcN), arc = `M${cx - R} ${cy} A${R} ${R} 0 0 1 ${cx + R} ${cy}`;
+  const pt = (v, r) => { const a = Math.PI * (1 - v / 100); return [cx + Math.cos(a) * r, cy - Math.sin(a) * r].map(x => x.toFixed(1)); };
+  const tick = v => { const [x1, y1] = pt(v, R - 9), [x2, y2] = pt(v, R + 9); return `<line class="tk" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`; };
+  const rec = prev != null ? (([x, y]) => `<circle class="rb" cx="${x}" cy="${y}" r="4.5"/>`)(pt(prev, R + 17)) : '';
+  return `<div class="rc-gauge" role="img" aria-label="${esc(t('Score : {s} sur 100', { s: score }))}"><svg viewBox="0 0 240 142" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" x2="1"><stop offset="0" stop-color="${tier.c2}"/><stop offset="1" stop-color="${tier.c}"/></linearGradient></defs>
+    <path class="tr" d="${arc}" fill="none" stroke-width="16" stroke-linecap="round"/>
+    <path class="rv" d="${arc}" fill="none" stroke="url(#${id})" stroke-width="16" stroke-linecap="round" stroke-dasharray="${L.toFixed(1)}" stroke-dashoffset="${L.toFixed(1)}" data-off="${(L * (1 - score / 100)).toFixed(1)}"/>
+    ${[60, 80, 90].map(tick).join('')}${rec}</svg>
+    <div class="rc-num"><b class="tnum count" data-to="${score}">0</b><small>/100</small></div></div>`;
+}
+
+const Recite = {
+  deckId: null, phase: 'ready', mode: 'voice', src: '', kp: null, text: '', live: '', ms: 0, t0: 0, iv: 0, rec: null, tok: 0,
+  focus: null, base: null, result: null, err: '', why: '', noMic: '', paused: false, fresh: true, prep: null, job: null, late: null, cb: null,
+  get Rec() { return window.SpeechRecognition || window.webkitSpeechRecognition || null; },
+
+  /* ── Pour les autres écrans ── */
+  /** Ouvre la récitation d'un paquet (sans paquet : le choix du cours). onDone(score, détails) suit chaque récitation corrigée de ce paquet. */
+  open({ deckId = null, noteId = null, onDone = null } = {}) {
+    if (!Pro.expert) { Pro.upsell('recite'); return false; }
+    this.cb = deckId && typeof onDone === 'function' ? { id: deckId, fn: onDone } : null;
+    if (deckId) this.setDeck(deckId);
+    if (noteId && noteId !== this.src && !['rec', 'grading'].includes(this.phase)) Object.assign(this, { src: noteId, kp: null, phase: 'ready', result: null, focus: null });
+    App.go('recite', deckId);
+    return true;
+  },
+  /** Le record d'un paquet sur 100, ou null tant qu'il n'a pas été récité en entier. */
+  best(deckId) { const b = S.profile.recite?.[deckId]?.best; return Number.isFinite(b) ? b : null; },
+  /** Après un scan rangé : proposer de réciter ce cours (Élite) ; ailleurs, le faire découvrir une fois. */
+  offer(d) {
+    if (!d || !AI.on || S.demo) return;
+    if (!Pro.expert) { if (S.profile.flags.rcTease) return; S.profile.flags.rcTease = 1; Store.touch('profile'); }
+    setTimeout(() => toastAct(t('Prêt à le dire avec vos mots ? Récitez ce cours à voix haute : l\'IA vous note sur le sens.'), 'mic', t('Réciter ce cours'), 'mic', () => Recite.open({ deckId: d.id }), 9000), 1400);
+  },
+
+  /* ── Données ── */
+  /** Le dossier d'un paquet : record, récitations (la plus récente au bout), points clés en cache, points manqués. */
+  data(id, make) {
+    let all = isObj(S.profile.recite) ? S.profile.recite : null;
+    if (!all) { if (!make) return { best: null, runs: [] }; all = S.profile.recite = {}; }
+    let r = all[id];
+    if (!isObj(r)) {
+      if (!make) return { best: null, runs: [] };
+      // Les dossiers de paquets supprimés partent quand il y en a trop.
+      const keys = Object.keys(all); if (keys.length > 60) keys.filter(k => !deckById(k)).forEach(k => delete all[k]);
+      r = all[id] = { best: null, runs: [] };
+    }
+    if (!Array.isArray(r.runs)) r.runs = [];
+    if (!Number.isFinite(r.best)) r.best = null;
+    return r;
+  },
+  sheets(d) { return (d?.notes || []).filter(n => n.kind === 'course' && n.md).slice(0, 4); },
+  /** Le texte à restituer : la fiche de cours choisie (la plus récente par défaut), sinon les fiches du paquet. */
+  source(d) {
+    const shs = this.sheets(d), sh = this.src === 'cards' ? null : shs.find(n => n.id === this.src) || shs[0] || null;
+    const text = sh ? docPlain(sh.md).slice(0, 40000) : deckContext(d, 24000);
+    return { sh, text, kind: sh ? 'sheet' : 'cards', h: (sh ? 'S' + hash(sh.id + sh.md) : 'C' + hash(text)).toString(36) + '.' + (d.lang || '') };
+  },
+  cached(d, s = this.source(d)) { const kp = this.data(d.id).kp; return (Array.isArray(kp) ? kp : []).find(x => isObj(x) && x.h === s.h && Array.isArray(x.points) && x.points.length >= 3) || null; },
+  /** L'IA prépare les points clés (une fois par version du cours). */
+  async prepare(force) {
+    const d = deckById(this.deckId); if (!d || !AI.on || !Pro.expert || ['rec', 'grading'].includes(this.phase)) return;
+    const s = this.source(d);
+    if (!force) { const c = this.cached(d, s); if (c) { this.kp = c; this.setPhase('ready'); return; } }
+    if (s.text.replace(/\s+/g, ' ').trim().length < 60) { this.kp = null; this.setPhase('thin'); return; }
+    if (this.prep?.h === s.h && this.prep.id === d.id) return; // déjà demandé
+    this.prep?.ctl.abort();
+    const job = this.prep = { id: d.id, h: s.h, ctl: new AbortController() };
+    this.kp = null; this.result = null; this.focus = null; this.setPhase('prep');
+    try {
+      const raw = await AI.json(this.kpPrompt(d, s), { ...Brain.opts('tutor'), purpose: 'recite', cache: false, signal: job.ctl.signal });
+      const kp = this.cleanKP(raw); if (!kp) throw { code: 'invalid_json' };
+      Object.assign(kp, { h: s.h, at: Date.now() });
+      const r = this.data(job.id, true); r.kp = [kp, ...(Array.isArray(r.kp) ? r.kp : []).filter(x => isObj(x) && x.h !== s.h)].slice(0, 2);
+      Store.touch('profile');
+      if (this.prep !== job) return; this.prep = null;
+      if (this.deckId === job.id && this.phase === 'prep') { this.kp = kp; this.setPhase('ready'); }
+    } catch (e) {
+      if (this.prep !== job) return; this.prep = null;
+      if (e?.code === 'cancelled' || this.deckId !== job.id) return;
+      this.err = AI.fail(e) || t("Connexion à l'IA interrompue. Réessayez."); this.setPhase('prepfail');
+    }
+  },
+  kpPrompt(d, s) {
+    return `You prepare an ORAL RECITATION exercise. The student will recite this course aloud, from memory and in their own words, as in front of an examiner. List the KEY POINTS that a good oral restitution must contain: the essentials, not the details.
+LEARNER: ${Brain.who()}.
+RULES:
+- 8 to 15 points (fewer for a short course), in the logical order of the course.
+- One idea per point: a definition, a mechanism, a cause and its consequence, a law with its condition of validity, a key date or figure, a step of a method.
+- "label": 2 to 7 words naming the idea, like a heading.
+- "detail": one sentence (at most 30 words) saying precisely what the student must express, so that a recitation can be judged by its meaning.
+- "weight": 3 = central idea of the course, 2 = important, 1 = useful detail.
+- Write labels and details in ${langNameEn(d.lang || LANG)}, the language of the course. Use only the material below; invent nothing.
+Reply with only a JSON object of this exact shape:
+{"title": "short title of the course", "points": [{"label": "…", "detail": "…", "weight": 3}]}
+
+${s.kind === 'sheet' ? 'COURSE SHEET' : 'FLASHCARDS OF THE DECK (question → answer)'} "${d.name}":
+"""
+${s.text}
+"""`;
+  },
+  cleanKP(raw) {
+    const list = Array.isArray(raw?.points) ? raw.points : Array.isArray(raw) ? raw : [];
+    const points = list.filter(isObj).map(p => ({ label: rcStr(p.label, 90), detail: rcStr(p.detail, 300), w: clamp(Math.round(+p.weight) || 2, 1, 3) }))
+      .filter(p => p.label && p.detail).slice(0, 15).map((p, i) => ({ id: 'p' + (i + 1), ...p }));
+    return points.length >= 3 ? { title: rcStr(raw?.title, 120), points } : null;
+  },
+
+  /* ── L'écran ── */
+  setDeck(id) {
+    if (id === this.deckId) return;
+    this.halt();
+    Object.assign(this, { deckId: id, phase: 'ready', src: '', kp: null, text: '', live: '', ms: 0, t0: 0, focus: null, base: null, result: null, err: '', why: '', paused: false, fresh: true });
+    if (!id) return;
+    if (this.job?.id === id) Object.assign(this, { phase: 'grading', text: this.job.text, kp: this.job.kp, focus: this.job.focus });
+    else if (this.late?.id === id) Object.assign(this, { phase: 'result', kp: this.late.kp, result: this.late });
+    if (this.late?.id === id) this.late = null;
+  },
+  setPhase(p, scroll) {
+    this.phase = p; this.fresh = true; this.paint();
+    if (scroll) $('#rcStage')?.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'start' });
+  },
+  /** Redessine la scène et le côté sans recharger la page (le reste ne bouge pas). */
+  paint() {
+    if (App.route.v !== 'recite') return;
+    const d = deckById(this.deckId), st = $('#rcStage'), sd = $('#rcSide');
+    if (!d || !st || App.route.arg !== d.id) { App.render(); return; }
+    st.innerHTML = this.stageHTML(d); if (sd) sd.innerHTML = this.sideHTML(d);
+    this.fresh = false; Motion.wake(st); if (sd) Motion.wake(sd);
+  },
+  bind() {
+    const root = $('#view .view'); if (!root) return;
+    this.fresh = false;
+    if (AI.status === 'checking') { const go = () => { if (App.route.v !== 'recite') return; if (AI.status === 'checking') { setTimeout(go, 400); return; } App.render(); }; setTimeout(go, 400); }
+    root.addEventListener('click', e => {
+      const s = e.target.closest('[data-rcsrc]'); if (s) { this.pick(s.dataset.rcsrc); return; }
+      const b = e.target.closest('[data-rc]'); if (b) this.act(b.dataset.rc);
+    });
+    root.addEventListener('input', e => {
+      if (e.target.id !== 'rcText') return;
+      this.text = e.target.value;
+      if (this.phase === 'rec' && this.mode === 'type' && this.paused) { this.paused = false; this.t0 = Date.now(); this.tick(); }
+      const w = $('#rcWords'); if (w) w.textContent = plural(rcWords(this.text), 'mot|mots');
+    });
+    root.addEventListener('keydown', e => { if (e.target.id === 'rcText' && e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); this.act(this.phase === 'gradefail' ? 'regrade' : 'finish'); } });
+    if (!this.deckId || !Pro.expert || !AI.on) return;
+    if (this.phase === 'rec' && !this.paused) this.tick();
+    if (!this.kp && ['ready', 'prep'].includes(this.phase)) this.prepare();
+  },
+  act(k) {
+    if (k === 'start') return this.begin(this.Rec && !this.noMic ? 'voice' : 'type');
+    if (k === 'type') return this.phase === 'rec' ? this.toType('choice') : this.begin('type');
+    if (k === 'voice') return this.toVoice();
+    if (k === 'pause') return this.pause();
+    if (k === 'resume') return this.resume();
+    if (k === 'finish') return this.finish();
+    if (k === 'restart') { this.halt(); Object.assign(this, { text: '', live: '', ms: 0, t0: 0, paused: false }); return this.setPhase(this.focus ? 'focus' : 'ready'); }
+    if (k === 'again') { Object.assign(this, { focus: null, base: null, result: null }); return this.setPhase('ready', true); }
+    if (k === 'focus') return this.toFocus();
+    if (k === 'back') { this.focus = null; this.base = null; return this.setPhase(this.result ? 'result' : 'ready'); }
+    if (k === 'regrade') { const ta = $('#rcText'); if (ta) this.text = ta.value; if (rcWords(this.text) < 3) return; this.setPhase('grading'); return this.grade(); }
+    if (k === 'redo') return this.prepare(true);
+  },
+  pick(src) {
+    if (['rec', 'grading', 'prep'].includes(this.phase) || src === this.src) return;
+    const d = deckById(this.deckId); if (!d) return;
+    Object.assign(this, { src, result: null, focus: null, base: null });
+    this.kp = this.cached(d); this.setPhase('ready');
+    if (!this.kp) this.prepare();
+  },
+  /** Les points à reprendre : ceux du dernier résultat, ou ceux gardés de la dernière fois. */
+  toFocus() {
+    const d = deckById(this.deckId), kp = this.kp; if (!d || !kp) return;
+    let base = this.result?.kp === kp ? this.result.all : null;
+    if (!base) { const r = this.data(d.id), ids = r.miss?.h === kp.h && Array.isArray(r.miss.ids) ? r.miss.ids : []; base = kp.points.map(p => ({ id: p.id, s: ids.includes(p.id) ? 'miss' : 'ok', q: '', note: '' })); }
+    const ids = base.filter(x => x.s !== 'ok' && kp.points.some(p => p.id === x.id)).map(x => x.id);
+    if (!ids.length) return;
+    Object.assign(this, { focus: ids, base }); this.setPhase('focus', true);
+  },
+
+  /* ── Réciter ── */
+  begin(mode) {
+    if (!this.kp) return;
+    this.halt();
+    Object.assign(this, { phase: 'rec', mode, text: '', live: '', ms: 0, t0: Date.now(), paused: false, result: null, err: '', fresh: true,
+      why: mode === 'type' ? this.noMic || (this.Rec ? 'choice' : 'none') : '' });
+    if (mode === 'type' && !this.Rec) this.noMic = 'none';
+    Sound.play('tick'); haptic(15);
+    this.paint(); this.tick();
+    if (mode === 'voice') this.listen();
+    else setTimeout(() => $('#rcText')?.focus({ preventScroll: true }), 80);
+    $('#rcStage')?.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'nearest' });
+  },
+  listen() {
+    const Rec = this.Rec, d = deckById(this.deckId);
+    if (!Rec || !d) { this.toType('none'); return; }
+    const tok = ++this.tok, r = new Rec();
+    r.lang = speechLang(d.lang); r.continuous = true; r.interimResults = true; r.maxAlternatives = 1;
+    r.onresult = e => {
+      if (tok !== this.tok) return;
+      if (App.route.v !== 'recite') { this.halt(); return; }
+      let live = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) { const x = e.results[i]; if (x.isFinal) this.add(x[0].transcript); else live += x[0].transcript; }
+      this.live = live.trim(); this.draw();
+    };
+    r.onerror = e => {
+      if (tok !== this.tok) return;
+      if (['not-allowed', 'service-not-allowed'].includes(e.error)) this.toType('denied');
+      else if (e.error === 'audio-capture') this.toType('nomic');
+      else if (e.error === 'network') this.toType('network');
+    };
+    r.onend = () => {
+      if (tok !== this.tok) return;
+      this.rec = null;
+      if (this.paused || this.phase !== 'rec' || this.mode !== 'voice') { if (this.live) { this.add(this.live); this.live = ''; this.draw(); } return; }
+      // La reconnaissance s'arrête d'elle-même (un silence, une minute écoulée) : elle repart tant que l'élève récite ; page cachée, on met en pause.
+      if (document.hidden || App.route.v !== 'recite') { this.pause(); return; }
+      setTimeout(() => { if (tok === this.tok && this.phase === 'rec' && !this.paused && this.mode === 'voice') this.listen(); }, 250);
+    };
+    try { r.start(); this.rec = r; } catch { this.toType('none'); }
+  },
+  /** Une phrase entendue : majuscule, point final, ajoutée au texte. */
+  add(seg) {
+    seg = String(seg || '').trim(); if (!seg) return;
+    seg = cap(seg); if (!/[.!?…:;,]$/.test(seg)) seg += '.';
+    this.text = (this.text.trim() ? this.text.trim() + ' ' : '') + seg;
+  },
+  draw() {
+    const ta = $('#rcText'); if (ta && document.activeElement !== ta) { ta.value = this.text; ta.scrollTop = ta.scrollHeight; }
+    const lv = $('#rcLive'); if (lv) lv.textContent = this.live || (this.paused ? t('Touchez le micro pour reprendre. Vous pouvez corriger le texte.') : t('À l\'écoute…'));
+    const w = $('#rcWords'); if (w) w.textContent = plural(rcWords(this.text + ' ' + this.live), 'mot|mots');
+  },
+  elapsed() { return this.ms + (this.t0 ? Date.now() - this.t0 : 0); },
+  /** Le chrono (et la garde : hors de la page, la récitation se met en pause). */
+  tick() {
+    clearInterval(this.iv);
+    this.iv = setInterval(() => {
+      if (App.route.v !== 'recite' || this.phase !== 'rec') { if (this.phase === 'rec') this.halt(); else { clearInterval(this.iv); this.iv = 0; } return; }
+      const el = $('#rcTime'); if (el) el.textContent = rcClock(this.elapsed());
+    }, 500);
+  },
+  /** Coupe le micro et le chrono ; le texte reste (on peut revenir et reprendre). */
+  halt() {
+    this.tok++; const r = this.rec; this.rec = null; try { r?.abort(); } catch { }
+    clearInterval(this.iv); this.iv = 0;
+    if (this.phase === 'rec') { if (this.t0) { this.ms += Date.now() - this.t0; this.t0 = 0; } this.paused = true; }
+    if (this.live) { this.add(this.live); this.live = ''; }
+  },
+  pause() {
+    if (this.phase !== 'rec' || this.paused) return;
+    this.paused = true; if (this.t0) { this.ms += Date.now() - this.t0; this.t0 = 0; }
+    // stop() et non abort() : les derniers mots entendus arrivent encore, puis la fin.
+    const r = this.rec; this.rec = null; try { r?.stop(); } catch { }
+    clearInterval(this.iv); this.iv = 0; Sound.play('tick'); this.paint();
+  },
+  resume() {
+    if (this.phase !== 'rec' || !this.paused) return;
+    const ta = $('#rcText'); if (ta) this.text = ta.value;
+    Object.assign(this, { paused: false, t0: Date.now() });
+    this.paint(); this.tick();
+    if (this.mode === 'voice') this.listen();
+  },
+  toType(why) {
+    this.tok++; const r = this.rec; this.rec = null; try { r?.abort(); } catch { }
+    if (this.live) { this.add(this.live); this.live = ''; }
+    if (why !== 'choice') this.noMic = why;
+    Object.assign(this, { mode: 'type', why });
+    if (this.phase === 'rec' && this.paused) { this.paused = false; this.t0 = Date.now(); this.tick(); }
+    this.paint();
+    setTimeout(() => { const ta = $('#rcText'); if (ta) { ta.focus({ preventScroll: true }); ta.setSelectionRange(ta.value.length, ta.value.length); } }, 60);
+  },
+  toVoice() {
+    if (!this.Rec || this.noMic || this.phase !== 'rec') return;
+    const ta = $('#rcText'); if (ta) this.text = ta.value;
+    Object.assign(this, { mode: 'voice', why: '' });
+    if (this.paused) { this.paused = false; this.t0 = Date.now(); this.tick(); }
+    this.paint(); this.listen();
+  },
+  finish() {
+    if (this.phase !== 'rec' || !this.kp) return;
+    const ta = $('#rcText'); if (ta && !ta.readOnly) this.text = ta.value;
+    if (rcWords(this.text + ' ' + this.live) < (this.focus ? 5 : 12)) { toast(t('Dites-en un peu plus : quelques phrases au moins, pour que l\'IA ait de quoi juger.'), 'mic'); return; }
+    this.halt(); this.paused = false;
+    Sound.play('flip'); this.setPhase('grading');
+    this.grade();
+  },
+
+  /* ── Corriger ── */
+  async grade() {
+    const d = deckById(this.deckId), kp = this.kp; if (!d || !kp) return;
+    const pts = this.focus ? kp.points.filter(p => this.focus.includes(p.id)) : kp.points;
+    const job = this.job = { id: d.id, kp, focus: this.focus, base: this.base, text: this.text.trim(), ms: this.ms, words: rcWords(this.text), ctl: new AbortController() };
+    try {
+      const raw = await AI.json(this.gradePrompt(d, pts, job.text, !!job.focus), { ...Brain.opts('tutor'), purpose: 'recite', cache: false, signal: job.ctl.signal });
+      const res = this.cleanGrade(raw, pts, job.text); if (!res) throw { code: 'invalid_json' };
+      if (this.job !== job) return; this.job = null;
+      this.done(job, res);
+    } catch (e) {
+      if (this.job !== job) return; this.job = null;
+      if (e?.code === 'cancelled') return;
+      const msg = AI.fail(e) || t("Connexion à l'IA interrompue. Réessayez.");
+      if (this.deckId === job.id) { this.err = msg; this.setPhase('gradefail'); } else toast(msg, 'mic');
+    }
+  },
+  gradePrompt(d, pts, said, focus) {
+    return `You grade an ORAL RECITATION. A student recited a course from memory, in their own words. The text below is an automatic speech transcription (or what they typed): expect missing punctuation, homophones and misheard words, and never penalise them; judge only the MEANING.
+${Brain.brief('grade')}
+Judge meaning, not wording: synonyms, reformulations, another order and examples of their own are fine. For each key point:
+- "covered": the essential idea is there and correct, even briefly;
+- "partial": the idea is touched but vague, incomplete or missing a key element;
+- "missing": absent, or only a keyword without the idea.
+A WRONG statement (factual error, confusion between notions) never counts as covered: list it in "errors".${focus ? '\nThis is a second try: the student recited ONLY the points below, which they had missed before.' : ''}
+
+COURSE "${d.name}" — KEY POINTS (id: label — what is expected):
+${pts.map(p => `${p.id}: ${p.label} — ${p.detail}`).join('\n')}
+
+STUDENT'S RECITATION:
+"""
+${said.slice(0, 20000)}
+"""
+
+Reply with only a JSON object of this exact shape:
+{"points": [{"id": "p1", "status": "covered" | "partial" | "missing", "quote": "the student's words that express this point, copied exactly from the recitation (at most 25 words), or an empty string", "note": "for partial or missing: what is missing or wrong, at most 18 words; empty if covered"}], "errors": [{"quote": "the student's wrong words, copied exactly", "fix": "the correct statement, at most 25 words"}], "tips": ["2 or 3 concrete tips for the next recitation, at most 22 words each"], "comment": "one honest, encouraging sentence about the recitation as a whole"}
+One entry per key point, in the same order and with the same ids. "note", "fix", "tips" and "comment" are written in ${aiLang()}; quotes stay in the student's own words. "errors" is empty when nothing is wrong.`;
+  },
+  /** Réponse de l'IA vérifiée : un statut connu par point, des citations vraiment dites, le score calculé ici. */
+  cleanGrade(raw, pts, said) {
+    if (!isObj(raw) || !Array.isArray(raw.points)) return null;
+    const list = raw.points.filter(isObj), byId = new Map(list.map(p => [rcStr(p.id, 12).toLowerCase(), p]));
+    const st = v => { v = normTxt(v); return /^(covered|couvert|acquis|ok|correct|present|yes|full)/.test(v) ? 'ok' : /^(partial|partiel|partly|incomplete|incomplet)/.test(v) ? 'part' : 'miss'; };
+    const cite = q => { q = rcStr(q, 240).replace(/^["«“„\s]+|["»”\s]+$/g, ''); return q && rcSaid(q, said) ? q : ''; };
+    const points = pts.map((p, i) => {
+      const r = byId.get(p.id) || (list.length === pts.length ? list[i] : null), s = r ? st(r.status) : 'miss';
+      return { id: p.id, s, q: r ? cite(r.quote) : '', note: r && s !== 'ok' ? rcStr(r.note, 220) : '' };
+    });
+    // Aucun statut reconnaissable : ce n'est pas une correction, on la refuse plutôt que de noter 0.
+    if (!list.length || !list.some(p => typeof p.status === 'string' && p.status.trim())) return null;
+    const errors = (Array.isArray(raw.errors) ? raw.errors : []).filter(isObj).map(e => ({ q: cite(e.quote), fix: rcStr(e.fix, 260) })).filter(e => e.fix).slice(0, 4);
+    let tips = (Array.isArray(raw.tips) ? raw.tips : []).map(x => rcStr(x, 240)).filter(Boolean).slice(0, 3);
+    if (!tips.length) tips = points.filter(x => x.s !== 'ok').slice(0, 2).map(x => t('Pensez à : {x}.', { x: pts.find(p => p.id === x.id).label }));
+    return { points, errors, tips, comment: rcStr(raw.comment, 280), score: rcScore(pts, points, errors.length) };
+  },
+  /** Le résultat compte : historique, record, points manqués, XP au journal du jour, et la fête s'il y a lieu. */
+  done(job, res) {
+    const r = this.data(job.id, true), prev = r.best, L0 = level().i, now = Date.now();
+    let all = res.points, score = res.score;
+    if (job.focus) {
+      // Seconde chance : les points déjà acquis le restent, ceux repris sont rejugés.
+      const m = new Map(res.points.map(x => [x.id, x]));
+      all = job.kp.points.map(p => m.get(p.id) || job.base?.find(x => x.id === p.id) || { id: p.id, s: 'miss', q: '', note: '' });
+      score = rcScore(job.kp.points, all, res.errors.length);
+    }
+    const full = !job.focus, best = full && (prev == null || score > prev), master = full && score >= 90 && !(prev >= 90);
+    const xp = full ? 5 + Math.round(score / 4) + (best && prev != null ? 10 : 0) + (master ? 10 : 0) : Math.min(15, 3 + 3 * res.points.filter(x => x.s === 'ok').length);
+    r.runs.push({ at: now, score, ...(full ? {} : { f: 1 }), s: Math.round(job.ms / 1000), w: job.words });
+    if (r.runs.length > 40) r.runs.splice(0, r.runs.length - 40);
+    if (best) r.best = score;
+    if (full || r.miss?.h === job.kp.h) r.miss = { h: job.kp.h, ids: all.filter(x => x.s !== 'ok').map(x => x.id) };
+    // L'XP passe par le journal du jour (le total en est recalculé) ; l.rec compte les récitations.
+    const k = dayKey(), l = S.profile.log[k] || (S.profile.log[k] = { r: 0, ok: 0, ms: 0, n: 0, xp: 0 });
+    l.xp = (l.xp || 0) + xp; l.rec = (l.rec || 0) + 1; S.profile.xp += xp;
+    Store.touch('profile');
+    const out = { ...res, id: job.id, kp: job.kp, focus: job.focus, all, score, full, best, prev, xp, ms: job.ms, tier: rcTier(score), at: now };
+    try { if (this.cb?.id === job.id) this.cb.fn(score, { deckId: job.id, best: r.best, tier: out.tier.k, focus: !full }); } catch { }
+    const L = level(); if (L.i > L0 && !S.demo) setTimeout(() => { Sound.play('seal'); toast(t('Niveau {i} atteint : {name}', { i: L.i + 1, name: L.name }), null, waxSeal({ id: 'lvl' + L.i, glyph: String(L.i + 1), color: '#7A4E14' }, 40, 'wax')); }, 2600);
+    if (App.route.v === 'recite' && this.deckId === job.id) { Object.assign(this, { result: out, focus: null, base: null }); this.setPhase('result'); this.celebrate(out); }
+    else { this.late = out; toastAct(t('Récitation corrigée : {s}/100', { s: score }), 'mic', t('Voir'), 'eye', () => App.go('recite', job.id), 9000); }
+  },
+  /** Nouveau record ou 90 et plus : tampon, sceau, confettis (sauf animations réduites). */
+  celebrate(R) {
+    const big = R.full && (R.best && R.prev != null || R.score >= 90), first = R.full && R.best && R.prev == null;
+    setTimeout(() => Sound.play(big ? 'seal' : 'done'), 600);
+    if (!big && !first) return;
+    const st = $('#rcStamp');
+    if (st) {
+      st.innerHTML = stampSVG(R.score >= 90 ? t('MAÎTRISÉ') : first ? t('PREMIER RECORD') : t('NOUVEAU RECORD'), '#B8352A', fmtDate(R.at, { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase());
+      st.classList.add('on'); setTimeout(() => Sound.play('stamp'), 1050);
+    }
+    haptic(30);
+    if (!big || !Motion.some) return;
+    const box = document.createElement('div'); box.className = 'flakes'; box.style.width = document.documentElement.clientWidth + 'px'; document.body.append(box); setTimeout(() => box.remove(), 5600);
+    for (let i = 0; i < 38; i++) {
+      const f = document.createElement('i'); f.className = 'flake';
+      f.style.cssText = `left:${(Math.random() * 100).toFixed(1)}vw;--w:${(6 + Math.random() * 8).toFixed(1)}px;--x:${((Math.random() - .5) * 30).toFixed(1)}vw;--r:${Math.round(360 + Math.random() * 720)}deg;--d:${(2 + Math.random() * 1.8).toFixed(2)}s;--dl:${(.9 + Math.random() * .9).toFixed(2)}s`;
+      box.append(f);
+    }
+  },
+
+  /* ── Rendu ── */
+  headHTML(d) {
+    return `${d ? `<button class="btn btn-ghost btn-sm rise" style="align-self:flex-start" data-act="deck" data-id="${esc(d.id)}">${icon('back', 'i-sm')}${esc(d.name)}</button>` : ''}
+      <header class="rc-head${d ? ' slim' : ''} rise"><div class="kicker"><b>${t('Élite')}</b> · ${t('récitation orale')}</div><h1 class="display">${words(d ? t('Récitez <em>votre cours</em>.') : t('Récitez <em>vos cours</em>.'))}</h1>
+      <p class="lede">${t('Dites le cours avec vos mots, comme devant un examinateur : l\'IA vérifie que l\'essentiel y est, pas que vous l\'avez appris par cœur. Un score sur 100, un record à battre.')}</p></header>`;
+  },
+  hubHTML() {
+    const decks = S.decks.filter(d => d.cards.length || this.sheets(d).length);
+    return `${this.headHTML()}
+      <section class="sec rise"><div class="sec-h"><div><h2 class="h2">${t('Choisissez un cours')}</h2><p>${t('Un paquet de fiches, ou sa fiche de cours s\'il en a une. Votre record s\'affiche sur chacun.')}</p></div></div>
+      ${decks.length ? `<div class="rc-decks">${decks.map(d => { const b = this.best(d.id), sh = this.sheets(d).length; return `<button class="rc-deck" data-act="go" data-v="recite" data-arg="${esc(d.id)}" style="--c:${DECK_COLORS[d.color] || DECK_COLORS.brass}"><span class="rc-dk-t"><b>${esc(d.name)}</b><small>${plural(d.cards.length, 'fiche|fiches')}${sh ? ' · ' + t('fiche de cours') : ''}</small></span><span class="rc-dk-s">${b != null ? `${rcMedal(rcTier(b), 36)}<b class="tnum">${b}</b>` : `<em>${t('À réciter')}</em>`}</span></button>`; }).join('')}</div>`
+        : `<div class="empty"><div class="t">${t('Pas encore de cours')}</div><div>${t('Scannez ou importez un cours : vous pourrez ensuite le réciter.')}</div><button class="btn btn-brass" data-act="go" data-v="scan">${icon('camera')}${t('Scanner un cours')}</button></div>`}
+      </section>`;
+  },
+  /** Hors Élite : ce que fait la récitation, et un aperçu de résultat. */
+  lockHTML(d) {
+    const ex = [['ok', t('Définition exacte'), t('« C\'est le processus par lequel… »')], ['part', t('Le mécanisme, étape par étape'), ''], ['miss', t('Un exemple précis'), '']];
+    return `${this.headHTML(d)}
+      <article class="autopilot leather gilt-rule rise sc-lock"><span class="ap-dial">${icon('crown')}</span><div><b>${t('La récitation orale fait partie d\'Élite')}</b><span>${t('Scannez ou importez votre cours, puis récitez-le à voix haute : l\'IA vérifie le sens, pas les mots exacts, vous donne un score sur 100 à battre et vous montre précisément ce qui manque.')}</span></div><button class="btn btn-gilt" data-act="proTrial">${icon('sparkles')}${Pro.canTrial ? t('Essayer 14 jours') : t('Passer à Élite')}</button></article>
+      <section class="rc-demo rise" aria-hidden="true"><span class="kicker">${t('Exemple de résultat')}</span>
+        <article class="panel rc-score"><div class="rc-sc-g">${rcGauge(84, RC_TIERS[2], 71)}</div><div class="rc-sc-t"><div class="rc-tier">${rcMedal(RC_TIERS[2], 46)}<div><span class="kicker">${t('Votre restitution')}</span><b>${t('Or')}</b></div></div><div class="rc-chips"><span class="rc-xp">+36 XP</span><span class="rc-rec on">${icon('crown', 'i-sm')}${t('Nouveau record !')}</span></div><p class="rc-next muted">${t('Encore {n} points pour {x}.', { n: 6, x: t('Maîtrisé') })}</p></div></article>
+        <article class="panel"><ol class="rc-pts">${ex.map(([s, l, q], k) => `<li class="rc-pt ${s}" style="--k:${k}"><span class="rc-mk">${icon(s === 'ok' ? 'check' : s === 'part' ? 'minus' : 'x', 'i-sm')}</span><div><b>${l}</b>${q ? `<span class="rc-q">${q}</span>` : ''}</div></li>`).join('')}</ol></article>
+      </section>`;
+  },
+  noAIHTML(d) {
+    const st = AI.status, msg = st === 'checking' ? t('Connexion à l\'IA…') : st === 'denied' ? t("L'IA n'a pas été autorisée pour cette page.") : st === 'locked' ? t("Code d'accès au serveur IA manquant ou incorrect (Réglages → IA et Mentor).")
+      : AI.nokey ? t("Le serveur IA n'a pas de clé d'API valide (variable ANTHROPIC_API_KEY).") : t('L\'IA n\'est pas joignable ici : vérifiez votre connexion, ou l\'adresse du serveur IA dans les réglages.');
+    return `${this.headHTML(d)}
+      <article class="panel rc-noai rise"><span class="rc-quill">${st === 'checking' ? '<span class="thinking"><i></i><i></i><i></i></span>' : icon('sparkles')}</span><div><b>${t('La récitation a besoin de l\'IA')}</b><p>${esc(msg)}</p><p class="muted">${t('C\'est elle qui repère les points clés du cours et juge votre restitution sur le sens. Vos fiches, elles, restent utilisables sans IA.')}</p>
+      ${st === 'checking' ? '' : `<div class="rc-acts"><button class="btn" data-act="settings">${icon('settings')}${t('Réglages')}</button>${d ? `<button class="btn btn-ghost" data-act="study" data-deck="${esc(d.id)}">${icon('play')}${t('Réviser les fiches')}</button>` : ''}</div>`}</div></article>`;
+  },
+  pageHTML(d) {
+    return `${this.headHTML(d)}<section class="rc-grid"><div class="rc-main" id="rcStage">${this.stageHTML(d)}</div><aside class="rc-side" id="rcSide">${this.sideHTML(d)}</aside></section>`;
+  },
+  stageHTML(d) {
+    const ph = this.phase, rise = this.fresh ? ' rise' : '';
+    if (ph === 'thin') return `<article class="panel rc-desk${rise}"><div class="empty" style="padding:26px 8px"><div class="t">${t('Pas assez de cours à réciter')}</div><div>${t('Ajoutez des fiches ou une fiche de cours à ce paquet, puis revenez le réciter.')}</div></div><div class="rc-acts"><button class="btn btn-brass" data-act="go" data-v="scan">${icon('camera')}${t('Scanner un cours')}</button><button class="btn" data-act="addCard" data-deck="${esc(d.id)}">${icon('plus')}${t('Fiche')}</button></div></article>`;
+    if (ph === 'prepfail') return `<article class="panel rc-desk${rise}"><p class="rc-err-msg">${icon('alert', 'i-sm')}<span>${esc(this.err)}</span></p><div class="rc-acts"><button class="btn btn-brass" data-rc="redo">${icon('refresh')}${t('Réessayer')}</button></div></article>`;
+    if (!this.kp) return this.waitHTML(t('L\'IA repère l\'essentiel de votre cours…'), t('Les points clés qu\'une bonne restitution doit contenir. Une seule fois par cours.'), Array.from({ length: 6 }, () => ''), rise);
+    if (ph === 'focus') return this.focusHTML(rise);
+    if (ph === 'rec') return this.recHTML(d, rise);
+    if (ph === 'grading') return this.waitHTML(t('L\'IA compare votre restitution au cours, point par point…'), t('Le sens compte, pas les mots exacts.'), (this.focus ? this.kp.points.filter(p => this.focus.includes(p.id)) : this.kp.points).map(p => p.label), rise, true);
+    if (ph === 'gradefail') return `<article class="panel rc-desk${rise}"><p class="rc-err-msg">${icon('alert', 'i-sm')}<span>${esc(this.err)}</span></p><textarea class="rc-ta" id="rcText" aria-label="${esc(t('Votre restitution'))}">${esc(this.text)}</textarea><div class="rc-acts"><button class="btn btn-brass" data-rc="regrade">${icon('refresh')}${t('Relancer la correction')}</button><button class="btn btn-ghost" data-rc="restart">${icon('undo')}${t('Recommencer')}</button></div></article>`;
+    if (ph === 'result' && this.result) return this.resultHTML(d, this.result, rise);
+    return this.readyHTML(d, rise);
+  },
+  /** L'IA travaille : ce qu'elle fait, et la liste qu'elle parcourt. */
+  waitHTML(title, sub, rows, rise, said) {
+    return `<article class="panel rc-desk${rise}" aria-busy="true"><div class="rc-wait"><span class="rc-quill">${icon('sparkles')}</span><div><b>${title}</b><small>${sub}</small></div></div>
+      <ol class="rc-scan" aria-hidden="true">${rows.map((x, k) => `<li style="--k:${k}"><span class="rc-mk">${x ? icon('search', 'i-sm') : ''}</span>${x ? esc(x) : `<i style="width:${38 + (k * 17) % 45}%"></i>`}</li>`).join('')}</ol>
+      ${said && this.text ? `<details class="rc-said"><summary>${t('Votre restitution')} · ${plural(rcWords(this.text), 'mot|mots')}</summary><p>${esc(this.text)}</p></details>` : ''}</article>`;
+  },
+  noteHTML(why) {
+    const m = {
+      none: N_('Ce navigateur ne sait pas écouter (essayez Chrome, Edge ou Safari) : écrivez votre restitution comme vous la diriez à l\'oral. L\'IA la corrige de la même façon.'),
+      denied: N_('Le micro est refusé ou bloqué ici, ce qui arrive souvent dans l\'aperçu. Écrivez votre restitution comme vous la diriez à l\'oral : l\'IA la corrige de la même façon.'),
+      nomic: N_('Aucun micro n\'a été trouvé. Écrivez votre restitution comme vous la diriez à l\'oral : l\'IA la corrige de la même façon.'),
+      network: N_('La reconnaissance vocale a besoin d\'Internet. Écrivez votre restitution comme vous la diriez à l\'oral : l\'IA la corrige de la même façon.'),
+      choice: N_('Écrivez comme vous parleriez : des phrases complètes, sans regarder le cours.')
+    }[why];
+    return m ? `<p class="rc-note">${icon(why === 'choice' ? 'keyboard' : 'mic', 'i-sm')}<span>${t(m)}</span></p>` : '';
+  },
+  readyHTML(d, rise) {
+    const kp = this.kp, r = this.data(d.id), voice = !!this.Rec && !this.noMic, s = this.source(d);
+    const miss = r.miss?.h === kp.h && Array.isArray(r.miss.ids) ? r.miss.ids.filter(id => kp.points.some(p => p.id === id)) : [];
+    const last = r.runs.filter(x => !x.f).at(-1);
+    return `<article class="panel rc-desk${rise}">
+      <div class="rc-course"><span class="kicker">${t('Le cours à restituer')}</span><b>${esc(kp.title || d.name)}</b><small>${plural(kp.points.length, 'point clé|points clés')} · ${s.kind === 'sheet' ? t('d\'après la fiche de cours') : t('d\'après les fiches du paquet')}</small></div>
+      <button class="rc-mic" data-rc="${voice ? 'start' : 'type'}" aria-label="${esc(voice ? t('Commencer à réciter') : t('Écrire ma restitution'))}">${icon(voice ? 'mic' : 'keyboard')}</button>
+      <p class="rc-say">${t('Récitez le cours à voix haute, sans le regarder, comme devant un examinateur. Avec vos mots : c\'est le sens qui compte.')}</p>
+      ${r.best != null ? `<p class="rc-goal">${icon('target', 'i-sm')}<span>${t('Record à battre : {s}/100', { s: r.best })}${last ? ' · ' + t('dernier essai : {s}', { s: last.score }) : ''}</span></p>` : ''}
+      <div class="rc-acts">${voice ? `<button class="btn btn-brass btn-lg" data-rc="start">${icon('mic')}${t('Commencer à réciter')}</button><button class="btn btn-ghost" data-rc="type">${icon('keyboard')}${t('Écrire plutôt')}</button>` : `<button class="btn btn-brass btn-lg" data-rc="type">${icon('keyboard')}${t('Écrire ma restitution')}</button>`}</div>
+      ${miss.length ? `<button class="rc-redo" data-rc="focus">${icon('target', 'i-sm')}<span>${t('Reprendre seulement les points manqués la dernière fois')}</span><b class="tnum">${miss.length}</b></button>` : ''}
+      ${voice ? '' : this.noteHTML(this.noMic || 'none')}
+    </article>`;
+  },
+  focusHTML(rise) {
+    const pts = this.kp.points.filter(p => this.focus?.includes(p.id));
+    return `<article class="panel rc-desk${rise}">
+      <div class="rc-course"><span class="kicker">${t('Les points à reprendre')} · ${pts.length}</span><b>${t('Relisez-les, puis dites-les sans regarder.')}</b></div>
+      <ol class="rc-cards">${pts.map((p, k) => `<li style="--k:${k}"><b>${esc(p.label)}</b><span>${esc(p.detail)}</span></li>`).join('')}</ol>
+      <div class="rc-acts"><button class="btn btn-brass btn-lg" data-rc="start">${icon(this.Rec && !this.noMic ? 'mic' : 'keyboard')}${t('Je suis prêt : réciter ces points')}</button><button class="btn btn-ghost" data-rc="back">${t('Annuler')}</button></div>
+    </article>`;
+  },
+  recHTML(d, rise) {
+    const voice = this.mode === 'voice', on = voice && !this.paused, pts = this.focus ? this.kp.points.filter(p => this.focus.includes(p.id)) : null;
+    const can = !!this.Rec && !this.noMic;
+    return `<article class="panel rc-desk rec ${on ? 'on' : 'off'}${rise}">
+      <div class="rc-bar">
+        ${voice ? `<button class="rc-orb" data-rc="${on ? 'pause' : 'resume'}" aria-label="${esc(on ? t('Pause') : t('Reprendre'))}">${on ? '<span class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>' : icon('mic')}</button>` : `<span class="rc-orb">${icon('keyboard')}</span>`}
+        <div class="rc-st"><b>${voice ? (on ? `<span class="rec-dot"></span>${t('Je vous écoute…')}` : t('En pause')) : t('Écrivez votre restitution')}</b><small>${pts ? t('Seulement les points à reprendre') : esc(this.kp.title || d.name)}</small></div>
+        <div class="rc-meter"><b class="tnum" id="rcTime">${rcClock(this.elapsed())}</b><small class="tnum" id="rcWords">${plural(rcWords(this.text + ' ' + this.live), 'mot|mots')}</small></div>
+      </div>
+      ${pts ? `<div class="rc-targets">${pts.map(p => `<span class="chip">${esc(p.label)}</span>`).join('')}</div>` : ''}
+      <textarea class="rc-ta" id="rcText" ${on ? 'readonly' : ''} aria-label="${esc(t('Votre restitution'))}" placeholder="${esc(voice ? t('Parlez : vos phrases s\'écrivent ici.') : t('Écrivez ici ce que vous diriez à l\'oral…'))}">${esc(this.text)}</textarea>
+      ${voice ? `<p class="rc-live" id="rcLive" aria-live="polite">${esc(this.live || (on ? t('À l\'écoute…') : t('Touchez le micro pour reprendre. Vous pouvez corriger le texte.')))}</p>` : this.noteHTML(this.why || 'choice')}
+      <div class="rc-acts">
+        <button class="btn btn-brass btn-lg" data-rc="finish">${icon('check')}${t('J\'ai fini : corriger')}</button>
+        ${voice ? `<button class="btn" data-rc="${on ? 'pause' : 'resume'}">${icon(on ? 'pause' : 'play')}${on ? t('Pause') : t('Reprendre')}</button>` : ''}
+        <button class="btn btn-ghost" data-rc="restart">${icon('undo')}${t('Recommencer')}</button>
+        ${voice ? `<button class="btn btn-ghost" data-rc="type">${icon('keyboard')}${t('Écrire plutôt')}</button>` : can ? `<button class="btn btn-ghost" data-rc="voice">${icon('mic')}${t('Parler plutôt')}</button>` : ''}
+      </div></article>`;
+  },
+  resultHTML(d, R, rise) {
+    const pts = R.focus ? R.kp.points.filter(p => R.focus.includes(p.id)) : R.kp.points, by = new Map(R.points.map(x => [x.id, x]));
+    const n = { ok: 0, part: 0, miss: 0 }; for (const p of pts) n[by.get(p.id)?.s || 'miss']++;
+    const left = R.all.filter(x => x.s !== 'ok').length, next = RC_TIERS.find(x => x.min > R.score);
+    const head = R.focus ? t('{a} sur {b} repris', { a: n.ok, b: pts.length }) : R.best ? (R.prev == null ? t('Premier record') : t('Nouveau record !')) : R.prev != null ? t('Record : {s}', { s: R.prev }) : '';
+    const mark = s => icon(s === 'ok' ? 'check' : s === 'part' ? 'minus' : 'x', 'i-sm');
+    return `<article class="panel rc-score${rise}">
+      <div class="rc-sc-g">${rcGauge(R.score, R.tier, R.full && !R.best ? R.prev : null)}</div>
+      <div class="rc-sc-t">
+        <div class="rc-tier">${rcMedal(R.tier, 46)}<div><span class="kicker">${R.focus ? t('Score avec ces points') : t('Votre restitution')}</span><b>${esc(t(R.tier.name))}</b></div></div>
+        <div class="rc-chips"><span class="rc-xp">+${num(R.xp)} XP</span>${head ? `<span class="rc-rec ${R.best ? 'on' : ''}">${R.best ? icon('crown', 'i-sm') : ''}${esc(head)}</span>` : ''}<span class="rc-dur tnum">${icon('timer', 'i-sm')}${rcClock(R.ms)}</span></div>
+        ${R.comment ? `<p class="rc-comment">${esc(R.comment)}</p>` : ''}
+        <p class="rc-next muted">${R.focus ? t('Le record se bat sur une restitution complète : refaites-la quand vous êtes prêt.') : next ? t('Encore {n} points pour {x}.', { n: next.min - R.score, x: t(next.name) }) : t('Le plus haut palier. Gardez-le au fil des semaines.')}</p>
+        <div class="rc-acts"><button class="btn btn-brass" data-rc="again">${icon('flip')}${t('Réessayer')}</button>${left ? `<button class="btn" data-rc="focus">${icon('target')}${t('Les points manqués')} · ${left}</button>` : ''}<button class="btn btn-ghost" data-act="study" data-deck="${esc(d.id)}">${icon('play')}${t('Réviser les fiches')}</button></div>
+      </div>
+      <div class="rc-stamp" id="rcStamp" aria-hidden="true"></div>
+    </article>
+    <article class="panel rc-list${rise}">
+      <div class="panel-h"><h3 class="h3">${t('Point par point')}</h3><span class="rc-cnt">${['ok', 'part', 'miss'].map(s => `<span class="${s}" title="${esc(t(RC_MARK[s]))}">${mark(s)}${n[s]}<i class="sr">${esc(t(RC_MARK[s]))}</i></span>`).join('')}</span></div>
+      <ol class="rc-pts">${pts.map((p, k) => { const x = by.get(p.id) || { s: 'miss' }; return `<li class="rc-pt ${x.s}" style="--k:${k}"><span class="rc-mk" title="${esc(t(RC_MARK[x.s]))}">${mark(x.s)}</span><div><b>${esc(p.label)}</b>${x.q ? `<span class="rc-q">${esc(quote(x.q))}</span>` : ''}${x.s !== 'ok' ? `<span class="rc-exp"><em>${t('Attendu')}</em>${esc(p.detail)}</span>` : ''}${x.note ? `<small>${esc(x.note)}</small>` : ''}</div></li>`; }).join('')}</ol>
+    </article>
+    ${R.errors.length ? `<article class="panel rc-errs${rise}"><div class="panel-h"><h3 class="h3">${t('À corriger')}</h3><span class="tag red">${plural(R.errors.length, 'erreur|erreurs')}</span></div><ul>${R.errors.map(e => `<li>${e.q ? `<s>${esc(quote(e.q))}</s>` : ''}<span>${icon('arrow', 'i-sm')}${esc(e.fix)}</span></li>`).join('')}</ul></article>` : ''}
+    ${R.tips.length ? `<article class="pen-letter rc-tips${rise}"><b>${t('Pour la prochaine fois')}</b><ul>${R.tips.map(x => `<li>${esc(x)}</li>`).join('')}</ul></article>` : ''}`;
+  },
+  sideHTML(d) {
+    const r = this.data(d.id), best = r.best, tier = best != null ? rcTier(best) : null, next = tier ? RC_TIERS.find(x => x.min > best) : null;
+    const runs = r.runs.slice(-12), shs = this.sheets(d), s = this.source(d), busy = ['rec', 'grading', 'prep'].includes(this.phase);
+    const short = x => x.length > 30 ? x.slice(0, 29) + '…' : x;
+    return `<article class="panel rc-prog">
+      <div class="panel-h"><h3 class="h3">${t('Votre progression')}</h3><span class="kicker">${plural(r.runs.length, 'récitation|récitations')}</span></div>
+      <div class="rc-best">${rcMedal(tier || RC_TIERS[0], 64, !tier)}<div><span class="kicker">${t('Record')}</span>${best != null ? `<b class="big tnum">${best}<small>/100</small></b>` : `<b class="rc-none">${t('Pas encore de record')}</b>`}<span class="rc-bt">${tier ? esc(t(tier.name)) + (next ? ' · ' + t('{x} dès {n}', { x: t(next.name), n: next.min }) : '') : t('Récitez une première fois pour le fixer.')}</span></div></div>
+      <ol class="rc-ladder">${RC_TIERS.map(x => `<li class="${tier && best >= x.min ? 'got' : ''} ${tier?.k === x.k ? 'on' : ''}">${rcMedal(x, 30, !(tier && best >= x.min))}<b>${esc(t(x.name))}</b><small class="tnum">${x.min ? x.min + '+' : '0+'}</small></li>`).join('')}</ol>
+      ${runs.length ? `<div class="rc-hist" role="img" aria-label="${esc(t('Vos derniers scores : {x}', { x: runs.map(x => x.score).join(', ') }))}"><i class="rc-90" aria-hidden="true"></i>${runs.map((x, k) => `<span class="${x.f ? 'f' : ''}${!x.f && x.score === best ? ' b' : ''}" style="--v:${Math.max(4, x.score)};--k:${k}" data-tip="${esc(fmtDate(x.at, { day: 'numeric', month: 'short' }) + ' · ' + x.score + (x.f ? ' · ' + t('points manqués') : ''))}"></span>`).join('')}</div>` : ''}
+    </article>
+    <article class="panel rc-src">
+      <div class="panel-h"><h3 class="h3">${t('Le cours')}</h3>${this.kp ? `<span class="tag ai">${t('IA')}</span>` : ''}</div>
+      ${shs.length ? `<div class="seg rc-seg" role="group" aria-label="${esc(t('Le cours'))}">${shs.map(n => `<button data-rcsrc="${esc(n.id)}" class="${s.sh?.id === n.id ? 'on' : ''}" ${busy ? 'disabled' : ''} title="${esc(n.title)}">${icon('book', 'i-sm')}<span>${esc(short(n.title || t('Fiche de cours')))}</span></button>`).join('')}<button data-rcsrc="cards" class="${s.kind === 'cards' ? 'on' : ''}" ${busy ? 'disabled' : ''}>${icon('layers', 'i-sm')}<span>${t('Les fiches')}</span></button></div>`
+        : `<p class="rc-hint">${t('D\'après les {n} du paquet. Une fiche de cours donne des points clés plus complets.', { n: plural(d.cards.length, 'fiche|fiches') })}</p>`}
+      ${this.kp ? this.phase === 'rec' ? `<p class="rc-hint">${icon('eye', 'i-sm')}<span>${t('Les points clés sont cachés pendant la récitation.')}</span></p>` : `<details class="rc-peek"><summary>${t('Revoir les {n} points clés', { n: this.kp.points.length })}</summary><ol>${this.kp.points.map(p => `<li><b>${esc(p.label)}</b><span>${esc(p.detail)}</span></li>`).join('')}</ol></details>` : ''}
+      ${this.kp && !busy ? `<button class="btn btn-sm btn-ghost" data-rc="redo">${icon('refresh', 'i-sm')}${t('Refaire les points clés')}</button>` : ''}
+    </article>`;
+  }
+};
+Views.recite = arg => {
+  const R = Recite, d = arg ? deckById(arg) : null;
+  if (!Pro.expert) return R.lockHTML(d);
+  if (!AI.on) return R.noAIHTML(d);
+  R.setDeck(d ? d.id : null);
+  if (!d) return R.hubHTML();
+  if (!R.kp && ['ready', 'prep'].includes(R.phase)) { R.kp = R.cached(d); if (R.kp) R.phase = 'ready'; }
+  return R.pageHTML(d);
+};
+Hooks.recite = () => Recite.bind();
 const Plan = {
   cache: null,
   invalidate() { this.cache = null; },
@@ -12858,6 +13636,7 @@ LENGTH: as long as needed to be complete${elite ? ' — be exhaustive, up to abo
         el.querySelector('#rdStatus').innerHTML = `${icon('check', 'i-sm')}<span>${quiet ? esc(fmtDate(note.created, { day: 'numeric', month: 'long', year: 'numeric' })) : t('Rangée dans « {x} »', { x: esc(deck.name) })} · ${t('{n} mots', { n: words })}</span>`;
         el.querySelector('#rdActs').innerHTML = `<button class="btn btn-sm btn-brass" data-rd="cards">${icon('layers', 'i-sm')}${t('Créer les fiches')}</button>
           <button class="btn btn-sm" data-rd="print">${icon('printer', 'i-sm')}<span>${t('Imprimer')}</span></button>
+          <button class="btn btn-sm" data-rd="recite">${icon('mic', 'i-sm')}<span>${t('Réciter')}</span>${Pro.expert ? '' : `<span class="elite-tag">${t('Élite')}</span>`}</button>
           <button class="btn btn-sm" data-rd="md">${icon('download', 'i-sm')}<span>.md</span></button>
           <button class="btn btn-sm btn-ghost" data-rd="copy" aria-label="${esc(t('Copier'))}">${icon('copy', 'i-sm')}</button>`;
         if (note.cut) sheet.insertAdjacentHTML('afterbegin', `<p class="lr-cut">${icon('eye', 'i-sm')}${Pro.expert ? t('Une partie des documents dépassait la limite : la fiche couvre ce qui a pu être lu.') : t('Les documents étaient longs : la fiche couvre le début. Élite lit les gros cours en entier.')}</p>`);
@@ -12880,6 +13659,7 @@ LENGTH: as long as needed to be complete${elite ? ' — be exhaustive, up to abo
       if (a === 'close') R.close();
       else if (a === 'stop') { ctl.abort(); R.fail(t('Rédaction arrêtée.')); }
       else if (a === 'cards') { const d = R.deck, n = R.note; R.close(true); this.cards(d, n); }
+      else if (a === 'recite') { if (Pro.expert) R.close(true); Recite.open({ deckId: R.deck.id, noteId: R.note.id }); }
       else if (a === 'md') saveFile(`${slug(R.note.title)}.md`, R.note.md);
       else if (a === 'copy') { try { await navigator.clipboard.writeText(docPlain(R.note.md)); toast(t('Fiche copiée'), 'copy'); } catch { toast(t('Copie impossible ici : utilisez l\'export .md.'), 'copy'); } }
       else if (a === 'print') { await TeX.typeset(sheet); $$('details', sheet).forEach(d => { d.open = true; }); document.body.classList.add('lr-print'); const off = () => { document.body.classList.remove('lr-print'); removeEventListener('afterprint', off); }; addEventListener('afterprint', off); try { print(); } catch { } setTimeout(off, 1500); }
@@ -14525,6 +15305,109 @@ TR = {
   "Examen blanc": ["Mock exam","Simulacro de examen","Probeprüfung","Simulado"],
   "Écouter": ["Listen","Escuchar","Anhören","Ouvir"],
   "Mentor": ["Mentor","Mentor","Mentor","Mentor"],
+  "Réciter à l'oral": ["Recite aloud","Recitar en voz alta","Laut aufsagen","Recitar em voz alta"],
+  "Réciter": ["Recite","Recitar","Aufsagen","Recitar"],
+  "Réciter ce cours": ["Recite this course","Recitar este curso","Diesen Kurs aufsagen","Recitar este curso"],
+  "Prêt à le dire avec vos mots ? Récitez ce cours à voix haute : l'IA vous note sur le sens.": ["Ready to say it in your own words? Recite this course aloud: the AI grades you on meaning.","¿Listo para decirlo con tus palabras? Recita este curso en voz alta: la IA te evalúa por el sentido.","Bereit, es in deinen eigenen Worten zu sagen? Sag diesen Kurs laut auf: Die KI bewertet den Sinn.","Pronto para dizer com suas palavras? Recite este curso em voz alta: a IA avalia você pelo sentido."],
+  "La récitation orale fait partie d'Élite": ["Oral recitation is part of Elite","La recitación oral forma parte de Élite","Das mündliche Aufsagen gehört zu Elite","A recitação oral faz parte do Elite"],
+  "Scannez ou importez votre cours, puis récitez-le à voix haute : l'IA vérifie le sens, pas les mots exacts, vous donne un score sur 100 à battre et vous montre précisément ce qui manque.": ["Scan or import your course, then recite it aloud: the AI checks the meaning, not the exact words, gives you a score out of 100 to beat and shows you exactly what is missing.","Escanea o importa tu curso y recítalo en voz alta: la IA comprueba el sentido, no las palabras exactas, te da una puntuación sobre 100 que superar y te muestra con precisión lo que falta.","Scanne oder importiere deinen Kurs und sag ihn dann laut auf: Die KI prüft den Sinn, nicht den genauen Wortlaut, gibt dir eine Punktzahl von 100, die du schlagen kannst, und zeigt dir genau, was fehlt.","Escaneie ou importe seu curso e recite-o em voz alta: a IA verifica o sentido, não as palavras exatas, dá uma nota de 0 a 100 para você superar e mostra exatamente o que falta."],
+  "Bronze": ["Bronze","Bronce","Bronze","Bronze"],
+  "Argent": ["Silver","Plata","Silber","Prata"],
+  "Or": ["Gold","Oro","Gold","Ouro"],
+  "Maîtrisé": ["Mastered","Dominado","Gemeistert","Dominado"],
+  "Acquis@@récitation": ["Covered","Cubierto","Erwähnt","Coberto"],
+  "Partiel": ["Partial","Parcial","Teilweise","Parcial"],
+  "Manquant": ["Missing","Falta","Fehlt","Faltando"],
+  "Score : {s} sur 100": ["Score: {s} out of 100","Puntuación: {s} sobre 100","Punktzahl: {s} von 100","Nota: {s} de 100"],
+  "Touchez le micro pour reprendre. Vous pouvez corriger le texte.": ["Tap the microphone to resume. You can correct the text.","Toca el micrófono para continuar. Puedes corregir el texto.","Tippe auf das Mikrofon, um weiterzumachen. Du kannst den Text korrigieren.","Toque no microfone para continuar. Você pode corrigir o texto."],
+  "Dites-en un peu plus : quelques phrases au moins, pour que l'IA ait de quoi juger.": ["Say a bit more: a few sentences at least, so the AI has something to judge.","Di un poco más: al menos unas frases, para que la IA tenga algo que evaluar.","Sag ein bisschen mehr: wenigstens ein paar Sätze, damit die KI etwas zu bewerten hat.","Diga um pouco mais: pelo menos algumas frases, para a IA ter o que avaliar."],
+  "Pensez à : {x}.": ["Remember: {x}.","Piensa en: {x}.","Denk an: {x}.","Lembre-se de: {x}."],
+  "Récitation corrigée : {s}/100": ["Recitation graded: {s}/100","Recitación corregida: {s}/100","Aufsagen bewertet: {s}/100","Recitação corrigida: {s}/100"],
+  "Voir": ["View","Ver","Ansehen","Ver"],
+  "MAÎTRISÉ": ["MASTERED","DOMINADO","GEMEISTERT","DOMINADO"],
+  "PREMIER RECORD": ["FIRST RECORD","PRIMER RÉCORD","ERSTER REKORD","PRIMEIRO RECORDE"],
+  "NOUVEAU RECORD": ["NEW RECORD","NUEVO RÉCORD","NEUER REKORD","NOVO RECORDE"],
+  "récitation orale": ["oral recitation","recitación oral","mündliches Aufsagen","recitação oral"],
+  "Récitez <em>votre cours</em>.": ["Recite <em>your course</em>.","Recita <em>tu curso</em>.","Sag <em>deinen Kurs</em> auf.","Recite <em>seu curso</em>."],
+  "Récitez <em>vos cours</em>.": ["Recite <em>your courses</em>.","Recita <em>tus cursos</em>.","Sag <em>deine Kurse</em> auf.","Recite <em>seus cursos</em>."],
+  "Dites le cours avec vos mots, comme devant un examinateur : l'IA vérifie que l'essentiel y est, pas que vous l'avez appris par cœur. Un score sur 100, un record à battre.": ["Say the course in your own words, as if in front of an examiner: the AI checks that the essentials are there, not that you learned it by heart. A score out of 100, a record to beat.","Di el curso con tus palabras, como ante un examinador: la IA comprueba que lo esencial está, no que lo hayas aprendido de memoria. Una puntuación sobre 100, un récord que superar.","Sag den Kurs in deinen eigenen Worten, wie vor einem Prüfer: Die KI prüft, ob das Wesentliche da ist, nicht ob du ihn auswendig gelernt hast. Eine Punktzahl von 100, ein Rekord zum Schlagen.","Diga o curso com suas palavras, como diante de um examinador: a IA verifica se o essencial está lá, não se você decorou. Uma nota de 0 a 100, um recorde a superar."],
+  "Choisissez un cours": ["Choose a course","Elige un curso","Wähle einen Kurs","Escolha um curso"],
+  "Un paquet de fiches, ou sa fiche de cours s'il en a une. Votre record s'affiche sur chacun.": ["A deck of cards, or its course sheet if it has one. Your record shows on each.","Un mazo de tarjetas, o su ficha de curso si tiene una. Tu récord aparece en cada uno.","Ein Kartenstapel oder sein Kursblatt, falls es eins gibt. Dein Rekord steht bei jedem.","Um baralho de cartões, ou sua ficha de curso, se tiver. Seu recorde aparece em cada um."],
+  "fiche de cours": ["course sheet","ficha de curso","Kursblatt","ficha de curso"],
+  "À réciter": ["To recite","Por recitar","Noch aufsagen","A recitar"],
+  "Pas encore de cours": ["No course yet","Aún no hay cursos","Noch kein Kurs","Nenhum curso ainda"],
+  "Scannez ou importez un cours : vous pourrez ensuite le réciter.": ["Scan or import a course: you can then recite it.","Escanea o importa un curso: luego podrás recitarlo.","Scanne oder importiere einen Kurs: Dann kannst du ihn aufsagen.","Escaneie ou importe um curso: depois você poderá recitá-lo."],
+  "Définition exacte": ["Exact definition","Definición exacta","Genaue Definition","Definição exata"],
+  "« C'est le processus par lequel… »": ["“It is the process by which…”","«Es el proceso por el cual…»","„Das ist der Vorgang, durch den…“","“É o processo pelo qual…”"],
+  "Le mécanisme, étape par étape": ["The mechanism, step by step","El mecanismo, paso a paso","Der Mechanismus, Schritt für Schritt","O mecanismo, passo a passo"],
+  "Un exemple précis": ["A precise example","Un ejemplo preciso","Ein genaues Beispiel","Um exemplo preciso"],
+  "Exemple de résultat": ["Example result","Ejemplo de resultado","Beispielergebnis","Exemplo de resultado"],
+  "Votre restitution": ["Your recitation","Tu recitación","Dein Vortrag","Sua recitação"],
+  "Nouveau record !": ["New record!","¡Nuevo récord!","Neuer Rekord!","Novo recorde!"],
+  "Encore {n} points pour {x}.": ["{n} more points for {x}.","{n} puntos más para {x}.","Noch {n} Punkte bis {x}.","Mais {n} pontos para {x}."],
+  "Connexion à l'IA…": ["Connecting to the AI…","Conectando con la IA…","Verbindung zur KI…","Conectando à IA…"],
+  "L'IA n'est pas joignable ici : vérifiez votre connexion, ou l'adresse du serveur IA dans les réglages.": ["The AI can't be reached here: check your connection, or the AI server address in the settings.","No se puede contactar con la IA aquí: comprueba tu conexión o la dirección del servidor de IA en los ajustes.","Die KI ist hier nicht erreichbar: Prüfe deine Verbindung oder die Adresse des KI-Servers in den Einstellungen.","A IA não está acessível aqui: verifique sua conexão ou o endereço do servidor de IA nas configurações."],
+  "La récitation a besoin de l'IA": ["Recitation needs the AI","La recitación necesita la IA","Das Aufsagen braucht die KI","A recitação precisa da IA"],
+  "C'est elle qui repère les points clés du cours et juge votre restitution sur le sens. Vos fiches, elles, restent utilisables sans IA.": ["It finds the key points of the course and judges your recitation on meaning. Your cards still work without the AI.","Es ella la que detecta los puntos clave del curso y juzga tu recitación por el sentido. Tus tarjetas siguen funcionando sin IA.","Sie findet die Kernpunkte des Kurses und bewertet deinen Vortrag nach dem Sinn. Deine Karten funktionieren auch ohne KI.","É ela que identifica os pontos-chave do curso e avalia sua recitação pelo sentido. Seus cartões continuam funcionando sem IA."],
+  "Réviser les fiches": ["Review the cards","Repasar las tarjetas","Karten lernen","Revisar os cartões"],
+  "Pas assez de cours à réciter": ["Not enough course to recite","No hay suficiente curso para recitar","Zu wenig Kursinhalt zum Aufsagen","Conteúdo insuficiente para recitar"],
+  "Ajoutez des fiches ou une fiche de cours à ce paquet, puis revenez le réciter.": ["Add cards or a course sheet to this deck, then come back to recite it.","Añade tarjetas o una ficha de curso a este mazo y vuelve para recitarlo.","Füge diesem Stapel Karten oder ein Kursblatt hinzu und komm dann zum Aufsagen zurück.","Adicione cartões ou uma ficha de curso a este baralho e volte para recitá-lo."],
+  "Réessayer": ["Try again","Reintentar","Erneut versuchen","Tentar de novo"],
+  "L'IA repère l'essentiel de votre cours…": ["The AI is picking out the essentials of your course…","La IA está detectando lo esencial de tu curso…","Die KI sucht das Wesentliche deines Kurses heraus…","A IA está identificando o essencial do seu curso…"],
+  "Les points clés qu'une bonne restitution doit contenir. Une seule fois par cours.": ["The key points a good recitation must contain. Only once per course.","Los puntos clave que debe contener una buena recitación. Solo una vez por curso.","Die Kernpunkte, die ein guter Vortrag enthalten muss. Nur einmal pro Kurs.","Os pontos-chave que uma boa recitação deve conter. Só uma vez por curso."],
+  "L'IA compare votre restitution au cours, point par point…": ["The AI is comparing your recitation with the course, point by point…","La IA compara tu recitación con el curso, punto por punto…","Die KI vergleicht deinen Vortrag Punkt für Punkt mit dem Kurs…","A IA compara sua recitação com o curso, ponto por ponto…"],
+  "Le sens compte, pas les mots exacts.": ["Meaning counts, not the exact words.","Cuenta el sentido, no las palabras exactas.","Der Sinn zählt, nicht der genaue Wortlaut.","O sentido conta, não as palavras exatas."],
+  "Relancer la correction": ["Grade again","Volver a corregir","Erneut bewerten","Corrigir de novo"],
+  "Ce navigateur ne sait pas écouter (essayez Chrome, Edge ou Safari) : écrivez votre restitution comme vous la diriez à l'oral. L'IA la corrige de la même façon.": ["This browser can't listen (try Chrome, Edge or Safari): type your recitation as you would say it aloud. The AI grades it the same way.","Este navegador no puede escuchar (prueba Chrome, Edge o Safari): escribe tu recitación como la dirías en voz alta. La IA la corrige igual.","Dieser Browser kann nicht zuhören (versuch Chrome, Edge oder Safari): Schreib deinen Vortrag so, wie du ihn sagen würdest. Die KI bewertet ihn genauso.","Este navegador não sabe ouvir (tente Chrome, Edge ou Safari): escreva sua recitação como você a diria em voz alta. A IA a corrige do mesmo jeito."],
+  "Le micro est refusé ou bloqué ici, ce qui arrive souvent dans l'aperçu. Écrivez votre restitution comme vous la diriez à l'oral : l'IA la corrige de la même façon.": ["The microphone is denied or blocked here, which often happens in the preview. Type your recitation as you would say it aloud: the AI grades it the same way.","El micrófono está denegado o bloqueado aquí, algo frecuente en la vista previa. Escribe tu recitación como la dirías en voz alta: la IA la corrige igual.","Das Mikrofon ist hier verweigert oder blockiert, was in der Vorschau oft passiert. Schreib deinen Vortrag so, wie du ihn sagen würdest: Die KI bewertet ihn genauso.","O microfone está negado ou bloqueado aqui, o que costuma acontecer na pré-visualização. Escreva sua recitação como você a diria em voz alta: a IA a corrige do mesmo jeito."],
+  "Aucun micro n'a été trouvé. Écrivez votre restitution comme vous la diriez à l'oral : l'IA la corrige de la même façon.": ["No microphone was found. Type your recitation as you would say it aloud: the AI grades it the same way.","No se encontró ningún micrófono. Escribe tu recitación como la dirías en voz alta: la IA la corrige igual.","Es wurde kein Mikrofon gefunden. Schreib deinen Vortrag so, wie du ihn sagen würdest: Die KI bewertet ihn genauso.","Nenhum microfone foi encontrado. Escreva sua recitação como você a diria em voz alta: a IA a corrige do mesmo jeito."],
+  "La reconnaissance vocale a besoin d'Internet. Écrivez votre restitution comme vous la diriez à l'oral : l'IA la corrige de la même façon.": ["Speech recognition needs the Internet. Type your recitation as you would say it aloud: the AI grades it the same way.","El reconocimiento de voz necesita Internet. Escribe tu recitación como la dirías en voz alta: la IA la corrige igual.","Die Spracherkennung braucht Internet. Schreib deinen Vortrag so, wie du ihn sagen würdest: Die KI bewertet ihn genauso.","O reconhecimento de voz precisa de Internet. Escreva sua recitação como você a diria em voz alta: a IA a corrige do mesmo jeito."],
+  "Écrivez comme vous parleriez : des phrases complètes, sans regarder le cours.": ["Write as you would speak: full sentences, without looking at the course.","Escribe como hablarías: frases completas, sin mirar el curso.","Schreib so, wie du sprechen würdest: ganze Sätze, ohne in den Kurs zu schauen.","Escreva como você falaria: frases completas, sem olhar o curso."],
+  "Le cours à restituer": ["The course to recite","El curso que recitar","Der aufzusagende Kurs","O curso a recitar"],
+  "point clé|points clés": ["key point|key points","punto clave|puntos clave","Kernpunkt|Kernpunkte","ponto-chave|pontos-chave"],
+  "d'après la fiche de cours": ["from the course sheet","según la ficha de curso","nach dem Kursblatt","a partir da ficha de curso"],
+  "d'après les fiches du paquet": ["from the deck's cards","según las tarjetas del mazo","nach den Karten des Stapels","a partir dos cartões do baralho"],
+  "Commencer à réciter": ["Start reciting","Empezar a recitar","Mit dem Aufsagen beginnen","Começar a recitar"],
+  "Écrire ma restitution": ["Type my recitation","Escribir mi recitación","Meinen Vortrag schreiben","Escrever minha recitação"],
+  "Récitez le cours à voix haute, sans le regarder, comme devant un examinateur. Avec vos mots : c'est le sens qui compte.": ["Recite the course aloud, without looking at it, as if in front of an examiner. In your own words: meaning is what counts.","Recita el curso en voz alta, sin mirarlo, como ante un examinador. Con tus palabras: lo que cuenta es el sentido.","Sag den Kurs laut auf, ohne hinzuschauen, wie vor einem Prüfer. In deinen eigenen Worten: Es zählt der Sinn.","Recite o curso em voz alta, sem olhar, como diante de um examinador. Com suas palavras: o que conta é o sentido."],
+  "Record à battre : {s}/100": ["Record to beat: {s}/100","Récord que superar: {s}/100","Zu schlagender Rekord: {s}/100","Recorde a superar: {s}/100"],
+  "dernier essai : {s}": ["last try: {s}","último intento: {s}","letzter Versuch: {s}","última tentativa: {s}"],
+  "Écrire plutôt": ["Type instead","Escribir mejor","Lieber schreiben","Escrever em vez disso"],
+  "Reprendre seulement les points manqués la dernière fois": ["Redo only the points missed last time","Repasar solo los puntos que faltaron la última vez","Nur die beim letzten Mal verpassten Punkte wiederholen","Retomar só os pontos que faltaram da última vez"],
+  "Les points à reprendre": ["Points to redo","Los puntos que repasar","Die zu wiederholenden Punkte","Os pontos a retomar"],
+  "Relisez-les, puis dites-les sans regarder.": ["Read them again, then say them without looking.","Reléelos y luego dilos sin mirar.","Lies sie noch einmal und sag sie dann, ohne hinzuschauen.","Releia-os e depois diga-os sem olhar."],
+  "Je suis prêt : réciter ces points": ["I'm ready: recite these points","Estoy listo: recitar estos puntos","Ich bin bereit: diese Punkte aufsagen","Estou pronto: recitar estes pontos"],
+  "Écrivez votre restitution": ["Type your recitation","Escribe tu recitación","Schreib deinen Vortrag","Escreva sua recitação"],
+  "Seulement les points à reprendre": ["Only the points to redo","Solo los puntos que repasar","Nur die zu wiederholenden Punkte","Só os pontos a retomar"],
+  "Parlez : vos phrases s'écrivent ici.": ["Speak: your sentences appear here.","Habla: tus frases se escriben aquí.","Sprich: Deine Sätze erscheinen hier.","Fale: suas frases aparecem aqui."],
+  "Écrivez ici ce que vous diriez à l'oral…": ["Type here what you would say aloud…","Escribe aquí lo que dirías en voz alta…","Schreib hier, was du laut sagen würdest…","Escreva aqui o que você diria em voz alta…"],
+  "J'ai fini : corriger": ["I'm done: grade it","He terminado: corregir","Fertig: bewerten","Terminei: corrigir"],
+  "Parler plutôt": ["Speak instead","Hablar mejor","Lieber sprechen","Falar em vez disso"],
+  "{a} sur {b} repris": ["{a} of {b} recovered","{a} de {b} recuperados","{a} von {b} nachgeholt","{a} de {b} recuperados"],
+  "Premier record": ["First record","Primer récord","Erster Rekord","Primeiro recorde"],
+  "Record : {s}": ["Record: {s}","Récord: {s}","Rekord: {s}","Recorde: {s}"],
+  "Score avec ces points": ["Score with these points","Puntuación con estos puntos","Punktzahl mit diesen Punkten","Nota com estes pontos"],
+  "Le record se bat sur une restitution complète : refaites-la quand vous êtes prêt.": ["Records are beaten on a full recitation: do it again when you're ready.","El récord se bate con una recitación completa: repítela cuando estés listo.","Rekorde zählen nur bei einem vollständigen Vortrag: Mach ihn noch einmal, wenn du bereit bist.","O recorde se bate numa recitação completa: refaça-a quando estiver pronto."],
+  "Le plus haut palier. Gardez-le au fil des semaines.": ["The highest tier. Keep it up over the weeks.","El nivel más alto. Mantenlo con el paso de las semanas.","Die höchste Stufe. Halte sie über die Wochen.","O nível mais alto. Mantenha-o ao longo das semanas."],
+  "Les points manqués": ["Missed points","Los puntos que faltaron","Verpasste Punkte","Pontos que faltaram"],
+  "Point par point": ["Point by point","Punto por punto","Punkt für Punkt","Ponto por ponto"],
+  "Attendu": ["Expected","Esperado","Erwartet","Esperado"],
+  "À corriger": ["To correct","Por corregir","Zu berichtigen","A corrigir"],
+  "Pour la prochaine fois": ["For next time","Para la próxima vez","Für das nächste Mal","Para a próxima vez"],
+  "Votre progression": ["Your progress","Tu progreso","Dein Fortschritt","Seu progresso"],
+  "récitation|récitations": ["recitation|recitations","recitación|recitaciones","Vortrag|Vorträge","recitação|recitações"],
+  "mot|mots": ["word|words","palabra|palabras","Wort|Wörter","palavra|palavras"],
+  "Pas encore de record": ["No record yet","Aún sin récord","Noch kein Rekord","Nenhum recorde ainda"],
+  "{x} dès {n}": ["{x} from {n}","{x} desde {n}","{x} ab {n}","{x} a partir de {n}"],
+  "Récitez une première fois pour le fixer.": ["Recite once to set it.","Recita una primera vez para fijarlo.","Sag einmal auf, um ihn festzulegen.","Recite uma primeira vez para defini-lo."],
+  "Vos derniers scores : {x}": ["Your latest scores: {x}","Tus últimas puntuaciones: {x}","Deine letzten Punktzahlen: {x}","Suas últimas notas: {x}"],
+  "points manqués": ["missed points","puntos que faltaron","verpasste Punkte","pontos que faltaram"],
+  "Le cours": ["The course","El curso","Der Kurs","O curso"],
+  "Les fiches": ["The cards","Las tarjetas","Die Karten","Os cartões"],
+  "D'après les {n} du paquet. Une fiche de cours donne des points clés plus complets.": ["Based on the deck's {n}. A course sheet gives more complete key points.","Según las {n} del mazo. Una ficha de curso da puntos clave más completos.","Nach den {n} des Stapels. Ein Kursblatt liefert vollständigere Kernpunkte.","Com base nos {n} do baralho. Uma ficha de curso dá pontos-chave mais completos."],
+  "Les points clés sont cachés pendant la récitation.": ["The key points are hidden while you recite.","Los puntos clave se ocultan durante la recitación.","Die Kernpunkte sind während des Aufsagens verborgen.","Os pontos-chave ficam ocultos durante a recitação."],
+  "Revoir les {n} points clés": ["Review the {n} key points","Repasar los {n} puntos clave","Die {n} Kernpunkte ansehen","Rever os {n} pontos-chave"],
+  "Refaire les points clés": ["Redo the key points","Rehacer los puntos clave","Kernpunkte neu erstellen","Refazer os pontos-chave"],
   "Demander au prof": ["Ask the tutor","Preguntar al profe","Den Tutor fragen","Perguntar ao professor"],
   "Fiche de synthèse": ["Summary sheet","Ficha resumen","Zusammenfassung","Resumo"],
   "Fiche": ["Card","Tarjeta","Karte","Cartão"],
@@ -16903,6 +17786,7 @@ async function boot() {
     if (h === 'scan') App.go('scan'); else if (h === 'study' && S.profile.onboarded) setTimeout(() => Study.start(), 300);
     else if (h === 'now' && S.profile.onboarded) setTimeout(() => Agenda.startNow(), 300);
     else if (h === 'agenda') App.go('agenda');
+    else if (h.startsWith('reciter')) App.go('recite', h.split('=')[1] || null);
     else if (h === 'pro' || h === 'teams') App.go(h);
     else if (h === 'portal') { App.go('pro'); Pay.refresh(true); } // retour du portail Stripe : formule changée ou arrêtée
     else if (h === 'invite') { App.go('pro'); if (S.profile.onboarded) setTimeout(() => openInvite(), 400); }
