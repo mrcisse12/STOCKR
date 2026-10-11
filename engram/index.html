@@ -1657,6 +1657,8 @@ body.dropping::after{content:attr(data-drop);position:fixed;inset:14px;z-index:5
 .scan-ink{justify-content:flex-start;gap:14px;height:auto;padding:14px 16px;text-align:left;border-style:dashed;white-space:normal;min-width:0}
 .scan-ink .i{width:26px;height:26px;color:var(--brass-text);flex:none}
 .scan-ink b{display:block;font-size:14.5px}
+.sc-ocr{display:flex;gap:10px;align-items:flex-start;margin:0;font-size:13px;line-height:1.45}
+.sc-ocr .i{flex:none;margin-top:2px;color:var(--brass-text)}
 .scan-ink small{display:block;margin-top:2px;color:var(--muted);font-weight:400;font-size:12.5px;line-height:1.35}
 
 /* ── Tactile : iPad, téléphone, app installée ─────────────────────── */
@@ -10637,8 +10639,8 @@ const Scan = {
 };
 
 Views.scan = () => {
-  const canPhoto = AI.images, lock = Scan.locked();
-  if (!canPhoto && Scan.tab === 'photo' && AI.status !== 'checking') Scan.tab = 'text';
+  // La caméra est toujours là : quand l'IA ne reçoit pas les images (aperçu Claude, IA absente), la photo est lue dans l'appareil (OCR).
+  const canPhoto = AI.images || AI.status === 'checking', lock = Scan.locked();
   if (!AI.on && Scan.tab === 'topic' && AI.status !== 'checking') Scan.tab = 'text';
   const lockTab = lock && (Scan.tab === 'photo' || Scan.tab === 'topic');
   const hasSrc = lockTab ? false : Scan.tab === 'photo' ? Scan.files.length > 0 : Scan.tab === 'topic' ? Scan.topic.trim().length > 2 : Scan.tab === 'pdf' ? !!(Scan.pdf && (Scan.pdf.text.trim().length > 40 || (Scan.pdf.images?.length && AI.images && !lock))) : Scan.text.trim().length > 40;
@@ -10650,13 +10652,14 @@ Views.scan = () => {
     ${!AI.on && AI.status !== 'checking' ? `<div class="demo-note rise">${icon('sparkles', 'i-sm')}<span><b>${AI.status === 'denied' ? t("L'IA n'est pas autorisée pour cette page.") : t("L'IA n'est pas disponible ici.")}</b> ${t('Ouvrez Engram dans l\'app Claude (ou branchez le serveur Engram) pour lire les photos. La génération locale repère les définitions « terme : explication », les dates et les chiffres.')}</span></div>` : ''}
     <div class="scan-grid">
       <article class="panel rise" style="display:flex;flex-direction:column;gap:20px">
-        <div class="seg" id="scTab">${canPhoto || AI.status === 'checking' ? `<button class="${Scan.tab === 'photo' ? 'on' : ''}" data-tab="photo">${icon('camera', 'i-sm')} ${t('Photo')}${proTag}</button>` : ''}<button class="${Scan.tab === 'pdf' ? 'on' : ''}" data-tab="pdf">${icon('file', 'i-sm')} PDF</button><button class="${Scan.tab === 'text' ? 'on' : ''}" data-tab="text">${icon('type', 'i-sm')} ${t('Texte')}</button>${AI.on || AI.status === 'checking' ? `<button class="${Scan.tab === 'topic' ? 'on' : ''}" data-tab="topic">${icon('sparkles', 'i-sm')} ${t('Sujet')}${proTag}</button>` : ''}</div>
+        <div class="seg" id="scTab"><button class="${Scan.tab === 'photo' ? 'on' : ''}" data-tab="photo">${icon('camera', 'i-sm')} ${t('Caméra')}${proTag}</button><button class="${Scan.tab === 'pdf' ? 'on' : ''}" data-tab="pdf">${icon('file', 'i-sm')} PDF</button><button class="${Scan.tab === 'text' ? 'on' : ''}" data-tab="text">${icon('type', 'i-sm')} ${t('Texte')}</button>${AI.on || AI.status === 'checking' ? `<button class="${Scan.tab === 'topic' ? 'on' : ''}" data-tab="topic">${icon('sparkles', 'i-sm')} ${t('Sujet')}${proTag}</button>` : ''}</div>
         ${lockTab ? `<div class="sc-locked">${proCard({ sm: true })}<div><b>${Scan.tab === 'photo' ? t('Photos, caméra et notes au stylet') : t('Des fiches sur n\'importe quel sujet')}</b><p>${Scan.tab === 'photo' ? t('L\'IA lit vos pages, même manuscrites, repère les définitions, les formules et les schémas, et rédige les fiches. Réservé à Pro et Élite.') : t('Donnez un sujet : l\'IA rédige les fiches au niveau de votre filière. Réservé à Pro et Élite.')}</p><div class="sc-locked-a"><button class="btn btn-gilt" data-act="proTrial">${icon('sparkles')}${Pro.canTrial ? t('Essayer 14 jours') : t('Passer à Pro')}</button><button class="btn btn-ghost" data-act="go" data-v="pro">${t('Voir les formules')}</button></div></div></div>`
       : Scan.tab === 'photo' ? `
           <button class="btn btn-gilt scan-ink scan-cam" id="scCam">${icon('camera')}<span><b>${t('Scanner avec la caméra')}</b><small>${t('Les bords de la page sont repérés, la page est redressée ; plusieurs pages à la suite.')}</small></span></button>
           <label class="drop" id="scDrop" for="scFile"><div class="ico">${icon('camera')}</div><b>${t('Déposez vos pages de cours')}</b>
             <span class="muted" style="font-size:13.5px">${t('ou cliquez pour choisir · jusqu\'à {n} pages · JPEG, PNG, WebP', { n: maxImg })}</span></label>
-          <button class="btn scan-ink" id="scInk">${icon('nib')}<span><b>${t('Écrire mes notes à la main')}</b><small>${t('Sur iPad avec le stylet, ou au doigt : la page manuscrite devient des fiches.')}</small></span></button>
+          ${matchMedia('(pointer: coarse)').matches ? `<label class="btn scan-ink" for="scShot">${icon('image')}<span><b>${t("Ouvrir l'appareil photo")}</b><small>${t("L'app photo du téléphone, si le scanner ne s'ouvre pas.")}</small></span></label><input type="file" id="scShot" accept="image/*" capture="environment" hidden>` : ''}
+          ${canPhoto ? `<button class="btn scan-ink" id="scInk">${icon('nib')}<span><b>${t('Écrire mes notes à la main')}</b><small>${t('Sur iPad avec le stylet, ou au doigt : la page manuscrite devient des fiches.')}</small></span></button>` : `<p class="sc-ocr muted">${icon('type', 'i-sm')}<span>${AI.on ? t("Ici, l'IA ne reçoit pas les images : Engram lit d'abord le texte imprimé de vos pages dans l'appareil, puis l'IA rédige les fiches.") : t("Ici, sans IA : Engram lit le texte imprimé de vos pages dans l'appareil, puis en tire des fiches.")} ${t("L'écriture manuscrite et les schémas demandent l'IA du site Engram.")}</span></p>`}
           <input type="file" id="scFile" accept="${(AI.limits?.images?.mediaTypes || ['image/jpeg', 'image/png', 'image/webp']).join(',')}" multiple hidden>
           ${Scan.files.length ? `<div class="thumbs">${Scan.urls.map((u, i) => `<div class="thumb"><img src="${u}" alt="${esc(t('Page {n}', { n: i + 1 }))}"><button data-rmimg="${i}" aria-label="${esc(t('Retirer'))}">${icon('x')}</button></div>`).join('')}</div>` : ''}`
       : Scan.tab === 'pdf' ? `
@@ -10696,7 +10699,7 @@ function scanOutHTML() {
       <p class="muted" style="margin:0;font-size:13px;max-width:44ch">${t('Les fiches suivent les règles de la répétition espacée : une idée par fiche, réponse courte, question sans ambiguïté.')}</p></div>`;
   const on = scanCards(), dups = Scan.results.filter(r => r.dup).length;
   return `${Scan.phase === 'running' ? scanPreviewHTML() : ''}
-    ${Scan.meta ? `<div class="panel" style="padding:16px 18px"><div class="kicker">${esc(Scan.meta.subject || t('Cours'))}${Scan.local ? ' · ' + t('génération locale') : Scan.tab === 'topic' ? ' · ' + t("rédigé par l'IA, à vérifier") : ' · ' + t("lu par l'IA")}</div><div style="font:400 26px/1.15 var(--f-display);margin-top:8px">${esc(Scan.meta.title || t('Cours scanné'))}</div>${Scan.meta.summary ? `<p class="muted" style="margin:8px 0 0;font-size:14px">${esc(Scan.meta.summary)}</p>` : ''}</div>` : ''}
+    ${Scan.meta ? `<div class="panel" style="padding:16px 18px"><div class="kicker">${esc(Scan.meta.subject || t('Cours'))}${Scan.local ? ' · ' + t('génération locale') : Scan.tab === 'topic' ? ' · ' + t("rédigé par l'IA, à vérifier") : Scan.ocr ? ' · ' + t("lu dans l'appareil, rédigé par l'IA") : ' · ' + t("lu par l'IA")}</div><div style="font:400 26px/1.15 var(--f-display);margin-top:8px">${esc(Scan.meta.title || t('Cours scanné'))}</div>${Scan.meta.summary ? `<p class="muted" style="margin:8px 0 0;font-size:14px">${esc(Scan.meta.summary)}</p>` : ''}</div>` : ''}
     ${Scan.phase === 'running' ? `<div class="scan-status"><span class="thinking"><i></i><i></i><i></i></span><span id="scStatus" style="flex:1">${t('Lecture de la page…')}</span><button class="btn btn-sm" id="scStop">${t('Arrêter')}</button></div>` : ''}
     ${Scan.err ? `<div class="scan-status" style="border-color:color-mix(in srgb,var(--again) 45%,transparent)">${icon('x')}<span style="flex:1">${esc(Scan.err)}</span></div>` : ''}
     ${Scan.note && Scan.phase === 'review' ? `<div class="scan-status dup">${icon('sparkles')}<span style="flex:1">${esc(Scan.note)}</span></div>` : ''}
@@ -10748,6 +10751,37 @@ function refreshGen(i) { const el = $(`#genList [data-gi="${i}"]`); if (el) el.o
      la suite ; lampe si l'appareil en a une.
    · Sans caméra accessible : le sélecteur de photos du téléphone prend le relais.
    ════════════════════════════════════════════════════════════════════ */
+/** Lecture du texte d'une photo dans l'appareil (Tesseract, chargé à la demande), quand l'IA ne reçoit pas les images :
+ *  aperçu de l'app Claude, IA absente. Lit bien l'imprimé, mal l'écriture manuscrite. */
+const OCR = {
+  code: { fr: 'fra', en: 'eng', es: 'spa', de: 'deu', pt: 'por' },
+  langs() { return [...new Set([this.code[LANG] || 'fra', 'eng'])]; },
+  /** Photo réduite à 2 400 px : plus rapide, et Tesseract lit aussi bien qu'en pleine taille. */
+  async prep(f) {
+    const bmp = await createImageBitmap(f).catch(() => null); if (!bmp) return f;
+    const k = Math.min(1, 2400 / Math.max(bmp.width, bmp.height)), c = document.createElement('canvas');
+    c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height); bmp.close?.();
+    return c;
+  },
+  /** Texte de toutes les pages, à la suite. onStep(page, part) suit l'avancée ; « Arrêter » coupe tout de suite. */
+  async read(files, { signal, onStep } = {}) {
+    let page = 0, w = null;
+    const aborted = new Promise((_, rej) => signal?.addEventListener('abort', () => rej({ name: 'AbortError' }), { once: true }));
+    aborted.catch(() => { });
+    try {
+      const T = await Promise.race([lib('tesseract'), aborted]);
+      w = await Promise.race([T.createWorker(this.langs(), 1, { logger: m => { if (m.status === 'recognizing text') onStep?.(page, m.progress || 0); } }), aborted]);
+      const out = [];
+      for (const f of files) {
+        onStep?.(page, 0);
+        const { data } = await Promise.race([this.prep(f).then(im => w.recognize(im)), aborted]);
+        out.push(String(data?.text || '').replace(/[ \t]+\n/g, '\n').trim()); page++;
+      }
+      return out.filter(Boolean).join('\n\n');
+    } finally { w?.terminate().catch(() => { }); }
+  }
+};
 const DocCam = {
   /** Coins de la page dans une image réduite ; null si rien de fiable. Coordonnées 0..1, ordre : haut-gauche, haut-droit, bas-droit, bas-gauche. */
   detect(data, W, H) {
@@ -10965,6 +10999,7 @@ Hooks.scan = () => {
     redraw();
   };
   $('#scFile')?.addEventListener('change', e => addFiles(e.target.files));
+  $('#scShot')?.addEventListener('change', e => addFiles(e.target.files));
   $('#scWebGo')?.addEventListener('click', () => Inbox.web($('#scWeb').value));
   $('#scDict')?.addEventListener('click', () => LiveDict.toggle()); LiveDict.paint();
   // Word, PowerPoint, Excel, OpenDocument… : le texte est lu dans l'appareil, puis rédigé en fiches (avec ou sans IA).
@@ -11105,6 +11140,7 @@ function buildGenPrompt({ n, types, level, source, text, outLang, diagrams }) {
   const lang = outLang && outLang !== 'auto' ? `Write every card in ${langNameEn(outLang)} (translate the source if needed).` : `Write the cards in the language of the ${source === 'topic' ? 'request (default: ' + aiLang() + ')' : 'source'}.`;
   const src = source === 'photo' ? 'photo(s) of a course (handwritten or printed). Read the text, headings, boxes, diagrams and formulas carefully.'
     : source === 'pdf-images' ? 'scanned pages of a course (images). Read the text, headings, boxes, diagrams and formulas carefully.'
+      : source === 'ocr' ? 'the course text below, read from photos of the pages by optical character recognition (OCR). Silently fix obvious recognition errors (split words, wrong letters, stray symbols, page numbers, headers) and ignore unreadable fragments.'
       : source === 'topic' ? `none: the student asks for flashcards about the topic "${text}". Rely on well-established knowledge at curriculum level; if in doubt, do not create the card.`
         : 'the course text below.';
   const mem = S.profile.memory.length ? `\nWhat we know about the student: ${S.profile.memory.slice(-6).join(' / ')}` : '';
@@ -11129,17 +11165,33 @@ ${types.map(x => ex[x]).join('\n')}${diagrams ? `
 
 LABELLED DIAGRAMS: when a page contains a labelled diagram (a drawing, schema, map or figure whose parts are named by text labels, often with leader lines), ALSO write one extra line per diagram, on top of the ${n} cards:
 {"type":"diagram","page":1,"title":"instruction for the student, e.g. Name the parts of the plant cell","box":[0.10,0.40,0.60,0.35],"labels":[{"text":"Nucleus","box":[0.52,0.48,0.09,0.03]}]}
-"page" is the number of the photo (1 = first). Every box is [left, top, width, height] as fractions of that whole page image (0 = left or top edge, 1 = right or bottom edge). "box" frames the whole diagram with its labels; each label box frames only the words of that label, tightly. Keep only labels that name a part of the diagram (not titles, captions or legends of the page), 2 to 20 per diagram, text exactly as written. No diagram line if the page has no labelled diagram.` : ''}${source === 'text' ? `\n\nCOURSE TEXT:\n"""\n${String(text).slice(0, 45000)}\n"""` : ''}`;
+"page" is the number of the photo (1 = first). Every box is [left, top, width, height] as fractions of that whole page image (0 = left or top edge, 1 = right or bottom edge). "box" frames the whole diagram with its labels; each label box frames only the words of that label, tightly. Keep only labels that name a part of the diagram (not titles, captions or legends of the page), 2 to 20 per diagram, text exactly as written. No diagram line if the page has no labelled diagram.` : ''}${source === 'text' || source === 'ocr' ? `\n\nCOURSE TEXT:\n"""\n${String(text).slice(0, 45000)}\n"""` : ''}`;
 }
 async function runScan() {
   if (Scan.running) return;
-  const photo = Scan.tab === 'photo' && Scan.files.length;
+  let photo = Scan.tab === 'photo' && Scan.files.length, ocr = false;
   const pdfText = Scan.tab === 'pdf' && Scan.pdf && Scan.pdf.text.trim().length > 40;
   const pdfImgs = Scan.tab === 'pdf' && Scan.pdf && !pdfText && Scan.pdf.images?.length;
-  const srcText = Scan.tab === 'pdf' ? (Scan.pdf?.text || '') : Scan.text;
+  let srcText = Scan.tab === 'pdf' ? (Scan.pdf?.text || '') : Scan.text;
   const lock = Scan.locked();
   if (lock && (photo || Scan.tab === 'topic' || pdfImgs)) { Pro.upsell('scan'); return; }
-  Scan.results = []; Scan.meta = null; Scan.err = ''; Scan.note = ''; Scan.local = !AI.on || lock;
+  Scan.results = []; Scan.meta = null; Scan.err = ''; Scan.note = ''; Scan.local = !AI.on || lock; Scan.ocr = false;
+  if (photo && !AI.images) {
+    // L'IA ne reçoit pas les images : le texte imprimé des pages est lu ici, puis rédigé en fiches comme un texte collé.
+    Scan.phase = 'running'; Scan.running = true; App.render();
+    const ctl = Scan.ctl = new AbortController(), n = Scan.files.length;
+    const say = (i, p) => { const st = $('#scStatus'); if (st) st.textContent = n > 1 ? t('Lecture du texte, page {i} sur {n}… {p} %', { i: i + 1, n, p: Math.round(p * 100) }) : t('Lecture du texte de la page… {p} %', { p: Math.round(p * 100) }); };
+    say(0, 0);
+    try { srcText = await OCR.read(Scan.files, { signal: ctl.signal, onStep: say }); }
+    catch { srcText = ''; if (!ctl.signal.aborted) Scan.err = t("La lecture des photos n'a pas pu démarrer : vérifiez la connexion, puis réessayez. Vous pouvez aussi dicter ou coller le cours dans l'onglet Texte."); }
+    if (ctl.signal.aborted || Scan.err || srcText.trim().length <= 40) {
+      Scan.running = false; Scan.phase = ctl.signal.aborted ? 'idle' : 'review';
+      if (!ctl.signal.aborted && !Scan.err) Scan.err = t("Aucun texte lisible sur ces photos. Prenez la page à plat, nette et bien éclairée ; l'écriture manuscrite demande l'IA du site Engram.");
+      if (App.route.v === 'scan') App.render();
+      return;
+    }
+    photo = 0; ocr = Scan.ocr = true;
+  }
   if (!AI.on || lock) {
     if (photo || Scan.tab === 'topic' || pdfImgs) { Scan.err = t("Cette source nécessite l'IA. Collez le texte du cours à la place."); App.render(); return; }
     if (lock) Scan.note = t('Fiches créées sans IA, à relire. Avec Pro, l\'IA lit vos photos et vos PDF et rédige des fiches plus fines.');
@@ -11173,7 +11225,7 @@ async function runScan() {
     addGen(o);
   };
   try {
-    const source = photo ? 'photo' : pdfImgs ? 'pdf-images' : Scan.tab === 'topic' ? 'topic' : 'text';
+    const source = photo ? 'photo' : pdfImgs ? 'pdf-images' : Scan.tab === 'topic' ? 'topic' : ocr ? 'ocr' : 'text';
     const prompt = buildGenPrompt({ n: Scan.n, types: [...Scan.types], level: Scan.level, source, text: source === 'topic' ? Scan.topic.trim() : srcText, outLang: Scan.outLang, diagrams: !!(photo || pdfImgs) && Scan.diagrams && AI.images });
     const opts = { signal: Scan.ctl.signal, cache: false, purpose: 'scan', ...Brain.opts('scan', { level: Scan.level }), onText: ({ delta }) => { const lines = (pending + delta).split('\n'); pending = lines.pop(); lines.forEach(eat); } };
     if (photo) opts.images = Scan.files.slice();
@@ -13323,7 +13375,8 @@ const LIBS = {
   pdfWorker: ['pdfjs-dist@3.11.174/build/pdf.worker.min.js', () => window.pdfjsWorker],
   pdf: ['pdfjs-dist@3.11.174/build/pdf.min.js', () => window.pdfjsLib],
   jspdf: ['jspdf@2.5.2/dist/jspdf.umd.min.js', () => window.jspdf],
-  mathjax: ['mathjax@3.2.2/es5/tex-svg.js', () => window.MathJax?.version ? window.MathJax : null]
+  mathjax: ['mathjax@3.2.2/es5/tex-svg.js', () => window.MathJax?.version ? window.MathJax : null],
+  tesseract: ['tesseract.js@5.1.1/dist/tesseract.min.js', () => window.Tesseract]
 };
 const _libs = {};
 function lib(name) {
@@ -14952,6 +15005,17 @@ TR = {
   "L'IA n'est pas disponible ici.": ["AI isn't available here.","La IA no está disponible aquí.","Die KI ist hier nicht verfügbar.","A IA não está disponível aqui."],
   "Ouvrez Engram dans l'app Claude (ou branchez le serveur Engram) pour lire les photos. La génération locale repère les définitions « terme : explication », les dates et les chiffres.": ["Open Engram in the Claude app (or connect the Engram server) to read photos. Local generation spots \"term: explanation\" definitions, dates and figures.","Abre Engram en la app de Claude (o conecta el servidor de Engram) para leer fotos. La generación local detecta definiciones «término: explicación», fechas y cifras.","Öffne Engram in der Claude-App (oder verbinde den Engram-Server), um Fotos zu lesen. Die lokale Erstellung erkennt Definitionen „Begriff: Erklärung“, Daten und Zahlen.","Abra o Engram no app do Claude (ou conecte o servidor do Engram) para ler fotos. A geração local identifica definições “termo: explicação”, datas e números."],
   "Photo": ["Photo","Foto","Foto","Foto"],
+  "Caméra": ["Camera","Cámara","Kamera","Câmera"],
+  "lu dans l'appareil, rédigé par l'IA": ["read on the device, written by the AI","leído en el dispositivo, redactado por la IA","auf dem Gerät gelesen, von der KI geschrieben","lido no dispositivo, redigido pela IA"],
+  "Ouvrir l'appareil photo": ["Open the camera app","Abrir la cámara","Kamera-App öffnen","Abrir a câmera"],
+  "L'app photo du téléphone, si le scanner ne s'ouvre pas.": ["Your phone's camera app, if the scanner doesn't open.","La app de cámara del teléfono, si el escáner no se abre.","Die Kamera-App des Telefons, falls sich der Scanner nicht öffnet.","A app de câmera do telemóvel, se o scanner não abrir."],
+  "Ici, l'IA ne reçoit pas les images : Engram lit d'abord le texte imprimé de vos pages dans l'appareil, puis l'IA rédige les fiches.": ["Here the AI doesn't receive images: Engram first reads the printed text of your pages on the device, then the AI writes the cards.","Aquí la IA no recibe imágenes: Engram lee primero el texto impreso de tus páginas en el dispositivo y luego la IA redacta las tarjetas.","Hier erhält die KI keine Bilder: Engram liest zuerst den gedruckten Text deiner Seiten auf dem Gerät, dann schreibt die KI die Karten.","Aqui a IA não recebe imagens: o Engram lê primeiro o texto impresso das suas páginas no dispositivo e depois a IA redige os cartões."],
+  "Ici, sans IA : Engram lit le texte imprimé de vos pages dans l'appareil, puis en tire des fiches.": ["Here, without AI: Engram reads the printed text of your pages on the device, then turns it into cards.","Aquí, sin IA: Engram lee el texto impreso de tus páginas en el dispositivo y lo convierte en tarjetas.","Hier ohne KI: Engram liest den gedruckten Text deiner Seiten auf dem Gerät und macht daraus Karten.","Aqui, sem IA: o Engram lê o texto impresso das suas páginas no dispositivo e transforma-o em cartões."],
+  "L'écriture manuscrite et les schémas demandent l'IA du site Engram.": ["Handwriting and diagrams need the AI of the Engram site.","La escritura a mano y los esquemas necesitan la IA del sitio Engram.","Handschrift und Schemata brauchen die KI der Engram-Website.","A escrita à mão e os esquemas precisam da IA do site Engram."],
+  "Lecture du texte, page {i} sur {n}… {p} %": ["Reading the text, page {i} of {n}… {p} %","Leyendo el texto, página {i} de {n}… {p} %","Text wird gelesen, Seite {i} von {n}… {p} %","A ler o texto, página {i} de {n}… {p} %"],
+  "Lecture du texte de la page… {p} %": ["Reading the page's text… {p} %","Leyendo el texto de la página… {p} %","Text der Seite wird gelesen… {p} %","A ler o texto da página… {p} %"],
+  "La lecture des photos n'a pas pu démarrer : vérifiez la connexion, puis réessayez. Vous pouvez aussi dicter ou coller le cours dans l'onglet Texte.": ["Reading the photos couldn't start: check your connection, then try again. You can also dictate or paste the course in the Text tab.","No se pudo empezar a leer las fotos: revisa la conexión y vuelve a intentarlo. También puedes dictar o pegar el curso en la pestaña Texto.","Das Lesen der Fotos konnte nicht starten: Prüfe die Verbindung und versuche es erneut. Du kannst den Kurs auch im Tab Text diktieren oder einfügen.","Não foi possível começar a ler as fotos: verifique a ligação e tente de novo. Também pode ditar ou colar o curso no separador Texto."],
+  "Aucun texte lisible sur ces photos. Prenez la page à plat, nette et bien éclairée ; l'écriture manuscrite demande l'IA du site Engram.": ["No readable text on these photos. Take the page flat, sharp and well lit; handwriting needs the AI of the Engram site.","No hay texto legible en estas fotos. Haz la foto con la página plana, nítida y bien iluminada; la escritura a mano necesita la IA del sitio Engram.","Kein lesbarer Text auf diesen Fotos. Fotografiere die Seite flach, scharf und gut beleuchtet; Handschrift braucht die KI der Engram-Website.","Nenhum texto legível nestas fotos. Fotografe a página plana, nítida e bem iluminada; a escrita à mão precisa da IA do site Engram."],
   "Sujet": ["Topic","Tema","Thema","Tema"],
   "Déposez vos pages de cours": ["Drop your course pages","Suelta las páginas de tu curso","Kursseiten hier ablegen","Solte as páginas da aula"],
   "ou cliquez pour choisir · jusqu'à {n} pages · JPEG, PNG, WebP": ["or click to choose · up to {n} pages · JPEG, PNG, WebP","o haz clic para elegir · hasta {n} páginas · JPEG, PNG, WebP","oder klicken zum Auswählen · bis zu {n} Seiten · JPEG, PNG, WebP","ou clique para escolher · até {n} páginas · JPEG, PNG, WebP"],
