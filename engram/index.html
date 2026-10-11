@@ -10633,7 +10633,9 @@ Cerca de 50 % do oxigênio da atmosfera vem do fitoplâncton oceânico.`
 const Scan = {
   tab: 'photo', files: [], urls: [], text: '', topic: '', n: 12, types: new Set(['basic', 'cloze', 'mcq', 'tf']), diagrams: true, level: 'lycee', dest: 'new', outLang: 'auto',
   phase: 'idle', results: [], meta: null, ctl: null, running: false, err: '', statusTimer: null, local: false, pdf: null,
-  reset() { this.urls.forEach(u => URL.revokeObjectURL(u)); Object.assign(this, { files: [], urls: [], text: '', topic: '', phase: 'idle', results: [], meta: null, err: '', running: false, local: false, pdf: null }); },
+  reset() { this.urls.forEach(u => URL.revokeObjectURL(u)); Object.assign(this, { files: [], urls: [], text: '', topic: '', phase: 'idle', results: [], meta: null, err: '', running: false, local: false, pdf: null, web: null, ocr: false }); },
+  /** Le texte vient-il (encore) d'une page web lue ? */
+  fromWeb() { return this.tab === 'text' && this.web && this.text.includes(this.web.head) ? this.web : null; },
   /** L'IA est là, mais la formule Découverte ne comprend pas le scanner IA : génération locale seulement. */
   locked() { return AI.on && !Pro.on; }
 };
@@ -11128,7 +11130,7 @@ async function prepDiagram(r) {
   r.pending = false;
 }
 /** Consigne de génération (en anglais, pour la qualité) ; les fiches sortent dans la langue du cours ou celle demandée. */
-function buildGenPrompt({ n, types, level, source, text, outLang, diagrams }) {
+function buildGenPrompt({ n, types, level, source, text, outLang, diagrams, web }) {
   const ex = {
     basic: '{"type":"basic","front":"Precise question?","back":"Short answer","extra":"useful context (optional)"}',
     cloze: '{"type":"cloze","text":"The {{c1::mitochondrion}} produces {{c2::ATP}}."}',
@@ -11140,6 +11142,7 @@ function buildGenPrompt({ n, types, level, source, text, outLang, diagrams }) {
   const lang = outLang && outLang !== 'auto' ? `Write every card in ${langNameEn(outLang)} (translate the source if needed).` : `Write the cards in the language of the ${source === 'topic' ? 'request (default: ' + aiLang() + ')' : 'source'}.`;
   const src = source === 'photo' ? 'photo(s) of a course (handwritten or printed). Read the text, headings, boxes, diagrams and formulas carefully.'
     : source === 'pdf-images' ? 'scanned pages of a course (images). Read the text, headings, boxes, diagrams and formulas carefully.'
+      : source === 'web' ? `the readable text of the web page "${web?.title || ''}" (${web?.url || ''})${web?.desc ? `, which presents itself as: "${web.desc}"` : ''}, below. Write cards ONLY about the main subject of this page, as announced by its title and introduction. Ignore anything off-topic that slipped into the text: menus, cookie or newsletter notices, ads, author bios, comments, links to other articles, references. Favour the definitions, key ideas, mechanisms and results of the introduction and main sections over anecdotes, trivia and side stories. If the page is not about a learnable subject, write fewer cards rather than off-topic ones.`
       : source === 'ocr' ? 'the course text below, read from photos of the pages by optical character recognition (OCR). Silently fix obvious recognition errors (split words, wrong letters, stray symbols, page numbers, headers) and ignore unreadable fragments.'
       : source === 'topic' ? `none: the student asks for flashcards about the topic "${text}". Rely on well-established knowledge at curriculum level; if in doubt, do not create the card.`
         : 'the course text below.';
@@ -11165,10 +11168,12 @@ ${types.map(x => ex[x]).join('\n')}${diagrams ? `
 
 LABELLED DIAGRAMS: when a page contains a labelled diagram (a drawing, schema, map or figure whose parts are named by text labels, often with leader lines), ALSO write one extra line per diagram, on top of the ${n} cards:
 {"type":"diagram","page":1,"title":"instruction for the student, e.g. Name the parts of the plant cell","box":[0.10,0.40,0.60,0.35],"labels":[{"text":"Nucleus","box":[0.52,0.48,0.09,0.03]}]}
-"page" is the number of the photo (1 = first). Every box is [left, top, width, height] as fractions of that whole page image (0 = left or top edge, 1 = right or bottom edge). "box" frames the whole diagram with its labels; each label box frames only the words of that label, tightly. Keep only labels that name a part of the diagram (not titles, captions or legends of the page), 2 to 20 per diagram, text exactly as written. No diagram line if the page has no labelled diagram.` : ''}${source === 'text' || source === 'ocr' ? `\n\nCOURSE TEXT:\n"""\n${String(text).slice(0, 45000)}\n"""` : ''}`;
+"page" is the number of the photo (1 = first). Every box is [left, top, width, height] as fractions of that whole page image (0 = left or top edge, 1 = right or bottom edge). "box" frames the whole diagram with its labels; each label box frames only the words of that label, tightly. Keep only labels that name a part of the diagram (not titles, captions or legends of the page), 2 to 20 per diagram, text exactly as written. No diagram line if the page has no labelled diagram.` : ''}${source === 'text' || source === 'ocr' || source === 'web' ? `\n\nCOURSE TEXT:\n"""\n${String(text).slice(0, 45000)}\n"""` : ''}`;
 }
 async function runScan() {
   if (Scan.running) return;
+  // Une adresse dans « Sujet » : on lit la page au lieu de laisser l'IA deviner son contenu d'après l'adresse.
+  if (Scan.tab === 'topic' && /^(https?:\/\/|www\.)\S+$/i.test(Scan.topic.trim())) { const u = Scan.topic.trim(); Scan.topic = ''; Scan.tab = 'text'; App.render(); return Inbox.web(u); }
   let photo = Scan.tab === 'photo' && Scan.files.length, ocr = false;
   const pdfText = Scan.tab === 'pdf' && Scan.pdf && Scan.pdf.text.trim().length > 40;
   const pdfImgs = Scan.tab === 'pdf' && Scan.pdf && !pdfText && Scan.pdf.images?.length;
@@ -11225,8 +11230,9 @@ async function runScan() {
     addGen(o);
   };
   try {
-    const source = photo ? 'photo' : pdfImgs ? 'pdf-images' : Scan.tab === 'topic' ? 'topic' : ocr ? 'ocr' : 'text';
-    const prompt = buildGenPrompt({ n: Scan.n, types: [...Scan.types], level: Scan.level, source, text: source === 'topic' ? Scan.topic.trim() : srcText, outLang: Scan.outLang, diagrams: !!(photo || pdfImgs) && Scan.diagrams && AI.images });
+    const web = !photo && !pdfImgs && !ocr ? Scan.fromWeb() : null;
+    const source = photo ? 'photo' : pdfImgs ? 'pdf-images' : Scan.tab === 'topic' ? 'topic' : ocr ? 'ocr' : web ? 'web' : 'text';
+    const prompt = buildGenPrompt({ n: Scan.n, types: [...Scan.types], level: Scan.level, source, web, text: source === 'topic' ? Scan.topic.trim() : srcText, outLang: Scan.outLang, diagrams: !!(photo || pdfImgs) && Scan.diagrams && AI.images });
     const opts = { signal: Scan.ctl.signal, cache: false, purpose: 'scan', ...Brain.opts('scan', { level: Scan.level }), onText: ({ delta }) => { const lines = (pending + delta).split('\n'); pending = lines.pop(); lines.forEach(eat); } };
     if (photo) opts.images = Scan.files.slice();
     if (pdfImgs) opts.images = Scan.pdf.images.slice(0, AI.limits?.images?.maxCount || 5);
@@ -12018,6 +12024,7 @@ ${AI.tools ? `You can act inside the app with the tools provided. When the stude
 Flashcard quality rules: one idea per card; precise, unambiguous question; short answer (under 20 words); useful detail in "extra"; cloze cards use {{c1::…}} on the most information-rich words (1–3 gaps); multiple-choice cards have 4 plausible options and exactly one correct; write cards in the language of the deck (see each deck's lang) unless asked otherwise.
 Engram Pro also has six specialised assistants you can hand a task to with run_agent (the student then reviews their proposals): planner (prepares today's session), proof (audits a deck's cards), coach (mnemonics for often-forgotten cards), librarian (finds missing notions and drafts new cards), examiner (tailored timed mock exam), chronicler (weekly report). Use them for audits, mock exams and weekly reports.
 ${this.docs.length ? `Documents the student attached in this conversation (re-read them with read_document, numbered from 1): ${this.docs.map((d, k) => `${k + 1}. "${d.name}" (${d.chars || 0} characters${d.images?.length ? `, ${d.images.length} images` : ''})`).join('; ')}.\n` : ''}Course sheets: when the student asks for a summary, a "fiche", a "résumé" or a course sheet (of their documents, of a deck or of a topic), call write_course_sheet — never write such a sheet in the chat. To turn documents into flashcards, create a deck and add_cards (atomic cards at the student's level), in several calls if needed.
+Links: you cannot open a web address by yourself${Pro.on ? ' — read it with read_web_page' : ''}. Never guess what a page says from its address or title; if you could not read it, say so and ask the student to paste the text.
 Planning rules: the app computes the daily programme itself from exams, available minutes per weekday and FSRS; to change it, adjust exams, weekly minutes or the new-cards cap — then explain the effect with get_plan.
 To quiz the student in the chat: ask one question at a time, wait for their answer, grade it kindly (accept synonyms), then continue.
 
@@ -12229,7 +12236,7 @@ ${JSON.stringify(this.snapshot())}`;
             onDone: (deck, note) => { const tu = turn(); if (tu?.role === 'assistant') { tu.sheet = { deck: deck.id, note: note.id }; (tu.receipt = tu.receipt || []).push(t('Fiche rangée dans « {x} »', { x: deck.name })); this.save(); if (this.isOpen) this.render(); } } }));
           say(t('Fiche de cours : rédaction lancée')); return 'The sheet opens in the reader as soon as you finish your reply (keep it to one or two sentences); it is saved in a deck.';
         } }] : []),
-      ...(Pro.on ? [{ name: 'read_web_page', description: `Read a web page the student points to (a Wikipedia article, an online course, documentation) and get its readable text${Pro.expert ? ' in full' : ' (first 40,000 characters)'}. Use it whenever the student gives a link or asks you to explain, summarise or turn a page into cards. Then go to the heart of it: reconstruct the underlying ideas and reasoning even when the page is dense or confusing, explain them at the student's level, and say what the page leaves uncertain.`,
+      ...(Pro.on ? [{ name: 'read_web_page', description: `Read a web page the student points to (a Wikipedia article, an online course, documentation) and get its readable text${Pro.expert ? ' in full' : ' (first 40,000 characters)'}. Use it whenever the student gives a link or asks you to explain, summarise or turn a page into cards; base everything on the text it returns, and keep to the page's main subject (ignore menus, ads, comments and links to other articles). If the page cannot be read, say so and ask the student to paste its text: never guess a page's content from its address. Then go to the heart of it: reconstruct the underlying ideas and reasoning even when the page is dense or confusing, explain them at the student's level, and say what the page leaves uncertain.`,
         inputSchema: { type: 'object', properties: { url: { type: 'string' } }, required: ['url'] },
         execute: async (i, c) => { const j = await WebRead.get(str(i.url), c?.signal).catch(e => { throw new Error(untag(WebRead.why(e))); }); say(t('Page lue : « {t} »', { t: j.title || j.url })); return { title: j.title, url: j.url, source: j.source || 'web', text: String(j.text).slice(0, Pro.expert ? 120000 : 40000) }; } }] : []),
       { name: 'export_calendar', description: 'Offer the student a button that opens the calendar page: one tap adds the daily study session to Google Calendar or Outlook, or saves the programme and exams as an .ics file for Apple Calendar.', inputSchema: { type: 'object', properties: {} },
@@ -14183,7 +14190,9 @@ const Inbox = {
     const btn = $('#scWebGo'); if (btn) { btn.disabled = true; btn.innerHTML = icon('spin', 'spin') + t('Lecture…'); }
     try {
       const j = await WebRead.get(url);
-      Scan.tab = 'text'; Scan.text = (j.title ? j.title + '\n\n' : '') + j.text; Scan.webUrl = j.url;
+      Scan.tab = 'text'; Scan.text = (j.title ? j.title + '\n\n' : '') + j.text;
+      // Ce que la page annonce (titre, description) guide l'IA : les fiches portent sur son sujet, pas sur le reste.
+      Scan.web = { url: j.url || url, title: j.title || '', desc: String(j.desc || '').slice(0, 300), head: j.text.slice(0, 160) };
       App.render(); toast(t('Page lue : {n} caractères. Relisez, puis lancez.', { n: j.text.length }), 'globe');
     } catch (e) {
       toast(WebRead.why(e), 'globe');
@@ -14216,7 +14225,7 @@ const WebRead = {
     if (!pg?.extract || pg.extract.length < 80) return null;
     return { title: pg.title, url: `https://${m[1]}.wikipedia.org/wiki/${encodeURIComponent(pg.title.replace(/ /g, '_'))}`, text: pg.extract.replace(/^(={2,6})\s*(.+?)\s*\1\s*$/gm, (x, eq, h) => '\n' + '#'.repeat(Math.min(eq.length, 4)) + ' ' + h).replace(/\n{3,}/g, '\n\n').trim().slice(0, 150000), source: 'wikipedia' };
   },
-  why(e) { return ({ bad_url: t('Cette adresse ne peut pas être lue.'), not_text: t('Ce lien n\'est pas une page de texte (PDF ? déposez le fichier).'), empty: t('Pas assez de texte sur cette page.'), rate_limited: t('Beaucoup de demandes d\'un coup : réessayez dans un instant.'), no_server: t('La lecture de pages web passe par le serveur Engram : elle marche sur le site en ligne.') })[e?.code] || t('La page ne répond pas. Vérifiez l\'adresse.'); }
+  why(e) { return ({ bad_url: t('Cette adresse ne peut pas être lue.'), not_text: t('Ce lien n\'est pas une page de texte (PDF ? déposez le fichier).'), empty: t('Pas assez de texte sur cette page.'), rate_limited: t('Beaucoup de demandes d\'un coup : réessayez dans un instant.'), no_server: t('La lecture de pages web passe par le serveur Engram : elle marche sur le site en ligne.'), video: t('Une vidéo ne se lit pas comme une page : copiez sa transcription (YouTube : … › Afficher la transcription) et collez-la ici.') })[e?.code] || t('La page ne répond pas. Vérifiez l\'adresse.'); }
 };
 
 function bootDrop() {
@@ -15006,6 +15015,7 @@ TR = {
   "Ouvrez Engram dans l'app Claude (ou branchez le serveur Engram) pour lire les photos. La génération locale repère les définitions « terme : explication », les dates et les chiffres.": ["Open Engram in the Claude app (or connect the Engram server) to read photos. Local generation spots \"term: explanation\" definitions, dates and figures.","Abre Engram en la app de Claude (o conecta el servidor de Engram) para leer fotos. La generación local detecta definiciones «término: explicación», fechas y cifras.","Öffne Engram in der Claude-App (oder verbinde den Engram-Server), um Fotos zu lesen. Die lokale Erstellung erkennt Definitionen „Begriff: Erklärung“, Daten und Zahlen.","Abra o Engram no app do Claude (ou conecte o servidor do Engram) para ler fotos. A geração local identifica definições “termo: explicação”, datas e números."],
   "Photo": ["Photo","Foto","Foto","Foto"],
   "Caméra": ["Camera","Cámara","Kamera","Câmera"],
+  "Une vidéo ne se lit pas comme une page : copiez sa transcription (YouTube : … › Afficher la transcription) et collez-la ici.": ["A video can't be read like a page: copy its transcript (YouTube: … › Show transcript) and paste it here.","Un vídeo no se lee como una página: copia su transcripción (YouTube: … › Mostrar transcripción) y pégala aquí.","Ein Video lässt sich nicht wie eine Seite lesen: Kopiere sein Transkript (YouTube: … › Transkript anzeigen) und füge es hier ein.","Um vídeo não se lê como uma página: copie a sua transcrição (YouTube: … › Mostrar transcrição) e cole-a aqui."],
   "lu dans l'appareil, rédigé par l'IA": ["read on the device, written by the AI","leído en el dispositivo, redactado por la IA","auf dem Gerät gelesen, von der KI geschrieben","lido no dispositivo, redigido pela IA"],
   "Ouvrir l'appareil photo": ["Open the camera app","Abrir la cámara","Kamera-App öffnen","Abrir a câmera"],
   "L'app photo du téléphone, si le scanner ne s'ouvre pas.": ["Your phone's camera app, if the scanner doesn't open.","La app de cámara del teléfono, si el escáner no se abre.","Die Kamera-App des Telefons, falls sich der Scanner nicht öffnet.","A app de câmera do telemóvel, se o scanner não abrir."],
