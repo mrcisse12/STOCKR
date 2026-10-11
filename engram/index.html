@@ -8441,7 +8441,8 @@ function joinKit(P) {
    fois) et un mot du Planificateur au tableau des assistants. */
 const Mastery = {
   R: 0.9, DEF: 90, STEPS: [70, 80, 85, 90, 95, 100],
-  targets() { const A = S.profile.agents; return A.targets && typeof A.targets === 'object' ? A.targets : (A.targets = {}); },
+  // Lire ne change jamais le profil (l'annulation des actions de Mentor le compare) : seuls un choix ou un événement l'écrivent.
+  targets() { const A = S.profile.agents; return A.targets && typeof A.targets === 'object' ? A.targets : {}; },
   /** { deckId, pct, target, n, m, left, reached, exam?, atExam?, recite? } : pct, target, atExam et recite en %. */
   of(deckId) {
     const d = deckById(deckId); if (!d) return null;
@@ -8460,7 +8461,7 @@ const Mastery = {
   },
   /** v : un pourcentage, 0 pour « aucun objectif », null pour revenir au choix par défaut. */
   set(deckId, v) {
-    const T = this.targets(); if (v == null) delete T[deckId]; else T[deckId] = +v;
+    const T = S.profile.agents.targets = this.targets(); if (v == null) delete T[deckId]; else T[deckId] = +v;
     if (S.profile.agents.reached) delete S.profile.agents.reached[deckId];
     Store.touch('profile');
   },
@@ -8513,20 +8514,21 @@ const Mastery = {
     };
     Modal.onClose(m, () => { if (['deck', 'agents'].includes(App.route.v) && !Study.active) App.render(); });
   },
-  /** Les objectifs atteints depuis la dernière fois : un toast (le premier), un mot au tableau. La toute première fois, rien : c'était déjà acquis. */
+  /** Les objectifs atteints pendant que l'app est ouverte : un toast (le premier), un mot au tableau, gardés (reached) pour ne pas fêter deux fois.
+      Un paquet déjà à son objectif au premier regard n'est pas fêté : c'était acquis. Tant que rien n'arrive, rien n'est écrit. */
+  seen: {},
   sweep() {
     if (!S?.profile?.onboarded) return;
-    const A = S.profile.agents, first = !A.reached || typeof A.reached !== 'object'; if (first) A.reached = {};
+    const A = S.profile.agents, R = A.reached && typeof A.reached === 'object' ? A.reached : {};
     let cheer = null;
     for (const d of S.decks) {
       if (d.example || d.cards.length < 5) continue;
-      const M = this.of(d.id), had = A.reached[d.id];
-      if (M.reached && !(had >= M.target)) {
-        A.reached[d.id] = M.target; Store.touch('profile');
-        if (first) continue;
+      const M = this.of(d.id), had = R[d.id], was = this.seen[d.id]; this.seen[d.id] = M.reached;
+      if (M.reached && was === false && !(had >= M.target)) {
+        A.reached = R; R[d.id] = M.target; Store.touch('profile');
         Board.add({ by: 'planner', kind: 'mastery', deckId: d.id, text: t('Objectif atteint pour « {deck} » : {p} des fiches retenues à 90 % ou plus ({g} visés). La priorité va maintenant aux paquets encore sous leur objectif.', { deck: d.name, p: pct(M.pct / 100), g: pct(M.target / 100) }) });
         cheer = cheer || [d, M];
-      } else if (had && (!M.target || M.pct < had - 10)) { delete A.reached[d.id]; Store.touch('profile'); }
+      } else if (had && (!M.target || M.pct < had - 10)) { delete R[d.id]; Store.touch('profile'); }
     }
     if (cheer) { const [d, M] = cheer; toast(t('Objectif atteint : « {deck} » est maîtrisé à {p}. Bravo !', { deck: d.name, p: pct(M.pct / 100) }), 'target'); Sound.play('seal'); haptic(24); }
   },
@@ -8565,7 +8567,7 @@ const agentSeal = (a, size = 46) => waxSeal({ id: 'ag-' + a.id, icon: a.icon, co
    Un mot : { by, at, kind, text, deckId?, ids?, to?, score? }. */
 const BOARD_MAX = 40;
 const Board = {
-  get all() { const A = S.profile.agents; return Array.isArray(A.board) ? A.board : (A.board = []); },
+  get all() { const A = S.profile.agents; return Array.isArray(A.board) ? A.board : []; },
   add(e) {
     const text = String(e.text || '').replace(/\s+/g, ' ').trim().slice(0, 420); if (!text) return null;
     const o = { by: String(e.by || 'mentor'), at: Date.now(), kind: e.kind || 'note', text };
@@ -8574,7 +8576,7 @@ const Board = {
     if (e.to && e.to !== o.by && (AGENT[e.to] || e.to === 'mentor')) o.to = e.to;
     if (Number.isFinite(e.score)) o.score = Math.round(e.score * 1000) / 1000;
     // Un mot par auteur, sujet et paquet dans la journée : le plus récent remplace le précédent.
-    const L = this.all, i = L.findIndex(x => x.by === o.by && x.kind === o.kind && (x.deckId || '') === (o.deckId || '') && dayKey(x.at) === dayKey(o.at));
+    const L = S.profile.agents.board = this.all, i = L.findIndex(x => x.by === o.by && x.kind === o.kind && (x.deckId || '') === (o.deckId || '') && dayKey(x.at) === dayKey(o.at));
     if (i >= 0) L.splice(i, 1);
     L.unshift(o); if (L.length > BOARD_MAX) L.length = BOARD_MAX;
     Store.touch('profile'); return o;
@@ -9296,8 +9298,11 @@ const Autopilot = {
   busy: false, now: null, downAt: 0,
   down() { return Date.now() - this.downAt < 30 * MIN; },
   get on() { const A = S.profile.agents; return Pro.on && (!!A.autopilot || (Pro.expert && A.apOff !== true)); },
-  /** Le compte rendu du jour : { day, ai (missions avec l'IA), done (déjà faites), items }. */
-  day() { const A = S.profile.agents, k = dayKey(); if (!A.auto || A.auto.day !== k || !Array.isArray(A.auto.items)) A.auto = { day: k, ai: 0, done: {}, items: [] }; return A.auto; },
+  /** Le compte rendu du jour : { day, ai (missions avec l'IA), done (déjà faites), items } ; write : le garder dans le profil (sinon, lu sans rien écrire). */
+  day(write = false) {
+    const A = S.profile.agents, k = dayKey(); if (A.auto?.day === k && Array.isArray(A.auto.items)) return A.auto;
+    const o = { day: k, ai: 0, done: {}, items: [] }; if (write) A.auto = o; return o;
+  },
   key: s => s.id + ':' + (s.deckId || ''),
   /** Qui doit travailler maintenant, et pourquoi, du plus urgent au moins urgent. */
   plan() {
@@ -9331,14 +9336,14 @@ const Autopilot = {
     if (!S?.profile?.onboarded) return;
     Mastery.sweep();
     if (!this.on || this.busy) return;
-    const A = S.profile.agents, D = this.day(), today = dayKey(), elite = Pro.expert;
+    const A = S.profile.agents, today = dayKey(), elite = Pro.expert; let D = this.day();
     const needBrief = !A.brief || A.brief.day !== today;
     const needReport = (new Date().getDay() === 1 || now) && (!A.report || Date.now() - A.report.at > 6 * DAY);
     // Élite : le Planificateur repasse avec l'IA en fin de chaîne ; une mission du budget lui est gardée.
     const deep = elite && AI.on && !D.done.planAI, cap = AUTO_AI - (deep ? 1 : 0);
     const chain = elite ? this.plan().filter(s => !['planner', 'chronicler'].includes(s.id) && !D.done[this.key(s)]) : [];
     if (!needBrief && !needReport && !chain.length && !(deep && D.ai < AUTO_AI)) return;
-    this.busy = true; const fresh = [];
+    this.busy = true; D = this.day(true); const fresh = [];
     const keep = (M, s) => { const it = this.item(M, s); fresh.push(it); D.items.unshift(it); D.items = D.items.slice(0, 12); Store.touch('profile'); };
     try {
       // 1. Tout de suite, sans IA : la séance du jour et le mot du matin.
