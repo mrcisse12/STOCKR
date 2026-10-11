@@ -8923,7 +8923,8 @@ const Agents = {
     if (Study.active) Study.close(true);
     if (Mentor.isOpen) Mentor.close();
     while (Modal.stack.length) Modal.close();
-    const deck = a.deck ? deckById(o.deckId || (App.route.v === 'deck' ? App.route.arg : '')) || null : null;
+    // L'Examinateur vise un paquet quand on le lui confie (Mentor, une suggestion) ; sinon, le programme du prochain examen.
+    const deck = a.deck || a.id === 'examiner' ? deckById(o.deckId || (a.deck && App.route.v === 'deck' ? App.route.arg : '')) || null : null;
     // Une mission confiée par Mentor (o.focus) ou suggérée par l'autopilote garde sa raison : l'assistant s'en sert de consigne.
     const sug = o.focus ? null : Autopilot.suggestions().find(s => s.id === id && (s.deckId || null) === (deck?.id || null));
     const focus = o.focus || sug?.why || '', by = o.focus ? o.by || '' : sug ? 'autopilot' : '';
