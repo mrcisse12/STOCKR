@@ -1931,6 +1931,70 @@ button,a,label,select,.chip,.opt,.ochip{touch-action:manipulation}
 .agent{--ac:#7A4E14;position:relative;display:flex;flex-direction:column;gap:12px;padding:20px 20px 18px 22px;border-radius:6px;background-color:var(--paper);color:var(--p-ink);text-align:left;box-shadow:var(--sh-card);
   background-image:linear-gradient(180deg,transparent 58px,var(--p-margin) 58px,var(--p-margin) 59px,transparent 59px),linear-gradient(180deg,transparent calc(100% - 1px),var(--p-rule) calc(100% - 1px));background-size:100% 100%,100% 26px;background-position:0 0,0 59px;background-repeat:no-repeat,repeat-y;
   transition:transform .5s var(--spring),box-shadow .4s}
+/* Maîtrise d'un paquet (barre, objectif), tableau des assistants, compte rendu de l'autopilote */
+.mastery{--c:var(--brass);display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:18px;align-items:center;width:100%;padding:14px 20px;border-radius:12px;border:1px solid var(--hair-2);background:var(--folder-2);box-shadow:inset 3px 0 0 var(--c);color:var(--text);text-align:left;font:inherit;transition:border-color .3s var(--ease)}
+button.mastery:hover{border-color:var(--hair-3)}
+button.mastery:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.mx-p{font:400 42px/1 var(--f-display);letter-spacing:-.02em;min-width:2.4ch;color:var(--text);white-space:nowrap}
+.mx-p small{font-size:.46em;margin-left:3px;color:var(--muted)}
+.mastery.ok .mx-p{color:var(--good)}
+.mx-b{display:flex;flex-direction:column;gap:9px;min-width:0}
+.mx-l{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;font-size:15px;font-weight:500;line-height:1.35}
+.mx-l b{font-weight:600}
+.mx-bar{position:relative;display:block;height:7px;border-radius:99px;background:var(--hair-2)}
+.mx-bar i{position:absolute;left:0;top:0;bottom:0;max-width:100%;border-radius:inherit;background:linear-gradient(90deg,var(--brass-lo),var(--brass));transition:width .9s var(--ease)}
+.mastery.ok .mx-bar i{background:linear-gradient(90deg,var(--green),var(--good))}
+.mx-bar em{position:absolute;top:-5px;bottom:-5px;width:2px;margin-left:-1px;border-radius:2px;background:var(--text);opacity:.55}
+.mx-s{display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;font-size:12.5px;line-height:1.45;color:var(--muted)}
+.mx-rc{display:inline-flex;align-items:center;gap:5px;color:var(--brass-text);font-weight:600}
+.mx-go{display:inline-flex;align-items:center;gap:6px;font:700 10.5px/1 var(--f-type);letter-spacing:.08em;text-transform:uppercase;color:var(--brass-text);white-space:nowrap}
+.mastery .tag.ok{color:var(--good);border-color:color-mix(in srgb,var(--good) 50%,transparent)}
+.mastery.sm{grid-template-columns:auto minmax(0,1fr);gap:14px;padding:10px 14px;border-color:var(--hair);background:transparent}
+.mastery.sm .mx-p{font-size:28px}
+.mastery.sm .mx-l{font-size:13.5px;font-weight:400;color:var(--text-2)}
+.mastery.sm .mx-l b{color:var(--text)}
+.mastery.sm .mx-bar{height:5px}
+.mx-list{display:flex;flex-direction:column;gap:8px}
+.mx-pick{display:flex;flex-direction:column;gap:16px}
+.mx-pick p{margin:0;font-size:14px;line-height:1.55}
+.mx-pick .seg{max-width:100%}
+.mx-pick small{display:block;margin-top:8px;font-size:13px}
+@media (max-width:640px){.mastery{grid-template-columns:auto minmax(0,1fr);gap:14px;padding:12px 14px}.mastery .mx-go{grid-column:2}.mx-p{font-size:34px}}
+.ag-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:16px;align-items:start}
+@media (max-width:900px){.ag-split{grid-template-columns:1fr}}
+.ag-split .panel-h{margin-bottom:8px}
+.ag-sub{margin:0 0 14px;font-size:13.5px;line-height:1.5;color:var(--muted)}
+.board{position:relative;list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.board::before{content:"";position:absolute;left:17px;top:22px;bottom:22px;border-left:1px dashed var(--hair-3)}
+.bd-e{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr);gap:12px;padding:10px 0}
+.bd-e>svg,.bd-mono{position:relative;width:36px;height:36px}
+.bd-mono{display:grid;place-items:center;border-radius:50%;background:var(--folder-3);color:var(--brass-text);border:1px solid color-mix(in srgb,var(--brass) 55%,transparent)}
+.bd-mono .i{width:16px;height:16px}
+.bd-h{display:flex;align-items:baseline;flex-wrap:wrap;gap:3px 9px}
+.bd-h b{font:400 17px/1.15 var(--f-display)}
+.bd-to{display:inline-flex;align-items:center;gap:4px;font:700 10px/1 var(--f-type);letter-spacing:.08em;text-transform:uppercase;color:var(--brass-text)}
+.bd-to .i{width:12px;height:12px}
+.bd-h time{margin-left:auto;font:700 10.5px/1 var(--f-type);color:var(--muted);white-space:nowrap}
+.bd-b{min-width:0}
+.bd-b p{margin:4px 0 0;font-size:14px;line-height:1.5;color:var(--text-2);overflow-wrap:anywhere}
+.bd-b .tag{margin-top:7px}
+.bd-empty{margin:0;font-size:14px;line-height:1.55;color:var(--muted)}
+.digest{display:flex;flex-direction:column;padding:2px 20px;border-radius:14px;border:1px solid var(--hair-2);background:linear-gradient(180deg,var(--brass-soft),transparent 140px),var(--folder-2)}
+.digest.sugg{background:var(--folder-2)}
+.dg-h{display:flex;align-items:center;justify-content:space-between;gap:10px 14px;flex-wrap:wrap;padding:16px 0 12px}
+.dg-h h3{margin:5px 0 0;font:400 24px/1.1 var(--f-display)}
+.dg-i{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 0;border-top:1px solid var(--hair)}
+.digest.sugg .dg-i:first-child{border-top:0}
+.dg-i>svg{width:36px;height:36px}
+.dg-t{min-width:0;font-size:14.5px}
+.dg-t b{font-weight:600}
+.dg-t small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:3px;font-size:13px;line-height:1.45;color:var(--text-2)}
+.dg-i .acts{display:flex;align-items:center;gap:10px}
+.dg-k{font:700 10.5px/1.3 var(--f-type);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.dg-k.on{color:var(--brass-text)}
+@media (max-width:620px){.digest{padding:2px 16px}.dg-i{grid-template-columns:auto minmax(0,1fr)}.dg-i .acts{grid-column:2;justify-content:space-between}}
+.autopilot .ap-now{display:flex;align-items:center;gap:8px;margin-top:10px;font:700 11px/1.3 var(--f-type);font-style:normal;letter-spacing:.06em;color:var(--gilt)}
+.autopilot .ap-now::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--gilt);box-shadow:0 0 0 3px color-mix(in srgb,var(--gilt) 25%,transparent);animation:pulse 2.4s ease-in-out infinite}
 .agent:nth-child(odd){transform:rotate(-.35deg)}.agent:nth-child(even){transform:rotate(.3deg)}
 .agent:hover{transform:translateY(-4px) rotate(0)}
 .agent::after{content:"";position:absolute;top:0;left:22px;width:38px;height:6px;border-radius:0 0 3px 3px;background:var(--ac);opacity:.85}
@@ -5868,6 +5932,7 @@ Views.deck = id => {
       <div style="display:flex;flex-direction:column;gap:12px"><div class="kicker">${t('Tiroir')}${d.example ? ' · ' + t('exemple') : ''}${d.cls ? ' · ' + t((TEAM_TXT[d.cls.org] || TEAM_TXT.school).tagged, { c: esc(d.cls.name) }) : ''}</div><h1 class="display" style="font-size:clamp(36px,5vw,62px)">${words(esc(d.name))}</h1>${d.desc ? `<p class="lede">${esc(d.desc)}</p>` : ''}</div>
     </header>
     ${examBanner(id)}
+    ${Mastery.html(id)}
     <div class="toolbar rise">
       <button class="btn btn-brass" data-act="study" data-deck="${d.id}" ${c.total ? '' : 'disabled'}>${icon('play')}${t('Réviser')}${c.total ? ` · ${c.total}` : ''}</button>
       <button class="btn" data-act="cram" data-deck="${d.id}">${icon('zap')}${t('En avance')}</button>
@@ -8356,9 +8421,119 @@ function joinKit(P) {
    travaille (avec l'IA, ou avec des analyses locales quand c'est possible),
    écrit une note et PROPOSE des changements : la personne applique ou
    ignore chaque proposition, et peut tout annuler d'un clic.
+   Ils travaillent en équipe : un tableau commun (Board) garde ce que
+   chacun a trouvé, chaque consigne le relit, et la maîtrise de chaque
+   paquet (Mastery) leur donne un objectif chiffré.
    L'autopilote réveille le Planificateur chaque matin et le Chroniqueur
-   chaque lundi, à l'ouverture de l'app, sans rien modifier.
+   chaque lundi, à l'ouverture de l'app ; avec Élite, il enchaîne aussi
+   les autres assistants. Rien ne change sans l'accord de la personne.
    ════════════════════════════════════════════════════════════════════ */
+
+/* ── La maîtrise d'un paquet ──────────────────────────────────────────
+   Mesure (FSRS) : la part des fiches actives du paquet (non suspendues)
+   que la personne retrouverait AUJOURD'HUI avec au moins 90 % de chances
+   (FSRS.retrievability ≥ 0,9). Une fiche nouvelle, en cours
+   d'apprentissage, ou revue mais laissée filer sous 90 % ne compte pas.
+   « Maîtrise 90 % » veut donc dire : interrogé maintenant, on réussirait
+   9 fiches sur 10 de ce paquet. Arrondi à l'entier inférieur.
+   L'objectif : celui choisi pour le paquet (0 = aucun), sinon 90 % quand
+   un examen à venir porte sur lui, sinon aucun. Atteint : un toast (une
+   fois) et un mot du Planificateur au tableau des assistants. */
+const Mastery = {
+  R: 0.9, DEF: 90, STEPS: [70, 80, 85, 90, 95, 100],
+  targets() { const A = S.profile.agents; return A.targets && typeof A.targets === 'object' ? A.targets : (A.targets = {}); },
+  /** { deckId, pct, target, n, m, left, reached, exam?, atExam?, recite? } : pct, target, atExam et recite en %. */
+  of(deckId) {
+    const d = deckById(deckId); if (!d) return null;
+    const cards = d.cards.filter(c => !c.suspended), n = cards.length;
+    const held = at => cards.filter(c => c.srs.state === 2 && FSRS.retrievability(c.srs, at) >= this.R).length;
+    const m = held(Date.now()), dl = Plan.deckDeadline(d), set = this.targets()[d.id];
+    const exam = dl ? { id: dl.x.id, name: dl.x.name, date: dl.x.date, days: dl.days } : null;
+    const target = set === 0 ? null : set >= 50 && set <= 100 ? set : exam ? this.DEF : null;
+    const pc = n ? Math.floor(m / n * 100) : 0;
+    const o = { deckId: d.id, pct: pc, target, n, m, exam, reached: !!(target && n && pc >= target), left: target ? Math.max(0, Math.ceil(target * n / 100 - 1e-9) - m) : 0 };
+    // Au jour J, sans plus rien réviser : ce que l'oubli laisserait (pour que les assistants mesurent l'urgence).
+    if (exam && n) o.atExam = Math.floor(held(keyToDate(exam.date).getTime() + 9 * HOUR) / n * 100);
+    // Développée à part : la meilleure récitation orale du paquet, en signal de plus.
+    if (typeof Recite !== 'undefined') { try { const r = Recite.best(d.id); if (Number.isFinite(r)) o.recite = Math.round(r); } catch { } }
+    return o;
+  },
+  /** v : un pourcentage, 0 pour « aucun objectif », null pour revenir au choix par défaut. */
+  set(deckId, v) {
+    const T = this.targets(); if (v == null) delete T[deckId]; else T[deckId] = +v;
+    if (S.profile.agents.reached) delete S.profile.agents.reached[deckId];
+    Store.touch('profile');
+  },
+  /** « Maîtrise 72 % · objectif 90 % avant le 12 nov. » */
+  line(M) {
+    const p = pct(M.pct / 100); if (!M.target) return t('Maîtrise {p}', { p });
+    const g = pct(M.target / 100);
+    return M.exam ? t('Maîtrise {p} · objectif {g} avant le {date}', { p, g, date: fmtDate(keyToDate(M.exam.date), { day: 'numeric', month: 'short' }) }) : t('Maîtrise {p} · objectif {g}', { p, g });
+  },
+  /** Pour l'IA : l'état de Mentor et des assistants. */
+  ai(deckId) {
+    const M = this.of(deckId); if (!M) return {};
+    return { mastery: M.pct + '%', mastery_target: M.target ? M.target + '%' : null, ...(M.target && !M.reached ? { cards_to_target: M.left } : {}), ...(M.atExam != null ? { mastery_at_exam_if_idle: M.atExam + '%' } : {}), ...(M.recite != null ? { best_oral_recitation: M.recite + '%' } : {}) };
+  },
+  /** La barre de maîtrise : en grand sur la page du paquet, en ligne (sm) sur celle des assistants et dans le choix de l'objectif. */
+  html(deckId, sm = false, tag = 'button') {
+    const d = deckById(deckId), M = d && this.of(deckId); if (!M || !M.n) return '';
+    if (!sm) this.later();
+    const rc = M.recite != null ? `<span class="mx-rc" data-tip="${esc(t('Meilleure récitation orale de ce paquet'))}">${icon('mic', 'i-sm')}${t('Récitation {p}', { p: pct(M.recite / 100) })}</span>` : '';
+    const sub = M.reached ? t('{m} sur {n} retenues à 90 % ou plus aujourd\'hui.', { m: num(M.m), n: plural(M.n, 'fiche|fiches') })
+      : M.target ? tp(M.left, 'Encore {n} fiche à retenir à 90 % pour l\'atteindre.|Encore {n} fiches à retenir à 90 % pour l\'atteindre.')
+        : t('La part des fiches que vous retrouveriez aujourd\'hui avec au moins 90 % de chances.');
+    const act = tag === 'button' ? ` data-act="mastery" data-deck="${d.id}"` : '';
+    return `<${tag} class="mastery ${sm ? 'sm' : 'rise'} ${M.reached ? 'ok' : ''}"${act} style="--c:${DECK_COLORS[d.color] || DECK_COLORS.brass}">
+      <span class="mx-p tnum">${num(M.pct)}<small>%</small></span>
+      <span class="mx-b"><span class="mx-l">${sm ? `<b>${esc(d.name)}</b>` : ''}<span>${esc(this.line(M))}</span>${M.reached ? `<span class="tag ok">${icon('check', 'i-sm')}${t('Objectif atteint')}</span>` : ''}</span>
+        <span class="mx-bar" aria-hidden="true"><i style="width:${M.pct}%"></i>${M.target ? `<em style="left:${M.target}%"></em>` : ''}</span>
+        ${sm ? (rc ? `<span class="mx-s">${rc}</span>` : '') : `<span class="mx-s"><span>${esc(sub)}</span>${rc}</span>`}</span>
+      ${sm ? '' : `<span class="mx-go">${icon('target', 'i-sm')}${M.target ? t('Objectif') : t('Fixer un objectif')}</span>`}
+    </${tag}>`;
+  },
+  /** Les paquets à montrer sur la page des assistants : ceux qui ont un objectif d'abord, l'examen le plus proche en tête. */
+  list(max = 6) {
+    return S.decks.filter(d => d.cards.length).map(d => this.of(d.id)).sort((a, b) => !!b.target - !!a.target || (a.exam?.days ?? 1e4) - (b.exam?.days ?? 1e4) || b.n - a.n).slice(0, max);
+  },
+  /** Choisir l'objectif d'un paquet. */
+  open(deckId) {
+    const d = deckById(deckId), M = d && this.of(deckId); if (!M) return;
+    const T = this.targets(), cur = d.id in T ? String(T[d.id]) : '';
+    const def = M.exam ? t('Par défaut : {g}, car « {exam} » porte sur ce paquet.', { g: pct(this.DEF / 100), exam: M.exam.name }) : t('Par défaut : aucun objectif, faute d\'examen sur ce paquet.');
+    const m = Modal.open(mh(t('Objectif de maîtrise'), esc(d.name)) + `<div class="mx-pick"><div data-r="now">${this.html(d.id, true, 'div')}</div>
+      <p class="muted">${t('La maîtrise, c\'est la part des fiches de ce paquet que vous retrouveriez aujourd\'hui avec au moins 90 % de chances, d\'après l\'algorithme FSRS. Les fiches nouvelles ne comptent pas encore.')}</p>
+      <div class="field"><span class="flabel">${t('Objectif')}</span><div class="seg" data-r="seg">${[['', t('Par défaut')], ['0', t('Aucun')], ...this.STEPS.map(v => [String(v), pct(v / 100)])].map(([k, l]) => `<button class="${cur === k ? 'on' : ''}" data-v="${k}">${l}</button>`).join('')}</div><small class="muted">${esc(def)}</small></div>
+      </div><div class="modal-f"><button class="btn btn-brass" data-act="close">${t('Terminé')}</button></div>`);
+    m.querySelector('[data-r="seg"]').onclick = e => {
+      const b = e.target.closest('[data-v]'); if (!b) return;
+      this.set(d.id, b.dataset.v === '' ? null : +b.dataset.v); Sound.play('tick');
+      $$('[data-r="seg"] button', m).forEach(x => x.classList.toggle('on', x === b));
+      m.querySelector('[data-r="now"]').innerHTML = this.html(d.id, true, 'div');
+    };
+    Modal.onClose(m, () => { if (['deck', 'agents'].includes(App.route.v) && !Study.active) App.render(); });
+  },
+  /** Les objectifs atteints depuis la dernière fois : un toast (le premier), un mot au tableau. La toute première fois, rien : c'était déjà acquis. */
+  sweep() {
+    if (!S?.profile?.onboarded) return;
+    const A = S.profile.agents, first = !A.reached || typeof A.reached !== 'object'; if (first) A.reached = {};
+    let cheer = null;
+    for (const d of S.decks) {
+      if (d.example || d.cards.length < 5) continue;
+      const M = this.of(d.id), had = A.reached[d.id];
+      if (M.reached && !(had >= M.target)) {
+        A.reached[d.id] = M.target; Store.touch('profile');
+        if (first) continue;
+        Board.add({ by: 'planner', kind: 'mastery', deckId: d.id, text: t('Objectif atteint pour « {deck} » : {p} des fiches retenues à 90 % ou plus ({g} visés). La priorité va maintenant aux paquets encore sous leur objectif.', { deck: d.name, p: pct(M.pct / 100), g: pct(M.target / 100) }) });
+        cheer = cheer || [d, M];
+      } else if (had && (!M.target || M.pct < had - 10)) { delete A.reached[d.id]; Store.touch('profile'); }
+    }
+    if (cheer) { const [d, M] = cheer; toast(t('Objectif atteint : « {deck} » est maîtrisé à {p}. Bravo !', { deck: d.name, p: pct(M.pct / 100) }), 'target'); Sound.play('seal'); haptic(24); }
+  },
+  /** Après l'affichage d'une page (pas pendant). */
+  later() { clearTimeout(this._t); this._t = setTimeout(() => this.sweep(), 900); }
+};
+
 const AGENTS = [
   { id: 'planner', name: N_('Le Planificateur'), note: N_('Note du Planificateur'), session: N_('Séance du Planificateur'), job: N_('Le mot du matin'), icon: 'route', color: '#1F5A40', local: true,
     desc: N_('Il lit votre journée : fiches dues, examens, temps libre. Il prépare la séance idéale et vous l\'explique en trois lignes.') },
@@ -8374,7 +8549,84 @@ const AGENTS = [
     desc: N_('Chaque lundi, il fait le point : ce qui progresse, ce qui glisse, où vous en êtes pour l\'examen, et trois priorités.') }
 ];
 const AGENT = Object.fromEntries(AGENTS.map(a => [a.id, a]));
+// La nature de chaque mission pour Brain.opts : le Planificateur raisonne comme un programme, l'Examinateur comme un examen.
+const AGENT_TASK = { planner: 'plan', proof: 'agent', coach: 'agent', librarian: 'cards', examiner: 'exam', chronicler: 'agent' };
+// Ce que chaque assistant laisse au tableau.
+const AGENT_KIND = { planner: 'plan', proof: 'weak', coach: 'mnemo', librarian: 'gaps', examiner: 'examPrep', chronicler: 'report' };
 const agentSeal = (a, size = 46) => waxSeal({ id: 'ag-' + a.id, icon: a.icon, color: a.color }, size);
+
+/* ── Le tableau des assistants ────────────────────────────────────────
+   Un fil commun (S.profile.agents.board, 40 mots au plus, le plus récent
+   d'abord). Chaque mission y laisse l'essentiel de ce qu'elle a trouvé,
+   Mentor y dépose ce qu'il confie, l'examen blanc de l'Examinateur y rend
+   sa copie, et chaque consigne d'assistant le relit : les fiches signalées
+   par le Correcteur passent au Répétiteur, les erreurs de l'examen blanc
+   entrent dans la séance du Planificateur, le Chroniqueur en fait le bilan.
+   Un mot : { by, at, kind, text, deckId?, ids?, to?, score? }. */
+const BOARD_MAX = 40;
+const Board = {
+  get all() { const A = S.profile.agents; return Array.isArray(A.board) ? A.board : (A.board = []); },
+  add(e) {
+    const text = String(e.text || '').replace(/\s+/g, ' ').trim().slice(0, 420); if (!text) return null;
+    const o = { by: String(e.by || 'mentor'), at: Date.now(), kind: e.kind || 'note', text };
+    if (e.deckId && deckById(e.deckId)) o.deckId = e.deckId;
+    const ids = [...new Set((e.ids || []).map(String))].filter(id => findCard(id)[0]).slice(0, 24); if (ids.length) o.ids = ids;
+    if (e.to && e.to !== o.by && (AGENT[e.to] || e.to === 'mentor')) o.to = e.to;
+    if (Number.isFinite(e.score)) o.score = Math.round(e.score * 1000) / 1000;
+    // Un mot par auteur, sujet et paquet dans la journée : le plus récent remplace le précédent.
+    const L = this.all, i = L.findIndex(x => x.by === o.by && x.kind === o.kind && (x.deckId || '') === (o.deckId || '') && dayKey(x.at) === dayKey(o.at));
+    if (i >= 0) L.splice(i, 1);
+    L.unshift(o); if (L.length > BOARD_MAX) L.length = BOARD_MAX;
+    Store.touch('profile'); return o;
+  },
+  /** Les mots récents ; avec deckId : ceux de ce paquet (ou qui citent ses fiches) et les mots généraux. */
+  of({ deckId, kinds, by, days = 30, n = BOARD_MAX } = {}) {
+    const since = Date.now() - days * DAY;
+    return this.all.filter(e => e.at >= since && (!kinds || kinds.includes(e.kind)) && (!by || e.by === by)
+      && (!deckId || (!e.deckId && !e.ids?.length) || e.deckId === deckId || e.ids?.some(id => findCard(id)[1]?.id === deckId))).slice(0, n);
+  },
+  /** Les fiches signalées (Correcteur, erreurs d'examen blanc), sauf celles que le Répétiteur a traitées depuis : des paires [fiche, paquet]. */
+  flagged(deckId, days = 14) {
+    const done = new Map(), out = new Map();
+    for (const e of this.of({ kinds: ['mnemo'], days })) for (const id of e.ids || []) done.set(id, Math.max(done.get(id) || 0, e.at));
+    for (const e of this.of({ kinds: ['weak', 'exam'], days })) for (const id of e.ids || []) {
+      if (out.has(id) || (done.get(id) || 0) > e.at) continue;
+      const [c, d] = findCard(id); if (c && !c.suspended && (!deckId || d.id === deckId)) out.set(id, [c, d]);
+    }
+    return [...out.values()];
+  },
+  /** Les fiches qui résistent le plus dans un paquet : souvent oubliées d'abord, puis les plus fragiles (identifiants). */
+  weakOf(d, n = 6) {
+    return d.cards.filter(c => c.srs.state > 0 && !c.suspended && c.type !== 'occlusion').map(c => [c, FSRS.retrievability(c.srs)])
+      .filter(([c, r]) => (c.srs.lapses || 0) >= 2 || r < 0.85).sort((a, b) => (b[0].srs.lapses || 0) - (a[0].srs.lapses || 0) || a[1] - b[1]).slice(0, n).map(([c]) => c.id);
+  },
+  /** Les questions de quelques fiches, entre guillemets, pour un mot lisible. */
+  names(ids, k = 3) {
+    return ids.slice(0, k).map(id => findCard(id)[0]).filter(Boolean).map(c => { const s = plain(cardTitle(c)).replace(/\s+/g, ' ').trim(); return quote(s.length > 48 ? s.slice(0, 47).trimEnd() + '…' : s); }).join(', ');
+  },
+  /** « a, b et c », dans la langue de l'interface. */
+  join(parts) { try { return new Intl.ListFormat(locale(), { type: 'conjunction' }).format(parts); } catch { return parts.join(', '); } },
+  /** La copie rendue d'un examen blanc de l'Examinateur : la note et les erreurs, pour le Planificateur. */
+  exam(qs, res) {
+    const n = res.length, ok = res.filter(r => r.ok).length, wrong = [...new Set(res.filter(r => !r.ok).map(r => r.q.c.id))];
+    const decks = [...new Set(qs.map(q => q.d?.id).filter(Boolean))], sc = gradeScale(ok / n);
+    this.add({ by: 'examiner', kind: 'exam', deckId: decks.length === 1 ? decks[0] : null, score: ok / n, ids: wrong, to: wrong.length ? 'planner' : null,
+      text: t('Examen blanc rendu : {ok} sur {n} ({note}).', { ok: num(ok), n: num(n), note: sc.main + sc.sub }) + ' ' + (wrong.length ? tp(wrong.length, 'Une erreur revient dans la prochaine séance : {list}.|{n} erreurs reviennent dans la prochaine séance : {list}.', { list: this.names(wrong) }) : t('Aucune erreur : rien à reprendre.')) });
+  },
+  /** Pour la consigne d'un assistant ou l'état de Mentor. */
+  forAI(o = {}) {
+    return this.of({ n: 14, ...o }).map(e => ({ from: e.by, ...(e.to ? { to: e.to } : {}), date: dayKey(e.at), kind: e.kind, ...(e.deckId ? { deck_id: e.deckId, deck: deckById(e.deckId)?.name } : {}), note: e.text, ...(e.ids ? { card_ids: e.ids } : {}), ...(e.score != null ? { score: Math.round(e.score * 100) + '%' } : {}) }));
+  },
+  who(by) { return AGENT[by] ? t(AGENT[by].name) : by === 'mentor' ? 'Mentor' : t('L\'autopilote'); },
+  seal(by, size = 34) { return AGENT[by] ? agentSeal(AGENT[by], size) : `<span class="bd-mono">${icon(by === 'mentor' ? 'sparkles' : 'sun')}</span>`; },
+  /** Le fil « Ce que vos assistants se sont dit ». */
+  html(n = 8) {
+    const L = this.of({ n });
+    if (!L.length) return `<p class="bd-empty">${t('Rien pour l\'instant. Lancez un assistant : ce qu\'il trouve s\'inscrit ici, et les autres s\'en servent.')}</p>`;
+    return `<ol class="board">${L.map(e => { const d = deckById(e.deckId); return `<li class="bd-e">${this.seal(e.by)}<div class="bd-b"><div class="bd-h"><b>${esc(this.who(e.by))}</b>${e.to ? `<span class="bd-to">${icon('arrow', 'i-sm')}${esc(this.who(e.to))}</span>` : ''}<time>${esc(ago(e.at))}</time></div><p>${esc(e.text)}</p>${d ? `<span class="tag">${esc(d.name)}</span>` : ''}</div></li>`; }).join('')}</ol>`;
+  }
+};
+
 function agentCard(a) {
   const last = S.profile.agents.runs.find(r => r.id === a.id);
   return `<article class="agent rise" style="--ac:${a.color}">
@@ -8385,33 +8637,50 @@ function agentCard(a) {
   </article>`;
 }
 Views.agents = () => {
-  const A = S.profile.agents, runs = A.runs.slice(0, 8);
+  const A = S.profile.agents, runs = A.runs.slice(0, 8), on = Autopilot.on;
+  const D = Pro.on ? Autopilot.day() : null, sugg = Pro.on ? Autopilot.suggestions().slice(0, 4) : [], mx = Mastery.list();
+  Mastery.later();
   return `
     <header class="rise"><div class="kicker"><b>Engram Pro</b> · ${t('les assistants')}</div><h1 class="display" style="margin-top:12px">${words(t('Six assistants, <em>une</em> règle : vous décidez.'))}</h1>
       <p class="lede" style="margin-top:14px">${t('Chaque assistant lit vos fiches et votre historique, puis propose. Rien ne change sans votre accord, et tout s\'annule d\'un clic.')}</p></header>
     ${Pro.on ? '' : `<div class="demo-note rise">${icon('crown', 'i-sm')}<span>${AI.on ? t('Formule Découverte : encore {n} ce mois-ci avec l\'IA. Les analyses locales sont illimitées.', { n: plural(Pro.left('agent'), 'mission|missions') }) : t('Formule Découverte : les analyses locales sont illimitées ; avec l\'IA, 3 missions par mois.')}</span><button class="btn btn-sm btn-gilt" data-act="proTrial">${Pro.canTrial ? t('Essayer Pro 14 jours') : t('Passer à Pro')}</button></div>`}
-    <article class="autopilot leather gilt-rule rise ${A.autopilot && Pro.on ? 'on' : ''}" id="apBox"><span class="ap-dial">${icon('sun')}</span>
-      <div><b>${t('Autopilote')}</b><span>${t('Chaque matin, le Planificateur prépare votre séance. Chaque lundi, le Chroniqueur fait le bilan de la semaine. Ils travaillent à l\'ouverture de l\'app, sans rien modifier.')}</span></div>
-      <button class="switch ${A.autopilot && Pro.on ? 'on' : ''}" id="apSw" role="switch" aria-checked="${!!(A.autopilot && Pro.on)}" aria-label="${esc(t('Autopilote'))}"></button></article>
+    <article class="autopilot leather gilt-rule rise ${on ? 'on' : ''}" id="apBox"><span class="ap-dial">${icon('sun')}</span>
+      <div><b>${t('Autopilote')}</b><span>${Pro.expert ? t('Élite : à chaque ouverture de l\'app, vos assistants se relaient seuls. Ils lisent le tableau, la maîtrise de vos paquets et vos dates d\'examen, décident qui doit travailler (jusqu\'à {n} missions avec l\'IA par jour) et vous laissent un compte rendu. Rien ne change sans votre accord.', { n: AUTO_AI }) : t('Chaque matin, le Planificateur prépare votre séance. Chaque lundi, le Chroniqueur fait le bilan de la semaine. Ils travaillent à l\'ouverture de l\'app, sans rien modifier.')}</span><em class="ap-now" id="apNow" ${Autopilot.now ? '' : 'hidden'}>${esc(Autopilot.nowText())}</em></div>
+      <button class="switch ${on ? 'on' : ''}" id="apSw" role="switch" aria-checked="${on}" aria-label="${esc(t('Autopilote'))}"></button></article>
+    ${D?.items.length ? Autopilot.digestHTML() : ''}
+    ${sugg.length ? `<section class="sec"><div class="sec-h rise"><div><h2 class="h2">${t('Vos assistants suggèrent')}</h2><p>${Pro.expert && on ? t('Ce que l\'autopilote n\'a pas encore fait aujourd\'hui. Un appui suffit.') : t('Ils ont lu le tableau, la maîtrise de vos paquets et vos dates d\'examen. Un appui suffit.')}</p></div></div>${Autopilot.suggHTML(sugg)}</section>` : ''}
+    <section class="ag-split">
+      <article class="panel rise"><div class="panel-h"><h3 class="h3">${t('Maîtrise de vos paquets')}</h3><span class="kicker">FSRS</span></div>
+        <p class="ag-sub">${t('La part des fiches que vous retrouveriez aujourd\'hui avec au moins 90 % de chances. Touchez un paquet pour choisir son objectif.')}</p>
+        ${mx.length ? `<div class="mx-list">${mx.map(M => Mastery.html(M.deckId, true)).join('')}</div>` : `<p class="bd-empty">${t('Aucun paquet pour le moment.')}</p>`}</article>
+      <article class="panel rise"><div class="panel-h"><h3 class="h3">${t('Ce que vos assistants se sont dit')}</h3><span class="kicker">${t('Le tableau')}</span></div>
+        <p class="ag-sub">${t('Chacun y laisse ce qu\'il a trouvé ; les autres et Mentor s\'en servent pour la suite.')}</p>${Board.html(8)}</article>
+    </section>
     <section class="team">${AGENTS.map(agentCard).join('')}</section>
     ${runs.length ? `<section class="sec"><div class="sec-h"><div><h2 class="h2">${t('Journal des missions')}</h2></div></div>
-      <article class="panel rise"><ul class="mlog-list" style="list-style:none;margin:0;padding:0">${runs.map(r => { const a = AGENT[r.id]; if (!a) return ''; return `<li>${agentSeal(a, 30)}<div><b>${t(a.name)}</b>${r.deck ? ' · ' + esc(r.deck) : ''}<small>${r.n ? plural(r.n, 'proposition|propositions') + (r.applied ? ' · ' + tp(r.applied, '{n} appliquée|{n} appliquées') : '') : t('Note seulement')}${r.ai ? '' : ' · ' + t('analyse locale')}</small></div><time>${esc(ago(r.at))}</time></li>`; }).join('')}</ul></article></section>` : ''}`;
+      <article class="panel rise"><ul class="mlog-list" style="list-style:none;margin:0;padding:0">${runs.map(r => { const a = AGENT[r.id]; if (!a) return ''; return `<li>${agentSeal(a, 30)}<div><b>${t(a.name)}</b>${r.deck ? ' · ' + esc(r.deck) : ''}<small>${r.n ? plural(r.n, 'proposition|propositions') + (r.applied ? ' · ' + tp(r.applied, '{n} appliquée|{n} appliquées') : '') : t('Note seulement')}${r.ai ? '' : ' · ' + t('analyse locale')}${r.auto ? ' · ' + t('autopilote') : ''}</small></div><time>${esc(ago(r.at))}</time></li>`; }).join('')}</ul></article></section>` : ''}`;
 };
 Hooks.agents = () => {
   $('#apSw')?.addEventListener('click', () => {
     if (!Pro.on) { Pro.upsell('autopilot'); return; }
-    const A = S.profile.agents; A.autopilot = !A.autopilot; Store.touch('profile');
-    $('#apSw').classList.toggle('on', A.autopilot); $('#apSw').setAttribute('aria-checked', A.autopilot); $('#apBox').classList.toggle('on', A.autopilot);
-    toast(A.autopilot ? t('Autopilote activé : rendez-vous demain matin.') : t('Autopilote désactivé.'), 'sun');
-    if (A.autopilot) Autopilot.check(true);
+    // Élite : actif d'office ; le couper est un choix gardé (apOff).
+    const A = S.profile.agents, on = !Autopilot.on; A.autopilot = on; A.apOff = !on; Store.touch('profile');
+    $('#apSw').classList.toggle('on', on); $('#apSw').setAttribute('aria-checked', on); $('#apBox').classList.toggle('on', on);
+    toast(on ? (Pro.expert ? t('Autopilote activé : vos assistants se mettent au travail.') : t('Autopilote activé : rendez-vous demain matin.')) : t('Autopilote désactivé.'), 'sun');
+    if (on) Autopilot.check(true);
   });
 };
 
-/* Les assistants sur l'accueil : le mot du matin et la rangée de cachets. */
+/* Les assistants sur l'accueil : le mot du matin, le compte rendu de l'autopilote (Élite) ou une suggestion (Pro), et la rangée de cachets. */
 function crewHTML() {
   const A = S.profile.agents, b = A.brief && A.brief.day === dayKey() && !A.brief.hidden ? A.brief : null;
   const rep = A.report && Date.now() - A.report.at < 7 * DAY ? A.report : null;
+  const D = Pro.on ? Autopilot.day() : null, todo = id => !!D?.items.some(it => it.id === id && it.props.some(p => p.state === 'open'));
+  const sg = Pro.on && !D.items.length ? Autopilot.suggestions().find(s => s.id !== 'planner') : null;
+  Mastery.later();
   const status = a => {
+    if (Autopilot.now?.id === a.id) return t('Au travail…');
+    if (todo(a.id)) return t('À valider');
     if (a.id === 'planner' && b) return t('Séance prête');
     if (a.id === 'chronicler' && rep) return t('Bilan prêt');
     const r = A.runs.find(x => x.id === a.id); return r ? ago(r.at) : t(a.job);
@@ -8420,14 +8689,16 @@ function crewHTML() {
   return `<section class="crew">
     ${b ? `<div class="brief rise"><div class="pen-letter"><div class="pl-h">${agentSeal(AGENT.planner, 28)}${t('Le mot du Planificateur')} · ${esc(fmtDate(b.at, { hour: '2-digit', minute: '2-digit' }))}</div>${md(b.text)}</div>
       <div class="brief-actions">${ids.length ? `<button class="btn btn-brass" data-act="briefGo">${icon('play', 'i-sm')}${t('Lancer la séance préparée')} · ${num(ids.length)}</button>` : ''}<button class="btn btn-sm btn-ghost" data-act="briefHide">${t('Masquer')}</button></div></div>` : ''}
+    ${D?.items.length ? Autopilot.digestHTML(3) : sg ? Autopilot.suggHTML([sg]) : ''}
     <div class="sec-h rise" style="padding-bottom:10px"><div><h2 class="h3" style="font:400 24px/1.1 var(--f-display)">${t('Vos assistants')}</h2></div><button class="btn btn-sm btn-ghost" data-act="go" data-v="agents">${Pro.on ? '' : `<span class="tag gilt">Pro</span>`}${t('Tout voir')}${icon('arrow', 'i-sm')}</button></div>
-    <div class="crew-row rise">${AGENTS.map(a => `<button class="crew-b" data-act="agent" data-id="${a.id}">${(a.id === 'planner' && b) || (a.id === 'chronicler' && rep) ? '<i class="dot"></i>' : ''}${agentSeal(a, 48)}<b>${t(a.name)}</b><small>${esc(status(a))}</small></button>`).join('')}</div>
+    <div class="crew-row rise">${AGENTS.map(a => `<button class="crew-b" ${todo(a.id) ? `data-act="digest" data-k="${D.items.find(it => it.id === a.id && it.props.some(p => p.state === 'open')).k}"` : `data-act="agent" data-id="${a.id}"`}>${(a.id === 'planner' && b) || (a.id === 'chronicler' && rep) || todo(a.id) ? '<i class="dot"></i>' : ''}${agentSeal(a, 48)}<b>${t(a.name)}</b><small>${esc(status(a))}</small></button>`).join('')}</div>
   </section>`;
 }
 
 /* ── Une mission : journal de bord, note, propositions ─────────────── */
 class Mission {
-  constructor(a, deck) { Object.assign(this, { a, deck, props: [], actions: [], snap: null, ctl: new AbortController(), applied: 0, ai: false, text: '', brief: null, rec: null }); }
+  /** o.focus : la raison de la mission (Mentor, l'autopilote) ; o.quiet : sans fenêtre ni son ; o.item : une mission du compte rendu de l'autopilote, rouverte. */
+  constructor(a, deck, o = {}) { Object.assign(this, { a, deck, props: [], actions: [], snap: null, ctl: new AbortController(), applied: 0, ai: false, text: '', brief: null, rec: null, focus: o.focus || '', by: o.by || '', quiet: !!o.quiet, item: o.item || null, posted: false, weak: null, lag: '', fromExam: 0 }); }
   q(s) { return this.m?.querySelector(s); }
   open() {
     const a = this.a;
@@ -8454,7 +8725,7 @@ class Mission {
     this.q('[data-r="stop"]').onclick = () => this.ctl.abort();
     this.q('[data-r="props"]').addEventListener('click', e => { const b = e.target.closest('[data-pact]'); if (!b) return; const i = +b.closest('.prop').dataset.p; b.dataset.pact === 'ok' ? this.apply(i) : this.skip(i); this.foot(); });
   }
-  nap(ms = 380) { return sleep(REDUCED ? 0 : ms); }
+  nap(ms = 380) { return this.quiet ? Promise.resolve() : sleep(REDUCED ? 0 : ms); }
   step(text, sub = '') {
     const li = document.createElement('li'); li.className = 'run';
     const d = new Date(), p2 = n => String(n).padStart(2, '0');
@@ -8481,7 +8752,7 @@ class Mission {
     if (p.kind === 'add' && !(p.cards || []).length) return false;
     if (p.cardId && this.props.some(x => x.cardId === p.cardId && x.kind === p.kind)) return false;
     p.state = 'open'; p.i = this.props.length; this.props.push(p);
-    this.q('[data-r="props"]')?.insertAdjacentHTML('beforeend', this.propHTML(p)); this.head(); Sound.play('pop');
+    this.q('[data-r="props"]')?.insertAdjacentHTML('beforeend', this.propHTML(p)); this.head(); if (!this.quiet) Sound.play('pop');
     return true;
   }
   propHTML(p) {
@@ -8531,13 +8802,15 @@ class Mission {
       if (P.extra != null) c.extra = P.extra || undefined;
       Store.touchDeck(dd);
     }
-    p.state = 'done'; this.applied++;
+    p.state = 'done'; this.applied++; this.mark(p, 'done');
     if (this.rec) { this.rec.applied = this.applied; Store.touch('profile'); }
     const el = this.q(`.prop[data-p="${i}"]`); if (el) { el.classList.add('done'); el.insertAdjacentHTML('beforeend', `<span class="pstamp">${stampSVG(t('APPLIQUÉ'), 'var(--good)')}</span>`); }
     Sound.play('stamp'); haptic(12); this.head();
   }
-  skip(i) { const p = this.props[i]; if (!p || p.state !== 'open') return; p.state = 'skip'; this.q(`.prop[data-p="${i}"]`)?.classList.add('skip'); this.head(); }
-  action(o) { if (o.kind) this.actions = this.actions.filter(x => x.kind !== o.kind); this.actions.push(o); }
+  skip(i) { const p = this.props[i]; if (!p || p.state !== 'open') return; p.state = 'skip'; this.mark(p, 'skip'); this.q(`.prop[data-p="${i}"]`)?.classList.add('skip'); this.head(); }
+  /** Une proposition du compte rendu de l'autopilote : son sort y est gardé (relu dans l'état courant : « Annuler » le remplace). */
+  mark(p, state) { const it = this.item && S.profile.agents.auto?.items?.find(x => x.k === this.item.k)?.props[p.src]; if (it) { it.state = state; Store.touch('profile'); } }
+  action(o) { if (!o) return; if (o.kind) this.actions = this.actions.filter(x => x.kind !== o.kind); this.actions.push(o); }
   foot() {
     const f = this.q('[data-r="foot"]'); if (!f) return;
     const open = this.props.filter(p => p.state === 'open').length;
@@ -8548,7 +8821,7 @@ class Mission {
     this.q('[data-r="all"]')?.addEventListener('click', () => { this.props.forEach(p => p.state === 'open' && this.apply(p.i)); this.foot(); });
     this.q('[data-r="undo"]')?.addEventListener('click', () => {
       Store.restore(this.snap); this.applied = 0; if (this.rec) { this.rec.applied = 0; Store.touch('profile'); }
-      this.props.forEach(p => { if (p.state === 'done') { p.state = 'open'; const el = this.q(`.prop[data-p="${p.i}"]`); el?.classList.remove('done'); el?.querySelector('.pstamp')?.remove(); } });
+      this.props.forEach(p => { if (p.state === 'done') { p.state = 'open'; this.mark(p, 'open'); const el = this.q(`.prop[data-p="${p.i}"]`); el?.classList.remove('done'); el?.querySelector('.pstamp')?.remove(); } });
       this.head(); this.foot(); toast(t('Changements annulés'), 'undo');
     });
     $$('[data-mact]', f).forEach(b => b.addEventListener('click', () => this.actions[+b.dataset.mact]?.run()));
@@ -8576,20 +8849,72 @@ class Mission {
       if (e?.code === 'cancelled' || this.ctl.signal.aborted) this.step(t('Mission arrêtée')).err('');
       else {
         this.step(t('L\'IA ne répond pas')).err(AI.fail(e) || '');
-        if (a.local && useAI) { this.ai = false; this.props = []; this.q('[data-r="props"]')?.replaceChildren(); await AgentLocal[a.id](this); }
+        if (a.local && useAI) { Object.assign(this, { ai: false, props: [], actions: [], posted: false }); this.q('[data-r="props"]')?.replaceChildren(); await AgentLocal[a.id](this); }
       }
     }
     if (!this.text) this.write(t('Rien à signaler pour cette fois.'));
     this.step(t('Mission terminée')).done(this.props.length ? plural(this.props.length, 'proposition|propositions') : '');
-    const A = S.profile.agents;
-    this.rec = { id: a.id, at: Date.now(), deck: this.deck?.name || '', n: this.props.length, applied: this.applied, ai: this.ai };
-    A.runs.unshift(this.rec); A.runs = A.runs.slice(0, 30);
-    if (a.id === 'planner') A.brief = { day: dayKey(), at: Date.now(), text: this.text, ids: this.brief?.ids || [] };
-    if (a.id === 'chronicler' && this.text) A.report = { at: Date.now(), text: this.text };
-    Store.touch('profile');
+    this.record();
     this.foot();
     if (!this.ctl.signal.aborted) Sound.play('done');
   }
+  /** La même mission sans fenêtre (autopilote) : ses propositions attendent dans le compte rendu. */
+  async headless(useAI) {
+    this.ai = useAI;
+    try { if (useAI) await AgentAI.run(this); else await AgentLocal[this.a.id](this); }
+    catch (e) {
+      // L'IA ne répond pas : l'analyse locale prend le relais quand elle existe ; sinon l'autopilote s'arrête là.
+      if (!useAI || !this.a.local) throw e;
+      Object.assign(this, { ai: false, failed: true, props: [], actions: [], text: '', posted: false });
+      await AgentLocal[this.a.id](this);
+    }
+    if (!this.text) this.text = t('Rien à signaler pour cette fois.');
+    this.record();
+  }
+  /** Fin de mission : le journal, le mot du matin, le bilan, et ce qu'elle laisse au tableau. */
+  record() {
+    const A = S.profile.agents, a = this.a;
+    this.rec = { id: a.id, at: Date.now(), deck: this.deck?.name || '', ...(this.deck ? { deckId: this.deck.id } : {}), n: this.props.length, applied: this.applied, ai: this.ai, ...(this.quiet ? { auto: true } : {}) };
+    A.runs.unshift(this.rec); A.runs = A.runs.slice(0, 30);
+    if (a.id === 'planner') A.brief = { day: dayKey(), at: Date.now(), text: this.text, ids: this.brief?.ids || [] };
+    if (a.id === 'chronicler' && this.text) A.report = { at: Date.now(), text: this.text };
+    this.post();
+    Store.touch('profile');
+  }
+  /** Le mot au tableau, quand l'assistant ne l'a pas écrit lui-même (post_to_board) : ses fiches, ses chiffres, et à qui passer la main. */
+  post() {
+    if (this.posted || this.ctl.signal.aborted) return;
+    const a = this.a, d = this.deck, n = this.props.length, B = Board, deck = d?.name || '';
+    const ids = [...new Set(this.props.flatMap(p => p.cardId ? [p.cardId] : p.cardIds || []))];
+    if (a.id === 'planner') {
+      const s = this.brief?.ids || []; if (!s.length) return;
+      B.add({ by: a.id, kind: 'plan', ids: s, text: [t('Séance du jour préparée : {n}.', { n: plural(s.length, 'fiche|fiches') }), this.fromExam ? tp(this.fromExam, 'Elle reprend l\'erreur du dernier examen blanc.|Elle reprend les {n} erreurs du dernier examen blanc.') : '', this.lag].filter(Boolean).join(' ') });
+    } else if (a.id === 'proof' && d) {
+      const weak = [...new Set([...ids.slice(0, 3), ...(this.weak || B.weakOf(d))])].slice(0, 8);
+      B.add({ by: a.id, kind: 'weak', deckId: d.id, ids: weak, to: weak.length ? 'coach' : null, text: t('« {deck} » relu : {x}.', { deck, x: n ? plural(n, 'proposition|propositions') : t('rien à redire') }) + (weak.length ? ' ' + t('À travailler en priorité : {list}.', { list: B.names(weak) }) : '') });
+    } else if (a.id === 'coach' && d) {
+      const s = ids.length ? ids : this.brief?.ids || []; if (!s.length) return;
+      B.add({ by: a.id, kind: 'mnemo', deckId: d.id, ids: s, text: t('Moyens mnémotechniques proposés pour {n} de « {deck} » : {list}.', { n: plural(s.length, 'fiche|fiches'), deck, list: B.names(s) }) });
+    } else if (a.id === 'librarian' && d) {
+      const k = this.props.reduce((s, p) => s + (p.cards?.length || 0), 0); if (!k) return;
+      B.add({ by: a.id, kind: 'gaps', deckId: d.id, text: t('{n} pour compléter « {deck} ».', { n: plural(k, 'nouvelle fiche proposée|nouvelles fiches proposées'), deck }) });
+    } else if (a.id === 'examiner') {
+      const x = this.actions.find(x => x.kind === 'exam'); if (!x) return;
+      B.add({ by: a.id, kind: 'examPrep', deckId: d?.id, text: [t('Examen blanc prêt : {n}.', { n: plural(Math.min(30, x.ids.length), 'question|questions') }), this.lag].filter(Boolean).join(' ') });
+    } else if (a.id === 'chronicler' && this.text) {
+      const s = plain(this.text).replace(/(^|\s)[#>*_-]+(?=\s)/g, ' ').replace(/\s+/g, ' ').trim();
+      B.add({ by: a.id, kind: 'report', text: s.length > 300 ? s.slice(0, 299).trimEnd() + '…' : s });
+    }
+  }
+}
+
+/** Les boutons d'une mission (séance, examen blanc, partage), reconstruits à partir d'identifiants de fiches : ils survivent au compte rendu de l'autopilote. */
+function agentAct(kind, ids = [], a = null) {
+  const items = () => ids.map(id => findCard(id)).filter(x => x[0]);
+  if (kind === 'session') return { kind, ids, label: t('Lancer la séance préparée'), icon: 'play', primary: true, run: () => { const it = items(); Modal.close(); if (it.length) Study.start({ items: it, title: t(a?.session || 'Séance préparée') }); else toast(t('Ces fiches ont été déplacées ou supprimées.'), 'info'); } };
+  if (kind === 'exam') return { kind, ids, label: t('Commencer l\'examen blanc'), icon: 'timer', primary: true, run: () => { Modal.close(); startExamWith(items().filter(([c]) => !['occlusion', 'order'].includes(c.type))); } };
+  if (kind === 'share') return { kind, ids: [], label: t('Partager ma progression'), icon: 'share', run: () => { Modal.close(); shareProgress(); } };
+  return null;
 }
 
 const Agents = {
@@ -8599,7 +8924,11 @@ const Agents = {
     if (Mentor.isOpen) Mentor.close();
     while (Modal.stack.length) Modal.close();
     const deck = a.deck ? deckById(o.deckId || (App.route.v === 'deck' ? App.route.arg : '')) || null : null;
-    const M = new Mission(a, deck); M.open();
+    // Une mission confiée par Mentor (o.focus) ou suggérée par l'autopilote garde sa raison : l'assistant s'en sert de consigne.
+    const sug = o.focus ? null : Autopilot.suggestions().find(s => s.id === id && (s.deckId || null) === (deck?.id || null));
+    const focus = o.focus || sug?.why || '', by = o.focus ? o.by || '' : sug ? 'autopilot' : '';
+    if (o.by === 'mentor' && o.focus) Board.add({ by: 'mentor', kind: 'ask', deckId: deck?.id, text: o.focus, to: id });
+    const M = new Mission(a, deck, { focus, by }); M.open();
     if (a.deck && !deck) M.pick(); else M.go();
     return M;
   }
@@ -8610,7 +8939,9 @@ function startExamWith(items) {
   const n0 = Game.n; Game.only = items; Game.n = Math.min(items.length, 30);
   const qs = buildExam(); Game.only = null; Game.n = n0;
   if (qs.length < 3) { toast(t('Pas assez de fiches pour un examen : il en faut au moins 4.'), 'timer'); return; }
-  Object.assign(Game, { qs, mode: 'exam-run', i: 0, picked: null, results: [], left: Game.per, timed: true });
+  // La copie rendue (dernière réponse) part au tableau : le Planificateur reprendra les erreurs dans la séance suivante.
+  const results = []; results.push = function (...x) { const k = Array.prototype.push.apply(this, x); if (k === qs.length) Board.exam(qs, this); return k; };
+  Object.assign(Game, { qs, mode: 'exam-run', i: 0, picked: null, results, left: Game.per, timed: true });
   App.go('games');
 }
 
@@ -8624,6 +8955,15 @@ function weekStats(w = 0) {
 function fragileCards(exclude = new Set(), max = 8) {
   return allCards().filter(c => c.srs.state === 2 && !c.suspended && !exclude.has(c.id)).map(c => [c, FSRS.retrievability(c.srs)]).filter(([, r]) => r < 0.9).sort((a, b) => a[1] - b[1]).slice(0, max).map(([c]) => [c, c._deck]);
 }
+/** Le choix du Planificateur, sans IA : les fiches dues, les erreurs du dernier examen blanc, les fiches signalées au tableau, puis les plus fragiles. */
+function plannerPick() {
+  const due = Study.build(), have = new Set(due.map(([c]) => c.id)), take = ([c]) => c && !c.suspended && !have.has(c.id) && !!have.add(c.id);
+  const ex = Board.of({ kinds: ['exam'], days: 4, n: 1 })[0];
+  const errs = (ex?.ids || []).map(id => findCard(id)).filter(take);
+  const flag = Board.flagged(null, 10).filter(take).slice(0, 10);
+  const fr = fragileCards(have, Math.max(3, 8 - flag.length));
+  return { due, errs, flag, fr, items: [...due, ...errs, ...flag, ...fr] };
+}
 const QWORDS = {
   fr: /^(qui|que|qu'|quoi|quel|quelle|quels|quelles|quand|où|ou se|comment|pourquoi|combien|lequel|laquelle|lesquels|lesquelles|est-ce|citez|donnez)\b/i,
   en: /^(who|what|when|where|why|how|which|is|are|do|does|did|can|name)\b/i,
@@ -8636,23 +8976,32 @@ const QWORDS = {
 const AgentLocal = {
   async planner(M) {
     const s1 = M.step(t('Lecture de votre journée')); await M.nap();
-    const due = Study.build(); s1.done(plural(due.length, 'fiche prévue|fiches prévues'));
-    const s2 = M.step(t('Recherche des fiches fragiles')); await M.nap();
-    const fr = fragileCards(new Set(due.map(([c]) => c.id)), 8); s2.done(plural(fr.length, 'fiche fragile|fiches fragiles'));
-    const s3 = M.step(t('Lecture du programme et des examens')); await M.nap();
-    const x = upcomingExams()[0], adv = Plan.advice()[0]; s3.done(x ? t('« {exam} » dans {n} j', { exam: x.name, n: daysUntil(x.date) }) : t('Aucun examen prévu'));
-    const items = [...due, ...fr], mins = Math.max(1, Math.round(items.length * avgSecPerCard() / 60));
-    const deckCount = {}; for (const [, d] of items) deckCount[d.name] = (deckCount[d.name] || 0) + 1;
-    const top = Object.entries(deckCount).sort((a, b) => b[1] - a[1])[0];
+    const P = plannerPick(); s1.done(plural(P.due.length, 'fiche prévue|fiches prévues'));
+    const s2 = M.step(t('Lecture du tableau des assistants')); await M.nap();
+    s2.done(P.errs.length || P.flag.length ? [P.errs.length && tp(P.errs.length, '{n} erreur d\'examen blanc|{n} erreurs d\'examen blanc'), P.flag.length && plural(P.flag.length, 'fiche signalée|fiches signalées')].filter(Boolean).join(' · ') : t('rien à reprendre'));
+    const s3 = M.step(t('Recherche des fiches fragiles')); await M.nap(); s3.done(plural(P.fr.length, 'fiche fragile|fiches fragiles'));
+    const s4 = M.step(t('Lecture du programme et des examens')); await M.nap();
+    const x = upcomingExams()[0], adv = Plan.advice()[0]; s4.done(x ? t('« {exam} » dans {n} j', { exam: x.name, n: daysUntil(x.date) }) : t('Aucun examen prévu'));
+    const items = P.items, mins = Math.max(1, Math.round(items.length * avgSecPerCard() / 60));
+    // Le paquet prioritaire : l'examen le plus proche dont l'objectif de maîtrise n'est pas atteint ; sinon celui qui a le plus de fiches aujourd'hui.
+    const count = {}; for (const [, d] of items) count[d.id] = (count[d.id] || 0) + 1;
+    const ms = Object.keys(count).map(id => Mastery.of(id)).filter(Boolean);
+    const F = ms.filter(m => m.exam && m.target && !m.reached).sort((a, b) => a.exam.days - b.exam.days)[0] || ms.sort((a, b) => count[b.deckId] - count[a.deckId])[0], fd = F && deckById(F.deckId);
+    const lag = !fd ? '' : F.exam && F.target ? (F.reached ? t('« {deck} » a atteint son objectif ({p}) : on entretient.', { deck: fd.name, p: pct(F.pct / 100) })
+      : t('Priorité à « {deck} » : « {exam} » dans {d}, maîtrise {p} pour un objectif de {g} ({x}).', { deck: fd.name, exam: F.exam.name, d: plural(F.exam.days, 'jour|jours'), p: pct(F.pct / 100), g: pct(F.target / 100), x: tp(F.left, 'encore {n} fiche|encore {n} fiches') }))
+      : t('Le gros morceau : « {deck} ».', { deck: fd.name });
+    // La première fiche à revoir : une erreur de l'examen blanc, sinon la plus fragile.
+    const first = P.errs[0] || items.filter(([c]) => c.srs.state === 2).sort((a, b) => FSRS.retrievability(a[0].srs) - FSRS.retrievability(b[0].srs))[0];
+    const parts = [P.due.length && tp(P.due.length, '{n} prévue|{n} prévues'), P.errs.length && tp(P.errs.length, '{n} erreur de l\'examen blanc à reprendre|{n} erreurs de l\'examen blanc à reprendre'),
+      P.flag.length && tp(P.flag.length, '{n} signalée par vos assistants|{n} signalées par vos assistants'), P.fr.length && tp(P.fr.length, '{n} fragile à consolider avant qu\'elle ne s\'efface|{n} fragiles à consolider avant qu\'elles ne s\'effacent')].filter(Boolean);
     const txt = items.length
-      ? [`**${t('Aujourd\'hui : {n}, environ {m}.', { n: plural(items.length, 'fiche|fiches'), m: tp(mins, '{n} minute|{n} minutes') })}**`,
-        fr.length ? t('{a} prévues, et {b} que j\'ajoute pour les consolider avant qu\'elles ne s\'effacent.', { a: num(due.length), b: plural(fr.length, 'fiche fragile|fiches fragiles') }) : t('Tout ce qui est prévu, rien de plus.'),
-        x ? t('Priorité à « {deck} » : « {exam} » est dans {n} jours.', { deck: top?.[0] || '', exam: x.name, n: daysUntil(x.date) }) : top ? t('Le gros morceau : « {deck} ».', { deck: top[0] }) : '',
+      ? [`**${t('Aujourd\'hui : {n}, environ {m}.', { n: plural(items.length, 'fiche|fiches'), m: tp(mins, '{n} minute|{n} minutes') })}**`, cap(Board.join(parts)) + '.', lag,
+        first ? t('Commencez par {q} : {why}.', { q: Board.names([first[0].id], 1), why: first === P.errs[0] ? t('ratée à l\'examen blanc') : t('c\'est la plus fragile') }) : '',
         adv ? adv[1] : ''].filter(Boolean).join(' ')
       : t('**Rien d\'urgent aujourd\'hui.** Profitez-en pour scanner un nouveau cours ou lancer une partie.');
     M.write(txt);
-    if (items.length) M.action({ label: t('Lancer la séance préparée'), icon: 'play', primary: true, run: () => { Modal.close(); Study.start({ items, title: t('Séance du Planificateur') }); } });
-    M.brief = { ids: items.map(([c]) => c.id), text: txt };
+    if (items.length) M.action(agentAct('session', items.map(([c]) => c.id), M.a));
+    M.brief = { ids: items.map(([c]) => c.id), text: txt }; M.fromExam = P.errs.length; M.lag = fd && F.exam && F.target && !F.reached ? lag : '';
   },
   async proof(M) {
     const d = M.deck, cards = d.cards.filter(c => c.type !== 'occlusion');
@@ -8684,9 +9033,12 @@ const AgentLocal = {
       if (q >= 6) break;
     }
     s4.done(q ? plural(q, 'question à ponctuer|questions à ponctuer') : t('rien à redire'));
-    const n = M.props.length;
-    M.write(n ? `**${t('J\'ai relu {n} de « {deck} ».', { n: plural(cards.length, 'fiche|fiches'), deck: d.name })}** ${t('{x} à examiner ci-dessous. Appliquez ce qui vous convient, ignorez le reste.', { x: plural(n, 'proposition|propositions') })} ${AI.on ? '' : t('Avec l\'IA, je vérifie aussi le fond : questions ambiguës, erreurs, fiches à scinder.')}`
-      : `**${t('Rien à redire sur « {deck} ».', { deck: d.name })}** ${t('Pas de doublon, des réponses courtes, des questions nettes.')} ${AI.on ? '' : t('Avec l\'IA, je vérifie aussi le fond : questions ambiguës, erreurs, fiches à scinder.')}`);
+    // Les fiches qui résistent : signalées au Répétiteur par le tableau.
+    const s5 = M.step(t('Fiches qui résistent')); await M.nap();
+    M.weak = Board.weakOf(d); s5.done(M.weak.length ? plural(M.weak.length, 'fiche à travailler|fiches à travailler') : t('aucune'));
+    const n = M.props.length, hand = M.weak.length ? t('Je signale au Répétiteur les {n} qui vous résistent le plus, dont {list}.', { n: num(M.weak.length), list: Board.names(M.weak, 2) }) : '';
+    M.write(n ? `**${t('J\'ai relu {n} de « {deck} ».', { n: plural(cards.length, 'fiche|fiches'), deck: d.name })}** ${t('{x} à examiner ci-dessous. Appliquez ce qui vous convient, ignorez le reste.', { x: plural(n, 'proposition|propositions') })} ${hand} ${AI.on ? '' : t('Avec l\'IA, je vérifie aussi le fond : questions ambiguës, erreurs, fiches à scinder.')}`
+      : `**${t('Rien à redire sur « {deck} ».', { deck: d.name })}** ${t('Pas de doublon, des réponses courtes, des questions nettes.')} ${hand} ${AI.on ? '' : t('Avec l\'IA, je vérifie aussi le fond : questions ambiguës, erreurs, fiches à scinder.')}`);
   },
   async examiner(M) {
     const x = upcomingExams()[0];
@@ -8694,15 +9046,19 @@ const AgentLocal = {
     const s1 = M.step(t('Lecture du programme')); await M.nap(); s1.done(x ? `${x.name} · ${t('J−{n}', { n: daysUntil(x.date) })}` : t('tous les paquets'));
     const pool = decks.flatMap(d => d.cards.map(c => [c, d])).filter(([c]) => !['occlusion', 'order'].includes(c.type) && !c.suspended);
     const s2 = M.step(t('Classement des fiches par fragilité')); await M.nap();
-    const now = Date.now();
-    const score = ([c]) => (c.srs.state === 0 ? .45 : 1 - FSRS.retrievability(c.srs)) + Math.min(.4, (c.srs.lapses || 0) * .1) + (c.srs.last && now - c.srs.last > 14 * DAY ? .15 : 0) + Math.random() * .08;
+    const now = Date.now(), flag = new Set(Board.flagged(M.deck?.id).map(([c]) => c.id));
+    // Les fiches signalées au tableau (erreurs passées, fiches du Correcteur) remontent en tête.
+    const score = ([c]) => (c.srs.state === 0 ? .45 : 1 - FSRS.retrievability(c.srs)) + Math.min(.4, (c.srs.lapses || 0) * .1) + (c.srs.last && now - c.srs.last > 14 * DAY ? .15 : 0) + (flag.has(c.id) ? .3 : 0) + Math.random() * .08;
     const ranked = pool.map(it => [it, score(it)]).sort((a, b) => b[1] - a[1]).map(([it]) => it);
     const items = ranked.slice(0, Math.min(20, ranked.length)); s2.done(plural(items.length, 'question retenue|questions retenues'));
-    const weak = items.filter(([c]) => c.srs.state > 0 && FSRS.retrievability(c.srs) < .85).length;
+    const weak = items.filter(([c]) => c.srs.state > 0 && FSRS.retrievability(c.srs) < .85).length, fromBoard = items.filter(([c]) => flag.has(c.id)).length;
     const s3 = M.step(t('Réglage du chronomètre')); await M.nap(); s3.done(t('{n} s par question', { n: Game.per }));
     const mins = Math.max(1, Math.round(items.length * Game.per / 60));
-    M.write(items.length >= 4 ? `**${t('Examen blanc : {n}, {m} au plus.', { n: plural(items.length, 'question|questions'), m: tp(mins, '{n} minute|{n} minutes') })}** ${weak ? t('Il vise d\'abord vos {n} les plus fragiles, puis ce que vous n\'avez pas revu depuis longtemps.', { n: plural(weak, 'fiche|fiches') }) : t('Il mélange les fiches du programme que vous avez le moins revues.')} ${x ? t('Le sujet suit le programme de « {exam} ».', { exam: x.name }) : ''}` : t('Il faut au moins quatre fiches pour composer un examen blanc.'));
-    if (items.length >= 4) M.action({ label: t('Commencer l\'examen blanc'), icon: 'timer', primary: true, run: () => { Modal.close(); startExamWith(items); } });
+    // L'objectif de maîtrise le plus pressé : la note qui le confirmerait.
+    const mm = decks.map(d => Mastery.of(d.id)).filter(m => m?.target).sort((a, b) => (a.exam?.days ?? 1e4) - (b.exam?.days ?? 1e4))[0];
+    M.lag = mm ? t('« {deck} » : maîtrise {p} pour un objectif de {g}.', { deck: deckById(mm.deckId).name, p: pct(mm.pct / 100), g: pct(mm.target / 100) }) : '';
+    M.write(items.length >= 4 ? `**${t('Examen blanc : {n}, {m} au plus.', { n: plural(items.length, 'question|questions'), m: tp(mins, '{n} minute|{n} minutes') })}** ${weak ? t('Il vise d\'abord vos {n} les plus fragiles, puis ce que vous n\'avez pas revu depuis longtemps.', { n: plural(weak, 'fiche|fiches') }) : t('Il mélange les fiches du programme que vous avez le moins revues.')} ${fromBoard ? tp(fromBoard, '{n} question vient du tableau des assistants (fiche signalée ou ratée).|{n} questions viennent du tableau des assistants (fiches signalées ou ratées).') : ''} ${x ? t('Le sujet suit le programme de « {exam} ».', { exam: x.name }) : ''} ${mm ? M.lag + ' ' + t('Visez au moins {g} de bonnes réponses pour le confirmer.', { g: pct(mm.target / 100) }) : ''}` : t('Il faut au moins quatre fiches pour composer un examen blanc.'));
+    if (items.length >= 4) M.action(agentAct('exam', items.map(([c]) => c.id), M.a));
   },
   async chronicler(M) {
     const s1 = M.step(t('Lecture du carnet de la semaine')); await M.nap();
@@ -8710,7 +9066,19 @@ const AgentLocal = {
     const s2 = M.step(t('Comparaison avec la semaine d\'avant')); await M.nap(); s2.done(p.r ? pct(w.r / p.r - 1) : '—');
     const s3 = M.step(t('Préparation de l\'examen')); await M.nap();
     const x = upcomingExams()[0], rd = x ? Plan.readiness(x) : null; s3.done(x ? x.name : t('Aucun examen prévu'));
+    const s4 = M.step(t('Lecture du tableau des assistants')); await M.nap();
+    const wk = Board.of({ days: 7 }); s4.done(wk.length ? plural(wk.length, 'mot|mots') : t('vide'));
     const decks = S.decks.map(d => ({ d, lee: d.cards.filter(isLeech).length, m: maturity(d.cards) })).sort((a, b) => b.lee - a.lee);
+    // L'équipe : ce que les assistants ont trouvé et fait cette semaine, et où en sont les objectifs de maîtrise.
+    const team = [], by = {};
+    for (const e of wk) if (AGENT[e.by]) by[e.by] = (by[e.by] || 0) + 1;
+    if (Object.keys(by).length) team.push(t('Vos assistants ont laissé {n} au tableau : {list}.', { n: plural(wk.length, 'mot|mots'), list: Board.join(Object.entries(by).map(([id, n]) => `${t(AGENT[id].name)} (${num(n)})`)) }));
+    const ex = wk.find(e => e.kind === 'exam');
+    if (ex) team.push(t('Dernier examen blanc : {p} de bonnes réponses.', { p: pct(ex.score || 0) }) + (ex.ids?.length ? ' ' + tp(ex.ids.length, 'Une erreur à reprendre.|{n} erreurs à reprendre.') : ''));
+    const hit = wk.filter(e => e.kind === 'mastery').map(e => deckById(e.deckId)?.name).filter(Boolean);
+    if (hit.length) team.push(t('Objectif de maîtrise atteint : {list}.', { list: Board.join(hit.map(quote)) }));
+    const lag = S.decks.map(d => Mastery.of(d.id)).filter(m => m?.target && !m.reached).sort((a, b) => (a.exam?.days ?? 1e4) - (b.exam?.days ?? 1e4))[0];
+    if (lag) team.push(t('« {deck} » : maîtrise {p} pour un objectif de {g}.', { deck: deckById(lag.deckId).name, p: pct(lag.pct / 100), g: pct(lag.target / 100) }));
     const lines = [];
     lines.push(`**${w.r ? t('Cette semaine : {r} en {d}, {m}.', { r: plural(w.r, 'révision|révisions'), d: plural(w.days, 'jour|jours'), m: tp(w.min, '{n} minute|{n} minutes') }) : t('Cette semaine, le fichier est resté fermé.')}**`);
     if (w.r && p.r) lines.push(w.r >= p.r ? t('C\'est {p} de plus que la semaine d\'avant.', { p: pct(w.r / p.r - 1) }) : t('C\'est {p} de moins que la semaine d\'avant : rien de grave, reprenez le fil.', { p: pct(1 - w.r / p.r) }));
@@ -8719,34 +9087,71 @@ const AgentLocal = {
     if (streak()) lines.push(t('Série en cours : {n}.', { n: plural(streak(), 'jour|jours') }));
     if (rd) lines.push(t('« {exam} » dans {n} jours : prêt à {p} si vous suivez le programme.', { exam: x.name, n: daysUntil(x.date), p: pct(rd.follow) }));
     const pri = [];
+    if (lag) pri.push(t('Amener « {deck} » de {p} à {g} : {n} à faire tenir{when}.', { deck: deckById(lag.deckId).name, p: pct(lag.pct / 100), g: pct(lag.target / 100), n: plural(lag.left, 'fiche|fiches'), when: lag.exam ? ' ' + t('avant le {date}', { date: fmtDate(keyToDate(lag.exam.date), { day: 'numeric', month: 'long' }) }) : '' }));
     if (decks[0]?.lee) pri.push(t('Passer « {deck} » au Répétiteur : {n}.', { deck: decks[0].d.name, n: plural(decks[0].lee, 'fiche oubliée souvent|fiches oubliées souvent') }));
     if (w.days < 5) pri.push(t('Viser cinq jours sur sept, même dix minutes.'));
     for (const a of Plan.advice().filter(a => a[0] !== 'check').slice(0, 2)) if (pri.length < 3) pri.push(a[1]);
-    const txt = lines.join(' ') + (pri.length ? `\n\n**${t('Trois priorités')}**\n${pri.slice(0, 3).map(x => '- ' + x).join('\n')}` : '');
+    const txt = lines.join(' ') + (team.length ? `\n\n**${t('L\'équipe cette semaine')}**\n${team.map(x => '- ' + x).join('\n')}` : '') + (pri.length ? `\n\n**${t('Trois priorités')}**\n${pri.slice(0, 3).map(x => '- ' + x).join('\n')}` : '');
     M.write(txt);
     S.profile.agents.report = { at: Date.now(), text: txt };
-    M.action({ label: t('Partager ma progression'), icon: 'share', run: () => { Modal.close(); shareProgress(); } });
+    M.action(agentAct('share'));
   }
 };
 
 /* Les missions avec l'IA : l'assistant lit l'app avec des outils et propose. */
+// Chaque mission raisonne par étapes et finit par un mot au tableau pour les autres assistants.
 const AGENT_BRIEF = {
-  planner: 'Prepare today\'s study session. Look at the plan and the stats (get_plan, get_stats), then pick the cards for today: the due cards first (get_deck_cards with filter "due"), then at most 10 fragile cards to consolidate (filter "weak"), giving priority to the decks of the nearest exam. Call prepare_session ONCE with their ids. Then write the student a short morning note (at most 90 words): what today\'s session covers, why, and one concrete tip.',
-  proof: 'Audit the flashcards of the deck "{deck}" (deck_id {id}) like a demanding teacher: vague or ambiguous questions, answers too long to recall at once (move detail to extra), several ideas in one card, factual errors, typos, duplicates. Read the cards with get_deck_cards (limit {limit}). Propose at most 8 improvements with propose_edit, and propose_delete for true duplicates only. Keep the language of the deck, never change the meaning without a factual reason, and give a short reason for each proposal. Then write a short note (at most 80 words) summarising the audit.',
-  coach: 'Help the student with the cards they keep forgetting in the deck "{deck}" (deck_id {id}). Read them with get_deck_cards (filter "leech", then "weak"). For up to 6 of them, write a vivid mnemonic, image, analogy or example (at most 30 words, in the language of the deck unless it is a language-learning card) and propose it as the card\'s new "extra" with propose_edit (keep front and back unchanged; keep any existing extra at the end). If a card is badly worded, you may also propose a clearer front. Then call prepare_session with those card ids so they can review them right away. Write a short, encouraging note (at most 70 words).',
-  librarian: 'Find what is missing in the deck "{deck}" (deck_id {id}). Read its cards with get_deck_cards (limit {limit}), infer the subject and the level, list the important notions that are not covered yet, and propose up to 10 new atomic flashcards with propose_new_cards (varied types: basic, cloze, mcq, tf), in the language of the deck. Do not duplicate existing cards. Then write a short note (at most 80 words) naming the gaps you found.',
-  examiner: 'Build a mock exam tailored to the student. Prefer the decks of the nearest exam{deckHint}, then the weakest cards and the cards not reviewed for a long time (use get_deck_cards with filters "weak", "due" and "all"). Pick 15 to 25 card ids and call prepare_exam once. If a deck clearly lacks exam-style questions, you may propose up to 5 new multiple-choice cards with propose_new_cards. Write a short note (at most 70 words) explaining what the exam targets.',
-  chronicler: 'Write the student\'s weekly report. Use get_week (this week vs the week before) and get_stats. Say what was done, what improved, what slipped, where they stand for their next exam, and give three concrete priorities for next week as a short list. At most 160 words, warm but factual. Use only numbers returned by the tools or present in the app state: never invent a number.'
+  planner: `Prepare today's study session and write the morning note.
+Step 1 — Read: get_plan and get_stats; on the board, the Examiner's last mock-exam errors, the cards flagged by the Proofreader, what the Tutor already treated and the mastery targets reached; the mastery of each deck (mastery, mastery_target, cards_to_target, mastery_at_exam_if_idle) and the exam dates (days_left).
+Step 2 — Decide, with numbers: which deck is furthest below its target relative to the days left before its exam? That deck gets priority. A deck that already reached its target only gets its due cards.
+Step 3 — Pick the cards: the due cards first (get_deck_cards filter "due" on the decks that have some), then the flagged cards and the mock-exam errors (filter "flagged"), then at most 10 fragile cards (filter "weak") from the priority deck. Call prepare_session ONCE with their ids (at most 80).
+Step 4 — post_to_board: one or two sentences for your colleagues (e.g. which deck lags behind its target and whether the Examiner or the Tutor should step in), with to set accordingly.
+Step 5 — Write the morning note (at most 100 words): how many cards and roughly how many minutes, the priority deck and why (exam in N days, mastery X% for a Y% target, Z cards to go), the mock-exam errors you included, and one concrete tip that names a card.`,
+  proof: `Audit the deck "{deck}" (deck_id {id}) like a demanding teacher of the student's level.
+Step 1 — Read the cards with get_deck_cards (limit {limit}) and the board entries about this deck (cards your colleagues flagged, mock-exam errors, what Mentor asked).
+Step 2 — Diagnose card by card: vague or ambiguous question, answer too long to recall at once (move the detail to extra), several ideas in one card, factual error, typo, true duplicate, card clearly below or above the student's level.
+Step 3 — Propose at most 8 improvements with propose_edit (the reason quotes what is wrong), and propose_delete for true duplicates only. Keep the language of the deck; never change the meaning without a factual reason.
+Step 4 — post_to_board with the card_ids of the cards that will stay hard to remember (dense, abstract, often forgotten, look-alikes) and to "coach", so the Tutor writes mnemonics for them; say how many issues you found.
+Step 5 — Note (at most 90 words): the overall quality of the deck with numbers, the main kinds of issues, and the two or three cards to fix first (quote their question).`,
+  coach: `Help the student with the cards they keep forgetting in the deck "{deck}" (deck_id {id}).
+Step 1 — Start from the board: the cards your colleagues flagged (get_deck_cards filter "flagged": the Proofreader's hard cards and the mock-exam errors), then the leeches (filter "leech"), then the weakest cards (filter "weak").
+Step 2 — For up to 6 of them, find WHY they slip (abstract, confused with another card, long list, counter-intuitive) and write a vivid mnemonic, image, analogy or example that targets that cause (at most 30 words, in the language of the deck unless it is a language-learning card); propose it as the card's new "extra" with propose_edit (keep front and back; keep any existing extra at the end). Reword the front only if it is badly worded.
+Step 3 — Call prepare_session with those card ids so the student reviews them right away.
+Step 4 — post_to_board with the card_ids you treated, and say which cards still need attention.
+Step 5 — Short, encouraging note (at most 80 words) that names the cards and gives the trick for one of them.`,
+  librarian: `Find what is missing in the deck "{deck}" (deck_id {id}).
+Step 1 — Read its cards (get_deck_cards, limit {limit}); infer the subject, the level (see LEARNER) and the exam it prepares, if any; read the board (gaps already found, mock-exam errors that reveal a missing notion).
+Step 2 — List the important notions of the syllabus that are not covered yet, the most exam-relevant first.
+Step 3 — Propose up to 10 new atomic flashcards with propose_new_cards (varied types: basic, cloze, mcq, tf), in the language of the deck, never duplicating an existing card.
+Step 4 — post_to_board: the gaps you filled and those that remain.
+Step 5 — Note (at most 80 words) naming the gaps and how many cards you propose for each.`,
+  examiner: `Build a mock exam tailored to the student{deckHint}.
+Step 1 — Read the exam dates and each deck's mastery and target; read the board (cards flagged by your colleagues, previous mock-exam scores and errors).
+Step 2 — Choose 15 to 25 cards: the flagged cards and the weakest first (get_deck_cards filters "flagged", "weak", "due"), then cards not reviewed for a long time ("all"), from the decks of the nearest exam; mix difficulties like the real exam.
+Step 3 — Call prepare_exam once. If a deck clearly lacks exam-style questions, you may propose up to 5 new multiple-choice cards with propose_new_cards.
+Step 4 — post_to_board: what the exam targets and which mastery it should confirm (e.g. "deck at 86% for a 90% target, exam in 5 days"), to "planner".
+Step 5 — Note (at most 80 words): the number of questions and minutes, what the exam targets and why, and the score that would confirm the target.`,
+  chronicler: `Write the student's weekly report.
+Step 1 — Read get_week (this week vs the week before), get_stats and the board (what each assistant found and did this week, mock-exam scores, mastery targets reached).
+Step 2 — Analyse: what was done, what improved, what slipped (with numbers), each upcoming exam's readiness and each deck's mastery against its target.
+Step 3 — post_to_board: the single most important priority for next week, with to = the assistant who should handle it.
+Step 4 — Report (at most 180 words): a factual paragraph, a short paragraph on what the team of assistants did this week, then three concrete priorities as a short list (deck names, numbers of cards, minutes, dates). Use only numbers returned by the tools or present in the state: never invent a number.`
 };
-function agentRules(a) {
+function agentRules(a, M) {
   const st = S.profile.settings;
-  return `You are "${t(a.name)}", one of the six specialised assistants of Engram, a flashcard app (FSRS spaced repetition shown as a Leitner box, AI answer grading, exams, a personalised daily programme). You work autonomously with the tools provided, then write a note to the student.
+  // Le tableau, centré sur le paquet de la mission, remplace celui de l'état de Mentor.
+  const state = { ...Mentor.snapshot(), assistants_board: Board.forAI({ deckId: M?.deck?.id, n: 16 }) };
+  return `You are "${t(a.name)}" (id ${a.id}), one of the six specialised assistants of Engram, a flashcard app (FSRS spaced repetition shown as a Leitner box, AI answer grading, exams, a personalised daily programme). You work autonomously with the tools provided, then write a note to the student.
+TEAM: the six assistants — planner (prepares the daily session), proof (proofreads decks), coach (tutor: mnemonics for the cards that slip), librarian (fills the gaps of a deck), examiner (mock exams), chronicler (weekly report) — and Mentor, the student's coach, share a BOARD ("assistants_board" in the state, newest first). Read it before anything else and build on it: start from the cards your colleagues flagged and the latest mock-exam errors, do not redo what was just done, and follow what Mentor asked.
+MASTERY: for each deck, "mastery" is the share of its active cards the student would recall right now with at least 90% probability according to FSRS (new and learning cards are not mastered yet); "mastery_target" is the goal (90% by default for a deck covered by an upcoming exam); "cards_to_target" is how many more cards must reach 90%; "mastery_at_exam_if_idle" is what forgetting would leave on exam day without any review.
+HOW TO WORK: think step by step and follow your mission's steps — read (state, board, tools), diagnose what matters most now with numbers, act with the tools, leave your key finding on the board with post_to_board (once), then write the note.
+BE CONCRETE: name the cards (quote their question), give numbers (cards, minutes, %, days) and dates; no generic advice. Use only numbers from the tools or the state; never invent one.
 Your tone: ${TONES[st.tone]?.ai || TONES.gentle.ai}.
-${Brain.brief(a.id === 'examiner' ? 'exam' : a.id === 'librarian' ? 'cards' : 'agent')}
+${Brain.brief(AGENT_TASK[a.id] || 'agent')}
 Flashcard quality rules: one idea per card; precise, unambiguous question; short answer (under 20 words); useful detail in "extra"; cloze cards use {{c1::…}} on the most information-rich words (1–3 gaps); multiple-choice cards have 4 plausible options and exactly one correct; write cards in the language of the deck (see each deck's lang).
 
 Current state of the app (JSON):
-${JSON.stringify(Mentor.snapshot())}`;
+${JSON.stringify(state)}`;
 }
 const AgentAI = {
   labels(name, i) {
@@ -8754,7 +9159,7 @@ const AgentAI = {
     return ({
       get_deck_cards: t('Lecture des fiches') + (d ? ' · ' + d : ''), get_stats: t('Lecture des statistiques'), get_plan: t('Lecture du programme'), get_week: t('Lecture du carnet de la semaine'),
       propose_edit: t('Rédaction d\'une proposition'), propose_delete: t('Repérage d\'un doublon'), propose_new_cards: t('Rédaction de nouvelles fiches') + (d ? ' · ' + d : ''),
-      prepare_session: t('Préparation de la séance'), prepare_exam: t('Composition de l\'examen blanc')
+      prepare_session: t('Préparation de la séance'), prepare_exam: t('Composition de l\'examen blanc'), post_to_board: t('Mot laissé au tableau')
     })[name] || name;
   },
   tools(M) {
@@ -8763,15 +9168,17 @@ const AgentAI = {
     const pick = ['get_stats', 'get_plan'].map(n => base[n]).filter(Boolean);
     const lim = Pro.expert ? 150 : 60;
     const own = [
-      { name: 'get_deck_cards', description: `List cards of a deck (id, type, question, answer, extra, tags, memory state). filter: all | due | new | weak (lowest memory first) | leech (often forgotten). Returns at most \`limit\` cards (max ${lim}).`,
-        inputSchema: { type: 'object', properties: { deck_id: { type: 'string' }, filter: { type: 'string', enum: ['all', 'due', 'new', 'weak', 'leech'] }, limit: { type: 'number' } }, required: ['deck_id'] },
+      { name: 'get_deck_cards', description: `List cards of a deck (id, type, question, answer, extra, tags, memory state). filter: all | due | new | weak (lowest memory first) | leech (often forgotten) | flagged (cards flagged on the board by your colleagues: the Proofreader's hard cards and the mock-exam errors, not yet treated by the Tutor). Returns at most \`limit\` cards (max ${lim}).`,
+        inputSchema: { type: 'object', properties: { deck_id: { type: 'string' }, filter: { type: 'string', enum: ['all', 'due', 'new', 'weak', 'leech', 'flagged'] }, limit: { type: 'number' } }, required: ['deck_id'] },
         execute: i => {
           const d = deckById(str(i.deck_id)); if (!d) throw new Error('Unknown deck_id. Use a deck id from the app state.');
           let list = d.cards.filter(c => c.type !== 'occlusion'); const f = str(i.filter) || 'all';
-          if (f === 'due') list = list.filter(c => isDue(c)); else if (f === 'new') list = list.filter(c => c.srs.state === 0);
+          const fl = new Set(Board.flagged(d.id).map(([c]) => c.id));
+          if (f === 'flagged') list = list.filter(c => fl.has(c.id));
+          else if (f === 'due') list = list.filter(c => isDue(c)); else if (f === 'new') list = list.filter(c => c.srs.state === 0);
           else if (f === 'leech') list = list.filter(c => (c.srs.lapses || 0) >= 2).sort((a, b) => b.srs.lapses - a.srs.lapses);
           else if (f === 'weak') list = list.filter(c => c.srs.state > 0).sort((a, b) => FSRS.retrievability(a.srs) - FSRS.retrievability(b.srs) || b.srs.lapses - a.srs.lapses);
-          return { deck: d.name, lang: d.lang, total: d.cards.length, cards: list.slice(0, clamp(+i.limit || lim, 1, lim)).map(c => ({ id: c.id, type: c.type, q: plain(cardTitle(c)).slice(0, 200), a: plain(cardAnswer(c) || '').slice(0, 180), ...(c.type === 'cloze' ? { text: c.text, gap: c.n } : {}), extra: c.extra ? plain(c.extra).slice(0, 160) : undefined, tags: c.tags?.length ? c.tags : undefined, state: FSRS.STATE[c.srs.state], lapses: c.srs.lapses, memory: c.srs.state === 2 ? Math.round(FSRS.retrievability(c.srs) * 100) + '%' : null })) };
+          return { deck: d.name, lang: d.lang, total: d.cards.length, cards: list.slice(0, clamp(+i.limit || lim, 1, lim)).map(c => ({ id: c.id, type: c.type, q: plain(cardTitle(c)).slice(0, 200), a: plain(cardAnswer(c) || '').slice(0, 180), ...(c.type === 'cloze' ? { text: c.text, gap: c.n } : {}), extra: c.extra ? plain(c.extra).slice(0, 160) : undefined, tags: c.tags?.length ? c.tags : undefined, state: FSRS.STATE[c.srs.state], lapses: c.srs.lapses, memory: c.srs.state === 2 ? Math.round(FSRS.retrievability(c.srs) * 100) + '%' : null, ...(fl.has(c.id) ? { flagged: true } : {}) })) };
         } },
       { name: 'get_week', description: 'Reviews, accuracy, minutes, new cards and active days for the last 7 days and the 7 days before, plus the current streak and deck-level leeches.', inputSchema: { type: 'object', properties: {} },
         execute: () => ({ this_week: weekStats(0), previous_week: weekStats(1), streak_days: streak(), decks: S.decks.map(d => ({ id: d.id, name: d.name, cards: d.cards.length, leeches: d.cards.filter(isLeech).length, ...maturity(d.cards) })) }) },
@@ -8786,13 +9193,21 @@ const AgentAI = {
         execute: i => { const d = deckById(str(i.deck_id)); if (!d) throw new Error('Unknown deck_id.'); const cards = (i.cards || []).map(normGen).filter(Boolean).slice(0, 12); if (!cards.length) throw new Error('No valid card.'); M.propose({ kind: 'add', deckId: d.id, cards, reason: str(i.reason) }); return { proposed: cards.length }; } },
       { name: 'prepare_session', description: 'Prepare a review session with these card ids; the student gets a button to start it.',
         inputSchema: { type: 'object', properties: { card_ids: { type: 'array', items: { type: 'string' } } }, required: ['card_ids'] },
-        execute: i => { const items = (i.card_ids || []).map(id => findCard(str(id))).filter(x => x[0]); if (!items.length) throw new Error('No matching card.'); M.actions = M.actions.filter(x => x.kind !== 'session'); M.action({ kind: 'session', label: t('Lancer la séance préparée'), icon: 'play', primary: true, run: () => { Modal.close(); Study.start({ items, title: t(M.a.session || 'Séance préparée') }); } }); M.brief = { ids: items.map(([c]) => c.id) }; return { cards: items.length }; } },
+        execute: i => { const items = (i.card_ids || []).map(id => findCard(str(id))).filter(x => x[0]); if (!items.length) throw new Error('No matching card.'); M.action(agentAct('session', items.map(([c]) => c.id), M.a)); M.brief = { ids: items.map(([c]) => c.id) }; return { cards: items.length }; } },
       { name: 'prepare_exam', description: 'Prepare a timed mock exam (multiple choice built from these cards, 30 s per question); the student gets a button to start it.',
         inputSchema: { type: 'object', properties: { card_ids: { type: 'array', items: { type: 'string' } } }, required: ['card_ids'] },
-        execute: i => { const items = (i.card_ids || []).map(id => findCard(str(id))).filter(x => x[0] && !['occlusion', 'order'].includes(x[0].type)); if (items.length < 4) throw new Error('At least 4 valid cards are needed.'); M.actions = M.actions.filter(x => x.kind !== 'exam'); M.action({ kind: 'exam', label: t('Commencer l\'examen blanc'), icon: 'timer', primary: true, run: () => { Modal.close(); startExamWith(items); } }); return { questions: Math.min(items.length, 30) }; } }
+        execute: i => { const items = (i.card_ids || []).map(id => findCard(str(id))).filter(x => x[0] && !['occlusion', 'order'].includes(x[0].type)); if (items.length < 4) throw new Error('At least 4 valid cards are needed.'); M.action(agentAct('exam', items.map(([c]) => c.id), M.a)); return { questions: Math.min(items.length, 30) }; } },
+      { name: 'post_to_board', description: 'Leave your key finding on the assistants\' shared board, for your colleagues and Mentor (they read it before their own missions): one or two factual sentences in the student\'s language, naming cards and numbers. card_ids: the cards concerned (e.g. the hard cards the Tutor should treat). to: the assistant who should act next, if any. Call it once, near the end.',
+        inputSchema: { type: 'object', properties: { text: { type: 'string' }, card_ids: { type: 'array', items: { type: 'string' } }, deck_id: { type: 'string' }, to: { type: 'string', enum: AGENTS.map(a => a.id) } }, required: ['text'] },
+        execute: i => {
+          const ids = (i.card_ids || []).map(str).filter(Boolean);
+          // Le Correcteur qui ne cite aucune fiche : celles qui résistent le plus passent quand même au Répétiteur.
+          const e = Board.add({ by: M.a.id, kind: AGENT_KIND[M.a.id], deckId: str(i.deck_id) || M.deck?.id, text: str(i.text), ids: ids.length || M.a.id !== 'proof' || !M.deck ? ids : Board.weakOf(M.deck), to: str(i.to) || (M.a.id === 'proof' ? 'coach' : '') });
+          if (!e) throw new Error('Empty text.'); M.posted = true; return 'Posted on the board.';
+        } }
     ];
-    const want = { planner: ['get_plan', 'get_stats', 'get_deck_cards', 'prepare_session'], proof: ['get_deck_cards', 'propose_edit', 'propose_delete'], coach: ['get_deck_cards', 'propose_edit', 'prepare_session'],
-      librarian: ['get_deck_cards', 'propose_new_cards'], examiner: ['get_deck_cards', 'get_stats', 'prepare_exam', 'propose_new_cards'], chronicler: ['get_week', 'get_stats', 'get_plan'] }[M.a.id];
+    const want = { planner: ['get_plan', 'get_stats', 'get_deck_cards', 'prepare_session', 'post_to_board'], proof: ['get_deck_cards', 'propose_edit', 'propose_delete', 'post_to_board'], coach: ['get_deck_cards', 'propose_edit', 'prepare_session', 'post_to_board'],
+      librarian: ['get_deck_cards', 'propose_new_cards', 'post_to_board'], examiner: ['get_deck_cards', 'get_stats', 'prepare_exam', 'propose_new_cards', 'post_to_board'], chronicler: ['get_week', 'get_stats', 'get_plan', 'post_to_board'] }[M.a.id];
     const all = [...pick, ...own].filter(x => want.includes(x.name));
     // Chaque appel d'outil apparaît dans le journal de bord.
     return all.map(x => ({ ...x, execute: async (i, c) => {
@@ -8806,71 +9221,190 @@ const AgentAI = {
   },
   async run(M) {
     const s0 = M.step(t('Lecture de l\'état de l\'app')); await M.nap(250); s0.done(plural(S.decks.length, 'paquet|paquets'));
+    const s1 = M.step(t('Lecture du tableau des assistants')); await M.nap(200);
+    const bn = Board.of({ deckId: M.deck?.id, n: 16 }).length; s1.done(bn ? plural(bn, 'mot|mots') : t('vide'));
     const x = upcomingExams()[0];
     const brief = AGENT_BRIEF[M.a.id].replace(/\{deck\}/g, M.deck?.name || '').replace(/\{id\}/g, M.deck?.id || '').replace(/\{limit\}/g, Pro.expert ? 150 : 60)
-      .replace('{deckHint}', M.deck ? ` (or the deck "${M.deck.name}", deck_id ${M.deck.id})` : x ? ` ("${x.name}")` : '');
-    const rules = agentRules(M.a);
-    const input = [{ role: 'user', content: `${rules}\n\nYOUR MISSION\n${brief}\n\nRules: you never change anything yourself; you PROPOSE, the student decides. Write the final note in ${aiLang()}, in Markdown (short paragraphs, **bold** for key words), addressed to the student. Do not repeat the proposals one by one in the note: they are shown next to it. Use the tools first and write nothing until you are done with them; then write only the note.` }];
+      .replace('{deckHint}', M.deck ? ` (on the deck "${M.deck.name}", deck_id ${M.deck.id})` : x ? ` (nearest exam: "${x.name}", in ${daysUntil(x.date)} days)` : '');
+    const why = M.focus ? `\n\nWHY THIS MISSION NOW (${M.by === 'mentor' ? 'asked by Mentor' : M.by === 'autopilot' ? 'decided by the autopilot from the board, the mastery and the exam dates' : 'context'}): ${M.focus}` : '';
+    const rules = agentRules(M.a, M);
+    const input = [{ role: 'user', content: `${rules}\n\nYOUR MISSION\n${brief}${why}\n\nRules: you never change anything yourself; you PROPOSE, the student decides. Write the final note in ${aiLang()}, in Markdown (short paragraphs, **bold** for key words), addressed to the student. Do not repeat the proposals one by one in the note: they are shown next to it. Use the tools first and write nothing until you are done with them; then write only the note.` }];
+    // Élite : le modèle le plus puissant que permet la formule (le serveur l'applique), et plus d'allers-retours avec les outils.
+    const o = { ...Brain.opts(AGENT_TASK[M.a.id] || 'agent'), rounds: Pro.expert ? 12 : Pro.on ? 9 : 7 };
     if (AI.tools) {
-      const r = await AI.ask(input, { tools: this.tools(M), signal: M.ctl.signal, ...Brain.opts(M.a.id === 'examiner' ? 'exam' : 'agent'), onText: ({ text }) => M.write(text) });
+      const r = await AI.ask(input, { tools: this.tools(M), signal: M.ctl.signal, ...o, onText: ({ text }) => M.write(text) });
       M.write(r.text || M.text);
-    } else await this.json(M, input);
+    } else await this.json(M, input, o);
+    // Le Planificateur sans séance (réponse sans outils, ou outil oublié) : son choix local la prépare quand même.
+    if (M.a.id === 'planner' && !M.brief?.ids?.length) { const P = plannerPick(); if (P.items.length) { M.action(agentAct('session', P.items.map(([c]) => c.id), M.a)); M.brief = { ids: P.items.map(([c]) => c.id) }; M.fromExam = P.errs.length; } }
   },
-  /* Sans outils (certains comptes) : une seule réponse JSON avec la note et les propositions. */
-  async json(M, input) {
+  /* Sans outils (certains comptes) : une seule réponse JSON avec la note, les propositions et le mot au tableau. */
+  async json(M, input, o = {}) {
     const s = M.step(t('Lecture des fiches'));
-    const d = M.deck; const lim = Pro.expert ? 150 : 60;
-    const cards = (d ? d.cards : allCards()).filter(c => c.type !== 'occlusion').slice(0, lim).map(c => ({ id: c.id, type: c.type, q: plain(cardTitle(c)).slice(0, 180), a: plain(cardAnswer(c) || '').slice(0, 160), extra: c.extra ? plain(c.extra).slice(0, 120) : undefined, lapses: c.srs.lapses, memory: c.srs.state === 2 ? Math.round(FSRS.retrievability(c.srs) * 100) : null }));
+    const d = M.deck; const lim = Pro.expert ? 150 : 60, fl = new Set(Board.flagged(d?.id).map(([c]) => c.id));
+    const cards = (d ? d.cards : allCards()).filter(c => c.type !== 'occlusion').slice(0, lim).map(c => ({ id: c.id, type: c.type, q: plain(cardTitle(c)).slice(0, 180), a: plain(cardAnswer(c) || '').slice(0, 160), extra: c.extra ? plain(c.extra).slice(0, 120) : undefined, lapses: c.srs.lapses, memory: c.srs.state === 2 ? Math.round(FSRS.retrievability(c.srs) * 100) : null, ...(fl.has(c.id) ? { flagged: true } : {}) }));
     s.done(plural(cards.length, 'fiche lue|fiches lues'));
     const s2 = M.step(t('Rédaction des propositions'));
-    const r = await AI.json([{ role: 'user', content: input[0].content + `\n\nCards (JSON): ${JSON.stringify(cards)}\nThis week: ${JSON.stringify(weekStats(0))}; previous week: ${JSON.stringify(weekStats(1))}\n\nReply with only a JSON object: {"note": "markdown note", "edits": [{"card_id": "...", "front"?: "...", "back"?: "...", "extra"?: "...", "reason": "..."}], "duplicates": [{"card_ids": ["..."], "reason": "..."}], "new_cards": [{"type": "basic|cloze|mcq|tf", ...}], "session_card_ids": ["..."], "exam_card_ids": ["..."]}` }], { signal: M.ctl.signal, ...Brain.opts(M.a.id === 'examiner' ? 'exam' : 'agent') });
+    const r = await AI.json([{ role: 'user', content: input[0].content + `\n\nCards (JSON): ${JSON.stringify(cards)}\nThis week: ${JSON.stringify(weekStats(0))}; previous week: ${JSON.stringify(weekStats(1))}\n\nReply with only a JSON object: {"note": "markdown note", "edits": [{"card_id": "...", "front"?: "...", "back"?: "...", "extra"?: "...", "reason": "..."}], "duplicates": [{"card_ids": ["..."], "reason": "..."}], "new_cards": [{"type": "basic|cloze|mcq|tf", ...}], "session_card_ids": ["..."], "exam_card_ids": ["..."], "board": {"text": "your key finding for your colleagues", "card_ids": ["..."], "to": "planner|proof|coach|librarian|examiner|chronicler"}}` }], { signal: M.ctl.signal, ...o });
     const T = this.tools(M), call = (n, i) => T.find(x => x.name === n)?.execute(i).catch?.(() => { });
     for (const e of (r?.edits || []).slice(0, 10)) await Promise.resolve(call('propose_edit', e)).catch(() => { });
     for (const e of (r?.duplicates || []).slice(0, 5)) await Promise.resolve(call('propose_delete', e)).catch(() => { });
     if (d && r?.new_cards?.length) await Promise.resolve(call('propose_new_cards', { deck_id: d.id, cards: r.new_cards })).catch(() => { });
     if (r?.session_card_ids?.length) await Promise.resolve(call('prepare_session', { card_ids: r.session_card_ids })).catch(() => { });
     if (r?.exam_card_ids?.length) await Promise.resolve(call('prepare_exam', { card_ids: r.exam_card_ids })).catch(() => { });
+    if (r?.board?.text) await Promise.resolve(call('post_to_board', r.board)).catch(() => { });
     s2.done(plural(M.props.length, 'proposition|propositions'));
     M.write(String(r?.note || ''));
   }
 };
 
-/* L'autopilote : le mot du matin (chaque jour) et le bilan (chaque lundi), à l'ouverture de l'app. */
+/* ── L'autopilote ─────────────────────────────────────────────────────
+   À l'ouverture de l'app (et au retour sur l'onglet).
+   · Pro (à activer) : le mot du matin chaque jour, le bilan chaque lundi.
+     Le même raisonnement qu'Élite donne des suggestions, lancées d'un appui.
+   · Élite (actif tant que la personne ne le coupe pas) : il enchaîne aussi
+     les assistants. Il lit le tableau, la maîtrise des paquets, les dates
+     d'examen et les nouveaux paquets (plan), décide qui doit travailler,
+     les fait travailler sans fenêtre, dans la limite de AUTO_AI missions
+     avec l'IA par jour, puis laisse un compte rendu : « Ce que vos
+     assistants ont fait », propositions à valider. Rien ne change sans
+     accord. Le Planificateur passe en dernier, pour lire ce que les autres
+     viennent d'écrire au tableau.
+   · Découverte : rien. */
+const AUTO_AI = 4;
 const Autopilot = {
-  busy: false,
+  busy: false, now: null,
+  get on() { const A = S.profile.agents; return Pro.on && (!!A.autopilot || (Pro.expert && A.apOff !== true)); },
+  /** Le compte rendu du jour : { day, ai (missions avec l'IA), done (déjà faites), items }. */
+  day() { const A = S.profile.agents, k = dayKey(); if (!A.auto || A.auto.day !== k || !Array.isArray(A.auto.items)) A.auto = { day: k, ai: 0, done: {}, items: [] }; return A.auto; },
+  key: s => s.id + ':' + (s.deckId || ''),
+  /** Qui doit travailler maintenant, et pourquoi, du plus urgent au moins urgent. */
+  plan() {
+    const A = S.profile.agents, now = Date.now(), out = [];
+    const last = (id, deckId) => A.runs.find(r => r.id === id && (!deckId || r.deckId === deckId))?.at || 0;
+    const since = (id, deckId) => (now - last(id, deckId)) / DAY;
+    if (!A.brief || A.brief.day !== dayKey()) out.push({ id: 'planner', prio: 100, why: t('La séance du jour n\'est pas encore préparée.') });
+    for (const d of S.decks) {
+      if (!d.cards.length) continue;
+      const M = Mastery.of(d.id), lee = d.cards.filter(isLeech).length, fl = Board.flagged(d.id).length;
+      // Un paquet arrivé ces trois derniers jours : relu avant d'être appris.
+      if (!d.example && now - (d.created || 0) < 3 * DAY && d.cards.length >= 5 && !last('proof', d.id))
+        out.push({ id: 'proof', deckId: d.id, prio: 80, why: t('« {deck} » vient d\'arriver ({n}) : une relecture avant de l\'apprendre.', { deck: d.name, n: plural(d.cards.length, 'fiche|fiches') }) });
+      // Examen dans 7 jours ou moins, paquet à 15 points ou moins de son objectif : un examen blanc pour mesurer l'écart.
+      if (M.exam && M.exam.days <= 7 && M.target && M.pct >= M.target - 15 && since('examiner', d.id) > 2)
+        out.push({ id: 'examiner', deckId: d.id, prio: 90 - M.exam.days, why: M.reached ? t('« {deck} » a atteint {p}, « {exam} » dans {d} : un examen blanc pour le confirmer.', { deck: d.name, p: pct(M.pct / 100), exam: M.exam.name, d: plural(M.exam.days, 'jour|jours') })
+          : t('« {deck} » est à {p} pour un objectif de {g}, « {exam} » dans {d} : un examen blanc pour mesurer l\'écart.', { deck: d.name, p: pct(M.pct / 100), g: pct(M.target / 100), exam: M.exam.name, d: plural(M.exam.days, 'jour|jours') }) });
+      // Des fiches qui résistent : signalées au tableau, ou oubliées quatre fois et plus.
+      if ((lee >= 3 || fl >= 3) && since('coach', d.id) > 3)
+        out.push({ id: 'coach', deckId: d.id, prio: 60 + Math.min(20, lee + fl), why: fl >= 3 ? t('{n} au tableau dans « {deck} » : des moyens mnémotechniques, puis une séance.', { n: plural(fl, 'fiche signalée|fiches signalées'), deck: d.name }) : t('{n} dans « {deck} » : des moyens mnémotechniques, puis une séance.', { n: plural(lee, 'fiche souvent oubliée|fiches souvent oubliées'), deck: d.name }) });
+      // Un paquet d'examen encore mince, l'examen pas tout de suite : les notions qui manquent.
+      if (!d.example && M.exam && M.exam.days > 7 && d.cards.length < 25 && since('librarian', d.id) > 14)
+        out.push({ id: 'librarian', deckId: d.id, prio: 40, why: t('« {deck} » n\'a que {n} pour « {exam} » : les notions qui manquent.', { deck: d.name, n: plural(d.cards.length, 'fiche|fiches'), exam: M.exam.name }) });
+    }
+    if ((new Date().getDay() === 1 && (!A.report || now - A.report.at > 6 * DAY)) || (A.report && now - A.report.at > 8 * DAY)) out.push({ id: 'chronicler', prio: 30, why: t('Le bilan de la semaine est à faire.') });
+    return out.sort((a, b) => b.prio - a.prio);
+  },
+  /** Les missions utiles que personne n'a encore lancées (Pro et Élite) : un appui sur « Lancer ». */
+  suggestions() { if (!Pro.on) return []; const D = this.day(); return this.plan().filter(s => !D.done[this.key(s)]); },
   async check(now = false) {
-    const A = S.profile.agents;
-    if (!A.autopilot || !Pro.on || this.busy || !S.profile.onboarded) return;
-    const today = dayKey();
+    if (!S?.profile?.onboarded) return;
+    Mastery.sweep();
+    if (!this.on || this.busy) return;
+    const A = S.profile.agents, D = this.day(), today = dayKey(), elite = Pro.expert;
     const needBrief = !A.brief || A.brief.day !== today;
     const needReport = (new Date().getDay() === 1 || now) && (!A.report || Date.now() - A.report.at > 6 * DAY);
-    if (!needBrief && !needReport) return;
-    this.busy = true;
+    // Élite : le Planificateur repasse avec l'IA en fin de chaîne ; une mission du budget lui est gardée.
+    const deep = elite && AI.on && !D.done.planAI, cap = AUTO_AI - (deep ? 1 : 0);
+    const chain = elite ? this.plan().filter(s => !['planner', 'chronicler'].includes(s.id) && !D.done[this.key(s)]) : [];
+    if (!needBrief && !needReport && !chain.length && !(deep && D.ai < AUTO_AI)) return;
+    this.busy = true; const fresh = [];
+    const keep = (M, s) => { const it = this.item(M, s); fresh.push(it); D.items.unshift(it); D.items = D.items.slice(0, 12); Store.touch('profile'); };
     try {
+      // 1. Tout de suite, sans IA : la séance du jour et le mot du matin.
       if (needBrief) {
-        const M = this.ghost(AGENT.planner);
+        const M = new Mission(AGENT.planner, null, { quiet: true, by: 'autopilot' });
         await AgentLocal.planner(M);
-        // Avec l'IA, la note du matin est réécrite par le Planificateur (sans outils : rapide et bon marché).
-        if (AI.on) {
+        // Pro : la note est réécrite par l'IA (sans outils : rapide et bon marché). Élite : le Planificateur repasse plus bas, avec le tableau à jour.
+        if (AI.on && !deep) {
           try {
-            const r = await AI.ask(`${Mentor.rules()}\n\nYou are "${t('Le Planificateur')}", Engram's planning assistant. Rewrite this morning note for the student in ${aiLang()} (at most 80 words, Markdown, warm and concrete, keep every number exactly as given, add nothing invented):\n\n${M.text}`, { modelTier: 'quick' });
-            if (r?.text?.trim()) M.text = r.text.trim();
+            const r = await AI.ask(`${Mentor.rules()}\n\nYou are "${t('Le Planificateur')}", Engram's planning assistant. Rewrite this morning note for the student in ${aiLang()} (at most 90 words, Markdown, warm and concrete, keep every number, card name, deck name and date exactly as given, add nothing invented):\n\n${M.text}`, { modelTier: 'quick' });
+            if (r?.text?.trim()) { M.text = r.text.trim(); M.ai = true; }
           } catch { }
         }
-        A.brief = { day: today, at: Date.now(), text: M.text, ids: M.brief?.ids || [] };
-        A.runs.unshift({ id: 'planner', at: Date.now(), deck: '', n: 0, ai: AI.on, auto: true }); A.runs = A.runs.slice(0, 30);
+        M.record();
       }
+      // 2. Élite : les assistants que la situation appelle, du plus urgent au moins urgent, dans le budget du jour.
+      for (const s of chain) {
+        const a = AGENT[s.id], ai = AI.on && D.ai < cap;
+        if (!ai && !a.local) continue; // sans IA disponible, elle reste une suggestion
+        D.done[this.key(s)] = 1; if (ai) D.ai++;
+        this.now = s; this.paint();
+        const M = new Mission(a, deckById(s.deckId) || null, { quiet: true, focus: s.why, by: 'autopilot' });
+        try { await M.headless(ai); } catch { break; } // l'IA ne répond plus : la chaîne s'arrête là
+        keep(M, s);
+      }
+      // 3. Élite : le Planificateur repasse avec l'IA, en lisant ce que les autres viennent d'écrire.
+      if (deep && D.ai < AUTO_AI) {
+        D.done.planAI = 1; D.ai++;
+        const s = { id: 'planner', why: t('Préparer la séance du jour en tenant compte du tableau et des objectifs de maîtrise.') };
+        this.now = s; this.paint();
+        const M = new Mission(AGENT.planner, null, { quiet: true, focus: s.why, by: 'autopilot' });
+        try { await M.headless(true); keep(M, s); } catch { }
+      }
+      // 4. Le bilan de la semaine, le lundi (avec l'IA pour Élite, si le budget le permet).
       if (needReport) {
-        const M = this.ghost(AGENT.chronicler);
-        await AgentLocal.chronicler(M);
-        A.runs.unshift({ id: 'chronicler', at: Date.now(), deck: '', n: 0, ai: false, auto: true }); A.runs = A.runs.slice(0, 30);
+        const ai = elite && AI.on && D.ai < AUTO_AI; if (ai) D.ai++;
+        const s = { id: 'chronicler', why: t('Le bilan de la semaine est à faire.') };
+        this.now = s; this.paint();
+        const M = new Mission(AGENT.chronicler, null, { quiet: true, by: 'autopilot' });
+        try { await M.headless(ai); if (elite) keep(M, s); } catch { }
       }
       Store.touch('profile');
-      if (!Study.active && ['today', 'agents'].includes(App.route.v)) App.render();
-    } finally { this.busy = false; }
+      const n = fresh.reduce((k, it) => k + it.props.length, 0);
+      if (fresh.length && !Study.active && !Modal.stack.length) toast(n ? t('Vos assistants ont travaillé : {x} à valider.', { x: plural(n, 'proposition|propositions') }) : t('Vos assistants ont travaillé : le compte rendu est prêt.'), 'sun');
+    } finally { this.busy = false; this.now = null; this.paint(); }
+    if (!Study.active && !Modal.stack.length && ['today', 'agents'].includes(App.route.v)) App.render();
   },
-  /** Une mission sans fenêtre : mêmes analyses, rien à l'écran. */
-  ghost(a) { return { a, deck: null, props: [], actions: [], text: '', brief: null, nap: () => Promise.resolve(), step: () => ({ done() { }, err() { } }), write(x) { this.text = x; }, propose() { return false; }, action() { } }; }
+  /** Une mission menée sans fenêtre, gardée pour le compte rendu : sa note, ses propositions (encore ouvertes) et ses boutons. */
+  item(M, s) {
+    return { k: uid('ap'), id: M.a.id, deckId: M.deck?.id || null, at: Date.now(), ai: !!M.ai, why: s?.why || '', text: String(M.text || '').slice(0, 4000),
+      props: M.props.map(p => ({ kind: p.kind, deckId: p.deckId, reason: p.reason || '', ...(p.cardId ? { cardId: p.cardId, patch: p.patch } : {}), ...(p.cardIds ? { cardIds: p.cardIds } : {}), ...(p.cards ? { cards: p.cards } : {}), state: 'open' })),
+      acts: M.actions.filter(x => x?.kind).map(x => ({ kind: x.kind, ids: (x.ids || []).slice(0, 80) })) };
+  },
+  /** Rouvre une mission du compte rendu : sa note, ses propositions à appliquer ou ignorer, ses boutons. */
+  open(k) {
+    const it = this.day().items.find(x => x.k === k), a = it && AGENT[it.id]; if (!a) return;
+    if (Study.active) Study.close(true);
+    while (Modal.stack.length) Modal.close();
+    const M = new Mission(a, deckById(it.deckId) || null, { item: it, quiet: true }); M.open(); M.layout(); M.snap = Store.snapshot(); M.ai = it.ai;
+    M.sub([M.deck?.name, t('par l\'autopilote'), ago(it.at)].filter(Boolean).join(' · '));
+    if (it.why) M.step(t('Pourquoi cette mission'), it.why).done();
+    M.step(t('Mission terminée'), it.ai ? t('avec l\'IA') : t('analyse locale')).done();
+    M.write(it.text);
+    it.props.forEach((p, src) => { if (p.state === 'open') M.propose({ ...p, src, state: undefined }); });
+    M.actions = it.acts.map(x => agentAct(x.kind, x.ids, a)).filter(Boolean);
+    M.quiet = false; M.foot(); it.seen = 1; Store.touch('profile');
+  },
+  /** « Ce que vos assistants ont fait » (Élite). */
+  digestHTML(max = 6) {
+    const D = this.day(), L = D.items.slice(0, max); if (!L.length) return '';
+    const open = D.items.reduce((k, it) => k + it.props.filter(p => p.state === 'open').length, 0);
+    return `<article class="digest rise"><div class="dg-h"><div><div class="kicker">${t('Autopilote')} · ${esc(fmtDate(D.items[0].at, { hour: '2-digit', minute: '2-digit' }))}</div><h3>${t('Ce que vos assistants ont fait')}</h3></div>${open ? `<span class="tag ai">${plural(open, 'proposition à valider|propositions à valider')}</span>` : ''}</div>
+      ${L.map(it => {
+        const a = AGENT[it.id], d = deckById(it.deckId), n = it.props.filter(p => p.state === 'open').length, x = it.acts.find(y => y.kind !== 'share');
+        const what = n ? plural(n, 'proposition|propositions') : x ? (x.kind === 'exam' ? t('Examen blanc prêt') : t('Séance prête')) : t('Note seulement');
+        return `<div class="dg-i">${agentSeal(a, 36)}<div class="dg-t"><b>${t(a.name)}</b>${d ? ` · ${esc(d.name)}` : ''}<small>${esc(this.gist(it.text))}</small></div><div class="acts"><span class="dg-k ${n ? 'on' : ''}">${what}</span><button class="btn btn-sm ${n ? 'btn-brass' : ''}" data-act="digest" data-k="${it.k}">${n ? t('Examiner') : t('Voir')}</button></div></div>`;
+      }).join('')}</article>`;
+  },
+  /** Les suggestions, chacune avec son « Lancer ». */
+  suggHTML(list) {
+    return `<div class="digest sugg rise">${list.map(s => { const a = AGENT[s.id], d = deckById(s.deckId); return `<div class="dg-i">${agentSeal(a, 36)}<div class="dg-t"><b>${t(a.name)}</b>${d ? ` · ${esc(d.name)}` : ''}<small>${esc(s.why)}</small></div><div class="acts"><button class="btn btn-sm btn-brass" data-act="agent" data-id="${a.id}"${d ? ` data-deck="${d.id}"` : ''}>${icon('play', 'i-sm')}${t('Lancer')}</button></div></div>`; }).join('')}</div>`;
+  },
+  /** La première phrase d'une note, en clair. */
+  gist(s) { s = plain(String(s || '')).replace(/(^|\s)[#>*_-]+(?=\s)/g, ' ').replace(/\s+/g, ' ').trim(); return s.length > 160 ? s.slice(0, 159).trimEnd() + '…' : s; },
+  nowText() { const s = this.now, a = s && AGENT[s.id], d = s && deckById(s.deckId); return !a ? '' : d ? t('{a} travaille sur « {deck} »…', { a: t(a.name), deck: d.name }) : t('{a} travaille…', { a: t(a.name) }); },
+  /** L'assistant au travail, sur la page des assistants, sans tout redessiner. */
+  paint() { const el = $('#apNow'); if (el) { el.hidden = !this.now; el.textContent = this.nowText(); } }
 };
 
 /* ── Mode écoute : un podcast de révision ──────────────────────────── */
@@ -9562,6 +10096,8 @@ const Actions = {
   payRestore: () => Pay.restore($('#payCode')?.value),
   proPick: el => { const k = el.dataset.plan; if (Pay.on && k !== 'free') return Pro.paid ? Pay.portal() : Pay.checkout(k); if (Pay.on && k === 'free' && Pro.paid) return Pay.portal(); if (k === 'free') return Pro.stop(); Pro.start(k, { trial: Pro.canTrial && !Pro.on }); },
   agent: el => Agents.run(el.dataset.id, { deckId: el.dataset.deck }),
+  digest: el => Autopilot.open(el.dataset.k),
+  mastery: el => Mastery.open(el.dataset.deck),
   briefGo: () => { const b = S.profile.agents.brief; const items = (b?.ids || []).map(id => findCard(id)).filter(x => x[0]); if (items.length) Study.start({ items, title: t('Séance du Planificateur') }); },
   briefHide: () => { const b = S.profile.agents.brief; if (b) { b.hidden = true; Store.touch('profile'); App.render(); } },
   palette: () => openPalette(),
@@ -12001,7 +12537,7 @@ const Mentor = {
     const decks = S.decks.slice(0, 40).map(d => {
       const m = maturity(d.cards), c = todayCounts(d.id);
       const rs = d.cards.filter(x => x.srs.state === 2).map(x => FSRS.retrievability(x.srs));
-      return { id: d.id, name: d.name, lang: d.lang, cards: d.cards.length, new: m.n, learning: m.l, young: m.y, mastered: m.m, due_today: c.total, leeches: d.cards.filter(isLeech).length, memory: rs.length ? Math.round(rs.reduce((a, b) => a + b, 0) / rs.length * 100) + '%' : null, example: !!d.example };
+      return { id: d.id, name: d.name, lang: d.lang, cards: d.cards.length, new: m.n, learning: m.l, young: m.y, mastered: m.m, due_today: c.total, leeches: d.cards.filter(isLeech).length, memory: rs.length ? Math.round(rs.reduce((a, b) => a + b, 0) / rs.length * 100) + '%' : null, ...Mastery.ai(d.id), example: !!d.example };
     });
     return {
       today, weekday: fmtDate(new Date(), { weekday: 'long' }), ui_language: LANG,
@@ -12010,6 +12546,7 @@ const Mentor = {
       decks,
       plan_next_7_days: P.days.map(d => ({ date: d.key, minutes: d.min, available: d.avail, reviews: d.rev, new: d.newN })),
       memory_about_student: S.profile.memory,
+      assistants_board: Board.forAI({ n: 10 }),
       screen: { view: App.route.v, deck_id: this.deckId || (App.route.v === 'deck' ? App.route.arg : null) },
       demo_mode: !!S.demo,
       settings: { theme: S.profile.settings.skin, accent: S.profile.settings.accent, font: S.profile.settings.font, strictness: S.profile.settings.strict, answer_mode: S.profile.settings.answerMode }
@@ -12022,7 +12559,7 @@ Your tone: ${TONES[s.tone]?.ai || TONES.gentle.ai}. Reply in ${aiLang()} unless 
 ${Brain.brief('mentor')}
 ${AI.tools ? `You can act inside the app with the tools provided. When the student asks for something the tools can do, DO it with the tools instead of explaining how, then confirm in one or two sentences what you did. Call get_deck_cards before editing or quizzing on specific cards. Create at most 30 cards per add_cards call (call it several times for more). When you learn something durable about the student (goal, weakness, preference, constraint), save it with remember. Never delete anything the student did not explicitly ask to delete — the app asks them to confirm deletions. Everything you change can be undone by the student with one click.` : `In this view you cannot act in the app: answer, advise and tell the student which button to use.`}
 Flashcard quality rules: one idea per card; precise, unambiguous question; short answer (under 20 words); useful detail in "extra"; cloze cards use {{c1::…}} on the most information-rich words (1–3 gaps); multiple-choice cards have 4 plausible options and exactly one correct; write cards in the language of the deck (see each deck's lang) unless asked otherwise.
-Engram Pro also has six specialised assistants you can hand a task to with run_agent (the student then reviews their proposals): planner (prepares today's session), proof (audits a deck's cards), coach (mnemonics for often-forgotten cards), librarian (finds missing notions and drafts new cards), examiner (tailored timed mock exam), chronicler (weekly report). Use them for audits, mock exams and weekly reports.
+Engram Pro also has six specialised assistants you can hand a task to with run_agent (the student then reviews their proposals): planner (prepares today's session), proof (audits a deck's cards), coach (mnemonics for often-forgotten cards), librarian (finds missing notions and drafts new cards), examiner (tailored timed mock exam), chronicler (weekly report). Use them for audits, mock exams and weekly reports. They work as a team through a shared board (assistants_board in the state: what each found and did, mock-exam scores and errors, mastery targets reached): read it before advising, build on it, and when you hand a mission, tell the assistant in focus what to look at. Each deck has a mastery (share of its cards the student would recall right now with at least 90% probability, per FSRS) and a mastery_target (90% by default for a deck covered by an upcoming exam): say plainly where the student stands (e.g. 72% mastered, target 90% before the exam on 12 November) and what it takes to get there.
 ${this.docs.length ? `Documents the student attached in this conversation (re-read them with read_document, numbered from 1): ${this.docs.map((d, k) => `${k + 1}. "${d.name}" (${d.chars || 0} characters${d.images?.length ? `, ${d.images.length} images` : ''})`).join('; ')}.\n` : ''}Course sheets: when the student asks for a summary, a "fiche", a "résumé" or a course sheet (of their documents, of a deck or of a topic), call write_course_sheet — never write such a sheet in the chat. To turn documents into flashcards, create a deck and add_cards (atomic cards at the student's level), in several calls if needed.
 Links: you cannot open a web address by yourself${Pro.on ? ' — read it with read_web_page' : ''}. Never guess what a page says from its address or title; if you could not read it, say so and ask the student to paste the text.
 Planning rules: the app computes the daily programme itself from exams, available minutes per weekday and FSRS; to change it, adjust exams, weekly minutes or the new-cards cap — then explain the effect with get_plan.
@@ -12219,9 +12756,9 @@ ${JSON.stringify(this.snapshot())}`;
       { name: 'save_note', description: 'Save a note or summary sheet (Markdown: ## title, ### sections, - bullets, **bold**) inside a deck, where the student can reread and export it.',
         inputSchema: { type: 'object', properties: { deck_id: { type: 'string' }, title: { type: 'string' }, markdown: { type: 'string' } }, required: ['deck_id', 'title', 'markdown'] },
         execute: i => { const d = deckOf(i.deck_id); if (S.demo && d.example) Store.leaveDemo(false); d.notes.unshift({ id: uid('note'), title: str(i.title).slice(0, 100), md: str(i.markdown).slice(0, 20000), created: Date.now() }); Store.touchDeck(d); mark(); say(t('Note enregistrée : « {t} »', { t: str(i.title) })); return 'saved'; } },
-      { name: 'run_agent', description: 'Hand a task to one of Engram\'s specialised assistants. It opens its mission window; its proposals wait for the student\'s approval. agent: planner | proof | coach | librarian | examiner | chronicler. deck_id is used by proof, coach and librarian (and optionally examiner).',
-        inputSchema: { type: 'object', properties: { agent: { type: 'string', enum: AGENTS.map(a => a.id) }, deck_id: { type: 'string' } }, required: ['agent'] },
-        execute: i => { const a = AGENT[str(i.agent)]; if (!a) throw new Error('Unknown agent.'); const deckId = str(i.deck_id) && deckById(str(i.deck_id)) ? str(i.deck_id) : undefined; ctx.after.push(() => { this.close(); Agents.run(a.id, { deckId }); }); say(t('Mission confiée : {a}', { a: t(a.name) })); return 'The assistant\'s window opens when you finish your reply. Tell the student in one sentence.'; } },
+      { name: 'run_agent', description: 'Hand a task to one of Engram\'s specialised assistants. It opens its mission window; its proposals wait for the student\'s approval. agent: planner | proof | coach | librarian | examiner | chronicler. deck_id is used by proof, coach and librarian (and optionally examiner). focus: what the assistant should look at, in one or two sentences (it is posted on the assistants\' board and guides the mission).',
+        inputSchema: { type: 'object', properties: { agent: { type: 'string', enum: AGENTS.map(a => a.id) }, deck_id: { type: 'string' }, focus: { type: 'string' } }, required: ['agent'] },
+        execute: i => { const a = AGENT[str(i.agent)]; if (!a) throw new Error('Unknown agent.'); const deckId = str(i.deck_id) && deckById(str(i.deck_id)) ? str(i.deck_id) : undefined; ctx.after.push(() => { this.close(); Agents.run(a.id, { deckId, focus: str(i.focus), by: 'mentor' }); }); say(t('Mission confiée : {a}', { a: t(a.name) })); return 'The assistant\'s window opens when you finish your reply. Tell the student in one sentence.'; } },
       ...(this.docs.length ? [{ name: 'read_document', description: 'Read again a document the student attached in this conversation: its text from a character offset (documents are numbered from 1 in the order they were attached).',
         inputSchema: { type: 'object', properties: { document: { type: 'number' }, from: { type: 'number' }, length: { type: 'number' } }, required: ['document'] },
         execute: i => { const d = this.docs[(Math.round(+i.document) || 1) - 1]; if (!d) throw new Error('Unknown document number.'); const from = clamp(Math.round(+i.from) || 0, 0, d.text.length), len = clamp(Math.round(+i.length) || 30000, 1000, 60000); return { name: d.name, total_characters: d.text.length, from, text: d.text.slice(from, from + len), images: d.images?.length || 0 }; } }] : []),
@@ -15515,6 +16052,102 @@ TR = {
   "Le Correcteur : relire un paquet": ["The Proofreader: check a deck","El Corrector: revisar un mazo","Der Korrektor: einen Stapel prüfen","O Revisor: revisar um baralho"],
   "Le Documentaliste": ["The Librarian","El Documentalista","Der Archivar","O Documentalista"],
   "Le Planificateur": ["The Planner","El Planificador","Der Planer","O Planejador"],
+  "Maîtrise {p}": ["Mastery {p}","Dominio {p}","Beherrschung {p}","Domínio {p}"],
+  "Maîtrise {p} · objectif {g} avant le {date}": ["Mastery {p} · goal {g} by {date}","Dominio {p} · objetivo {g} antes del {date}","Beherrschung {p} · Ziel {g} bis {date}","Domínio {p} · meta {g} até {date}"],
+  "Maîtrise {p} · objectif {g}": ["Mastery {p} · goal {g}","Dominio {p} · objetivo {g}","Beherrschung {p} · Ziel {g}","Domínio {p} · meta {g}"],
+  "Meilleure récitation orale de ce paquet": ["Best spoken recitation of this deck","Mejor recitación oral de este mazo","Beste mündliche Wiedergabe dieses Stapels","Melhor recitação oral deste baralho"],
+  "Récitation {p}": ["Recitation {p}","Recitación {p}","Wiedergabe {p}","Recitação {p}"],
+  "{m} sur {n} retenues à 90 % ou plus aujourd'hui.": ["{m} of {n} held at 90% or more today.","{m} de {n} retenidas al 90 % o más hoy.","{m} von {n} heute zu 90 % oder mehr gefestigt.","{m} de {n} retidos a 90% ou mais hoje."],
+  "La part des fiches que vous retrouveriez aujourd'hui avec au moins 90 % de chances.": ["The share of cards you would recall today with at least a 90% chance.","La parte de tarjetas que recordarías hoy con al menos un 90 % de probabilidad.","Der Anteil der Karten, die du heute mit mindestens 90 % Wahrscheinlichkeit wüsstest.","A parte dos cartões que você lembraria hoje com pelo menos 90% de chance."],
+  "Objectif atteint": ["Goal reached","Objetivo alcanzado","Ziel erreicht","Meta atingida"],
+  "Fixer un objectif": ["Set a goal","Fijar un objetivo","Ziel festlegen","Definir uma meta"],
+  "Par défaut : {g}, car « {exam} » porte sur ce paquet.": ["Default: {g}, because “{exam}” covers this deck.","Por defecto: {g}, porque «{exam}» abarca este mazo.","Standard: {g}, weil „{exam}“ diesen Stapel abdeckt.","Padrão: {g}, porque “{exam}” cobre este baralho."],
+  "Par défaut : aucun objectif, faute d'examen sur ce paquet.": ["Default: no goal, since no exam covers this deck.","Por defecto: ningún objetivo, ya que ningún examen abarca este mazo.","Standard: kein Ziel, da keine Prüfung diesen Stapel abdeckt.","Padrão: nenhuma meta, pois nenhuma prova cobre este baralho."],
+  "Objectif de maîtrise": ["Mastery goal","Objetivo de dominio","Beherrschungsziel","Meta de domínio"],
+  "La maîtrise, c'est la part des fiches de ce paquet que vous retrouveriez aujourd'hui avec au moins 90 % de chances, d'après l'algorithme FSRS. Les fiches nouvelles ne comptent pas encore.": ["Mastery is the share of this deck's cards you would recall today with at least a 90% chance, according to the FSRS algorithm. New cards don't count yet.","El dominio es la parte de tarjetas de este mazo que recordarías hoy con al menos un 90 % de probabilidad, según el algoritmo FSRS. Las tarjetas nuevas aún no cuentan.","Beherrschung ist der Anteil der Karten dieses Stapels, die du heute laut FSRS-Algorithmus mit mindestens 90 % Wahrscheinlichkeit wüsstest. Neue Karten zählen noch nicht.","O domínio é a parte dos cartões deste baralho que você lembraria hoje com pelo menos 90% de chance, segundo o algoritmo FSRS. Cartões novos ainda não contam."],
+  "Par défaut": ["Default","Por defecto","Standard","Padrão"],
+  "Objectif atteint pour « {deck} » : {p} des fiches retenues à 90 % ou plus ({g} visés). La priorité va maintenant aux paquets encore sous leur objectif.": ["Goal reached for “{deck}”: {p} of cards held at 90% or more ({g} targeted). Priority now goes to the decks still below their goal.","Objetivo alcanzado para «{deck}»: {p} de las tarjetas retenidas al 90 % o más ({g} previstos). Ahora la prioridad son los mazos aún por debajo de su objetivo.","Ziel erreicht für „{deck}“: {p} der Karten zu 90 % oder mehr gefestigt ({g} angestrebt). Vorrang haben jetzt die Stapel, die ihr Ziel noch nicht erreicht haben.","Meta atingida para “{deck}”: {p} dos cartões retidos a 90% ou mais ({g} visados). A prioridade agora vai para os baralhos ainda abaixo da meta."],
+  "Objectif atteint : « {deck} » est maîtrisé à {p}. Bravo !": ["Goal reached: “{deck}” is {p} mastered. Well done!","Objetivo alcanzado: dominas «{deck}» al {p}. ¡Bravo!","Ziel erreicht: „{deck}“ sitzt zu {p}. Bravo!","Meta atingida: “{deck}” está {p} dominado. Parabéns!"],
+  "Examen blanc rendu : {ok} sur {n} ({note}).": ["Mock exam handed in: {ok} out of {n} ({note}).","Simulacro entregado: {ok} de {n} ({note}).","Probeprüfung abgegeben: {ok} von {n} ({note}).","Simulado entregue: {ok} de {n} ({note})."],
+  "Aucune erreur : rien à reprendre.": ["No mistakes: nothing to go over.","Ningún error: nada que repasar.","Keine Fehler: nichts nachzuholen.","Nenhum erro: nada para retomar."],
+  "L'autopilote": ["The autopilot","El piloto automático","Der Autopilot","O piloto automático"],
+  "Rien pour l'instant. Lancez un assistant : ce qu'il trouve s'inscrit ici, et les autres s'en servent.": ["Nothing yet. Start an assistant: what it finds is noted here, and the others use it.","Nada por ahora. Lanza un asistente: lo que encuentre se anota aquí y los demás lo aprovechan.","Noch nichts. Starte einen Assistenten: Was er findet, landet hier, und die anderen nutzen es.","Nada por enquanto. Inicie um assistente: o que ele encontrar fica anotado aqui, e os outros aproveitam."],
+  "Élite : à chaque ouverture de l'app, vos assistants se relaient seuls. Ils lisent le tableau, la maîtrise de vos paquets et vos dates d'examen, décident qui doit travailler (jusqu'à {n} missions avec l'IA par jour) et vous laissent un compte rendu. Rien ne change sans votre accord.": ["Elite: every time you open the app, your assistants take turns on their own. They read the board, the mastery of your decks and your exam dates, decide who should work (up to {n} AI missions a day) and leave you a report. Nothing changes without your approval.","Élite: cada vez que abres la app, tus asistentes se turnan solos. Leen el tablón, el dominio de tus mazos y tus fechas de examen, deciden quién debe trabajar (hasta {n} misiones con IA al día) y te dejan un informe. Nada cambia sin tu aprobación.","Elite: Jedes Mal, wenn du die App öffnest, wechseln sich deine Assistenten von selbst ab. Sie lesen die Pinnwand, die Beherrschung deiner Stapel und deine Prüfungstermine, entscheiden, wer arbeiten soll (bis zu {n} KI-Missionen pro Tag), und hinterlassen dir einen Bericht. Nichts ändert sich ohne deine Zustimmung.","Elite: sempre que você abre o app, seus assistentes se revezam sozinhos. Eles leem o quadro, o domínio dos seus baralhos e as datas das suas provas, decidem quem deve trabalhar (até {n} missões com IA por dia) e deixam um relatório para você. Nada muda sem a sua aprovação."],
+  "Vos assistants suggèrent": ["Your assistants suggest","Tus asistentes sugieren","Deine Assistenten schlagen vor","Seus assistentes sugerem"],
+  "Ce que l'autopilote n'a pas encore fait aujourd'hui. Un appui suffit.": ["What the autopilot hasn't done yet today. One tap is enough.","Lo que el piloto automático aún no ha hecho hoy. Basta un toque.","Was der Autopilot heute noch nicht erledigt hat. Ein Tippen genügt.","O que o piloto automático ainda não fez hoje. Basta um toque."],
+  "Ils ont lu le tableau, la maîtrise de vos paquets et vos dates d'examen. Un appui suffit.": ["They have read the board, the mastery of your decks and your exam dates. One tap is enough.","Han leído el tablón, el dominio de tus mazos y tus fechas de examen. Basta un toque.","Sie haben die Pinnwand, die Beherrschung deiner Stapel und deine Prüfungstermine gelesen. Ein Tippen genügt.","Eles leram o quadro, o domínio dos seus baralhos e as datas das suas provas. Basta um toque."],
+  "Maîtrise de vos paquets": ["Mastery of your decks","Dominio de tus mazos","Beherrschung deiner Stapel","Domínio dos seus baralhos"],
+  "La part des fiches que vous retrouveriez aujourd'hui avec au moins 90 % de chances. Touchez un paquet pour choisir son objectif.": ["The share of cards you would recall today with at least a 90% chance. Tap a deck to choose its goal.","La parte de tarjetas que recordarías hoy con al menos un 90 % de probabilidad. Toca un mazo para elegir su objetivo.","Der Anteil der Karten, die du heute mit mindestens 90 % Wahrscheinlichkeit wüsstest. Tippe auf einen Stapel, um sein Ziel zu wählen.","A parte dos cartões que você lembraria hoje com pelo menos 90% de chance. Toque em um baralho para escolher a meta."],
+  "Ce que vos assistants se sont dit": ["What your assistants told each other","Lo que se han dicho tus asistentes","Was sich deine Assistenten gesagt haben","O que seus assistentes disseram entre si"],
+  "Le tableau": ["The board","El tablón","Die Pinnwand","O quadro"],
+  "Chacun y laisse ce qu'il a trouvé ; les autres et Mentor s'en servent pour la suite.": ["Each one leaves what it found here; the others and Mentor build on it.","Cada uno deja aquí lo que ha encontrado; los demás y Mentor lo usan para seguir.","Jeder hinterlässt hier, was er gefunden hat; die anderen und Mentor bauen darauf auf.","Cada um deixa aqui o que encontrou; os outros e o Mentor usam isso para continuar."],
+  "autopilote": ["autopilot","piloto automático","Autopilot","piloto automático"],
+  "Autopilote activé : vos assistants se mettent au travail.": ["Autopilot on: your assistants are getting to work.","Piloto automático activado: tus asistentes se ponen manos a la obra.","Autopilot an: deine Assistenten machen sich an die Arbeit.","Piloto automático ativado: seus assistentes começam a trabalhar."],
+  "Au travail…": ["At work…","Trabajando…","Bei der Arbeit…","Trabalhando…"],
+  "À valider": ["To approve","Por validar","Zu bestätigen","Para aprovar"],
+  "Séance préparée": ["Prepared session","Sesión preparada","Vorbereitete Sitzung","Sessão preparada"],
+  "Séance du jour préparée : {n}.": ["Today's session is ready: {n}.","Sesión del día preparada: {n}.","Heutige Sitzung vorbereitet: {n}.","Sessão do dia preparada: {n}."],
+  "« {deck} » relu : {x}.": ["“{deck}” checked: {x}.","«{deck}» revisado: {x}.","„{deck}“ geprüft: {x}.","“{deck}” revisado: {x}."],
+  "À travailler en priorité : {list}.": ["To work on first: {list}.","Para trabajar primero: {list}.","Zuerst zu üben: {list}.","Para trabalhar primeiro: {list}."],
+  "Moyens mnémotechniques proposés pour {n} de « {deck} » : {list}.": ["Mnemonics suggested for {n} of “{deck}”: {list}.","Reglas mnemotécnicas propuestas para {n} de «{deck}»: {list}.","Eselsbrücken vorgeschlagen für {n} aus „{deck}“: {list}.","Macetes sugeridos para {n} de “{deck}”: {list}."],
+  "{n} pour compléter « {deck} ».": ["{n} to complete “{deck}”.","{n} para completar «{deck}».","{n}, um „{deck}“ zu ergänzen.","{n} para completar “{deck}”."],
+  "Examen blanc prêt : {n}.": ["Mock exam ready: {n}.","Simulacro listo: {n}.","Probeprüfung bereit: {n}.","Simulado pronto: {n}."],
+  "Ces fiches ont été déplacées ou supprimées.": ["These cards have been moved or deleted.","Estas tarjetas se han movido o eliminado.","Diese Karten wurden verschoben oder gelöscht.","Esses cartões foram movidos ou excluídos."],
+  "Lecture du tableau des assistants": ["Reading the assistants' board","Lectura del tablón de los asistentes","Pinnwand der Assistenten lesen","Leitura do quadro dos assistentes"],
+  "rien à reprendre": ["nothing to go over","nada que repasar","nichts nachzuholen","nada para retomar"],
+  "« {deck} » a atteint son objectif ({p}) : on entretient.": ["“{deck}” has reached its goal ({p}): now we keep it up.","«{deck}» ha alcanzado su objetivo ({p}): ahora toca mantenerlo.","„{deck}“ hat sein Ziel erreicht ({p}): jetzt heißt es dranbleiben.","“{deck}” atingiu a meta ({p}): agora é manter."],
+  "Priorité à « {deck} » : « {exam} » dans {d}, maîtrise {p} pour un objectif de {g} ({x}).": ["Priority to “{deck}”: “{exam}” in {d}, mastery {p} against a goal of {g} ({x}).","Prioridad para «{deck}»: «{exam}» en {d}, dominio {p} para un objetivo de {g} ({x}).","Vorrang für „{deck}“: „{exam}“ in {d}, Beherrschung {p} bei einem Ziel von {g} ({x}).","Prioridade para “{deck}”: “{exam}” em {d}, domínio {p} para uma meta de {g} ({x})."],
+  "Commencez par {q} : {why}.": ["Start with {q}: {why}.","Empieza por {q}: {why}.","Fang mit {q} an: {why}.","Comece por {q}: {why}."],
+  "ratée à l'examen blanc": ["missed in the mock exam","fallada en el simulacro","in der Probeprüfung verfehlt","errado no simulado"],
+  "c'est la plus fragile": ["it's the shakiest","es la más frágil","sie ist am wackeligsten","é o mais frágil"],
+  "aucune": ["none","ninguna","keine","nenhum"],
+  "Je signale au Répétiteur les {n} qui vous résistent le plus, dont {list}.": ["I'm flagging to the Tutor the {n} that give you the most trouble, including {list}.","Le señalo al Tutor las {n} que más se te resisten, entre ellas {list}.","Ich melde dem Tutor die {n}, die dir am meisten Mühe machen, darunter {list}.","Aviso ao Tutor os {n} que mais resistem a você, entre eles {list}."],
+  "« {deck} » : maîtrise {p} pour un objectif de {g}.": ["“{deck}”: mastery {p} against a goal of {g}.","«{deck}»: dominio {p} para un objetivo de {g}.","„{deck}“: Beherrschung {p} bei einem Ziel von {g}.","“{deck}”: domínio {p} para uma meta de {g}."],
+  "Visez au moins {g} de bonnes réponses pour le confirmer.": ["Aim for at least {g} correct answers to confirm it.","Apunta al menos a un {g} de respuestas correctas para confirmarlo.","Ziel auf mindestens {g} richtige Antworten, um es zu bestätigen.","Mire em pelo menos {g} de respostas certas para confirmar."],
+  "vide": ["empty","vacío","leer","vazio"],
+  "Vos assistants ont laissé {n} au tableau : {list}.": ["Your assistants left {n} on the board: {list}.","Tus asistentes dejaron {n} en el tablón: {list}.","Deine Assistenten haben {n} an der Pinnwand hinterlassen: {list}.","Seus assistentes deixaram {n} no quadro: {list}."],
+  "Dernier examen blanc : {p} de bonnes réponses.": ["Last mock exam: {p} correct answers.","Último simulacro: {p} de respuestas correctas.","Letzte Probeprüfung: {p} richtige Antworten.","Último simulado: {p} de respostas certas."],
+  "Objectif de maîtrise atteint : {list}.": ["Mastery goal reached: {list}.","Objetivo de dominio alcanzado: {list}.","Beherrschungsziel erreicht: {list}.","Meta de domínio atingida: {list}."],
+  "Amener « {deck} » de {p} à {g} : {n} à faire tenir{when}.": ["Take “{deck}” from {p} to {g}: {n} to make stick{when}.","Llevar «{deck}» del {p} al {g}: {n} por afianzar{when}.","„{deck}“ von {p} auf {g} bringen: {n} zu festigen{when}.","Levar “{deck}” de {p} a {g}: {n} para fixar{when}."],
+  "avant le {date}": ["by {date}","antes del {date}","bis {date}","até {date}"],
+  "L'équipe cette semaine": ["The team this week","El equipo esta semana","Das Team diese Woche","A equipe nesta semana"],
+  "Mot laissé au tableau": ["Note left on the board","Nota dejada en el tablón","Notiz an der Pinnwand","Nota deixada no quadro"],
+  "La séance du jour n'est pas encore préparée.": ["Today's session isn't prepared yet.","La sesión del día aún no está preparada.","Die heutige Sitzung ist noch nicht vorbereitet.","A sessão do dia ainda não está preparada."],
+  "« {deck} » vient d'arriver ({n}) : une relecture avant de l'apprendre.": ["“{deck}” just arrived ({n}): a check before you learn it.","«{deck}» acaba de llegar ({n}): una revisión antes de aprenderlo.","„{deck}“ ist gerade angekommen ({n}): eine Prüfung, bevor du ihn lernst.","“{deck}” acabou de chegar ({n}): uma revisão antes de aprendê-lo."],
+  "« {deck} » a atteint {p}, « {exam} » dans {d} : un examen blanc pour le confirmer.": ["“{deck}” has reached {p}, “{exam}” in {d}: a mock exam to confirm it.","«{deck}» ha llegado al {p}, «{exam}» en {d}: un simulacro para confirmarlo.","„{deck}“ hat {p} erreicht, „{exam}“ in {d}: eine Probeprüfung zur Bestätigung.","“{deck}” chegou a {p}, “{exam}” em {d}: um simulado para confirmar."],
+  "« {deck} » est à {p} pour un objectif de {g}, « {exam} » dans {d} : un examen blanc pour mesurer l'écart.": ["“{deck}” is at {p} against a goal of {g}, “{exam}” in {d}: a mock exam to measure the gap.","«{deck}» está al {p} para un objetivo de {g}, «{exam}» en {d}: un simulacro para medir la distancia.","„{deck}“ steht bei {p} bei einem Ziel von {g}, „{exam}“ in {d}: eine Probeprüfung, um den Abstand zu messen.","“{deck}” está em {p} para uma meta de {g}, “{exam}” em {d}: um simulado para medir a diferença."],
+  "{n} au tableau dans « {deck} » : des moyens mnémotechniques, puis une séance.": ["{n} on the board in “{deck}”: mnemonics, then a session.","{n} en el tablón en «{deck}»: reglas mnemotécnicas y luego una sesión.","{n} an der Pinnwand in „{deck}“: Eselsbrücken, dann eine Sitzung.","{n} no quadro em “{deck}”: macetes e depois uma sessão."],
+  "{n} dans « {deck} » : des moyens mnémotechniques, puis une séance.": ["{n} in “{deck}”: mnemonics, then a session.","{n} en «{deck}»: reglas mnemotécnicas y luego una sesión.","{n} in „{deck}“: Eselsbrücken, dann eine Sitzung.","{n} em “{deck}”: macetes e depois uma sessão."],
+  "« {deck} » n'a que {n} pour « {exam} » : les notions qui manquent.": ["“{deck}” has only {n} for “{exam}”: the missing topics.","«{deck}» solo tiene {n} para «{exam}»: los conceptos que faltan.","„{deck}“ hat nur {n} für „{exam}“: die fehlenden Begriffe.","“{deck}” só tem {n} para “{exam}”: os conceitos que faltam."],
+  "Le bilan de la semaine est à faire.": ["The weekly review is due.","Toca hacer el balance de la semana.","Der Wochenrückblick steht an.","O balanço da semana está pendente."],
+  "Préparer la séance du jour en tenant compte du tableau et des objectifs de maîtrise.": ["Prepare today's session, taking the board and the mastery goals into account.","Preparar la sesión del día teniendo en cuenta el tablón y los objetivos de dominio.","Die heutige Sitzung vorbereiten und dabei Pinnwand und Beherrschungsziele berücksichtigen.","Preparar a sessão do dia levando em conta o quadro e as metas de domínio."],
+  "Vos assistants ont travaillé : {x} à valider.": ["Your assistants have been at work: {x} to approve.","Tus asistentes han trabajado: {x} por validar.","Deine Assistenten haben gearbeitet: {x} zu bestätigen.","Seus assistentes trabalharam: {x} para aprovar."],
+  "Vos assistants ont travaillé : le compte rendu est prêt.": ["Your assistants have been at work: the report is ready.","Tus asistentes han trabajado: el informe está listo.","Deine Assistenten haben gearbeitet: Der Bericht ist fertig.","Seus assistentes trabalharam: o relatório está pronto."],
+  "par l'autopilote": ["by the autopilot","por el piloto automático","vom Autopiloten","pelo piloto automático"],
+  "Pourquoi cette mission": ["Why this mission","Por qué esta misión","Warum diese Mission","Por que esta missão"],
+  "Ce que vos assistants ont fait": ["What your assistants did","Lo que han hecho tus asistentes","Was deine Assistenten getan haben","O que seus assistentes fizeram"],
+  "Examen blanc prêt": ["Mock exam ready","Simulacro listo","Probeprüfung bereit","Simulado pronto"],
+  "Examiner": ["Review","Revisar","Ansehen","Revisar"],
+  "Voir": ["View","Ver","Ansehen","Ver"],
+  "{a} travaille sur « {deck} »…": ["{a} is working on “{deck}”…","{a} está trabajando en «{deck}»…","{a} arbeitet an „{deck}“…","{a} está trabalhando em “{deck}”…"],
+  "{a} travaille…": ["{a} is working…","{a} está trabajando…","{a} arbeitet…","{a} está trabalhando…"],
+  "Encore {n} fiche à retenir à 90 % pour l'atteindre.|Encore {n} fiches à retenir à 90 % pour l'atteindre.": ["{n} more card to hold at 90% to reach it.|{n} more cards to hold at 90% to reach it.","Falta {n} tarjeta por retener al 90 % para alcanzarlo.|Faltan {n} tarjetas por retener al 90 % para alcanzarlo.","Noch {n} Karte zu 90 % festigen, um es zu erreichen.|Noch {n} Karten zu 90 % festigen, um es zu erreichen.","Falta {n} cartão para reter a 90% e atingi-la.|Faltam {n} cartões para reter a 90% e atingi-la."],
+  "Une erreur revient dans la prochaine séance : {list}.|{n} erreurs reviennent dans la prochaine séance : {list}.": ["One mistake comes back in the next session: {list}.|{n} mistakes come back in the next session: {list}.","Un error vuelve en la próxima sesión: {list}.|{n} errores vuelven en la próxima sesión: {list}.","Ein Fehler kommt in der nächsten Sitzung wieder: {list}.|{n} Fehler kommen in der nächsten Sitzung wieder: {list}.","Um erro volta na próxima sessão: {list}.|{n} erros voltam na próxima sessão: {list}."],
+  "Elle reprend l'erreur du dernier examen blanc.|Elle reprend les {n} erreurs du dernier examen blanc.": ["It goes over the mistake from the last mock exam.|It goes over the {n} mistakes from the last mock exam.","Repasa el error del último simulacro.|Repasa los {n} errores del último simulacro.","Sie greift den Fehler aus der letzten Probeprüfung auf.|Sie greift die {n} Fehler aus der letzten Probeprüfung auf.","Ela retoma o erro do último simulado.|Ela retoma os {n} erros do último simulado."],
+  "nouvelle fiche proposée|nouvelles fiches proposées": ["new card suggested|new cards suggested","tarjeta nueva propuesta|tarjetas nuevas propuestas","neue Karte vorgeschlagen|neue Karten vorgeschlagen","cartão novo sugerido|cartões novos sugeridos"],
+  "{n} erreur d'examen blanc|{n} erreurs d'examen blanc": ["{n} mock exam mistake|{n} mock exam mistakes","{n} error del simulacro|{n} errores del simulacro","{n} Fehler aus der Probeprüfung|{n} Fehler aus der Probeprüfung","{n} erro do simulado|{n} erros do simulado"],
+  "fiche signalée|fiches signalées": ["flagged card|flagged cards","tarjeta señalada|tarjetas señaladas","gemeldete Karte|gemeldete Karten","cartão sinalizado|cartões sinalizados"],
+  "encore {n} fiche|encore {n} fiches": ["{n} card to go|{n} cards to go","falta {n} tarjeta|faltan {n} tarjetas","noch {n} Karte|noch {n} Karten","falta {n} cartão|faltam {n} cartões"],
+  "{n} prévue|{n} prévues": ["{n} due|{n} due","{n} prevista|{n} previstas","{n} fällig|{n} fällig","{n} prevista|{n} previstas"],
+  "{n} erreur de l'examen blanc à reprendre|{n} erreurs de l'examen blanc à reprendre": ["{n} mock exam mistake to go over|{n} mock exam mistakes to go over","{n} error del simulacro por repasar|{n} errores del simulacro por repasar","{n} Fehler aus der Probeprüfung nachzuholen|{n} Fehler aus der Probeprüfung nachzuholen","{n} erro do simulado para retomar|{n} erros do simulado para retomar"],
+  "{n} signalée par vos assistants|{n} signalées par vos assistants": ["{n} flagged by your assistants|{n} flagged by your assistants","{n} señalada por tus asistentes|{n} señaladas por tus asistentes","{n} von deinen Assistenten gemeldet|{n} von deinen Assistenten gemeldet","{n} sinalizado pelos seus assistentes|{n} sinalizados pelos seus assistentes"],
+  "{n} fragile à consolider avant qu'elle ne s'efface|{n} fragiles à consolider avant qu'elles ne s'effacent": ["{n} shaky one to firm up before it fades|{n} shaky ones to firm up before they fade","{n} frágil por afianzar antes de que se borre|{n} frágiles por afianzar antes de que se borren","{n} wackelige zu festigen, bevor sie verblasst|{n} wackelige zu festigen, bevor sie verblassen","{n} frágil para firmar antes que se apague|{n} frágeis para firmar antes que se apaguem"],
+  "fiche à travailler|fiches à travailler": ["card to work on|cards to work on","tarjeta por trabajar|tarjetas por trabajar","Karte zum Üben|Karten zum Üben","cartão para trabalhar|cartões para trabalhar"],
+  "{n} question vient du tableau des assistants (fiche signalée ou ratée).|{n} questions viennent du tableau des assistants (fiches signalées ou ratées).": ["{n} question comes from the assistants' board (flagged or missed card).|{n} questions come from the assistants' board (flagged or missed cards).","{n} pregunta viene del tablón de los asistentes (tarjeta señalada o fallada).|{n} preguntas vienen del tablón de los asistentes (tarjetas señaladas o falladas).","{n} Frage stammt von der Pinnwand der Assistenten (gemeldete oder verfehlte Karte).|{n} Fragen stammen von der Pinnwand der Assistenten (gemeldete oder verfehlte Karten).","{n} pergunta vem do quadro dos assistentes (cartão sinalizado ou errado).|{n} perguntas vêm do quadro dos assistentes (cartões sinalizados ou errados)."],
+  "mot|mots": ["note|notes","nota|notas","Notiz|Notizen","nota|notas"],
+  "Une erreur à reprendre.|{n} erreurs à reprendre.": ["One mistake to go over.|{n} mistakes to go over.","Un error por repasar.|{n} errores por repasar.","Ein Fehler nachzuholen.|{n} Fehler nachzuholen.","Um erro para retomar.|{n} erros para retomar."],
+  "fiche souvent oubliée|fiches souvent oubliées": ["often-forgotten card|often-forgotten cards","tarjeta que se olvida a menudo|tarjetas que se olvidan a menudo","oft vergessene Karte|oft vergessene Karten","cartão esquecido com frequência|cartões esquecidos com frequência"],
+  "proposition à valider|propositions à valider": ["suggestion to approve|suggestions to approve","propuesta por validar|propuestas por validar","Vorschlag zu bestätigen|Vorschläge zu bestätigen","sugestão para aprovar|sugestões para aprovar"],
   "Le Répétiteur": ["The Tutor","El Tutor","Der Tutor","O Tutor"],
   "Le gros morceau : « {deck} ».": ["The big one: “{deck}”.","Lo más gordo: «{deck}».","Der dicke Brocken: „{deck}“.","O grosso do trabalho: “{deck}”."],
   "Le mode Expert fait partie de Pro Expert": ["Expert mode is part of Pro Expert","El modo Experto forma parte de Pro Expert","Der Expertenmodus gehört zu Pro Expert","O modo Especialista faz parte do Pro Expert"],
