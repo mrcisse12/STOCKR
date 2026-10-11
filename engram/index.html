@@ -14332,6 +14332,8 @@ const Gate = {
     return c.type === 'tf' || !!plain(c.front).trim() && !!plain(c.back).trim();
   },
   pool() { return this.decks().flatMap(d => d.cards.filter(c => this.usable(c)).map(c => [c, d])); },
+  /** Le nombre de questions possibles : une par note (les fiches « sœurs » d'une note n'en font qu'une). */
+  size() { const seen = new Set(); let n = 0; for (const [c] of this.pool()) { if (c.note) { if (seen.has(c.note)) continue; seen.add(c.note); } n++; } return n; },
   build() {
     const g = this.cfg(), now = Date.now(), seen = new Set(this.lastIds), items = this.pool();
     // Les dues d'abord, puis les fragiles, puis les autres déjà vues ; les nouvelles en dernier, et rien de la dernière épreuve s'il y a mieux.
@@ -14573,7 +14575,7 @@ const Gate = {
         ${form}${busy}${self}<div class="gt-acts">${act}</div>`;
     }
     // Accueil de l'épreuve, ou rien à demander.
-    const usable = this.pool().length, n = Math.min(g.n, usable), ds = this.decks();
+    const usable = this.size(), n = Math.min(g.n, usable), ds = this.decks();
     if (usable < 3) return head + `<div class="gt-mid rise">
       <h1 class="display gt-title">${words(t('Pas encore assez de <em>fiches</em>.'))}</h1>
       <p class="lede">${t('La barrière a besoin d\'au moins 3 fiches (QCM, vrai ou faux, question-réponse ou texte à trous) dans les paquets choisis.')}</p>
