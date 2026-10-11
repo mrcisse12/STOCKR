@@ -855,6 +855,190 @@ body.studying .shell,body.studying .dock{visibility:hidden}
 
 /* ── Jeux ────────────────────────────────────────────────────────── */
 .games{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+/* Tableau de joueur (accueil), quêtes, coffre, vestiaire. Les styles du tableau se posent sur [data-hud]. */
+.hudv{--h-bg:var(--folder-2);--h-solid:var(--folder-2);--h-ink:var(--text);--h-ink2:var(--text-2);--h-mut:var(--muted);--h-line:var(--hair-2);--h-acc:var(--brass);--h-acc2:var(--brass-hi);--h-acct:var(--brass-text);--h-track:var(--desk-2);--h-chip:var(--brass-soft);--h-done:var(--good);--h-done-ink:#fff}
+[data-hud="bristol"]{--h-bg:var(--paper);--h-solid:var(--paper);--h-ink:var(--p-ink);--h-ink2:#4A463C;--h-mut:var(--p-muted);--h-line:rgba(29,28,24,.14);--h-acc:#A57B2E;--h-acc2:#D4A95A;--h-acct:#7A5416;--h-track:rgba(29,28,24,.08);--h-chip:rgba(165,123,46,.09);--h-done:#1D7A50}
+[data-hud="laiton"]{--h-bg:linear-gradient(160deg,#F1DDA4,#D2AE62 45%,#A87D30);--h-solid:#D2AE62;--h-ink:#1B1407;--h-ink2:#3A2A0C;--h-mut:rgba(27,20,7,.68);--h-line:rgba(27,20,7,.2);--h-acc:#5A3A0B;--h-acc2:#8A5E1A;--h-acct:#3D2706;--h-track:rgba(27,20,7,.16);--h-chip:rgba(255,248,225,.32);--h-done:#1F5A40}
+[data-hud="ardoise"]{--h-bg:radial-gradient(120% 90% at 20% 0%,#36463E,#212C27 70%);--h-solid:#28342E;--h-ink:#EEF0E8;--h-ink2:#D5DAD0;--h-mut:rgba(238,240,232,.62);--h-line:rgba(238,240,232,.16);--h-acc:#F2E3A8;--h-acc2:#FFF6D6;--h-acct:#F2E3A8;--h-track:rgba(0,0,0,.32);--h-chip:rgba(255,255,255,.07);--h-done:#7CC59B;--h-done-ink:#14201A}
+[data-hud="velours"]{--h-bg:linear-gradient(160deg,#411C2D,#1C0A12);--h-solid:#2C1320;--h-ink:#F5E9DA;--h-ink2:#E4D2BE;--h-mut:rgba(245,233,218,.6);--h-line:rgba(212,175,55,.3);--h-acc:#D4AF37;--h-acc2:#F5DE8A;--h-acct:#E9C95A;--h-track:rgba(0,0,0,.38);--h-chip:rgba(212,175,55,.12);--h-done:#D4AF37;--h-done-ink:#1C0A12}
+[data-hud="nuit"]{--h-bg:radial-gradient(1.2px 1.2px at 12% 22%,#fffa 60%,transparent 75%),radial-gradient(1px 1px at 38% 74%,#fff8 60%,transparent 75%),radial-gradient(1.5px 1.5px at 64% 16%,#ffe9b0 60%,transparent 75%),radial-gradient(1px 1px at 82% 58%,#fff9 60%,transparent 75%),radial-gradient(1px 1px at 50% 42%,#fff6 60%,transparent 75%),radial-gradient(1.2px 1.2px at 94% 86%,#fff7 60%,transparent 75%),radial-gradient(1px 1px at 24% 90%,#fff6 60%,transparent 75%),radial-gradient(120% 100% at 80% 0%,#1F2C55,#0A0F1D 70%);
+  --h-solid:#111936;--h-ink:#E8ECF8;--h-ink2:#CDD4EA;--h-mut:rgba(232,236,248,.62);--h-line:rgba(226,164,111,.3);--h-acc:#E2A46F;--h-acc2:#F6CFA4;--h-acct:#F0B887;--h-track:rgba(0,0,0,.4);--h-chip:rgba(226,164,111,.12);--h-done:#E2A46F;--h-done-ink:#0A0F1D}
+.hudv.org[data-hud="folio"],.hudv.org[data-hud="bristol"],.org-q,.org-demo{--h-acc:var(--h-org);--h-acc2:color-mix(in srgb,var(--h-org) 55%,white);--h-acct:color-mix(in srgb,var(--h-org) 78%,var(--h-ink))}
+.hud{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr) auto;gap:14px 26px;align-items:center;padding:18px 20px 12px;border-radius:16px;background:var(--h-bg);color:var(--h-ink);border:1px solid var(--h-line);box-shadow:var(--sh-panel);overflow:hidden;isolation:isolate}
+.hud::before,.pl-hero::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.045),transparent 55%)}
+.hud.org::after,.pl-hero.org::after,.org-demo::after{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--h-org)}
+.hud-org{grid-column:1/-1;display:flex;align-items:center;gap:10px;min-width:0;padding-bottom:12px;border-bottom:1px solid var(--h-line);font-size:14px}
+.hud-org b{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.org-logo{flex:none;display:grid;place-items:center;width:30px;height:30px;padding:3px;border-radius:7px;background:#fff;object-fit:contain;color:var(--h-org,#2E7A58);box-shadow:0 0 0 1px rgba(0,0,0,.1)}
+.org-logo.lg{width:56px;height:56px;padding:6px;border-radius:12px;color:var(--brass-text)}
+.org-kind{margin-left:auto;flex:none;display:inline-flex;align-items:center;gap:6px;font:700 10px/1 var(--f-type);letter-spacing:.12em;text-transform:uppercase;color:var(--h-mut)}
+.org-kind::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--h-org)}
+.hud-me{display:flex;align-items:center;gap:14px;min-width:0}
+.hud-av{flex:none;border-radius:50%;transition:transform .4s var(--spring)}
+.hud-av:hover{transform:scale(1.05) rotate(-3deg)}
+.hud-id{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.hud-name{display:flex;align-items:baseline;gap:9px;min-width:0}
+.hud-name b{font-weight:650;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
+.hud-title{font:700 18px/1 var(--f-pen);color:var(--h-acct);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1 1 0}
+.hud-lvl{display:flex;justify-content:space-between;gap:10px;font:700 10.5px/1.2 var(--f-type);letter-spacing:.08em;text-transform:uppercase;color:var(--h-mut)}
+.hud-lvl span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hud-lvl .tnum{flex:none;letter-spacing:.02em}
+.hud-xp{position:relative;height:9px;border-radius:99px;background:var(--h-track);overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.16)}
+.hud-xp i{position:absolute;inset:0 auto 0 0;border-radius:inherit;background:linear-gradient(90deg,var(--h-acc),var(--h-acc2));transform-origin:left;animation:fill 1.3s var(--ease) both}
+.hud-xp i::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(180deg,rgba(255,255,255,.35),transparent 65%)}
+.hud-stats{display:flex;flex-direction:column;gap:6px;flex:none}
+.hud-st{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:99px;background:var(--h-chip);border:1px solid var(--h-line);font:700 13px/1 var(--f-type);color:var(--h-ink)}
+.hud-st.fl .i{color:#E0703A}
+.hud-st.bump,.pl-stat.bump{animation:hudBump .5s var(--spring)}
+@keyframes hudBump{40%{transform:scale(1.16)}}
+.hud-q{min-width:0;display:flex;flex-direction:column;gap:8px}
+.hud-qh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;min-width:0}
+.hud-k{font:700 10.5px/1.2 var(--f-type);letter-spacing:.12em;text-transform:uppercase;color:var(--h-mut);white-space:nowrap}
+.hud-k b{color:var(--h-acct);margin-left:4px}
+.hud-k2{font-size:12px;color:var(--h-mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.hud-ql{display:flex;flex-direction:column;gap:6px}
+.hq{display:grid;grid-template-columns:26px minmax(0,1fr) auto;grid-template-areas:"ic t n" "ic b b";align-items:center;gap:3px 10px;width:100%;text-align:left;color:inherit;padding:2px 6px 2px 0;border-radius:9px}
+button.hq{transition:background .2s}
+button.hq:hover{background:var(--h-chip)}
+.hq-ic{grid-area:ic;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;border:1px solid var(--h-line);color:var(--h-acc);background:var(--h-chip)}
+.hq-t{grid-area:t;font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--h-ink)}
+.hq-n{grid-area:n;font:700 11px/1 var(--f-type);color:var(--h-mut);white-space:nowrap}
+.hq-bar{grid-area:b;height:4px;border-radius:99px;background:var(--h-track);overflow:hidden}
+.hq-bar i{display:block;height:100%;border-radius:inherit;background:var(--h-acc);transform-origin:left;animation:fill 1.1s var(--ease) both}
+.hq.done .hq-ic{background:var(--h-done);border-color:transparent;color:var(--h-done-ink)}
+.hq.done .hq-t{color:var(--h-mut)}
+.hq.done .hq-bar i{background:var(--h-done)}
+.hq.oq .hq-ic{color:var(--h-org,var(--h-acc));border-color:color-mix(in srgb,var(--h-org,var(--h-acc)) 45%,transparent)}
+.hq.oq:not(.done) .hq-bar i{background:var(--h-org,var(--h-acc))}
+.pl-ql .hq{grid-template-areas:"ic t n" "ic b rw";padding:9px 0;border-top:1px solid var(--h-line);border-radius:0}
+.pl-ql .hq:first-child{border-top:0;padding-top:0}
+.pl-ql button.hq:hover{background:none}.pl-ql button.hq:hover .hq-t{color:var(--h-acct)}
+.hq-rw{grid-area:rw;font:700 10.5px/1 var(--f-type);color:var(--h-acct);white-space:nowrap}
+.hud-chest{position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;width:86px;padding:6px 4px;border-radius:12px;color:var(--h-ink);transition:transform .35s var(--spring)}
+.hud-chest:hover{transform:translateY(-2px)}
+.hud-chest .chest{position:relative;width:62px;height:56px;overflow:visible;filter:drop-shadow(0 6px 6px rgba(0,0,0,.22))}
+.ch-lid{transform-box:fill-box;transform-origin:0% 100%;transition:transform .55s var(--spring)}
+.ch-in{opacity:0;transition:opacity .3s}
+.hud-chest.open .ch-lid{transform:translate(-1px,-6px) rotate(-14deg)}
+.hud-chest.opening .ch-lid{transform:translate(-2px,-10px) rotate(-26deg)}
+.hud-chest.open .ch-in,.hud-chest.opening .ch-in{opacity:1}
+.hud-chest.locked .chest{filter:grayscale(.75) drop-shadow(0 4px 4px rgba(0,0,0,.18));opacity:.6}
+.ch-l{font:700 10.5px/1.2 var(--f-type);letter-spacing:.08em;text-transform:uppercase;color:var(--h-mut);white-space:nowrap}
+.hud-chest.ready .ch-l{color:var(--h-acct)}
+.ch-dots{display:inline-flex;gap:4px}.ch-dots i{width:7px;height:7px;border-radius:50%;background:var(--h-track);box-shadow:inset 0 0 0 1px var(--h-line)}.ch-dots i.on{background:var(--h-acc);box-shadow:none}
+.ch-rays{position:absolute;left:50%;top:34px;width:132px;height:132px;margin:-66px 0 0 -66px;border-radius:50%;pointer-events:none;opacity:0;background:repeating-conic-gradient(rgba(255,214,120,.6) 0 8deg,transparent 8deg 24deg);-webkit-mask:radial-gradient(circle,#000 16%,transparent 66%);mask:radial-gradient(circle,#000 16%,transparent 66%);transform:scale(.4);transition:opacity .4s,transform .8s var(--ease)}
+.hud-chest.ready .ch-rays{opacity:.5;transform:scale(.78);animation:raySpin 14s linear infinite}
+.hud-chest.opening .ch-rays{opacity:1;transform:scale(1.3)}
+.hud-chest.gold .ch-rays{background:repeating-conic-gradient(rgba(255,230,150,.9) 0 9deg,transparent 9deg 20deg)}
+.hud-chest.ready .chest{animation:chestCall 3.6s var(--ease) infinite}
+.hud-chest.opening .chest{animation:chestPop .7s var(--spring)}
+@keyframes raySpin{to{rotate:360deg}}
+@keyframes chestCall{0%,72%,100%{transform:none}77%{transform:translateY(-3px) rotate(-6deg)}83%{transform:translateY(-2px) rotate(5deg)}89%{transform:rotate(-3deg)}95%{transform:rotate(1deg)}}
+@keyframes chestPop{25%{transform:scale(1.12,.86)}55%{transform:scale(.94,1.1) translateY(-6px)}}
+.gem{flex:none;vertical-align:middle}
+.gem-fx{position:fixed;inset:0;z-index:260;pointer-events:none;overflow:hidden}
+.gem-fx i{position:absolute;left:-8px;top:-8px;width:16px;height:16px;will-change:transform,opacity}
+.gem-fx .gem{display:block;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
+.hud-foot{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:10px;border-top:1px solid var(--h-line);font-size:12.5px;color:var(--h-ink2);min-width:0}
+.hf-w{display:flex;align-items:center;gap:8px;min-width:0}
+.hf-w > span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hf-w > .i,.hf-w > .gem{color:var(--h-acc);flex:none}
+.hf-w b{flex:none;font:700 11px/1 var(--f-type);color:var(--h-mut)}
+.hud-link{display:inline-flex;align-items:center;gap:6px;flex:none;font-weight:600;font-size:12.5px;color:var(--h-acct);padding:4px 2px;border-radius:6px}
+.hud-link:hover{text-decoration:underline;text-underline-offset:3px}
+/* Le médaillon : avatar, cadre, niveau */
+.pmed{position:relative;display:inline-block;flex:none;width:var(--s);height:var(--s);color:var(--h-ink,var(--text))}
+.pmed-av{position:absolute;inset:12.5%;border-radius:50%;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.pmed-av svg,.pmed-av img{display:block;width:100%;height:100%}
+.pmed-av img{object-fit:contain;padding:14%;background:#fff}
+.pmed-fr{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.pmed-lv{position:absolute;right:0;bottom:0;min-width:clamp(19px,calc(var(--s) * .32),34px);height:clamp(19px,calc(var(--s) * .32),34px);padding:0 4px;display:grid;place-items:center;border-radius:99px;
+  font:700 clamp(10px,calc(var(--s) * .15),16px)/1 var(--f-type);color:var(--on-brass);background:linear-gradient(180deg,var(--brass-hi),var(--brass-btn) 60%,var(--brass-lo));border:2px solid var(--h-solid,var(--folder-2));box-shadow:0 2px 4px rgba(0,0,0,.28)}
+.pf-flame .pf-fl{transform-box:fill-box;transform-origin:center;animation:flick 2.8s ease-in-out infinite alternate}
+@keyframes flick{to{transform:scale(1.03) rotate(5deg)}}
+:root[data-motion="none"] .hud-chest .chest,:root[data-motion="none"] .hud-chest .ch-rays,:root[data-motion="none"] .pf-fl{animation:none!important}
+@media (prefers-reduced-motion:reduce){.hud-chest .chest,.hud-chest .ch-rays,.pf-fl{animation:none!important}}
+@media (max-width:900px){
+  .hud{grid-template-columns:minmax(0,1fr) auto;gap:12px 14px;padding:14px 14px 10px}
+  .hud-me{grid-column:1/-1}
+  .hud .pmed{--s:54px!important}
+}
+@media (max-width:480px){.hud-k2{display:none}.hud-chest{width:72px}.hud-foot .hud-link span{display:none}}
+/* La plaque du joueur, en tête des jeux */
+.pl-plate{position:relative;display:flex;align-items:center;gap:16px;width:100%;padding:14px 18px;border-radius:14px;background:var(--h-bg);color:var(--h-ink);border:1px solid var(--h-line);text-align:left;overflow:hidden;transition:transform .45s var(--spring),border-color .3s}
+.pl-plate:hover{transform:translateY(-2px);border-color:var(--h-acc)}
+.pp-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.pp-t b{font:400 24px/1.1 var(--f-display);color:var(--h-ink)}
+.pp-t span{font-size:13px;color:var(--h-mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pp-s{display:flex;gap:8px;flex:none}
+.pp-go{color:var(--h-acct);flex:none}
+@media (max-width:560px){.pp-s{display:none}}
+/* La page du joueur */
+.pl-hero{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px 30px;align-items:center;padding:24px clamp(18px,3vw,30px);border-radius:18px;background:var(--h-bg);color:var(--h-ink);border:1px solid var(--h-line);box-shadow:var(--sh-panel);overflow:hidden;isolation:isolate}
+.pl-me{display:flex;align-items:center;gap:22px;min-width:0}
+.pl-id{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
+.pl-name{display:flex;align-items:center;gap:8px;min-width:0}
+.pl-name b{font:400 clamp(28px,3.4vw,40px)/1.05 var(--f-display);letter-spacing:-.01em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pl-ed{display:grid;place-items:center;width:30px;height:30px;border-radius:8px;color:var(--h-mut);border:1px solid var(--h-line);flex:none;transition:all .2s}
+.pl-ed:hover{color:var(--h-ink);background:var(--h-chip)}
+.pl-hero .hud-title{font-size:23px;flex:none}
+.pl-hero .hud-xp{height:11px}
+.pl-next{font-size:13px;color:var(--h-mut)}
+.pl-stats{display:grid;grid-template-columns:repeat(5,auto);gap:10px}
+.pl-stat{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:86px;padding:12px 10px;border-radius:12px;background:var(--h-chip);border:1px solid var(--h-line);text-align:center}
+.pl-stat b{font:400 28px/1 var(--f-display);color:var(--h-ink)}
+.pl-stat span{font:700 9.5px/1.25 var(--f-type);letter-spacing:.1em;text-transform:uppercase;color:var(--h-mut)}
+@media (max-width:1100px){.pl-hero{grid-template-columns:1fr}.pl-stats{grid-template-columns:repeat(5,minmax(0,1fr))}.pl-stat{min-width:0}}
+@media (max-width:620px){.pl-me{gap:14px}.pl-me .pmed{--s:92px!important}.pl-stats{grid-template-columns:repeat(3,minmax(0,1fr))}.pl-hero .hud-title{font-size:20px}}
+.pl-qs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:16px;align-items:start}
+.pl-chest{display:flex;align-items:center;gap:14px;margin-top:14px;padding-top:14px;border-top:1px solid var(--hair)}
+.pl-chest b{font-weight:600}
+.pl-chest p{margin:4px 0 0;font-size:13px;color:var(--muted);line-height:1.45}
+.pl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+@media (max-width:420px){.pl-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.pl-it{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 10px 12px;border-radius:12px;border:1px solid var(--hair-2);background:var(--folder-2);color:inherit;text-align:center;min-width:0;transition:transform .35s var(--spring),border-color .25s,box-shadow .25s}
+.pl-it:hover{transform:translateY(-2px);border-color:var(--hair-3)}
+.pl-it.on{border-color:var(--brass);box-shadow:0 0 0 1px var(--brass) inset,0 10px 24px -14px var(--brass-glow)}
+.pl-it.leg{background:linear-gradient(180deg,color-mix(in srgb,#D4AF37 10%,var(--folder-2)),var(--folder-2) 70%)}
+.pl-it b{font-weight:600;font-size:13.5px;display:inline-flex;align-items:center;justify-content:center;gap:2px 4px;flex-wrap:wrap;max-width:100%}
+.pl-it small{font:700 10px/1.25 var(--f-type);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pl-it.on small{color:var(--brass-text)}
+.pl-it.lk .pl-pv > :first-child{filter:grayscale(.8);opacity:.55}
+.pl-pv{position:relative;display:grid;place-items:center;min-height:80px;width:100%}
+.pl-lock{position:absolute;top:0;right:4px;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--folder);border:1px solid var(--hair-2);color:var(--muted)}
+.pl-tt{font:700 24px/1.05 var(--f-pen);color:var(--brass-text);padding:8px 4px;text-wrap:balance}
+.pl-hp{position:relative;display:block;width:100%;max-width:150px;height:72px;border-radius:10px;background:var(--h-bg);border:1px solid var(--h-line);overflow:hidden}
+.pl-hp i{position:absolute;display:block;border-radius:99px}
+.pl-hp i:nth-child(1){left:10px;top:12px;width:26px;height:26px;border-radius:50%;background:var(--h-acc)}
+.pl-hp i:nth-child(2){left:44px;top:15px;right:14px;height:6px;background:var(--h-ink);opacity:.7}
+.pl-hp i:nth-child(3){left:44px;top:28px;right:34px;height:5px;background:linear-gradient(90deg,var(--h-acc),var(--h-acc2))}
+.pl-hp i:nth-child(4){left:10px;right:14px;bottom:12px;height:12px;border-radius:4px;background:var(--h-track)}
+.pl-show{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 16px;border-radius:12px;border:1px dashed var(--hair-3)}
+.pl-show b{display:block;font-weight:600}.pl-show span{display:block;font-size:13px;color:var(--muted)}
+.modal.pl-m{width:min(460px,100%)}
+.pl-buy{display:flex;align-items:center;gap:18px}
+.pl-buy p{margin:0;line-height:1.5;color:var(--text-2)}
+.pl-buy .pl-tt,.pl-buy .pl-hp{flex:none;width:150px}
+@media (max-width:460px){.pl-buy{flex-direction:column;text-align:center}}
+/* Écoles et entreprises */
+.org-lctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.oq-list{display:flex;flex-direction:column;gap:8px}
+.oq{display:flex;align-items:center;gap:10px;padding:6px 6px 6px 14px;border-radius:10px;border:1px solid var(--hair-2);background:var(--desk-2)}
+.oq-t{flex:1;min-width:0;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.oq .icon-btn{width:34px;height:34px}
+.oq-add{display:grid;grid-template-columns:minmax(0,1fr) auto 84px auto;gap:8px;align-items:center;margin-top:10px}
+.oq-add .select{width:auto}
+@media (max-width:620px){.oq-add{grid-template-columns:minmax(0,1fr) 84px}.oq-add #oqText,.oq-add .btn{grid-column:1/-1}.oq-add .select{width:100%}}
+.org-note{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;border-radius:12px;border:1px dashed var(--hair-3);color:var(--text-2);font-size:13.5px}
+.org-note > span{flex:1 1 300px}
+.org-note > .i{color:var(--brass-text);flex:none}
+.org-lock{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:26px;align-items:center}
+.org-demo{position:relative;display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:14px;background:var(--h-bg);border:1px solid var(--h-line);color:var(--h-ink);overflow:hidden}
+.org-demo .hud-org{padding-bottom:10px}
+.org-pitch ul{list-style:none;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:9px}
+.org-pitch li{display:flex;gap:10px;align-items:flex-start;color:var(--text-2);font-size:14px;line-height:1.45}
+.org-pitch li .i{color:var(--brass-text);margin-top:2px}
+@media (max-width:760px){.org-lock{grid-template-columns:1fr}}
 .game{position:relative;display:flex;flex-direction:column;gap:12px;padding:22px;border-radius:12px;background:var(--folder-2);border:1px solid var(--hair-2);text-align:left;color:inherit;cursor:pointer;overflow:hidden;transition:transform .45s var(--spring),border-color .3s}
 .game:hover{transform:translateY(-3px);border-color:var(--hair-3)}
 .game .t{font:400 30px/1.05 var(--f-display)}
@@ -5596,6 +5780,7 @@ Views.today = () => {
   const slipDays = Array.from({ length: 14 }, (_, i) => { const x = Date.now() - (13 - i) * DAY; const k = dayKey(x); const d = new Date(x - 4 * HOUR); const on = S.profile.log[k]?.r; const rot = ((hash(k) % 17) - 8); return `<div class="${i === 13 ? 'today' : ''}" data-tip="${esc(fmtDate(d))}${on ? ' · ' + esc(plural(on, 'révision|révisions')) : ''}">${on ? `<span class="dstamp" style="transform:rotate(${rot}deg)">${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}</span>` : ''}</div>`; }).join('');
   const sugg = Mentor.suggestions('today').slice(0, 3);
   return `
+    ${Play.hud()}
     <section class="hero">
       <div class="hero-l">
         <div class="kicker rise">${esc(cap(fmtDate(now, { weekday: 'long', day: 'numeric', month: 'long' })))} · ${t('semaine {n}', { n: isoWeek(now) })}${name ? ' · ' + esc(name) : ''}</div>
@@ -6826,6 +7011,7 @@ const Cmd = {
       C('v-agents', G.go, 'layers', t('Les assistants'), go('agents'), { kw: 'assistants agents ia ai asistentes assistenten assistentes' }),
       C('match', G.gm, 'grid', t('Jeu des paires'), () => openGame('match', here), { kw: 'paires memory jeu match game parejas juego paare spiel pares jogo' }),
       C('exam', G.gm, 'timer', t('Examen blanc'), () => openGame('exam', here), { kw: 'examen blanc test quiz chrono mock exam simulacro probe prufung simulado' }),
+      C('player', G.gm, 'crown', t('Profil de joueur'), go('player'), { sub: t('Quêtes, coffre et vestiaire'), kw: 'joueur avatar quetes coffre eclats vestiaire profil personnaliser player quests chest shards avatar jugador misiones cofre spieler aufgaben truhe jogador missoes bau' }),
       C('examplan', G.gm, 'cal', t('Examen en vue'), () => openExamPlan(here || undefined), { kw: 'examen date controle bac partiel exam date fecha prufung prova' }),
       C('import', G.io, 'upload', t('Importer (Anki, Quizlet, CSV, PDF)'), () => openImport(), { kw: 'importer anki apkg quizlet csv excel pdf notion import importar importieren' }),
       C('export', G.io, 'share', t('Exporter vers Anki, Quizlet, Excel, Notion'), () => openExport(here || 'all'), { kw: 'exporter anki apkg csv excel pdf imprimer export print exportar imprimir exportieren drucken' }),
@@ -7231,6 +7417,8 @@ const Pro = {
       agent: [t('Vos 3 missions du mois sont utilisées'), t('Avec Pro, les six assistants travaillent pour vous sans limite. Les analyses sans IA restent libres.')],
       expert: [t('Le mode Expert fait partie d\'Élite'), t('Le modèle le plus puissant, pour les plans de concours et les raisonnements longs.')],
       atelier: [t('Cet outil fait partie d\'Élite'), t('Thèmes Velours et Marbre, papiers Tableau noir, Tableau blanc et Kraft, couleur d\'accent sur mesure, rétention par paquet et intervalle maximal : Élite règle Engram à votre façon.')],
+      play: [t('Cet objet de collection fait partie de Pro'), t('Avatars Automate et Lion, cadres Cachet de cire et Dorure, titre « Architecte du palais » et tableau Ardoise : Pro les ouvre tous.')],
+      legend: [t('Les objets légendaires font partie d\'Élite'), t('Phénix et Dragon, cadres Constellation et Couronne de flammes, tableaux Velours et Nuit étoilée, et l\'espace Écoles et entreprises : nom, logo, couleur et défis de votre organisation.')],
       agenda: [t('Le planning heure par heure fait partie d\'Élite'), t('Quoi réviser à quelle heure, le plus exigeant à votre meilleur moment, des pauses, une alarme à chaque séance, et Siri pour lancer la séance du moment.')],
       files: [t('Mentor lit vos fichiers avec Pro'), t('PDF, Word, PowerPoint, Excel, ZIP, photos : Mentor les lit, en tire une fiche de cours détaillée et crée vos fiches. Pro : 5 fichiers par demande ; Élite : 20, et les gros cours lus en entier.')],
       sheet: [t('Les fiches de cours font partie de Pro'), t('Notions, définitions, formules, méthodes, pièges et exemples : une fiche complète et bien mise en page, rangée dans votre paquet et transformée en fiches de révision en un appui.')],
@@ -11276,7 +11464,7 @@ async function commitScan() {
   Store.touchDeck(deck); Store.touch('profile');
   Scan.reset(); App.go('deck', deck.id);
   toast(t('{x} dans « {deck} »', { x: plural(cards.length, 'fiche rangée|fiches rangées'), deck: deck.name }), 'drawer');
-  checkBadges();
+  checkBadges(); Play.note('sc');
 }
 /* Génération locale (sans IA) à partir d'un texte, en cinq langues */
 const DEF_VERBS = 'est|sont|désigne|désignent|correspond à|correspondent à|signifie|permet de|permettent de|a lieu|se déroule|fixe|produit|is|are|means|refers to|allows|takes place|occurs|produces|fixes|releases|es|son|significa|designa|permite|permiten|tiene lugar|ocurre|produce|fija|libera|ist|sind|bedeutet|bezeichnet|ermöglicht|findet|erzeugt|fixiert|é|são|designa|ocorre|produz|fixa|libera';
@@ -11315,6 +11503,566 @@ function localGenerate(text, n, types) {
 /* ════════════════════════════════════════════════════════════════════
    JEUX : jeu des paires, examen blanc noté à la manière du pays, révision éclair
    ════════════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════════════
+   JEU : tableau de joueur, quêtes, coffre et vestiaire
+   · Trois quêtes par jour, tirées une fois pour toutes dans une réserve
+     (le même tirage toute la journée, sur tous les appareils), et deux
+     quêtes de la semaine. Elles se lisent dans le journal quotidien :
+     rien à cocher, elles avancent pendant qu'on révise, joue ou scanne.
+   · Récompenses : de l'XP, versée au journal du jour (l'XP totale en est
+     recalculée), et des éclats, la monnaie du vestiaire. Les trois
+     quêtes du jour faites, le coffre s'ouvre.
+   · Vestiaire : avatars, cadres, titres et styles du tableau, gagnés au
+     niveau ou avec un ex-libris, achetés en éclats, ou compris dans Pro
+     et Élite (gardés si l'abonnement s'arrête, remplacés à l'affichage).
+   · Écoles et entreprises (Élite) : nom, logo, couleur et défis maison
+     sur l'accueil. Rien d'inventé : ni autres joueurs, ni classement.
+   ════════════════════════════════════════════════════════════════════ */
+// Quêtes du jour. m : ce qui se mesure dans le journal du jour ; go : où l'on va pour l'avancer.
+const QUESTS = {
+  rev: { ic: 'flip', lbl: N_('Réviser {n} fiches'), m: l => l.r || 0, xp: 20, co: 10, go: 'study' },
+  ok: { ic: 'check', lbl: N_('Donner {n} bonnes réponses'), m: l => l.ok || 0, xp: 20, co: 10, go: 'study' },
+  time: { ic: 'timer', lbl: N_('Étudier {n} minutes'), m: l => Math.floor((l.ms || 0) / MIN), xp: 20, co: 10, go: 'study' },
+  goal: { ic: 'target', lbl: N_('Remplir la jauge du jour ({n} révisions)'), m: l => l.r || 0, xp: 30, co: 15, go: 'study' },
+  new: { ic: 'sparkles', lbl: N_('Découvrir {n} nouvelles fiches'), m: l => l.n || 0, xp: 20, co: 10, go: 'study' },
+  game: { ic: 'grid', lbl: N_('Finir une partie (paires ou examen blanc)'), m: l => l.gm || 0, xp: 20, co: 15, go: 'games' },
+  scan: { ic: 'camera', lbl: N_('Transformer un cours en fiches'), m: l => l.sc || 0, xp: 25, co: 15, go: 'scan' },
+  streak: { ic: 'flame', lbl: N_('Garder la série : une fiche suffit'), m: l => l.r || 0, xp: 10, co: 10, go: 'study' },
+  rec: { ic: 'mic', lbl: N_('Réciter une fiche à voix haute'), m: l => l.rec || 0, xp: 25, co: 15 }
+};
+// Quêtes de la semaine, du lundi au dimanche : m reçoit les journaux des jours de la semaine.
+const sumOf = (ls, k) => ls.reduce((a, l) => a + (+l[k] || 0), 0);
+const WEEK_QUESTS = {
+  wdays: { ic: 'cal', lbl: N_('Réviser {n} jours cette semaine'), m: ls => ls.filter(l => l.r > 0).length, xp: 100, co: 60 },
+  wrev: { ic: 'flip', lbl: N_('Réviser {n} fiches cette semaine'), m: ls => sumOf(ls, 'r'), xp: 80, co: 50 },
+  wgames: { ic: 'grid', lbl: N_('Finir {n} parties cette semaine'), m: ls => sumOf(ls, 'gm'), xp: 80, co: 50 },
+  wchest: { ic: 'chest', lbl: N_('Ouvrir {n} coffres cette semaine'), m: ls => sumOf(ls, 'ch'), xp: 80, co: 50 },
+  wnew: { ic: 'sparkles', lbl: N_('Découvrir {n} nouvelles fiches cette semaine'), m: ls => sumOf(ls, 'n'), xp: 80, co: 50 }
+};
+// Défis d'une organisation : ce qui se compte dans le journal du jour, ou une case que chacun coche.
+const ORG_METRICS = { r: N_('fiches révisées'), ok: N_('bonnes réponses'), min: N_("minutes d'étude"), n: N_('nouvelles fiches'), gm: N_('parties finies'), tick: N_('à cocher soi-même') };
+const ORG_REWARD = { xp: 15, co: 10 };
+
+/* Le vestiaire. free : d'emblée ; lvl : au niveau n ; badge : avec cet ex-libris ; cost : en éclats ;
+   plan : compris dans Pro ou Élite ; org : avec l'espace organisation (Élite). */
+const avEye = (x, y, r = 3.3) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#1D1C18"/><circle cx="${(x + r * .32).toFixed(1)}" cy="${(y - r * .32).toFixed(1)}" r="${(r * .3).toFixed(1)}" fill="#fff"/>`;
+const avBody = c => `<path d="M14 100c2-14 16-22 36-22s34 8 36 22z" fill="${c}"/>`;
+const PLAY_ITEMS = {
+  avatar: {
+    owl: { name: N_('Chouette'), free: 1, bg: '#E9DFC9', art: `<ellipse cx="50" cy="86" rx="34" ry="30" fill="#7E5F36"/><ellipse cx="50" cy="90" rx="19" ry="17" fill="#D9C59B"/><path d="M41 83l4.5 3 4.5-3 4.5 3 4.5-3M41 91l4.5 3 4.5-3 4.5 3 4.5-3" fill="none" stroke="#9C7A48" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 20l10 19 8-12zM78 20l-10 19-8-12z" fill="#7E5F36"/><ellipse cx="50" cy="46" rx="30" ry="25" fill="#9A7646"/><circle cx="38.5" cy="46" r="11.5" fill="#F4EEDF" stroke="#B58A3E" stroke-width="2"/><circle cx="61.5" cy="46" r="11.5" fill="#F4EEDF" stroke="#B58A3E" stroke-width="2"/>${avEye(39.5, 47, 5.4)}${avEye(60.5, 47, 5.4)}<path d="M45.5 56h9L50 64z" fill="#C9A45C"/>` },
+    fox: { name: N_('Renard'), free: 1, bg: '#F2E3D0', art: `${avBody('#C2602C')}<path d="M38 100c2-9 6-14 12-14s10 5 12 14z" fill="#FBF3E6"/><path d="M20 16l8 30 16-14zM80 16l-8 30-16-14z" fill="#C2602C"/><path d="M24 23l5 18 9-8zM76 23l-5 18-9-8z" fill="#5A2E16" opacity=".5"/><path d="M18 46c2-14 14-20 32-20s30 6 32 20c-2 14-14 26-32 34-18-8-30-20-32-34z" fill="#D9733A"/><path d="M18 46c6 6 14 9 22 14 4 4 7 12 10 20-18-8-30-20-32-34zM82 46c-6 6-14 9-22 14-4 4-7 12-10 20 18-8 30-20 32-34z" fill="#FBF3E6"/>${avEye(38, 47, 3.6)}${avEye(62, 47, 3.6)}<ellipse cx="50" cy="75" rx="4.4" ry="3.2" fill="#1D1C18"/>` },
+    cat: { name: N_('Chat'), lvl: 2, bg: '#E3E7EE', art: `${avBody('#6B717C')}<path d="M22 20l6 26 16-11zM78 20l-6 26-16-11z" fill="#6B717C"/><path d="M26 27l3.5 14 8.5-6zM74 27l-3.5 14-8.5-6z" fill="#E3A9A9"/><circle cx="50" cy="53" r="27" fill="#7A818C"/><path d="M44 29l2 8M50 27v9M56 29l-2 8" stroke="#535963" stroke-width="2.4" stroke-linecap="round"/><ellipse cx="45" cy="63" rx="6.5" ry="5" fill="#F1EEE7"/><ellipse cx="55" cy="63" rx="6.5" ry="5" fill="#F1EEE7"/><path d="M47 58.5h6l-3 3.5z" fill="#D98C8C"/><ellipse cx="39" cy="49" rx="4.4" ry="5.4" fill="#A9C46A"/><ellipse cx="61" cy="49" rx="4.4" ry="5.4" fill="#A9C46A"/><ellipse cx="39" cy="49" rx="1.4" ry="4.4" fill="#1D1C18"/><ellipse cx="61" cy="49" rx="1.4" ry="4.4" fill="#1D1C18"/><path d="M36 62l-12-2M36 65l-12 2M64 62l12-2M64 65l12 2" stroke="#F1EEE7" stroke-width="1.2" stroke-linecap="round" opacity=".85"/>` },
+    bear: { name: N_('Ours'), lvl: 3, bg: '#E8E1D3', art: `${avBody('#6E4A2E')}<circle cx="28" cy="31" r="9.5" fill="#7A5233"/><circle cx="72" cy="31" r="9.5" fill="#7A5233"/><circle cx="28" cy="31" r="4.8" fill="#C79C70"/><circle cx="72" cy="31" r="4.8" fill="#C79C70"/><circle cx="50" cy="53" r="27" fill="#86593A"/><ellipse cx="50" cy="63" rx="12.5" ry="9.5" fill="#D9B98F"/><ellipse cx="50" cy="58" rx="5.4" ry="3.8" fill="#2B1D14"/><path d="M50 61.5V65M45.5 66.5q4.5 3 9 0" fill="none" stroke="#2B1D14" stroke-width="1.6" stroke-linecap="round"/>${avEye(40, 48)}${avEye(60, 48)}` },
+    rabbit: { name: N_('Lapin'), cost: 120, bg: '#DCE6EA', art: `${avBody('#D3CBBB')}<ellipse cx="39" cy="22" rx="7.5" ry="20" transform="rotate(-12 39 22)" fill="#ECE6DA"/><ellipse cx="61" cy="22" rx="7.5" ry="20" transform="rotate(12 61 22)" fill="#ECE6DA"/><ellipse cx="39" cy="23" rx="3.6" ry="14" transform="rotate(-12 39 23)" fill="#E2AFAF"/><ellipse cx="61" cy="23" rx="3.6" ry="14" transform="rotate(12 61 23)" fill="#E2AFAF"/><circle cx="50" cy="56" r="25" fill="#F2EDE3"/><circle cx="36" cy="63" r="4.5" fill="#E7A9A0" opacity=".55"/><circle cx="64" cy="63" r="4.5" fill="#E7A9A0" opacity=".55"/>${avEye(41, 52, 3.4)}${avEye(59, 52, 3.4)}<path d="M47.5 59h5L50 62z" fill="#D98C8C"/><path d="M50 62v2.5M46 65q4 2.6 8 0" fill="none" stroke="#8E7F6A" stroke-width="1.4" stroke-linecap="round"/><rect x="47.8" y="65.6" width="4.4" height="4.2" rx="1" fill="#fff" stroke="#C9C0AE" stroke-width=".8"/>` },
+    penguin: { name: N_('Manchot'), cost: 160, bg: '#D7E3EA', art: `<path d="M50 16c18 0 28 14 29 38l5 46H16l5-46c1-24 11-38 29-38z" fill="#23272D"/><path d="M50 33c-6-6-17-4-20 6-3 11 2 20 10 25 4 2 7 3 10 3s6-1 10-3c8-5 13-14 10-25-3-10-14-12-20-6z" fill="#F4F1EA"/><ellipse cx="50" cy="93" rx="20" ry="18" fill="#F4F1EA"/><path d="M28 67c-3 3-5 7-6 10M72 67c3 3 5 7 6 10" stroke="#E7B84A" stroke-width="3" stroke-linecap="round"/>${avEye(41, 46, 3.4)}${avEye(59, 46, 3.4)}<path d="M44 54h12l-6 7z" fill="#E39B3A"/>` },
+    panda: { name: N_('Panda'), cost: 240, bg: '#E1EBDD', art: `${avBody('#23272D')}<circle cx="28" cy="31" r="10" fill="#23272D"/><circle cx="72" cy="31" r="10" fill="#23272D"/><circle cx="50" cy="53" r="27" fill="#F4F1EA"/><ellipse cx="39" cy="50" rx="7" ry="9.5" transform="rotate(30 39 50)" fill="#23272D"/><ellipse cx="61" cy="50" rx="7" ry="9.5" transform="rotate(-30 61 50)" fill="#23272D"/><circle cx="40" cy="49" r="2.8" fill="#F4F1EA"/><circle cx="60" cy="49" r="2.8" fill="#F4F1EA"/><circle cx="40.4" cy="49.4" r="1.5" fill="#1D1C18"/><circle cx="59.6" cy="49.4" r="1.5" fill="#1D1C18"/><ellipse cx="50" cy="61" rx="4.6" ry="3.4" fill="#23272D"/><path d="M50 64v2.5M46 67q4 2.6 8 0" fill="none" stroke="#23272D" stroke-width="1.5" stroke-linecap="round"/>` },
+    elephant: { name: N_('Éléphant'), lvl: 4, bg: '#E6E2EC', art: `${avBody('#7D849A')}<ellipse cx="24" cy="50" rx="17" ry="22" fill="#7D849A"/><ellipse cx="76" cy="50" rx="17" ry="22" fill="#7D849A"/><ellipse cx="25" cy="51" rx="10" ry="15" fill="#C9A9B2" opacity=".7"/><ellipse cx="75" cy="51" rx="10" ry="15" fill="#C9A9B2" opacity=".7"/><ellipse cx="50" cy="47" rx="22" ry="24" fill="#8C93A8"/><path d="M44 66c-5 2-8 6-8 10M56 66c5 2 8 6 8 10" fill="none" stroke="#F4F1EA" stroke-width="3" stroke-linecap="round"/><path d="M43 58c0 14 2 24 9 30 4 3 8 1 7-3-4-5-6-12-5-27z" fill="#8C93A8"/><path d="M46 70h7M47 75h7M49 80h6" stroke="#6E7488" stroke-width="1.2" stroke-linecap="round"/>${avEye(41, 46, 3)}${avEye(59, 46, 3)}` },
+    automaton: { name: N_('Automate'), plan: 'pro', bg: '#EDE5D3', art: `${avBody('#9C7430')}<circle cx="50" cy="92" r="7" fill="none" stroke="#E2C27A" stroke-width="2.4" stroke-dasharray="2.6 2.2"/><rect x="44" y="68" width="12" height="11" fill="#7A5A22"/><rect x="21" y="40" width="7" height="15" rx="2" fill="#7A5A22"/><rect x="72" y="40" width="7" height="15" rx="2" fill="#7A5A22"/><path d="M50 24V13" stroke="#7A5A22" stroke-width="2.4"/><circle cx="50" cy="11" r="4.5" fill="#D8513F"/><rect x="27" y="24" width="46" height="46" rx="11" fill="#C9A45C" stroke="#8A6A30" stroke-width="2"/><rect x="31" y="27.5" width="38" height="8" rx="4" fill="#EBD196" opacity=".55"/><circle cx="33" cy="64" r="1.6" fill="#8A6A30"/><circle cx="67" cy="64" r="1.6" fill="#8A6A30"/><circle cx="40" cy="47" r="7" fill="#2A2116"/><circle cx="60" cy="47" r="7" fill="#2A2116"/><circle cx="40" cy="47" r="3.4" fill="#F5D27A"/><circle cx="60" cy="47" r="3.4" fill="#F5D27A"/><rect x="39" y="57" width="22" height="7" rx="2" fill="#8A6A30"/><path d="M44 57v7M50 57v7M56 57v7" stroke="#C9A45C" stroke-width="1.2"/>` },
+    lion: { name: N_('Lion'), plan: 'pro', bg: '#F1E6CF', art: `${avBody('#B87A34')}<g fill="#8E4F1E"><circle cx="50" cy="52" r="31"/>${Array.from({ length: 14 }, (_, i) => { const a = i / 14 * 2 * Math.PI; return `<circle cx="${(50 + Math.cos(a) * 30).toFixed(1)}" cy="${(52 + Math.sin(a) * 30).toFixed(1)}" r="9.5"/>`; }).join('')}</g><circle cx="35" cy="34" r="6.5" fill="#E0A54E"/><circle cx="65" cy="34" r="6.5" fill="#E0A54E"/><circle cx="35" cy="34" r="3.2" fill="#8E4F1E"/><circle cx="65" cy="34" r="3.2" fill="#8E4F1E"/><circle cx="50" cy="53" r="22" fill="#E0A54E"/><ellipse cx="50" cy="62" rx="11" ry="8" fill="#F3D9A6"/><path d="M45.5 56h9L50 60.5z" fill="#4A2C14"/><path d="M50 60.5v3M45.5 65q4.5 2.6 9 0" fill="none" stroke="#4A2C14" stroke-width="1.5" stroke-linecap="round"/>${avEye(42, 48, 2.9)}${avEye(58, 48, 2.9)}` },
+    phoenix: { name: N_('Phénix'), plan: 'expert', bg: '#2A1520', art: `<path d="M12 100c4-16 18-26 38-26s34 10 38 26z" fill="#B8432A"/><path d="M30 93l8-8 8 8M54 93l8-8 8 8" fill="none" stroke="#F5C04A" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/><path d="M50 36c-6-8-6-20 0-30 6 10 6 22 0 30z" fill="#F5C04A"/><path d="M44 38c-9-4-14-14-12-24 7 6 12 14 14 22zM56 38c9-4 14-14 12-24-7 6-12 14-14 22z" fill="#E8743B"/><path d="M38 42c-9-1-15-8-16-16 7 3 12 8 16 13zM62 42c9-1 15-8 16-16-7 3-12 8-16 13z" fill="#D9572B"/><circle cx="50" cy="54" r="20" fill="#D9572B"/><path d="M36 60c4 8 9 12 14 12s10-4 14-12c-4 3-9 4-14 4s-10-1-14-4z" fill="#F08A4B"/><circle cx="42" cy="51" r="4.2" fill="#F5C04A"/><circle cx="58" cy="51" r="4.2" fill="#F5C04A"/><circle cx="42" cy="51" r="2.2" fill="#1D1C18"/><circle cx="58" cy="51" r="2.2" fill="#1D1C18"/><path d="M45.5 57h9L50 66z" fill="#F5C04A"/><circle cx="24" cy="20" r="1.4" fill="#F5C04A"/><circle cx="78" cy="16" r="1.2" fill="#F5C04A"/><circle cx="72" cy="30" r="1" fill="#F5DE8A"/><circle cx="30" cy="10" r="1" fill="#F5DE8A"/>` },
+    dragon: { name: N_('Dragon'), plan: 'expert', bg: '#10241D', art: `${avBody('#27774F')}<path d="M40 100c1-8 4-13 10-13s9 5 10 13z" fill="#E8D9A0"/><path d="M44 92h12M43 96h14" stroke="#B9A86E" stroke-width="1.2"/><path d="M32 32c-8-8-8-18-4-26 2 9 6 15 12 20zM68 32c8-8 8-18 4-26-2 9-6 15-12 20z" fill="#D4AF37"/><path d="M40 27l3-7 3 7zM47 25l3-8 3 8zM54 27l3-7 3 7z" fill="#D4AF37"/><path d="M24 46c0-14 11-22 26-22s26 8 26 22l-1 12c-3 12-12 20-25 20s-22-8-25-20z" fill="#2F8A5F"/><ellipse cx="50" cy="64" rx="15" ry="10" fill="#47A877"/><ellipse cx="45" cy="64" rx="2" ry="1.4" fill="#1E5A3E"/><ellipse cx="55" cy="64" rx="2" ry="1.4" fill="#1E5A3E"/><path d="M38 72q12 6 24 0M44 34q6-4 12 0M46 39q4-3 8 0" fill="none" stroke="#1E5A3E" stroke-width="1.4" stroke-linecap="round"/><ellipse cx="38" cy="47" rx="5.5" ry="3.8" fill="#F5D27A"/><ellipse cx="62" cy="47" rx="5.5" ry="3.8" fill="#F5D27A"/><ellipse cx="38" cy="47" rx="1.3" ry="3.4" fill="#1D1C18"/><ellipse cx="62" cy="47" rx="1.3" ry="3.4" fill="#1D1C18"/>` },
+    org: { name: N_("Logo de l'organisation"), org: 1, bg: '#FFFFFF' }
+  },
+  frame: {
+    plain: { name: N_('Filet'), free: 1 },
+    brass: { name: N_('Laiton'), lvl: 2 },
+    stamp: { name: N_('Timbre'), cost: 100 },
+    laurel: { name: N_('Laurier'), cost: 200 },
+    wax: { name: N_('Cachet de cire'), plan: 'pro' },
+    gilt: { name: N_('Dorure'), plan: 'pro' },
+    star: { name: N_('Constellation'), plan: 'expert' },
+    flame: { name: N_('Couronne de flammes'), plan: 'expert' },
+    org: { name: N_("Aux couleurs de l'organisation"), org: 1 }
+  },
+  title: {
+    mind: { name: N_('Tête bien faite'), free: 1 },
+    curious: { name: N_('Esprit curieux'), free: 1 },
+    quill: { name: N_('Plume alerte'), lvl: 2 },
+    books: { name: N_('Rat de bibliothèque'), lvl: 3 },
+    night: { name: N_('Oiseau de nuit'), badge: 'night' },
+    dawn: { name: N_('Lève-tôt'), badge: 'dawn' },
+    hands: { name: N_('Main leste'), badge: 'match30' },
+    strat: { name: N_('Stratège'), badge: 'planner' },
+    sharp: { name: N_('Esprit vif'), cost: 80 },
+    elephant: { name: N_("Mémoire d'éléphant"), cost: 150 },
+    architect: { name: N_('Architecte du palais'), plan: 'pro' },
+    virtuoso: { name: N_('Virtuose de la mémoire'), plan: 'expert' },
+    legend: { name: N_('Légende vivante'), plan: 'expert' },
+    org: { name: N_('Membre de {org}'), org: 1 }
+  },
+  hud: {
+    folio: { name: N_('Folio'), free: 1 },
+    bristol: { name: N_('Bristol'), free: 1 },
+    laiton: { name: N_('Laiton'), cost: 150 },
+    ardoise: { name: N_('Ardoise'), plan: 'pro' },
+    velours: { name: N_('Velours'), plan: 'expert' },
+    nuit: { name: N_('Nuit étoilée'), plan: 'expert' }
+  }
+};
+const PLAY_DEFAULT = { avatar: 'owl', frame: 'plain', title: 'mind', hud: 'folio' };
+// Les cadres, dessinés une fois : l'avatar occupe le disque central (rayon 45 sur 120).
+const FRAME_ART = (() => {
+  const P = (r, a) => [60 + Math.cos(a) * r, 60 + Math.sin(a) * r].map(v => v.toFixed(1));
+  const ring = (r, c, w, x = '') => `<circle cx="60" cy="60" r="${r}" fill="none" stroke="${c}" stroke-width="${w}" ${x}/>`;
+  const dots = (n, r, rad, c) => Array.from({ length: n }, (_, i) => { const [x, y] = P(r, i / n * 2 * Math.PI - Math.PI / 2); return `<circle cx="${x}" cy="${y}" r="${rad}" fill="${c}"/>`; }).join('');
+  const rad = d => d * Math.PI / 180;
+  let scal = ''; for (let i = 0; i <= 30; i++) { const a = i / 30 * 2 * Math.PI, [x, y] = P(57.5, a); if (!i) scal += `M${x} ${y}`; else { const [cx, cy] = P(52.5, a - Math.PI / 30); scal += `Q${cx} ${cy} ${x} ${y}`; } }
+  let leaves = ''; const leaf = (a, s) => { const [x, y] = P(53.5, a); return `<ellipse cx="${x}" cy="${y}" rx="6.6" ry="2.8" transform="rotate(${(a * 180 / Math.PI + 90 + s * 32).toFixed(1)} ${x} ${y})"/>`; };
+  for (let i = 0; i < 9; i++) { const a = rad(102 + i * 17); leaves += leaf(a, 1) + leaf(Math.PI - a, -1); }
+  const W = rng(hash('cire')), wax = 'M' + Array.from({ length: 48 }, (_, i) => { const a = i / 48 * 2 * Math.PI; return P(56.5 + Math.sin(a * 7 + W() * 5) * 1.6 + (W() - .5) * 1.8, a).join(','); }).join('L') + 'Z';
+  const ticks = Array.from({ length: 60 }, (_, i) => { const a = i / 60 * 2 * Math.PI, [x1, y1] = P(i % 5 ? 53 : 52, a), [x2, y2] = P(54.6, a); return `M${x1} ${y1}L${x2} ${y2}`; }).join('');
+  const star = (x, y, s) => `M${x} ${(y - s).toFixed(1)}Q${x} ${y} ${(x + s).toFixed(1)} ${y}Q${x} ${y} ${x} ${(y + s).toFixed(1)}Q${x} ${y} ${(x - s).toFixed(1)} ${y}Q${x} ${y} ${x} ${(y - s).toFixed(1)}Z`;
+  const stars = Array.from({ length: 12 }, (_, i) => { const [x, y] = P(51, i / 12 * 2 * Math.PI - Math.PI / 2).map(Number); return star(x, y, i % 3 ? 2.4 : 3.6); }).join('');
+  const flames = (len, w, c) => `<g fill="${c}">${Array.from({ length: 18 }, (_, i) => { const a = i / 18 * 2 * Math.PI, [x, y] = P(45, a), l = len * (i % 2 ? .78 : 1); return `<path d="M${-w} 0C${-w} ${(-l * .4).toFixed(1)} -1 ${(-l * .6).toFixed(1)} 0 ${-l}C1 ${(-l * .6).toFixed(1)} ${w} ${(-l * .4).toFixed(1)} ${w} 0Z" transform="translate(${x} ${y}) rotate(${(a * 180 / Math.PI + 90).toFixed(1)})"/>`; }).join('')}</g>`;
+  return {
+    plain: ring(47.5, 'currentColor', 2, 'stroke-opacity=".35"'),
+    brass: ring(50.5, '#B58A3E', 7) + ring(54.2, '#6F511A', 1) + ring(46.9, '#EBD196', 1.2) + dots(8, 50.5, 1.7, '#F6E6B4'),
+    stamp: `<path d="${scal}" fill="#F4EEDF" stroke="rgba(0,0,0,.12)" stroke-width=".8"/>` + ring(50.5, '#C3342A', 1.3, 'stroke-dasharray="2.2 2.6"') + ring(46.4, '#C3342A', .8, 'stroke-opacity=".5"'),
+    laurel: ring(47, '#A57B2E', 1.4) + `<path d="M${P(53.5, rad(100)).join(' ')}A53.5 53.5 0 0 1 ${P(53.5, rad(244)).join(' ')}M${P(53.5, rad(80)).join(' ')}A53.5 53.5 0 0 0 ${P(53.5, rad(-64)).join(' ')}" fill="none" stroke="#8A6A30" stroke-width="1.3"/><g fill="#C9A45C" stroke="#8A6A30" stroke-width=".6">${leaves}</g><path d="M52 112l8-5 8 5-3 5-5-3-5 3z" fill="#B8352A"/>`,
+    wax: `<path d="${wax}" fill="#A3322A"/>` + ring(47.6, 'rgba(0,0,0,.3)', 2.4) + ring(52.5, 'rgba(255,235,200,.28)', 1, 'stroke-dasharray="1.5 2.5"') + `<ellipse cx="34" cy="22" rx="11" ry="4.5" fill="rgba(255,255,255,.16)" transform="rotate(-28 34 22)"/>`,
+    gilt: ring(49.5, '#D4AF37', 4.5) + ring(55.6, '#D4AF37', 1.4) + `<path d="${ticks}" stroke="#F5DE8A" stroke-width="1"/>` + ring(47.2, '#FFF3C4', .8, 'stroke-opacity=".7"'),
+    star: ring(51, '#1B2340', 10) + ring(56.4, '#D4AF37', 1) + ring(45.6, '#D4AF37', 1) + `<path d="${stars}" fill="#F5DE8A"/>`,
+    flame: `<g class="pf-fl">${flames(15, 5.2, '#E8743B')}${flames(10, 3.2, '#F5C04A')}</g>` + ring(46.2, '#B8432A', 2.4)
+  };
+})();
+
+const Play = {
+  tab: 'avatar',
+  /** L'état du jeu dans le profil, complété pour les sauvegardes d'avant. */
+  get st() {
+    const p = S.profile, x = isObj(p.play) ? p.play : (p.play = {});
+    if (!Number.isFinite(x.coins) || x.coins < 0) x.coins = 0;
+    if (!isObj(x.owned)) x.owned = {};
+    if (!isObj(x.stats)) x.stats = {};
+    if (!isObj(x.org)) x.org = {};
+    if (!Array.isArray(x.org.quests)) x.org.quests = [];
+    if (!isObj(x.org.done)) x.org.done = {};
+    return x;
+  },
+  /** Le journal d'un jour ; un jour d'exemple (simulé) ne compte pas. */
+  day(k = dayKey()) { const l = S.profile.log[k]; return l && !l.sim ? l : {}; },
+  /** Le journal du jour, créé au besoin comme dans logReview. */
+  today() { const k = dayKey(); return S.profile.log[k] || (S.profile.log[k] = { r: 0, ok: 0, ms: 0, n: 0, xp: 0 }); },
+  monday(k = dayKey()) { const d = keyToDate(k); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return dayKey(d.getTime() + 12 * HOUR); },
+  weekKeys(mon) { return Array.from({ length: 7 }, (_, i) => { const d = keyToDate(mon); d.setDate(d.getDate() + i); return dayKey(d.getTime() + 12 * HOUR); }); },
+  seed(s) { return rng(hash(s + (S.profile.ref?.code || ''))); },
+  /** Les trois quêtes du jour : une de révision, une pour varier, une d'habitude ; tirées selon ce qui est possible aujourd'hui. */
+  draw(k) {
+    const R = this.seed('q' + k), g = clamp(Math.round(+S.profile.settings.goal || 60), 10, 500), tc = todayCounts();
+    const r5 = v => Math.max(5, Math.round(v / 5) * 5), one = a => a.length ? a[Math.floor(R() * a.length)] : null;
+    const n = { rev: clamp(r5(g * .4), 10, 60), ok: clamp(r5(g * .3), 8, 45), time: [10, 15, 20][Math.floor(R() * 3)], goal: g, new: Math.min(10, tc.nNew), game: 1, scan: 1, streak: 1, rec: 1 };
+    const can = { rev: 1, ok: 1, time: 1, scan: 1, goal: g <= 120, new: tc.nNew >= 3, game: gameDecks().length > 0, streak: streak() > 0,
+      rec: typeof Recite !== 'undefined' || Object.values(S.profile.log).some(l => l?.rec > 0) };
+    const a = one(['rev', 'ok', 'time']);
+    const b = one(['game', 'new', 'scan', 'rec'].filter(x => can[x])) || one(['rev', 'ok', 'time'].filter(x => x !== a));
+    const c = one(['streak', 'goal', 'ok', 'time', 'game'].filter(x => can[x] && x !== a && x !== b && !(x === 'goal' && a === 'rev'))) || one(['rev', 'ok', 'time', 'scan'].filter(x => x !== a && x !== b));
+    return [a, b, c].map(id => ({ id, n: n[id] }));
+  },
+  /** Deux quêtes de la semaine : réviser plusieurs jours, et une autre. */
+  drawWeek(w) {
+    const R = this.seed('w' + w), g = clamp(Math.round(+S.profile.settings.goal || 60), 10, 500), days = S.profile.study.weekly.filter(m => m > 0).length;
+    const n = { wdays: clamp(days - 2, 3, 5), wrev: clamp(Math.round(g * 2 / 10) * 10, 50, 400), wgames: 3, wchest: 4, wnew: 25 };
+    const pool = ['wrev', 'wchest', ...(gameDecks().length ? ['wgames'] : []), ...(S.decks.some(d => d.cards.some(c => c.srs.state === 0 && !c.suspended)) ? ['wnew'] : [])];
+    return ['wdays', pool[Math.floor(R() * pool.length)]].map(id => ({ id, n: n[id] }));
+  },
+  /** Nouveau jour, nouvelle semaine : les quêtes sont tirées ; celles de la veille, finies mais pas encore payées, le sont. */
+  roll() {
+    const P = this.st, k = dayKey(), w = this.monday(k), paid = [0, 0]; let changed = false;
+    const ok = (x, M) => isObj(x) && typeof x.k === 'string' && Array.isArray(x.q) && x.q.length && x.q.every(q => isObj(q) && Object.hasOwn(M, q.id) && q.n > 0);
+    const add = ([a, b]) => { paid[0] += a; paid[1] += b; };
+    if (!ok(P.day, QUESTS) || P.day.k !== k) {
+      if (ok(P.day, QUESTS) && P.day.k < k) add(this.settle(P.day, QUESTS, this.day(P.day.k)));
+      P.day = { k, q: this.draw(k), done: {}, chest: 0 }; changed = true;
+    }
+    if (!ok(P.week, WEEK_QUESTS) || P.week.k !== w) {
+      if (ok(P.week, WEEK_QUESTS) && P.week.k < w) add(this.settle(P.week, WEEK_QUESTS, this.weekKeys(P.week.k).map(x => this.day(x))));
+      P.week = { k: w, q: this.drawWeek(w), done: {} }; changed = true;
+    }
+    if (!isObj(P.day.done)) P.day.done = {};
+    if (!isObj(P.week.done)) P.week.done = {};
+    if (P.org.k !== k) { P.org.k = k; P.org.done = {}; changed = true; }
+    if (paid[0] || paid[1]) this.give(paid[0], paid[1]);
+    return { paid, changed };
+  },
+  /** Paie ce qui a été fini sans être vu (et le coffre de la veille, s'il était gagné). */
+  settle(x, M, data) {
+    const N = this.st.stats; let xp = 0, co = 0; if (!isObj(x.done)) x.done = {};
+    for (const q of x.q) { const Q = M[q.id]; if (!x.done[q.id] && Q.m(data) >= q.n) { x.done[q.id] = Date.now(); xp += Q.xp; co += Q.co; N.quests = (N.quests || 0) + 1; } }
+    if (M === QUESTS && !x.chest && x.q.every(q => x.done[q.id])) {
+      const r = this.prize(x.k), lo = S.profile.log[x.k]; x.chest = Date.now(); xp += r.xp; co += r.co; N.chests = (N.chests || 0) + 1;
+      if (lo && !lo.sim) lo.ch = 1;
+    }
+    return [xp, co];
+  },
+  /** Récompense : l'XP passe par le journal du jour (l'XP totale en est recalculée), les éclats par le profil. */
+  give(xp, co) {
+    const L0 = level().i, l = this.today();
+    l.xp = (l.xp || 0) + xp; S.profile.xp += xp; this.st.coins += co;
+    const L = level(); if (L.i > L0 && !S.demo) setTimeout(() => { Sound.play('seal'); toast(t('Niveau {i} atteint : {name}', { i: L.i + 1, name: L.name }), null, waxSeal({ id: 'lvl' + L.i, glyph: String(L.i + 1), color: '#7A4E14' }, 40, 'wax')); }, 1600);
+  },
+  /** Met les quêtes à jour et paie celles qui viennent d'être finies. Sans effet la deuxième fois : le rendu peut l'appeler. */
+  sync(quiet = false) {
+    const P = this.st, { paid, changed } = this.roll(), l = this.day(), fresh = []; let today = false;
+    const pay = (x, q, Q, label) => { x.done[q.id] = Date.now(); this.give(Q.xp, Q.co); P.stats.quests = (P.stats.quests || 0) + 1; fresh.push([label, Q.xp, Q.co]); };
+    for (const q of P.day.q) { const Q = QUESTS[q.id]; if (!P.day.done[q.id] && Q.m(l) >= q.n) { pay(P.day, q, Q, t(Q.lbl, { n: q.n })); today = true; } }
+    const wl = this.weekKeys(P.week.k).map(k => this.day(k));
+    for (const q of P.week.q) { const Q = WEEK_QUESTS[q.id]; if (!P.week.done[q.id] && Q.m(wl) >= q.n) pay(P.week, q, Q, t(Q.lbl, { n: q.n })); }
+    if (this.orgOn()) for (const q of this.orgQuests()) if (q.m !== 'tick' && !P.org.done[q.id] && this.orgVal(q, l) >= q.n) pay(P.org, q, ORG_REWARD, q.text);
+    if (changed || fresh.length) Store.touch('profile');
+    if (!quiet && (fresh.length || paid[0] || paid[1])) this.cheer(fresh, paid, today && this.chestReady());
+    return P;
+  },
+  /** Les bonnes nouvelles, l'une après l'autre. */
+  cheer(fresh, paid, chest) {
+    let i = 0; const later = fn => setTimeout(fn, 500 + i++ * 1100);
+    if (paid[0] || paid[1]) later(() => toast(t('Récompenses de la veille : +{xp} XP, +{c} éclats', { xp: paid[0], c: paid[1] }), null, this.gem(22)));
+    for (const [label, xp, co] of fresh) later(() => { Sound.play('pop'); haptic(12); toast(t('Quête accomplie : {q}', { q: label }) + ' · ' + t('+{xp} XP · +{c} éclats', { xp, c: co }), null, this.gem(22)); });
+    if (chest) later(() => toast(t('Les trois quêtes du jour sont faites : le coffre vous attend.'), null, this.chestIc()));
+  },
+  /** Une partie finie ('gm') ou un cours transformé en fiches ('sc') : compté au journal du jour. */
+  note(kind) { const l = this.today(); l[kind] = (+l[kind] || 0) + 1; Store.touch('profile'); this.sync(); },
+
+  /* ── Coffre ── */
+  prize(k = this.st.day.k) { const R = this.seed('coffre' + k), gold = R() < 1 / 6, co = 25 + Math.floor(R() * 16); return { gold, co: gold ? co * 2 : co, xp: gold ? 80 : 40 }; },
+  chestReady() { const D = this.st.day; return !!D && D.q.every(q => D.done[q.id]) && !D.chest; },
+  openChest(btn) {
+    const P = this.sync(true), D = P.day;
+    if (D.chest) { toast(t('Le coffre du jour est ouvert. Un nouveau vous attend demain.'), null, this.chestIc()); return; }
+    if (!this.chestReady()) { toast(t('Finissez les trois quêtes du jour pour ouvrir le coffre.'), null, this.chestIc()); return; }
+    const r = this.prize(), c0 = P.coins;
+    D.chest = Date.now(); P.stats.chests = (P.stats.chests || 0) + 1; this.today().ch = 1;
+    this.give(r.xp, r.co); Store.touch('profile');
+    Sound.play('seal'); haptic(25);
+    const msg = r.gold ? t('Coffre doré ! +{c} éclats, +{xp} XP', { c: r.co, xp: r.xp }) : t('Coffre ouvert : +{c} éclats, +{xp} XP', { c: r.co, xp: r.xp });
+    const done = () => { this.refresh(); toast(msg, null, this.gem(22)); };
+    if (!Motion.some || !btn?.isConnected) { done(); return; }
+    btn.classList.add('opening'); if (r.gold) btn.classList.add('gold');
+    this.burst(btn, $('#hudCoins') || $('#plCoins'), c0, P.coins, r.gold ? 18 : 12);
+    setTimeout(() => Sound.play('pop'), 520);
+    setTimeout(done, 1650);
+  },
+  /** Les éclats jaillissent du coffre et filent vers le compteur, qui monte à leur arrivée. */
+  burst(from, to, a, b, n = 12) {
+    const r0 = from.getBoundingClientRect(), r1 = to?.getBoundingClientRect(), x0 = r0.left + r0.width / 2, y0 = r0.top + r0.height * .42;
+    const box = document.createElement('div'); box.className = 'gem-fx'; document.body.append(box); setTimeout(() => box.remove(), 2200);
+    for (let i = 0; i < n; i++) {
+      const g = document.createElement('i'); g.innerHTML = this.gem(16); box.append(g);
+      const ang = -Math.PI / 2 + (Math.random() - .5) * 2.4, d = 44 + Math.random() * 56, mx = x0 + Math.cos(ang) * d, my = y0 + Math.sin(ang) * d;
+      const x1 = r1 ? r1.left + r1.width / 2 : mx, y1 = r1 ? r1.top + r1.height / 2 : my - 50, rot = Math.round(Math.random() * 120 - 60);
+      g.animate([{ transform: `translate(${x0}px,${y0}px) scale(.3)`, opacity: 0 }, { transform: `translate(${mx}px,${my}px) scale(1.15) rotate(${rot}deg)`, opacity: 1, offset: .36 }, { transform: `translate(${x1}px,${y1}px) scale(.6) rotate(${rot * 2}deg)`, opacity: .95, offset: .9 }, { transform: `translate(${x1}px,${y1}px) scale(.2)`, opacity: 0 }],
+        { duration: 1100 + i * 28, delay: 150 + i * 22, easing: 'cubic-bezier(.3,.7,.25,1)', fill: 'both' });
+    }
+    if (!to) return;
+    const t0 = performance.now() + 800, tick = now => { const p = clamp((now - t0) / 650, 0, 1); to.textContent = num(Math.round(a + (b - a) * p)); if (p < 1) requestAnimationFrame(tick); else { const c = to.closest('.hud-st,.pl-stat'); c?.classList.remove('bump'); void c?.offsetWidth; c?.classList.add('bump'); } };
+    requestAnimationFrame(tick);
+  },
+  /** Redessine le tableau (accueil) ou la page du joueur après un changement. */
+  refresh() {
+    if (App.route.v === 'today') { const h = $('#hud'); if (h) h.outerHTML = this.hud({ still: true }); }
+    else if (App.route.v === 'player') this.redraw();
+    else if (App.route.v === 'games' && Game.mode === 'hub') App.render();
+  },
+  /** La section Écoles et entreprises, redessinée sans animation (un réglage à la fois) puis rebranchée. */
+  redrawOrg() {
+    if (App.route.v !== 'player') return App.render();
+    this.redraw(); const o = $('#plOrg'); if (o) { o.outerHTML = this.orgHTML(true); this.bindOrg(); }
+  },
+  redraw() {
+    if (App.route.v !== 'player') return App.render();
+    const g = $('#plGrid'); if (g) g.innerHTML = this.grid(this.tab);
+    const h = $('#plHero'); if (h) h.outerHTML = this.heroHTML(true);
+    const q = $('#plQuests'); if (q) q.outerHTML = this.questsHTML(true);
+  },
+
+  /* ── Vestiaire ── */
+  lock(kind, id) {
+    const it = this.item(kind, id); if (!it) return 'gone';
+    if (it.plan === 'pro' && !Pro.on) return 'pro';
+    if (it.plan === 'expert' && !Pro.expert) return 'expert';
+    if (it.org && !(this.orgOn() && (kind !== 'avatar' || this.logo()))) return 'org';
+    if (it.lvl && level().i + 1 < it.lvl) return 'lvl';
+    if (it.badge && !S.profile.badges[it.badge]) return 'badge';
+    if (it.cost && !this.st.owned[kind + ':' + id]) return 'cost';
+    return '';
+  },
+  /** Ce qui est porté : le choix de la personne s'il est encore permis, sinon l'objet par défaut. */
+  item(kind, id) { return Object.hasOwn(PLAY_ITEMS, kind) && typeof id === 'string' && Object.hasOwn(PLAY_ITEMS[kind], id) ? PLAY_ITEMS[kind][id] : null; },
+  cur(kind) { const id = this.st[kind]; return this.item(kind, id) && !this.lock(kind, id) ? id : PLAY_DEFAULT[kind]; },
+  itemName(kind, id) { const it = this.item(kind, id); return kind === 'title' && it.org ? t(it.name, { org: this.orgName() }) : t(it.name); },
+  why(kind, id) {
+    const it = this.item(kind, id), k = this.lock(kind, id);
+    return k === 'pro' ? 'Pro' : k === 'expert' ? t('Élite') : k === 'org' ? t('Ajoutez un logo') : k === 'lvl' ? t('Niveau {n}', { n: it.lvl }) : k === 'badge' ? t('Ex-libris « {x} »', { x: t(BADGES.find(b => b.id === it.badge)?.name || '') }) : k === 'cost' ? tp(it.cost, '{n} éclat|{n} éclats') : '';
+  },
+  pick(kind, id) {
+    const it = this.item(kind, id); if (!it) return;
+    const lk = this.lock(kind, id), P = this.st;
+    if (!lk) { if (this.cur(kind) === id) return; P[kind] = id; Store.touch('profile'); Sound.play('pop'); haptic(8); this.redraw(); return; }
+    if (lk === 'cost') return this.buy(kind, id);
+    if (lk === 'pro') return Pro.upsell('play');
+    if (lk === 'expert') return Pro.upsell('legend');
+    if (lk === 'org') { toast(t("Ajoutez le logo de votre organisation, plus bas sur cette page."), 'image'); return; }
+    toast(lk === 'lvl' ? t('Se débloque au niveau {n} : {name}.', { n: it.lvl, name: t(LEVELS[it.lvl - 1][1]) }) : t('Se débloque avec l\'ex-libris « {x} ».', { x: t(BADGES.find(b => b.id === it.badge)?.name || '') }), 'info');
+  },
+  buy(kind, id) {
+    const it = this.item(kind, id), P = this.st, miss = it.cost - P.coins, name = this.itemName(kind, id);
+    if (miss > 0) { toast(tp(miss, 'Il vous manque {n} éclat : les quêtes du jour en rapportent.|Il vous manque {n} éclats : les quêtes du jour en rapportent.'), null, this.gem(22)); return; }
+    const m = Modal.open(`${mh(esc(name), t('Vestiaire'))}<div class="pl-buy">${this.preview(kind, id, 112)}<p>${t('Ajouter « {x} » à votre vestiaire pour {n} éclats ? Il vous en restera {r}.', { x: esc(name), n: it.cost, r: P.coins - it.cost })}</p></div>
+      <div class="modal-f"><button class="btn btn-ghost" data-act="close">${t('Plus tard')}</button><button class="btn btn-brass" id="plBuy">${this.gem(16)}${t('Acheter et porter')}</button></div>`, 'pl-m');
+    m.querySelector('#plBuy').onclick = () => {
+      if (this.st.coins < it.cost) return;
+      this.st.coins -= it.cost; this.st.owned[kind + ':' + id] = Date.now(); this.st[kind] = id; Store.touch('profile');
+      Modal.close(); Sound.play('seal'); haptic(20); toast(t('« {x} » rejoint votre vestiaire.', { x: name }), null, this.gem(22)); this.redraw();
+    };
+  },
+  nickModal() {
+    const m = Modal.open(`${mh(t('Nom de joueur'), t('Profil de joueur'))}<div class="field"><label for="plNickIn">${t('Le nom affiché sur votre tableau de jeu')}</label><input class="input" id="plNickIn" maxlength="24" value="${esc(this.st.nick || '')}" placeholder="${esc(S.profile.study.name || t('Joueur'))}" autocomplete="nickname" autofocus></div>
+      <div class="modal-f"><button class="btn btn-ghost" data-act="close">${t('Annuler')}</button><button class="btn btn-brass" id="plNickOk">${icon('check', 'i-sm')}${t('Enregistrer')}</button></div>`, 'pl-m');
+    const go = () => { this.st.nick = m.querySelector('#plNickIn').value.replace(/\s+/g, ' ').trim().slice(0, 24); Store.touch('profile'); Modal.close(); this.redraw(); };
+    m.querySelector('#plNickOk').onclick = go;
+    m.querySelector('#plNickIn').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); go(); } });
+  },
+  name() { return this.st.nick || S.profile.study.name || t('Joueur'); },
+  titleName() { return this.itemName('title', this.cur('title')); },
+
+  /* ── Écoles et entreprises ── */
+  orgOn() { return Pro.expert && !!this.st.org.on; },
+  orgName() { return String(this.st.org.name || '').trim() || t('Votre organisation'); },
+  orgColor() { const c = this.st.org.color; return /^#[0-9a-f]{6}$/i.test(c || '') ? c : '#2E7A58'; },
+  logo() { const L = this.st.org.logo; return typeof L === 'string' && L.length < 400000 && IMG_RE.test(L) ? L : ''; },
+  orgQuests() { return this.st.org.quests.filter(q => isObj(q) && safeId(q.id) && typeof q.text === 'string' && q.text.trim() && Object.hasOwn(ORG_METRICS, q.m) && q.n >= 1).slice(0, 3); },
+  orgVal(q, l = this.day()) { return q.m === 'tick' ? (this.st.org.done[q.id] ? 1 : 0) : q.m === 'min' ? Math.floor((l.ms || 0) / MIN) : +(l[q.m] || 0); },
+  tick(id) {
+    const P = this.sync(true), q = this.orgQuests().find(x => x.id === id);
+    if (!q || q.m !== 'tick' || P.org.done[id] || !this.orgOn()) return;
+    P.org.done[id] = Date.now(); this.give(ORG_REWARD.xp, ORG_REWARD.co); P.stats.quests = (P.stats.quests || 0) + 1; Store.touch('profile');
+    Sound.play('pop'); haptic(12); toast(t('Défi relevé : {q}', { q: q.text }) + ' · ' + t('+{xp} XP · +{c} éclats', { xp: ORG_REWARD.xp, c: ORG_REWARD.co }), null, this.gem(22));
+    this.refresh();
+  },
+  /** Le logo est réduit (160 px au plus) et gardé dans le profil, en WebP ou PNG pour garder la transparence. */
+  async setLogo(file) {
+    if (!file) return;
+    if (!/^image\//.test(file.type)) { toast(t('Choisissez une image : PNG, JPEG, WebP ou SVG.'), 'image'); return; }
+    try {
+      const url = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
+      const img = await loadImg(url), w0 = img.naturalWidth || 160, h0 = img.naturalHeight || 160, s = Math.min(1, 160 / Math.max(w0, h0));
+      const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w0 * s)); c.height = Math.max(1, Math.round(h0 * s));
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      let out = c.toDataURL('image/webp', .9); if (!out.startsWith('data:image/webp')) out = c.toDataURL('image/png');
+      if (out.length > 150000) out = c.toDataURL('image/jpeg', .85);
+      if (!IMG_RE.test(out)) throw new Error('img');
+      this.st.org.logo = out; Store.touch('profile'); this.redrawOrg(); toast(t('Logo enregistré'), 'image');
+    } catch { toast(t("Cette image n'a pas pu être lue. Essayez un fichier PNG ou JPEG."), 'image'); }
+  },
+  /** « Teinter toute l'application » : la couleur d'accent sur mesure d'Élite prend la couleur de l'organisation. */
+  tinted() { const s = S.profile.settings; return s.accent === 'custom' && String(s.accentHex || '').toLowerCase() === this.orgColor().toLowerCase(); },
+  tint(on) {
+    const s = S.profile.settings, O = this.st.org;
+    if (on) { if (!this.tinted()) O.prevAccent = [s.accent, s.accentHex || '']; s.accent = 'custom'; s.accentHex = this.orgColor(); }
+    else { const [a, h] = Array.isArray(O.prevAccent) ? O.prevAccent : ['auto', '']; s.accent = a === 'custom' && h.toLowerCase() === this.orgColor().toLowerCase() ? 'auto' : a || 'auto'; if (h) s.accentHex = h; delete O.prevAccent; }
+    Store.touch('profile'); Custom.apply();
+  },
+
+  /* ── Dessins ── */
+  gem(s = 16) { return `<svg class="gem" viewBox="0 0 24 24" width="${s}" height="${s}" aria-hidden="true"><path d="M12 2.5 20 9.5 12 21.5 4 9.5z" fill="#E2BE68"/><path d="M12 2.5 15.6 9.5 12 21.5 8.4 9.5z" fill="#F6E2A4"/><path d="M4 9.5h16" stroke="#9C7430" stroke-width="1.1"/><path d="M12 2.5 20 9.5 12 21.5 4 9.5z" fill="none" stroke="#8A6A30" stroke-width="1.1" stroke-linejoin="round"/></svg>`; },
+  chestIc(s = 22) { return `<svg class="gem" viewBox="0 0 64 56" width="${s}" height="${Math.round(s * .875)}" aria-hidden="true"><rect x="6" y="24" width="52" height="28" rx="3" fill="#7A4A26" stroke="#C9A45C" stroke-width="3"/><path d="M6 24v-6Q6 6 32 6t26 12v6z" fill="#8A5530" stroke="#C9A45C" stroke-width="3"/><rect x="27" y="27" width="10" height="11" rx="2" fill="#E2C27A"/></svg>`; },
+  chestSVG() {
+    return `<span class="ch-rays" aria-hidden="true"></span><svg class="chest" viewBox="0 0 64 58" aria-hidden="true">
+      <g class="ch-in"><ellipse cx="32" cy="27" rx="22" ry="5" fill="#FFE7A6"/><path d="M22 27l3-6 3 6zM30 26l3.5-8 3.5 8zM38 27l3-6 3 6z" fill="#F6E2A4" stroke="#B58A3E" stroke-width=".8"/></g>
+      <g class="ch-body"><rect x="6" y="26" width="52" height="28" rx="3" fill="#7A4A26"/><path d="M6 34h52M6 44h52" stroke="#5E3818" stroke-width="1.2"/><rect x="15" y="26" width="6" height="28" fill="#C9A45C"/><rect x="43" y="26" width="6" height="28" fill="#C9A45C"/><rect x="6" y="26" width="52" height="28" rx="3" fill="none" stroke="#B58A3E" stroke-width="2.6"/><rect x="27" y="29" width="10" height="12" rx="2" fill="#E2C27A" stroke="#8A6A30" stroke-width="1"/><circle cx="32" cy="34" r="1.7" fill="#5E3818"/><path d="M32 35.5v3" stroke="#5E3818" stroke-width="1.4" stroke-linecap="round"/></g>
+      <g class="ch-lid"><path d="M6 26v-8Q6 7 32 7t26 11v8z" fill="#8A5530"/><path d="M15 26V9.5h6V26zM43 26V9.5h6V26z" fill="#C9A45C"/><path d="M6 26v-8Q6 7 32 7t26 11v8z" fill="none" stroke="#B58A3E" stroke-width="2.6" stroke-linejoin="round"/><path d="M10 14q22-9 44 0" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="2" stroke-linecap="round"/></g></svg>`;
+  },
+  face(id) {
+    if (id === 'org') { const L = this.logo(); return L ? `<img src="${esc(L)}" alt="">` : ''; }
+    const a = this.item('avatar', id) || PLAY_ITEMS.avatar.owl; return `<svg viewBox="0 0 100 100">${a.art}</svg>`;
+  },
+  ring(id) {
+    if (id === 'org') { const c = this.orgColor(); return `<svg class="pmed-fr" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="none" stroke="${c}" stroke-width="7"/><circle cx="60" cy="60" r="46.3" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="1.4"/><circle cx="60" cy="60" r="54.2" fill="none" stroke="${c}" stroke-opacity=".45" stroke-width="1"/></svg>`; }
+    return `<svg class="pmed-fr" viewBox="0 0 120 120">${FRAME_ART[id] || FRAME_ART.plain}</svg>`;
+  },
+  /** Le médaillon : avatar, cadre et, si demandé, le niveau. */
+  medal(size = 56, o = {}) {
+    const av = o.avatar || this.cur('avatar'), fr = o.frame || this.cur('frame'), bg = this.item('avatar', av)?.bg || '#E9DFC9';
+    return `<span class="pmed pf-${fr}" style="--s:${size}px" aria-hidden="true"><span class="pmed-av" style="background:${bg}">${this.face(av)}</span>${this.ring(fr)}${o.lv ? `<b class="pmed-lv tnum">${o.lv}</b>` : ''}</span>`;
+  },
+  preview(kind, id, s = 76) {
+    if (kind === 'avatar') return this.medal(s, { avatar: id, frame: 'plain' });
+    if (kind === 'frame') return this.medal(s, { frame: id });
+    if (kind === 'title') return `<span class="pl-tt">${esc(this.itemName(kind, id))}</span>`;
+    return `<span class="pl-hp hudv" data-hud="${id}"><i></i><i></i><i></i><i></i></span>`;
+  },
+
+  /* ── Tableau de jeu (accueil) ── */
+  renew() { return t('Nouvelles quêtes {x}', { x: t('dans {x}', { x: fmtIvl(Math.max(MIN, endOfToday() - Date.now())) }) }); },
+  qrow(x) {
+    const p = x.done ? 1 : clamp(x.v / x.n, 0, 1), tag = x.act && !x.done ? 'button' : 'div';
+    const cnt = x.tick ? (x.done ? t('Fait') : t('À cocher')) : `${num(x.done ? x.n : Math.min(x.v, x.n))}/${num(x.n)}`;
+    return `<${tag} class="hq ${x.done ? 'done' : ''} ${x.org ? 'oq' : ''}" ${tag === 'button' ? 'type="button" ' + x.act : ''}><span class="hq-ic">${x.done ? icon('check', 'i-sm') : x.ic}</span><span class="hq-t">${esc(x.label)}</span><span class="hq-n tnum">${cnt}</span><span class="hq-bar"><i style="width:${(p * 100).toFixed(1)}%"></i></span>${x.rw ? `<span class="hq-rw tnum">${t('+{xp} XP · +{c} éclats', { xp: x.xp, c: x.co })}</span>` : ''}</${tag}>`;
+  },
+  qic(ic) { return ic === 'chest' ? this.chestIc(17) : icon(ic, 'i-sm'); },
+  dayRow(q, l, rw = false) { const Q = QUESTS[q.id]; return this.qrow({ ic: this.qic(Q.ic), label: t(Q.lbl, { n: q.n }), v: Q.m(l), n: q.n, done: !!this.st.day.done[q.id], xp: Q.xp, co: Q.co, act: Q.go ? `data-act="playQuest" data-q="${q.id}"` : '', rw }); },
+  weekRow(q, ls, rw = false) { const Q = WEEK_QUESTS[q.id]; return this.qrow({ ic: this.qic(Q.ic), label: t(Q.lbl, { n: q.n }), v: Q.m(ls), n: q.n, done: !!this.st.week.done[q.id], xp: Q.xp, co: Q.co, rw }); },
+  orgRow(q, l, rw = false) { const tick = q.m === 'tick'; return this.qrow({ ic: icon(orgIcon(this.st.org.kind), 'i-sm'), label: q.text, v: this.orgVal(q, l), n: tick ? 1 : q.n, tick, org: 1, done: !!this.st.org.done[q.id], xp: ORG_REWARD.xp, co: ORG_REWARD.co, act: tick ? `data-act="playTick" data-id="${esc(q.id)}"` : '', rw }); },
+  chestBtn() {
+    const D = this.st.day, open = !!D.chest, ready = this.chestReady();
+    const lbl = open ? t('Coffre du jour ouvert : un nouveau demain.') : ready ? t('Ouvrir le coffre du jour') : t('Coffre du jour : finissez les trois quêtes pour l\'ouvrir.');
+    return `<button type="button" class="hud-chest ${open ? 'open' : ready ? 'ready' : 'locked'}" data-act="playChest" aria-label="${esc(lbl)}" data-tip="${esc(lbl)}">${this.chestSVG()}<span class="ch-l">${open ? t('Ouvert') : ready ? t('Ouvrir !') : `<span class="ch-dots">${D.q.map(q => `<i class="${D.done[q.id] ? 'on' : ''}"></i>`).join('')}</span>`}</span></button>`;
+  },
+  banner() {
+    const O = this.st.org, L = this.logo(), kind = O.kind === 'work' ? 'work' : 'school';
+    return `<div class="hud-org">${L ? `<img class="org-logo" src="${esc(L)}" alt="">` : `<span class="org-logo">${icon(orgIcon(kind), 'i-sm')}</span>`}<b>${esc(this.orgName())}</b><span class="org-kind">${kind === 'work' ? t('Espace entreprise') : t('Espace école')}</span></div>`;
+  },
+  xpHTML(L = level()) {
+    const a = LEVELS[L.i][0], b = LEVELS[L.i + 1]?.[0], xp = S.profile.xp;
+    return `<div class="hud-lvl"><span>${t('Niveau {i} · {name}', { i: L.i + 1, name: L.name })}</span><span class="tnum">${b ? `${num(xp - a)} / ${num(b - a)} XP` : `${num(xp)} XP`}</span></div>
+      <div class="hud-xp" role="progressbar" aria-label="${esc(t('Expérience'))}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(L.p * 100)}"><i style="width:${(L.p * 100).toFixed(1)}%"></i></div>`;
+  },
+  /** Le tableau de jeu de l'accueil : avatar, niveau, série, éclats, quêtes du jour et coffre. */
+  hud(o = {}) {
+    if (this.st.hide) { this.sync(true); return ''; }
+    const P = this.sync(), D = P.day, L = level(), st = streak(), org = this.orgOn(), l = this.day(), done = D.q.filter(q => D.done[q.id]).length;
+    const wq = P.week.q.find(q => !P.week.done[q.id]) || P.week.q[0], WQ = WEEK_QUESTS[wq.id], wv = WQ.m(this.weekKeys(P.week.k).map(k => this.day(k)));
+    return `<section class="hud hudv ${o.still ? '' : 'rise'} ${org ? 'org' : ''}" id="hud" data-hud="${this.cur('hud')}" ${org ? `style="--h-org:${this.orgColor()}"` : ''} aria-label="${esc(t('Tableau de jeu'))}">
+      ${org ? this.banner() : ''}
+      <div class="hud-me">
+        <button class="hud-av" data-act="go" data-v="player" aria-label="${esc(t('Profil de joueur'))}">${this.medal(58, { lv: L.i + 1 })}</button>
+        <div class="hud-id"><div class="hud-name"><b>${esc(this.name())}</b><span class="hud-title">${esc(this.titleName())}</span></div>${this.xpHTML(L)}</div>
+        <div class="hud-stats">
+          <span class="hud-st fl" data-tip="${esc(tp(st, 'Série de {n} jour|Série de {n} jours'))}">${icon('flame', 'i-sm')}<b class="tnum">${num(st)}</b><span class="sr">${esc(tp(st, 'Série de {n} jour|Série de {n} jours'))}</span></span>
+          <span class="hud-st co" data-tip="${esc(t('Éclats : la monnaie du vestiaire'))}">${this.gem(15)}<b class="tnum" id="hudCoins">${num(P.coins)}</b><span class="sr">${esc(t('éclats'))}</span></span>
+        </div>
+      </div>
+      <div class="hud-q">
+        <div class="hud-qh"><span class="hud-k">${t('Quêtes du jour')} <b class="tnum">${done}/${D.q.length}</b></span><span class="hud-k2">${this.renew()}</span></div>
+        <div class="hud-ql">${D.q.map(q => this.dayRow(q, l)).join('')}${org ? this.orgQuests().map(q => this.orgRow(q, l)).join('') : ''}</div>
+      </div>
+      ${this.chestBtn()}
+      <div class="hud-foot"><span class="hf-w">${this.qic(WQ.ic)}<span>${t('Semaine')}${colon()}${esc(t(WQ.lbl, { n: wq.n }))}</span><b class="tnum">${P.week.done[wq.id] ? t('Fait') : `${num(Math.min(wv, wq.n))}/${num(wq.n)}`}</b></span><button class="hud-link" data-act="go" data-v="player">${t('Profil de joueur')}${icon('arrow', 'i-sm')}</button></div>
+    </section>`;
+  },
+  /** La plaque du joueur, en tête des jeux. */
+  card() {
+    const P = this.sync(), L = level(), D = P.day, done = D.q.filter(q => D.done[q.id]).length;
+    return `<button class="pl-plate hudv rise" data-hud="${this.cur('hud')}" data-act="go" data-v="player">${this.medal(54, { lv: L.i + 1 })}<span class="pp-t"><b>${t('Profil de joueur')}</b><span>${t('Niveau {i} · {name}', { i: L.i + 1, name: L.name })} · ${esc(this.titleName())}</span></span><span class="pp-s"><span class="hud-st co">${this.gem(15)}<b class="tnum">${num(P.coins)}</b></span><span class="hud-st">${this.chestIc(17)}<b class="tnum">${done}/${D.q.length}</b></span></span>${icon('arrow', 'pp-go')}</button>`;
+  },
+
+  /* ── Page du joueur ── */
+  heroHTML(still = false) {
+    const P = this.st, L = level(), st = streak(), org = this.orgOn(), got = BADGES.filter(b => S.profile.badges[b.id]).length, q = P.stats.quests || 0, c = P.stats.chests || 0;
+    const stat = (v, k, id = '') => `<div class="pl-stat"><b class="tnum" ${id ? `id="${id}"` : ''}>${v}</b><span>${k}</span></div>`;
+    return `<section class="pl-hero hudv ${still ? '' : 'rise'} ${org ? 'org' : ''}" id="plHero" data-hud="${this.cur('hud')}" ${org ? `style="--h-org:${this.orgColor()}"` : ''}>
+      ${org ? this.banner() : ''}
+      <div class="pl-me">${this.medal(128, { lv: L.i + 1 })}
+        <div class="pl-id">
+          <div class="pl-name"><b>${esc(this.name())}</b><button class="pl-ed" data-act="playNick" aria-label="${esc(t('Changer de nom de joueur'))}" data-tip="${esc(t('Changer de nom de joueur'))}">${icon('pen', 'i-sm')}</button></div>
+          <div class="hud-title">${esc(this.titleName())}</div>
+          ${this.xpHTML(L)}
+          <div class="pl-next">${L.next ? `${t('Niveau suivant : {x}', { x: L.next })} · ${t('encore {n} XP', { n: L.left })}` : t('Dernier niveau atteint. Chapeau.')}</div>
+        </div>
+      </div>
+      <div class="pl-stats">${stat(num(P.coins), tp(P.coins, 'éclat|éclats'), 'plCoins')}${stat(num(st), tp(st, 'jour de suite|jours de suite'))}${stat(num(q), tp(q, 'quête réussie|quêtes réussies'))}${stat(num(c), tp(c, 'coffre ouvert|coffres ouverts'))}${stat(`${got}/${BADGES.length}`, t('Ex-libris'))}</div>
+    </section>`;
+  },
+  questsHTML(still = false) {
+    const P = this.st, D = P.day, l = this.day(), wl = this.weekKeys(P.week.k).map(k => this.day(k)), oq = this.orgOn() ? this.orgQuests() : [], r = still ? '' : 'rise';
+    return `<div class="pl-qs" id="plQuests">
+      <article class="panel hudv ${r}"><div class="panel-h"><h3 class="h3">${t("Aujourd'hui")}</h3><span class="kicker">${this.renew()}</span></div>
+        <div class="hud-ql pl-ql">${D.q.map(q => this.dayRow(q, l, true)).join('')}</div>
+        <div class="pl-chest">${this.chestBtn()}<div><b>${t('Le coffre du jour')}</b><p>${t("Les trois quêtes faites, il s'ouvre : de 25 à 40 éclats et 40 XP. Un coffre sur six est doré et rapporte le double.")}</p></div></div></article>
+      <article class="panel hudv ${r}" style="animation-delay:.06s"><div class="panel-h"><h3 class="h3">${t('Cette semaine')}</h3><span class="kicker">${t("Jusqu'à dimanche soir")}</span></div>
+        <div class="hud-ql pl-ql">${P.week.q.map(q => this.weekRow(q, wl, true)).join('')}</div></article>
+      ${oq.length ? `<article class="panel hudv org-q ${r}" style="--h-org:${this.orgColor()};animation-delay:.12s"><div class="panel-h"><h3 class="h3">${t('Défis de {org}', { org: esc(this.orgName()) })}</h3><span class="kicker">${t('Chaque jour')}</span></div><div class="hud-ql pl-ql">${oq.map(q => this.orgRow(q, l, true)).join('')}</div></article>` : ''}
+    </div>`;
+  },
+  grid(kind) {
+    const P = this.st, cur = this.cur(kind), lockIc = '<svg class="i i-sm" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+    const items = Object.entries(PLAY_ITEMS[kind]).filter(([, it]) => !it.org || this.orgOn());
+    const show = kind === 'hud' ? `<div class="pl-show"><div><b>${t("Tableau de jeu sur l'accueil")}</b><span>${t("Avatar, niveau, série, éclats et quêtes du jour, en haut de l'accueil.")}</span></div><button type="button" class="switch ${P.hide ? '' : 'on'}" id="plHudOn" aria-pressed="${!P.hide}" aria-label="${esc(t("Tableau de jeu sur l'accueil"))}"></button></div>` : '';
+    return show + items.map(([id, it]) => {
+      const lk = this.lock(kind, id), on = cur === id, tag = it.plan === 'expert' ? `<span class="elite-tag">${t('Élite')}</span>` : it.plan === 'pro' ? '<span class="tag ai">Pro</span>' : '';
+      return `<button type="button" class="pl-it ${on ? 'on' : ''} ${lk ? 'lk' : ''} ${it.plan === 'expert' ? 'leg' : ''}" data-act="playPick" data-kind="${kind}" data-id="${id}" aria-pressed="${on}">
+        <span class="pl-pv">${this.preview(kind, id)}${lk ? `<span class="pl-lock">${lockIc}</span>` : ''}</span>
+        <b>${esc(this.itemName(kind, id))}${tag}</b><small>${on ? t('Porté') : lk ? esc(this.why(kind, id)) : t('Disponible')}</small></button>`;
+    }).join('');
+  },
+  orgHTML(still = false) {
+    const O = this.st.org, kind = O.kind === 'work' ? 'work' : 'school', L = this.logo(), r = still ? '' : 'rise';
+    const head = `<div class="sec-h ${r}"><div><h2 class="h2">${t('Écoles et entreprises')} <span class="elite-tag">${t('Élite')}</span></h2><p>${t("Aux couleurs de votre établissement ou de votre entreprise : le nom, le logo et la couleur sur l'accueil, et des défis maison à côté des quêtes du jour.")}</p></div></div>`;
+    const note = `<div class="org-note ${r}">${icon('info', 'i-sm')}<span>${t("Ces réglages valent pour votre profil, sur vos appareils. Pour équiper toute une classe ou toute une équipe, avec un tableau de bord et des licences, voyez l'offre dédiée.")}</span><button class="btn btn-sm" data-act="go" data-v="teams">${icon(orgIcon(kind), 'i-sm')}${t('Offre Écoles et entreprises')}</button></div>`;
+    if (!Pro.expert) return `<section class="sec" id="plOrg">${head}
+      <article class="panel ${r} org-lock"><div class="org-demo hudv" data-hud="folio" style="--h-org:#2F55B0"><div class="hud-org"><span class="org-logo">${icon('school', 'i-sm')}</span><b>${t('Votre établissement')}</b><span class="org-kind">${t('Espace école')}</span></div><div class="hud-ql">${this.qrow({ ic: icon('school', 'i-sm'), label: t('Ex. Réviser le chapitre du jour'), v: 12, n: 20, org: 1 })}${this.qrow({ ic: icon('school', 'i-sm'), label: t('Ex. Finir une partie avant le cours'), v: 0, n: 1, tick: 1, org: 1 })}</div></div>
+        <div class="org-pitch"><ul>${[t("Le nom et le logo de l'organisation sur l'accueil"), t("Sa couleur sur le tableau de jeu, ou dans toute l'application"), t('Des défis maison, ajoutés aux quêtes du jour'), t("Un avatar, un cadre et un titre aux couleurs de l'organisation")].map(x => `<li>${icon('check', 'i-sm')}<span>${x}</span></li>`).join('')}</ul>
+          <div class="hero-actions"><button class="btn btn-gilt" data-act="playElite">${icon('crown', 'i-sm')}${t('Débloquer avec Élite')}</button></div></div></article>${note}</section>`;
+    const sws = Object.values(DECK_COLORS).map(c => `<button type="button" class="accent ${this.orgColor().toLowerCase() === c.toLowerCase() ? 'on' : ''}" data-oc="${c}" style="--a:${c}" aria-label="${c}"></button>`).join('');
+    const custom = !Object.values(DECK_COLORS).some(c => c.toLowerCase() === this.orgColor().toLowerCase());
+    return `<section class="sec" id="plOrg">${head}
+      <article class="panel ${r}"><div class="settings">
+        ${setRow(t('Espace organisation'), t("Montre le nom, le logo, la couleur et les défis sur l'accueil."), `<button type="button" class="switch ${O.on ? 'on' : ''}" id="orgOn" aria-pressed="${!!O.on}" aria-label="${esc(t('Espace organisation'))}"></button>`)}
+        ${setRow(t('Type'), '', `<div class="seg" id="orgKind"><button class="${kind === 'school' ? 'on' : ''}" data-val="school">${icon('school', 'i-sm')}${t('École')}</button><button class="${kind === 'work' ? 'on' : ''}" data-val="work">${icon('building', 'i-sm')}${t('Entreprise')}</button></div>`)}
+        ${setRow(t('Nom'), '', `<input class="input" id="orgName" maxlength="40" value="${esc(O.name || '')}" placeholder="${esc(kind === 'work' ? t('Ex. Service client, Groupe Atlas') : t('Ex. Lycée Victor-Hugo, Terminale B'))}" style="max-width:300px" autocomplete="organization">`)}
+        ${setRow(t('Logo'), t('Une image carrée de préférence. Elle est réduite et gardée avec votre profil.'), `<div class="org-lctl">${L ? `<img class="org-logo lg" src="${esc(L)}" alt="">` : `<span class="org-logo lg">${icon(orgIcon(kind))}</span>`}<label class="btn btn-sm lk-file">${icon('upload', 'i-sm')}<span>${L ? t('Changer') : t('Choisir une image')}</span><input type="file" id="orgLogo" accept="image/*" aria-label="${esc(t('Logo'))}"></label>${L ? `<button type="button" class="btn btn-sm btn-ghost" id="orgLogoDel">${icon('trash', 'i-sm')}${t('Retirer')}</button>` : ''}</div>`)}
+        <div class="set-row col"><div class="t"><b>${t('Couleur')}</b></div><div class="accents" id="orgColors">${sws}<label class="accent accent-custom ${custom ? 'on' : ''}" style="--a:${this.orgColor()}" data-tip="${esc(t('Sur mesure'))}"><input type="color" id="orgColor" value="${this.orgColor()}" aria-label="${esc(t('Sur mesure'))}"></label></div></div>
+        ${setRow(t("Teinter toute l'application"), t("La couleur de l'organisation devient la couleur d'accent d'Engram."), `<button type="button" class="switch ${this.tinted() ? 'on' : ''}" id="orgTint" aria-pressed="${this.tinted()}" aria-label="${esc(t("Teinter toute l'application"))}"></button>`)}
+        <div class="set-row col"><div class="t"><b>${t("Défis de l'organisation")}</b><span>${t('Trois au plus, renouvelés chaque jour. Chacun rapporte 15 XP et 10 éclats.')}</span></div>
+          ${this.orgQuests().length ? `<div class="oq-list">${this.orgQuests().map(q => `<div class="oq"><span class="oq-t">${esc(q.text)}</span><span class="tag">${q.m === 'tick' ? t(ORG_METRICS.tick) : `${num(q.n)} ${t(ORG_METRICS[q.m])}`}</span><button type="button" class="icon-btn" data-oqdel="${esc(q.id)}" aria-label="${esc(t('Retirer ce défi'))}">${icon('trash', 'i-sm')}</button></div>`).join('')}</div>` : ''}
+          ${this.orgQuests().length < 3 ? `<div class="oq-add"><input class="input" id="oqText" maxlength="80" placeholder="${esc(t('Ex. Réviser le module sécurité'))}" aria-label="${esc(t('Intitulé du défi'))}"><select class="select" id="oqM" aria-label="${esc(t('Ce qui compte'))}">${Object.entries(ORG_METRICS).map(([k, v]) => `<option value="${k}">${t(v)}</option>`).join('')}</select><input class="input tnum" id="oqN" type="number" min="1" max="500" value="20" inputmode="numeric" aria-label="${esc(t('Objectif'))}"><button type="button" class="btn btn-brass btn-sm" id="oqAdd">${icon('plus', 'i-sm')}${t('Ajouter')}</button></div>` : ''}
+        </div>
+      </div></article>${note}</section>`;
+  }
+};
+Views.player = () => {
+  Play.sync();
+  const tabs = [['avatar', t('Avatars')], ['frame', t('Cadres')], ['title', t('Titres')], ['hud', t('Tableau')]];
+  return `
+    <button class="btn btn-ghost btn-sm rise" style="align-self:flex-start" data-act="game" data-g="hub">${icon('back', 'i-sm')}${t('Jeux')}</button>
+    <header class="rise"><div class="kicker">${t('Profil de joueur')}</div><h1 class="display" style="margin-top:12px">${words(t('Votre <em>personnage</em>.'))}</h1>
+      <p class="lede" style="margin-top:14px">${t("Chaque jour, trois quêtes rapportent de l'XP et des éclats. Les éclats habillent votre personnage : avatar, cadre, titre et tableau de jeu.")}</p></header>
+    ${Play.heroHTML()}
+    <section class="sec">
+      <div class="sec-h rise"><div><h2 class="h2">${t('Quêtes')}</h2><p>${t("Elles avancent toutes seules quand vous révisez, jouez ou scannez un cours. La récompense tombe dès qu'une quête est finie.")}</p></div></div>
+      ${Play.questsHTML()}
+    </section>
+    <section class="sec" id="plLocker">
+      <div class="sec-h rise"><div><h2 class="h2">${t('Vestiaire')}</h2><p>${t('Gagnés en montant de niveau ou avec un ex-libris, achetés en éclats, ou compris dans Pro et Élite.')}</p></div>
+        <div class="seg" id="plTabs" role="tablist">${tabs.map(([k, v]) => `<button class="${Play.tab === k ? 'on' : ''}" data-tab="${k}" role="tab" aria-selected="${Play.tab === k}">${v}</button>`).join('')}</div></div>
+      <div class="pl-grid rise" id="plGrid">${Play.grid(Play.tab)}</div>
+    </section>
+    ${Play.orgHTML()}`;
+};
+Hooks.player = () => {
+  const P = Play.st;
+  $('#plTabs')?.addEventListener('click', e => { const b = e.target.closest('[data-tab]'); if (!b) return; Play.tab = b.dataset.tab; $$('#plTabs button').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-selected', x === b); }); $('#plGrid').innerHTML = Play.grid(Play.tab); });
+  $('#plGrid')?.addEventListener('click', e => { const s = e.target.closest('#plHudOn'); if (!s) return; P.hide = !P.hide; s.classList.toggle('on', !P.hide); s.setAttribute('aria-pressed', !P.hide); Store.touch('profile'); toast(P.hide ? t("Le tableau de jeu n'apparaît plus sur l'accueil.") : t("Le tableau de jeu est de retour sur l'accueil."), 'home'); });
+  Play.bindOrg();
+};
+Play.bindOrg = function () {
+  const P = this.st, O = P.org, save = () => { Store.touch('profile'); this.redrawOrg(); };
+  $('#orgOn')?.addEventListener('click', () => { O.on = !O.on; if (O.on && !O.color) O.color = this.orgColor(); save(); });
+  $('#orgKind')?.addEventListener('click', e => { const b = e.target.closest('[data-val]'); if (!b) return; O.kind = b.dataset.val; save(); });
+  $('#orgName')?.addEventListener('change', e => { O.name = e.target.value.replace(/\s+/g, ' ').trim().slice(0, 40); save(); });
+  $('#orgLogo')?.addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; this.setLogo(f); });
+  $('#orgLogoDel')?.addEventListener('click', () => { delete O.logo; save(); });
+  const setColor = c => { const was = this.tinted(); O.color = c; if (was) { S.profile.settings.accentHex = c; Custom.apply(); } save(); };
+  $('#orgColors')?.addEventListener('click', e => { const b = e.target.closest('[data-oc]'); if (b) setColor(b.dataset.oc); });
+  $('#orgColor')?.addEventListener('input', e => { const lb = e.target.parentElement; lb.style.setProperty('--a', e.target.value); $$('#orgColors .accent').forEach(x => x.classList.toggle('on', x === lb)); });
+  $('#orgColor')?.addEventListener('change', e => setColor(e.target.value));
+  $('#orgTint')?.addEventListener('click', () => { this.tint(!this.tinted()); save(); });
+  $('#oqAdd')?.addEventListener('click', () => {
+    const text = $('#oqText').value.replace(/\s+/g, ' ').trim().slice(0, 80), m = $('#oqM').value, n = clamp(Math.round(+$('#oqN').value || 0), 1, 500);
+    if (!text) { $('#oqText').focus(); toast(t("Écrivez d'abord l'intitulé du défi."), 'pen'); return; }
+    O.quests = [...this.orgQuests(), { id: uid('oq'), text, m: Object.hasOwn(ORG_METRICS, m) ? m : 'r', n: m === 'tick' ? 1 : n }]; save(); toast(t('Défi ajouté'), 'check');
+  });
+  $('#oqText')?.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('#oqAdd')?.click(); } });
+  $('#oqM')?.addEventListener('change', e => { const n = $('#oqN'); if (n) n.disabled = e.target.value === 'tick'; });
+  $$('[data-oqdel]').forEach(b => b.addEventListener('click', () => { O.quests = this.orgQuests().filter(q => q.id !== b.dataset.oqdel); delete O.done[b.dataset.oqdel]; save(); }));
+};
+Object.assign(Actions, {
+  playChest: el => Play.openChest(el),
+  playQuest: el => { const g = QUESTS[el.dataset.q]?.go; if (g === 'study') Study.start(todayCounts().total ? {} : { cram: true }); else if (g === 'games') openGame('hub'); else if (g === 'scan') App.go('scan'); },
+  playTick: el => Play.tick(el.dataset.id),
+  playPick: el => Play.pick(el.dataset.kind, el.dataset.id),
+  playNick: () => Play.nickModal(),
+  playElite: () => Pro.upsell('legend')
+});
 const Game = {
   mode: 'hub', deckId: '',
   // Jeu des paires
@@ -11355,6 +12103,7 @@ Views.games = () => {
   return `
     <header class="rise"><div class="kicker">${t('Jeux & examens')}</div><h1 class="display" style="margin-top:12px">${words(t('Jouer, <em>pour retenir</em>.'))}</h1>
       <p class="lede" style="margin-top:14px">${t("Se tester est la façon la plus efficace d'apprendre. Les jeux ne modifient pas le calendrier de vos fiches.")}</p></header>
+    ${Play.card()}
     <div class="games">
       <button class="game rise" data-act="game" data-g="match">
         <div class="art" aria-hidden="true"><span style="left:6%;top:18px;transform:rotate(-8deg)"></span><span class="g" style="left:30%;top:6px;transform:rotate(3deg)"></span><span style="left:54%;top:26px;transform:rotate(-2deg)"></span><span class="g" style="left:24%;top:48px;transform:rotate(7deg)"></span></div>
@@ -11436,6 +12185,7 @@ function matchFinish() {
   Game.result = { ms, best: Math.min(ms, prev || ms), record, errors: Game.penalty / 1000, deck: Game.deckId ? deckById(Game.deckId)?.name : t('Tous les paquets') };
   Game.mode = 'match-done'; Store.touch('profile'); cancelAnimationFrame(Game.raf);
   App.render(); Sound.play(record ? 'stamp' : 'done'); checkBadges();
+  Play.note('gm'); // une partie finie fait avancer les quêtes
 }
 /* Examen blanc */
 function buildExam() {
@@ -11533,6 +12283,7 @@ Object.assign(Actions, {
       Game.mode = 'exam-result'; App.render(true);
       const ok = Game.results.filter(r => r.ok).length / Game.results.length;
       if (ok >= 0.8 && !S.demo) { S.profile.flags.exam16 = 1; Store.touch('profile'); }
+      Play.note('gm');
       setTimeout(() => { Sound.play(ok >= .8 ? 'done' : 'print'); checkBadges(); }, 400);
       return;
     }
