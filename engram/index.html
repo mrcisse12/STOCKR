@@ -14590,7 +14590,7 @@ const Gate = {
       <div class="gt-out">${this.openBtns(a, 'small')}</div></div>`;
     const rec = typeof Recite !== 'undefined' ? `<span class="gt-rec">${ds.length > 1 ? `<select class="select" id="gtRDeck" aria-label="${esc(t('Paquet'))}">${ds.map(d => `<option value="${d.id}">${esc(d.name)}</option>`).join('')}</select>` : ''}<button class="btn btn-lg" data-g="recite">${icon('mic')}${t('Réciter à l\'oral')}</button></span>` : '';
     return head + `<div class="gt-mid rise">
-      <div class="gt-seal" aria-hidden="true"><span>${mono}</span>${icon('padlock')}</div>
+      <div class="gt-seal" aria-hidden="true"><span>${esc(a.name.charAt(0).toUpperCase() || '?')}</span>${icon('padlock')}</div>
       <h1 class="display gt-title">${words(tp(n, '{n} question avant <em>{app}</em>.|{n} questions avant <em>{app}</em>.', { app }))}</h1>
       <p class="lede">${t('Réussissez-en {p} et {app} s\'ouvre pour {m}. Sinon, vous réessayez avec d\'autres questions.', { p: pct(r.th / 100), app, m: mins })}</p>
       <div class="chips gt-chips">${ds.slice(0, 4).map(d => `<span class="chip">${icon('drawer', 'i-sm')}${esc(d.name)}</span>`).join('')}${ds.length > 4 ? `<span class="chip">+${ds.length - 4}</span>` : ''}<span class="chip">${icon(AI.on ? 'sparkles' : 'check', 'i-sm')}${AI.on ? t('Réponses écrites corrigées par l\'IA') : t('Correction sur l\'appareil')}</span></div>
