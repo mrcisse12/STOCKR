@@ -908,13 +908,14 @@ button.hq:hover{background:var(--h-chip)}
 .hq.done .hq-ic{background:var(--h-done);border-color:transparent;color:var(--h-done-ink)}
 .hq.done .hq-t{color:var(--h-mut)}
 .hq.done .hq-bar i{background:var(--h-done)}
-.hq.oq .hq-ic{color:var(--h-org,var(--h-acc));border-color:color-mix(in srgb,var(--h-org,var(--h-acc)) 45%,transparent)}
+.hq.oq:not(.done) .hq-ic{color:var(--h-org,var(--h-acc));border-color:color-mix(in srgb,var(--h-org,var(--h-acc)) 45%,transparent)}
 .hq.oq:not(.done) .hq-bar i{background:var(--h-org,var(--h-acc))}
-.pl-ql .hq{grid-template-areas:"ic t n" "ic b rw";padding:9px 0;border-top:1px solid var(--h-line);border-radius:0}
+.pl-ql .hq{grid-template-areas:"ic t n" "ic b b" "ic rw rw";padding:10px 0;border-top:1px solid var(--h-line);border-radius:0}
+.pl-ql .hq-t{white-space:normal;text-wrap:pretty;line-height:1.3}
+.pl-ql .hq-rw{margin-top:2px}
 .pl-ql .hq:first-child{border-top:0;padding-top:0}
 .pl-ql button.hq:hover{background:none}.pl-ql button.hq:hover .hq-t{color:var(--h-acct)}
 .hq-rw{grid-area:rw;font:700 10.5px/1 var(--f-type);color:var(--h-acct);white-space:nowrap}
-@media (max-width:620px){.pl-ql .hq{grid-template-areas:"ic t n" "ic b b" "ic rw rw"}.pl-ql .hq-rw{margin-top:2px}}
 .hud-chest{position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;width:86px;padding:6px 4px;border-radius:12px;color:var(--h-ink);transition:transform .35s var(--spring)}
 .hud-chest:hover{transform:translateY(-2px)}
 .hud-chest .chest{position:relative;width:62px;height:56px;overflow:visible;filter:drop-shadow(0 6px 6px rgba(0,0,0,.22))}
@@ -996,7 +997,7 @@ button.hq:hover{background:var(--h-chip)}
 .pl-name b{font:400 clamp(28px,3.4vw,40px)/1.05 var(--f-display);letter-spacing:-.01em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pl-ed{display:grid;place-items:center;width:30px;height:30px;border-radius:8px;color:var(--h-mut);border:1px solid var(--h-line);flex:none;transition:all .2s}
 .pl-ed:hover{color:var(--h-ink);background:var(--h-chip)}
-.pl-hero .hud-title{font-size:23px;flex:none}
+.pl-hero .hud-title{font-size:23px;flex:none;white-space:normal;text-wrap:balance;line-height:1.1}
 .pl-hero .hud-xp{height:11px}
 .pl-next{font-size:13px;color:var(--h-mut)}
 .pl-stats{display:grid;grid-template-columns:repeat(5,auto);gap:10px}
@@ -10204,6 +10205,7 @@ const Study = {
     const el = $('#study'); if (!el.hidden) Back.drop(); el.hidden = true; el.innerHTML = ''; layers();
     document.body.classList.remove('studying');
     if (!silent) App.render();
+    if (!silent) Play.sync(); // les quêtes finies pendant la séance sont payées à la sortie, sur n'importe quelle page
   },
   /** Fin de séance dans un onglet figé par un autre onglet (Store.stale) : ses notes attendent d'être reportées. */
   keep() {
@@ -11479,7 +11481,8 @@ async function commitScan() {
   Store.touchDeck(deck); Store.touch('profile');
   Scan.reset(); App.go('deck', deck.id);
   toast(t('{x} dans « {deck} »', { x: plural(cards.length, 'fiche rangée|fiches rangées'), deck: deck.name }), 'drawer');
-  checkBadges(); Play.note('sc');
+  checkBadges();
+  Play.note('sc'); // un cours transformé en fiches fait avancer les quêtes
 }
 /* Génération locale (sans IA) à partir d'un texte, en cinq langues */
 const DEF_VERBS = 'est|sont|désigne|désignent|correspond à|correspondent à|signifie|permet de|permettent de|a lieu|se déroule|fixe|produit|is|are|means|refers to|allows|takes place|occurs|produces|fixes|releases|es|son|significa|designa|permite|permiten|tiene lugar|ocurre|produce|fija|libera|ist|sind|bedeutet|bezeichnet|ermöglicht|findet|erzeugt|fixiert|é|são|designa|ocorre|produz|fixa|libera';
@@ -11697,7 +11700,11 @@ const Play = {
     }
     if (!isObj(P.day.done)) P.day.done = {};
     if (!isObj(P.week.done)) P.week.done = {};
-    if (P.org.k !== k) { P.org.k = k; P.org.done = {}; changed = true; }
+    if (P.org.k !== k) {
+      // Les défis maison de la veille, atteints sans être vus, sont payés eux aussi.
+      if (typeof P.org.k === 'string' && P.org.k < k && this.orgOn()) { const l = this.day(P.org.k); for (const q of this.orgQuests()) if (q.m !== 'tick' && !P.org.done[q.id] && this.orgVal(q, l) >= q.n) { add([ORG_REWARD.xp, ORG_REWARD.co]); P.stats.quests = (P.stats.quests || 0) + 1; } }
+      P.org.k = k; P.org.done = {}; changed = true;
+    }
     if (paid[0] || paid[1]) this.give(paid[0], paid[1]);
     return { paid, changed };
   },
