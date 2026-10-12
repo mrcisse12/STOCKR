@@ -487,6 +487,7 @@ body:has(.gate-screen) .folder > .view{flex:1;width:100%}
 .gt-mono .i{width:17px;height:17px}
 .gt-need{flex:none;padding:6px 10px;border-radius:99px;border:1px solid var(--hair-2);font:700 11px/1 var(--f-type);letter-spacing:.06em;color:var(--muted)}
 .gt-head .icon-btn{flex:none}
+@media (max-width:520px){.gate-screen[data-step=q] .gt-mono{display:none}}
 /* Les longs libellés (« Réessayer avec d'autres questions ») passent à la ligne sur téléphone au lieu de déborder */
 .gate-screen .btn{max-width:100%}
 @media (max-width:620px){.gate-screen .btn-lg{white-space:normal;height:auto;min-height:54px;padding-block:12px;line-height:1.25;text-align:center}}
@@ -14387,7 +14388,7 @@ const Gate = {
     if (Mentor.isOpen) Mentor.close();
     if (Study.active) Study.close(true);
     this.ctl?.abort(); this.run = null;
-    App.go('gate', this.app(id).id);
+    App.go('gate', (id.trim() ? this.app(id) : this.first()).id); // un lien sans app (#barriere=) : la première app gardée
   },
   fresh(a) { return { app: a, step: !this.on ? 'locked' : this.pass() ? 'pass' : 'intro', th: this.cfg().th, qs: [], i: 0, ans: [], busy: false, self: null, typed: '', result: null }; },
   view(arg) {
@@ -14712,7 +14713,7 @@ const Gate = {
         t('Choisissez {app}, cochez {a} puis {b}.', { app, a: Q(L.opened), b: Q(L.immed) }),
         t('Action : {a} → {x}.', { a: Q(L.run), x: Q('Engram Barrière') }),
         many ? t('Une autre app ? Dupliquez {x}, changez seulement le lien, et créez son automatisation.', { x: Q('Engram Barrière') }) : ''
-      ], this.mock(L.auto, [['mobile', '#2F8F62', app, esc(L.opened)], ['zap', '#B7841F', L.immed, '✓'], ['play', '#3D63C9', L.run, 'Engram Barrière']], 'auto'))}
+      ], this.mock(L.auto, [['mobile', '#2F8F62', a.name, esc(L.opened)], ['zap', '#B7841F', L.immed, '✓'], ['play', '#3D63C9', L.run, 'Engram Barrière']], 'auto'))}
     </ol>
     <p class="bnote rise">${icon('info')}<span>${t('Le lien s\'ouvre dans Safari. Si vous utilisez Engram depuis l\'écran d\'accueil, connectez-vous à votre compte Engram dans Safari aussi : vos fiches vous y suivent.')}</span></p>`;
   },
