@@ -10207,7 +10207,7 @@ const Study = {
     const el = $('#study'); if (!el.hidden) Back.drop(); el.hidden = true; el.innerHTML = ''; layers();
     document.body.classList.remove('studying');
     if (!silent) App.render();
-    if (!silent) Play.sync(); // les quêtes finies pendant la séance sont payées à la sortie, sur n'importe quelle page
+    if (!silent) Play.act(); // les quêtes finies pendant la séance sont payées à la sortie, sur n'importe quelle page
   },
   /** Fin de séance dans un onglet figé par un autre onglet (Store.stale) : ses notes attendent d'être reportées. */
   keep() {
@@ -11650,9 +11650,11 @@ const FRAME_ART = (() => {
 
 const Play = {
   tab: 'avatar',
-  /** L'état du jeu dans le profil, complété pour les sauvegardes d'avant. */
+  /** L'état du jeu dans le profil, complété pour les sauvegardes d'avant. Tant que rien n'est enregistré, c'est un objet à
+   *  part : afficher le tableau ne change jamais le profil (un onglet qui s'ouvre n'écrit rien, voir Store.merge). */
   get st() {
-    const p = S.profile, x = isObj(p.play) ? p.play : (p.play = {});
+    const p = S.profile; let x = p.play;
+    if (!isObj(x)) { if (this.blank?.p !== p) this.blank = { p, x: {} }; x = this.blank.x; }
     if (!Number.isFinite(x.coins) || x.coins < 0) x.coins = 0;
     if (!isObj(x.owned)) x.owned = {};
     if (!isObj(x.stats)) x.stats = {};
@@ -11663,6 +11665,25 @@ const Play = {
     if (!isObj(x.org.done)) x.org.done = {};
     return x;
   },
+  /** Enregistre l'état du jeu (le profil le reçoit s'il ne l'avait pas encore). */
+  save() { const x = this.st; if (S.profile.play !== x) S.profile.play = x; Store.touch('profile'); },
+  valid(x, M) { return isObj(x) && typeof x.k === 'string' && isObj(x.done) && Array.isArray(x.q) && x.q.length > 0 && x.q.every(q => isObj(q) && Object.hasOwn(M, q.id) && q.n > 0); },
+  /** Les quêtes du jour : celles du profil si elles sont d'aujourd'hui, sinon le tirage du jour, gardé en mémoire jusqu'au
+   *  premier paiement (le tirage se refait à l'identique : rien à enregistrer avant). */
+  get D() {
+    const P = this.st, k = dayKey(), m = this.mem?.p === S.profile ? this.mem : (this.mem = { p: S.profile });
+    if (this.valid(P.day, DAY_QUESTS) && P.day.k === k) return P.day;
+    return m.day?.k === k ? m.day : (m.day = { k, q: this.draw(k), done: {}, chest: 0, ...(S.demo ? { demo: 1 } : {}) });
+  },
+  /** Les quêtes de la semaine, de même. */
+  get W() {
+    const P = this.st, w = this.monday(), m = this.mem?.p === S.profile ? this.mem : (this.mem = { p: S.profile });
+    if (this.valid(P.week, WEEK_QUESTS) && P.week.k === w) return P.week;
+    return m.week?.k === w ? m.week : (m.week = { k: w, q: this.drawWeek(w), done: {} });
+  },
+  /** Un défi de l'organisation relevé aujourd'hui (les cases de la veille ne comptent plus). */
+  orgDone(id) { const O = this.st.org; return O.k === dayKey() && !!O.done[id]; },
+  orgMark(id) { const O = this.st.org, k = dayKey(); if (O.k !== k) { O.k = k; O.done = {}; } O.done[id] = Date.now(); },
   /** Le journal d'un jour ; un jour d'exemple (simulé) ne compte pas. */
   day(k = dayKey()) { const l = S.profile.log[k]; return l && !l.sim ? l : {}; },
   /** Le journal du jour, créé au besoin comme dans logReview. */
@@ -11691,36 +11712,6 @@ const Play = {
     const pool = ['wrev', 'wchest', ...(gameDecks().length ? ['wgames'] : []), ...(S.decks.some(d => d.cards.some(c => c.srs.state === 0 && !c.suspended)) ? ['wnew'] : [])];
     return ['wdays', pool[Math.floor(R() * pool.length)]].map(id => ({ id, n: n[id] }));
   },
-  /** Nouveau jour, nouvelle semaine : les quêtes sont tirées ; celles de la veille, finies mais pas encore payées, le sont (sauf `hold`).
-   *  Un tirage seul n'est pas enregistré : il se refait à l'identique, et part avec la prochaine sauvegarde. */
-  roll(hold = false) {
-    const P = this.st, k = dayKey(), w = this.monday(k), paid = [0, 0];
-    const ok = (x, M) => isObj(x) && typeof x.k === 'string' && Array.isArray(x.q) && x.q.length && x.q.every(q => isObj(q) && Object.hasOwn(M, q.id) && q.n > 0);
-    const add = ([a, b]) => { paid[0] += a; paid[1] += b; };
-    if (!ok(P.day, DAY_QUESTS) || P.day.k !== k) {
-      if (ok(P.day, DAY_QUESTS) && P.day.k < k && !hold) add(this.settle(P.day, DAY_QUESTS, this.day(P.day.k)));
-      P.day = { k, q: this.draw(k), done: {}, chest: 0, ...(S.demo ? { demo: 1 } : {}) };
-    } else if (P.day.demo && !S.demo) {
-      // Sortie des exemples : une quête que seuls les paquets d'exemple rendaient possible est remplacée ; les autres restent.
-      const tc = todayCounts(), done = isObj(P.day.done) ? P.day.done : {}, ids = P.day.q.map(q => q.id);
-      const alt = [...this.draw(k), { id: 'scan', n: 1 }, { id: 'streak', n: 1 }];
-      P.day.q = P.day.q.map((q, i) => { if (done[q.id] || this.doable(q, tc)) return q; const f = [alt[i], ...alt].find(x => x && !ids.includes(x.id) && this.doable(x, tc)); if (f) ids[i] = f.id; return f || q; });
-      delete P.day.demo;
-    }
-    if (!ok(P.week, WEEK_QUESTS) || P.week.k !== w) {
-      if (ok(P.week, WEEK_QUESTS) && P.week.k < w && !hold) add(this.settle(P.week, WEEK_QUESTS, this.weekKeys(P.week.k).map(x => this.day(x))));
-      P.week = { k: w, q: this.drawWeek(w), done: {} };
-    }
-    if (!isObj(P.day.done)) P.day.done = {};
-    if (!isObj(P.week.done)) P.week.done = {};
-    if (P.org.k !== k) {
-      // Les défis maison de la veille, atteints sans être vus, sont payés eux aussi.
-      if (typeof P.org.k === 'string' && P.org.k < k && this.orgOn() && !hold) { const l = this.day(P.org.k); for (const q of this.orgQuests()) if (q.m !== 'tick' && !P.org.done[q.id] && this.orgVal(q, l) >= q.n) { add([ORG_REWARD.xp, ORG_REWARD.co]); P.stats.quests = (P.stats.quests || 0) + 1; } }
-      P.org.k = k; P.org.done = {};
-    }
-    if (paid[0] || paid[1]) this.give(paid[0], paid[1]);
-    return paid;
-  },
   /** Paie ce qui a été fini sans être vu (et le coffre de la veille, s'il était gagné). */
   settle(x, M, data) {
     const N = this.st.stats; let xp = 0, co = 0; if (!isObj(x.done)) x.done = {};
@@ -11737,17 +11728,33 @@ const Play = {
     l.xp = (l.xp || 0) + xp; S.profile.xp += xp; this.st.coins += co;
     const L = level(); if (L.i > L0 && !S.demo) setTimeout(() => { Sound.play('seal'); toast(t('Niveau {i} atteint : {name}', { i: L.i + 1, name: L.name }), null, waxSeal({ id: 'lvl' + L.i, glyph: String(L.i + 1), color: '#7A4E14' }, 40, 'wax')); }, 1600);
   },
-  /** Met les quêtes à jour et paie celles qui viennent d'être finies. Sans effet la deuxième fois : le rendu peut l'appeler. */
+  /** Paie les quêtes qui viennent d'être finies, et celles de la veille finies sans être vues. Sans effet la deuxième fois :
+   *  le rendu peut l'appeler, et il n'écrit que s'il y a quelque chose à payer. */
   sync(quiet = false) {
     // Onglet figé par un autre, ou notes d'une séance en cours de report : on affiche sans rien payer ni écrire (l'état va être relu).
-    if (Store.frozen || Study.joining) { this.roll(true); return this.st; }
-    const P = this.st, paid = this.roll(), l = this.day(), fresh = []; let today = false;
+    if (Store.frozen || Study.joining) return this.st;
+    const P = this.st, k = dayKey(), w = this.monday(k), paid = [0, 0], add = ([a, b]) => { paid[0] += a; paid[1] += b; };
+    if (this.valid(P.day, DAY_QUESTS) && P.day.k < k) add(this.settle(P.day, DAY_QUESTS, this.day(P.day.k)));
+    if (this.valid(P.week, WEEK_QUESTS) && P.week.k < w) add(this.settle(P.week, WEEK_QUESTS, this.weekKeys(P.week.k).map(x => this.day(x))));
+    // Les défis maison de la veille, atteints sans être vus, sont payés eux aussi.
+    if (typeof P.org.k === 'string' && P.org.k < k && this.orgOn()) { const l = this.day(P.org.k); for (const q of this.orgQuests()) if (q.m !== 'tick' && !P.org.done[q.id] && this.orgVal(q, l) >= q.n) { P.org.done[q.id] = Date.now(); add([ORG_REWARD.xp, ORG_REWARD.co]); P.stats.quests = (P.stats.quests || 0) + 1; } }
+    if (paid[0] || paid[1]) this.give(paid[0], paid[1]);
+    const D = this.D, W = this.W, l = this.day(), fresh = []; let today = false, week = false, changed = false;
+    if (D.demo && !S.demo) {
+      // Sortie des exemples : une quête que seuls les paquets d'exemple rendaient possible est remplacée ; les autres restent.
+      const tc = todayCounts(), ids = D.q.map(q => q.id), alt = [...this.draw(k), { id: 'scan', n: 1 }, { id: 'streak', n: 1 }];
+      D.q = D.q.map((q, i) => { if (D.done[q.id] || this.doable(q, tc)) return q; const f = [alt[i], ...alt].find(x => x && !ids.includes(x.id) && this.doable(x, tc)); if (f) ids[i] = f.id; return f || q; });
+      delete D.demo; changed = D === P.day;
+    }
     const pay = (x, q, Q, label) => { x.done[q.id] = Date.now(); this.give(Q.xp, Q.co); P.stats.quests = (P.stats.quests || 0) + 1; fresh.push([label, Q.xp, Q.co]); };
-    for (const q of P.day.q) { const Q = DAY_QUESTS[q.id]; if (!P.day.done[q.id] && Q.m(l) >= q.n) { pay(P.day, q, Q, t(Q.lbl, { n: q.n })); today = true; } }
-    const wl = this.weekKeys(P.week.k).map(k => this.day(k));
-    for (const q of P.week.q) { const Q = WEEK_QUESTS[q.id]; if (!P.week.done[q.id] && Q.m(wl) >= q.n) pay(P.week, q, Q, t(Q.lbl, { n: q.n })); }
-    if (this.orgOn()) for (const q of this.orgQuests()) if (q.m !== 'tick' && !P.org.done[q.id] && this.orgVal(q, l) >= q.n) pay(P.org, q, ORG_REWARD, q.text);
-    if (fresh.length || paid[0] || paid[1]) Store.touch('profile');
+    for (const q of D.q) { const Q = DAY_QUESTS[q.id]; if (!D.done[q.id] && Q.m(l) >= q.n) { pay(D, q, Q, t(Q.lbl, { n: q.n })); today = true; } }
+    const wl = this.weekKeys(W.k).map(x => this.day(x));
+    for (const q of W.q) { const Q = WEEK_QUESTS[q.id]; if (!W.done[q.id] && Q.m(wl) >= q.n) { pay(W, q, Q, t(Q.lbl, { n: q.n })); week = true; } }
+    if (this.orgOn()) for (const q of this.orgQuests()) if (q.m !== 'tick' && !this.orgDone(q.id) && this.orgVal(q, l) >= q.n) { this.orgMark(q.id); this.give(ORG_REWARD.xp, ORG_REWARD.co); P.stats.quests = (P.stats.quests || 0) + 1; fresh.push([q.text, ORG_REWARD.xp, ORG_REWARD.co]); }
+    // Un premier paiement : le tirage du jour (ou de la semaine) entre dans le profil.
+    if (today) P.day = D;
+    if (week) P.week = W;
+    if (fresh.length || paid[0] || paid[1] || changed) this.save();
     if (!quiet && (fresh.length || paid[0] || paid[1])) this.cheer(fresh, paid, today && this.chestReady());
     return P;
   },
@@ -11762,18 +11769,27 @@ const Play = {
     if (chest) later(() => toast(t('Les trois quêtes du jour sont faites : le coffre vous attend.'), null, this.chestIc()));
   },
   /** Une partie finie ('gm') ou un cours transformé en fiches ('sc') : compté au journal du jour. */
-  note(kind) { const l = this.today(); l[kind] = (+l[kind] || 0) + 1; Store.touch('profile'); this.sync(); },
+  note(kind) { const l = this.today(); l[kind] = (+l[kind] || 0) + 1; Store.touch('profile'); this.act(); },
+  /** Après une séance, une partie ou un scan (le profil vient d'être écrit) : paie ce qui est fini, et le tirage du jour et de
+   *  la semaine entre dans le profil, pour qu'un rechargement retrouve les mêmes quêtes même si les paquets ont changé. */
+  act() {
+    const P = this.sync(), l = S.profile.log[dayKey()];
+    if (Store.frozen || Study.joining || !l || l.sim) return P;
+    const D = this.D, W = this.W, put = P.day !== D || P.week !== W;
+    if (put) { P.day = D; P.week = W; this.save(); }
+    return P;
+  },
 
   /* ── Coffre ── */
-  prize(k = this.st.day.k) { const R = this.seed('coffre' + k), gold = R() < 1 / 6, co = 25 + Math.floor(R() * 16); return { gold, co: gold ? co * 2 : co, xp: gold ? 80 : 40 }; },
-  chestReady() { const D = this.st.day; return !!D && D.q.every(q => D.done[q.id]) && !D.chest; },
+  prize(k = this.D.k) { const R = this.seed('coffre' + k), gold = R() < 1 / 6, co = 25 + Math.floor(R() * 16); return { gold, co: gold ? co * 2 : co, xp: gold ? 80 : 40 }; },
+  chestReady() { const D = this.D; return D.q.every(q => D.done[q.id]) && !D.chest; },
   openChest(btn) {
-    const P = this.sync(true), D = P.day;
+    const P = this.sync(true), D = this.D;
     if (D.chest) { toast(t('Le coffre du jour est ouvert. Un nouveau vous attend demain.'), null, this.chestIc()); return; }
     if (!this.chestReady()) { toast(t('Finissez les trois quêtes du jour pour ouvrir le coffre.'), null, this.chestIc()); return; }
     const r = this.prize(), c0 = P.coins;
     D.chest = Date.now(); P.stats.chests = (P.stats.chests || 0) + 1; this.today().ch = 1;
-    this.give(r.xp, r.co); Store.touch('profile');
+    this.give(r.xp, r.co); this.save();
     Sound.play('seal'); haptic(25);
     const msg = r.gold ? t('Coffre doré ! +{c} éclats, +{xp} XP', { c: r.co, xp: r.xp }) : t('Coffre ouvert : +{c} éclats, +{xp} XP', { c: r.co, xp: r.xp });
     const done = () => { this.refresh(); toast(msg, null, this.gem(22)); };
@@ -11841,7 +11857,7 @@ const Play = {
   pick(kind, id) {
     const it = this.item(kind, id); if (!it) return;
     const lk = this.lock(kind, id), P = this.st;
-    if (!lk) { if (this.cur(kind) === id) return; P[kind] = id; Store.touch('profile'); Sound.play('pop'); haptic(8); this.redraw(); return; }
+    if (!lk) { if (this.cur(kind) === id) return; P[kind] = id; this.save(); Sound.play('pop'); haptic(8); this.redraw(); return; }
     if (lk === 'cost') return this.buy(kind, id);
     if (lk === 'pro') return Pro.upsell('play');
     if (lk === 'expert') return Pro.upsell('legend');
@@ -11855,14 +11871,14 @@ const Play = {
       <div class="modal-f"><button class="btn btn-ghost" data-act="close">${t('Plus tard')}</button><button class="btn btn-brass" id="plBuy">${this.gem(16)}${t('Acheter et porter')}</button></div>`, 'pl-m');
     m.querySelector('#plBuy').onclick = () => {
       if (this.st.coins < it.cost) return;
-      this.st.coins -= it.cost; this.st.owned[kind + ':' + id] = Date.now(); this.st[kind] = id; Store.touch('profile');
+      this.st.coins -= it.cost; this.st.owned[kind + ':' + id] = Date.now(); this.st[kind] = id; this.save();
       Modal.close(); Sound.play('seal'); haptic(20); toast(t('« {x} » rejoint votre vestiaire.', { x: name }), null, this.gem(22)); this.redraw();
     };
   },
   nickModal() {
     const m = Modal.open(`${mh(t('Nom de joueur'), t('Profil de joueur'))}<div class="field"><label for="plNickIn">${t('Le nom affiché sur votre tableau de jeu')}</label><input class="input" id="plNickIn" maxlength="24" value="${esc(this.st.nick || '')}" placeholder="${esc(S.profile.study.name || t('Joueur'))}" autocomplete="nickname" autofocus></div>
       <div class="modal-f"><button class="btn btn-ghost" data-act="close">${t('Annuler')}</button><button class="btn btn-brass" id="plNickOk">${icon('check', 'i-sm')}${t('Enregistrer')}</button></div>`, 'pl-m');
-    const go = () => { this.st.nick = m.querySelector('#plNickIn').value.replace(/\s+/g, ' ').trim().slice(0, 24); Store.touch('profile'); Modal.close(); this.redraw(); };
+    const go = () => { this.st.nick = m.querySelector('#plNickIn').value.replace(/\s+/g, ' ').trim().slice(0, 24); this.save(); Modal.close(); this.redraw(); };
     m.querySelector('#plNickOk').onclick = go;
     m.querySelector('#plNickIn').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); go(); } });
   },
@@ -11875,11 +11891,11 @@ const Play = {
   orgColor() { const c = this.st.org.color; return /^#[0-9a-f]{6}$/i.test(c || '') ? c : '#2E7A58'; },
   logo() { const L = this.st.org.logo; return typeof L === 'string' && L.length < 400000 && IMG_RE.test(L) ? L : ''; },
   orgQuests() { return this.st.org.quests.filter(q => isObj(q) && safeId(q.id) && typeof q.text === 'string' && q.text.trim() && Object.hasOwn(ORG_METRICS, q.m) && q.n >= 1).slice(0, 3); },
-  orgVal(q, l = this.day()) { return q.m === 'tick' ? (this.st.org.done[q.id] ? 1 : 0) : q.m === 'min' ? Math.floor((l.ms || 0) / MIN) : +(l[q.m] || 0); },
+  orgVal(q, l = this.day()) { return q.m === 'tick' ? (this.orgDone(q.id) ? 1 : 0) : q.m === 'min' ? Math.floor((l.ms || 0) / MIN) : +(l[q.m] || 0); },
   tick(id) {
     const P = this.sync(true), q = this.orgQuests().find(x => x.id === id);
-    if (!q || q.m !== 'tick' || P.org.done[id] || !this.orgOn()) return;
-    P.org.done[id] = Date.now(); this.give(ORG_REWARD.xp, ORG_REWARD.co); P.stats.quests = (P.stats.quests || 0) + 1; Store.touch('profile');
+    if (!q || q.m !== 'tick' || this.orgDone(id) || !this.orgOn()) return;
+    this.orgMark(id); this.give(ORG_REWARD.xp, ORG_REWARD.co); P.stats.quests = (P.stats.quests || 0) + 1; this.save();
     Sound.play('pop'); haptic(12); toast(t('Défi relevé : {q}', { q: q.text }) + ' · ' + t('+{xp} XP · +{c} éclats', { xp: ORG_REWARD.xp, c: ORG_REWARD.co }), null, this.gem(22));
     this.refresh();
   },
@@ -11895,7 +11911,7 @@ const Play = {
       let out = c.toDataURL('image/webp', .9); if (!out.startsWith('data:image/webp')) out = c.toDataURL('image/png');
       if (out.length > 150000) out = c.toDataURL('image/jpeg', .85);
       if (!IMG_RE.test(out)) throw new Error('img');
-      this.st.org.logo = out; Store.touch('profile'); this.redrawOrg(); toast(t('Logo enregistré'), 'image');
+      this.st.org.logo = out; this.save(); this.redrawOrg(); toast(t('Logo enregistré'), 'image');
     } catch { toast(t("Cette image n'a pas pu être lue. Essayez un fichier PNG ou JPEG."), 'image'); }
   },
   /** « Teinter toute l'application » : la couleur d'accent sur mesure d'Élite prend la couleur de l'organisation. */
@@ -11904,7 +11920,7 @@ const Play = {
     const s = S.profile.settings, O = this.st.org;
     if (on) { if (!this.tinted()) O.prevAccent = [s.accent, s.accentHex || '']; s.accent = 'custom'; s.accentHex = this.orgColor(); }
     else { const [a, h] = [0, 1].map(i => Array.isArray(O.prevAccent) && typeof O.prevAccent[i] === 'string' ? O.prevAccent[i] : ''); s.accent = a === 'custom' && h.toLowerCase() === this.orgColor().toLowerCase() ? 'auto' : a || 'auto'; if (h) s.accentHex = h; delete O.prevAccent; }
-    Store.touch('profile'); Custom.apply();
+    this.save(); Custom.apply();
   },
 
   /* ── Dessins ── */
@@ -11944,13 +11960,13 @@ const Play = {
     return `<${tag} class="hq ${x.done ? 'done' : ''} ${x.org ? 'oq' : ''}" ${tag === 'button' ? 'type="button" ' + x.act : ''}><span class="hq-ic">${x.done ? icon('check', 'i-sm') : x.ic}</span><span class="hq-t">${esc(x.label)}</span><span class="hq-n tnum">${cnt}</span><span class="hq-bar"><i style="width:${(p * 100).toFixed(1)}%"></i></span>${x.rw ? `<span class="hq-rw tnum">${t('+{xp} XP · +{c} éclats', { xp: x.xp, c: x.co })}</span>` : ''}</${tag}>`;
   },
   qic(ic) { return ic === 'chest' ? this.chestIc(17) : icon(ic, 'i-sm'); },
-  dayRow(q, l, rw = false) { const Q = DAY_QUESTS[q.id]; return this.qrow({ ic: this.qic(Q.ic), label: t(Q.lbl, { n: q.n }), v: Q.m(l), n: q.n, done: !!this.st.day.done[q.id], xp: Q.xp, co: Q.co, act: Q.go && (Q.go !== 'recite' || this.canRecite()) ? `data-act="playQuest" data-q="${q.id}"` : '', rw }); },
+  dayRow(q, l, rw = false) { const Q = DAY_QUESTS[q.id]; return this.qrow({ ic: this.qic(Q.ic), label: t(Q.lbl, { n: q.n }), v: Q.m(l), n: q.n, done: !!this.D.done[q.id], xp: Q.xp, co: Q.co, act: Q.go && (Q.go !== 'recite' || this.canRecite()) ? `data-act="playQuest" data-q="${q.id}"` : '', rw }); },
   /** La récitation orale (Recite), quand elle est là : elle compte ses récitations dans le journal du jour (l.rec). */
   canRecite() { return typeof Recite !== 'undefined' && typeof Recite.open === 'function'; },
-  weekRow(q, ls, rw = false) { const Q = WEEK_QUESTS[q.id]; return this.qrow({ ic: this.qic(Q.ic), label: t(Q.lbl, { n: q.n }), v: Q.m(ls), n: q.n, done: !!this.st.week.done[q.id], xp: Q.xp, co: Q.co, rw }); },
-  orgRow(q, l, rw = false) { const tick = q.m === 'tick'; return this.qrow({ ic: icon(orgIcon(this.st.org.kind), 'i-sm'), label: q.text, v: this.orgVal(q, l), n: tick ? 1 : q.n, tick, org: 1, done: !!this.st.org.done[q.id], xp: ORG_REWARD.xp, co: ORG_REWARD.co, act: tick ? `data-act="playTick" data-id="${esc(q.id)}"` : '', rw }); },
+  weekRow(q, ls, rw = false) { const Q = WEEK_QUESTS[q.id]; return this.qrow({ ic: this.qic(Q.ic), label: t(Q.lbl, { n: q.n }), v: Q.m(ls), n: q.n, done: !!this.W.done[q.id], xp: Q.xp, co: Q.co, rw }); },
+  orgRow(q, l, rw = false) { const tick = q.m === 'tick'; return this.qrow({ ic: icon(orgIcon(this.st.org.kind), 'i-sm'), label: q.text, v: this.orgVal(q, l), n: tick ? 1 : q.n, tick, org: 1, done: this.orgDone(q.id), xp: ORG_REWARD.xp, co: ORG_REWARD.co, act: tick ? `data-act="playTick" data-id="${esc(q.id)}"` : '', rw }); },
   chestBtn() {
-    const D = this.st.day, open = !!D.chest, ready = this.chestReady();
+    const D = this.D, open = !!D.chest, ready = this.chestReady();
     const lbl = open ? t('Coffre du jour ouvert : un nouveau demain.') : ready ? t('Ouvrir le coffre du jour') : t('Coffre du jour : finissez les trois quêtes pour l\'ouvrir.');
     return `<button type="button" class="hud-chest ${open ? 'ch-open' : ready ? 'ch-ready' : 'ch-locked'}" data-act="playChest" aria-label="${esc(lbl)}" data-tip="${esc(lbl)}">${this.chestSVG()}<span class="ch-k">${t('Coffre du jour')}</span><span class="ch-l">${open ? t('Ouvert') : ready ? t('Ouvrir !') : `<span class="ch-dots">${D.q.map(q => `<i class="${D.done[q.id] ? 'on' : ''}"></i>`).join('')}</span>`}</span></button>`;
   },
@@ -11966,8 +11982,8 @@ const Play = {
   /** Le tableau de jeu de l'accueil : avatar, niveau, série, éclats, quêtes du jour et coffre. */
   hud(o = {}) {
     if (this.st.hide) { this.sync(true); return ''; }
-    const P = this.sync(), D = P.day, L = level(), st = streak(), org = this.orgOn(), l = this.day(), done = D.q.filter(q => D.done[q.id]).length;
-    const wq = P.week.q.find(q => !P.week.done[q.id]) || P.week.q[0], WQ = WEEK_QUESTS[wq.id], wv = WQ.m(this.weekKeys(P.week.k).map(k => this.day(k)));
+    const P = this.sync(), D = this.D, W = this.W, L = level(), st = streak(), org = this.orgOn(), l = this.day(), done = D.q.filter(q => D.done[q.id]).length;
+    const wq = W.q.find(q => !W.done[q.id]) || W.q[0], WQ = WEEK_QUESTS[wq.id], wv = WQ.m(this.weekKeys(W.k).map(k => this.day(k)));
     return `<section class="hud hudv ${o.still ? '' : 'rise'} ${org ? 'org' : ''}" id="hud" data-hud="${this.cur('hud')}" ${org ? `style="--h-org:${this.orgColor()}"` : ''} aria-label="${esc(t('Tableau de jeu'))}">
       ${org ? this.banner() : ''}
       <div class="hud-me">
@@ -11983,12 +11999,12 @@ const Play = {
         <div class="hud-ql">${D.q.map(q => this.dayRow(q, l)).join('')}${org ? this.orgQuests().map(q => this.orgRow(q, l)).join('') : ''}</div>
       </div>
       ${this.chestBtn()}
-      <div class="hud-foot"><span class="hf-w">${this.qic(WQ.ic)}<span>${t('Semaine')}${colon()}${esc(t(WQ.lbl, { n: wq.n }))}</span><b class="tnum">${P.week.done[wq.id] ? t('Fait') : `${num(Math.min(wv, wq.n))}/${num(wq.n)}`}</b></span><button class="hud-link" data-act="go" data-v="player">${t('Profil de joueur')}${icon('arrow', 'i-sm')}</button></div>
+      <div class="hud-foot"><span class="hf-w">${this.qic(WQ.ic)}<span>${t('Semaine')}${colon()}${esc(t(WQ.lbl, { n: wq.n }))}</span><b class="tnum">${W.done[wq.id] ? t('Fait') : `${num(Math.min(wv, wq.n))}/${num(wq.n)}`}</b></span><button class="hud-link" data-act="go" data-v="player">${t('Profil de joueur')}${icon('arrow', 'i-sm')}</button></div>
     </section>`;
   },
   /** La plaque du joueur, en tête des jeux. */
   card() {
-    const P = this.sync(), L = level(), D = P.day, done = D.q.filter(q => D.done[q.id]).length;
+    const P = this.sync(), L = level(), D = this.D, done = D.q.filter(q => D.done[q.id]).length;
     return `<button class="pl-plate hudv rise" data-hud="${this.cur('hud')}" data-act="go" data-v="player">${this.medal(54, { lv: L.i + 1 })}<span class="pp-t"><b>${t('Profil de joueur')}</b><span>${t('Niveau {i} · {name}', { i: L.i + 1, name: L.name })} · ${esc(this.titleName())}</span></span><span class="pp-s"><span class="hud-st co">${this.gem(15)}<b class="tnum">${num(P.coins)}</b></span><span class="hud-st">${this.chestIc(17)}<b class="tnum">${done}/${D.q.length}</b></span></span>${icon('arrow', 'pp-go')}</button>`;
   },
 
@@ -12010,13 +12026,13 @@ const Play = {
     </section>`;
   },
   questsHTML(still = false) {
-    const P = this.st, D = P.day, l = this.day(), wl = this.weekKeys(P.week.k).map(k => this.day(k)), oq = this.orgOn() ? this.orgQuests() : [], r = still ? '' : 'rise';
+    const D = this.D, W = this.W, l = this.day(), wl = this.weekKeys(W.k).map(k => this.day(k)), oq = this.orgOn() ? this.orgQuests() : [], r = still ? '' : 'rise';
     return `<div class="pl-qs" id="plQuests">
       <article class="panel hudv ${r}"><div class="panel-h"><h3 class="h3">${t("Aujourd'hui")}</h3><span class="kicker">${this.renew()}</span></div>
         <div class="hud-ql pl-ql">${D.q.map(q => this.dayRow(q, l, true)).join('')}</div>
         <div class="pl-chest">${this.chestBtn()}<div><b>${t('Le coffre du jour')}</b><p>${t("Les trois quêtes faites, il s'ouvre : de 25 à 40 éclats et 40 XP. Un coffre sur six est doré et rapporte le double.")}</p></div></div></article>
       <article class="panel hudv ${r}" style="animation-delay:.06s"><div class="panel-h"><h3 class="h3">${t('Cette semaine')}</h3><span class="kicker">${t("Jusqu'à dimanche soir")}</span></div>
-        <div class="hud-ql pl-ql">${P.week.q.map(q => this.weekRow(q, wl, true)).join('')}</div></article>
+        <div class="hud-ql pl-ql">${W.q.map(q => this.weekRow(q, wl, true)).join('')}</div></article>
       ${oq.length ? `<article class="panel hudv org-q ${r}" style="--h-org:${this.orgColor()};animation-delay:.12s"><div class="panel-h"><h3 class="h3">${t('Défis de {org}', { org: esc(this.orgName()) })}</h3><span class="kicker">${t('Chaque jour')}</span></div><div class="hud-ql pl-ql">${oq.map(q => this.orgRow(q, l, true)).join('')}</div></article>` : ''}
     </div>`;
   },
@@ -12078,15 +12094,15 @@ Views.player = () => {
 Hooks.player = () => {
   const P = Play.st;
   $('#plTabs')?.addEventListener('click', e => { const b = e.target.closest('[data-tab]'); if (!b) return; Play.tab = b.dataset.tab; $$('#plTabs button').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-selected', x === b); }); $('#plGrid').innerHTML = Play.grid(Play.tab); });
-  $('#plGrid')?.addEventListener('click', e => { const s = e.target.closest('#plHudOn'); if (!s) return; P.hide = !P.hide; s.classList.toggle('on', !P.hide); s.setAttribute('aria-pressed', !P.hide); Store.touch('profile'); toast(P.hide ? t("Le tableau de jeu n'apparaît plus sur l'accueil.") : t("Le tableau de jeu est de retour sur l'accueil."), 'home'); });
+  $('#plGrid')?.addEventListener('click', e => { const s = e.target.closest('#plHudOn'); if (!s) return; P.hide = !P.hide; s.classList.toggle('on', !P.hide); s.setAttribute('aria-pressed', !P.hide); Play.save(); toast(P.hide ? t("Le tableau de jeu n'apparaît plus sur l'accueil.") : t("Le tableau de jeu est de retour sur l'accueil."), 'home'); });
   Play.bindOrg();
 };
 Play.bindOrg = function () {
-  const P = this.st, O = P.org, save = () => { Store.touch('profile'); this.redrawOrg(); };
+  const P = this.st, O = P.org, save = () => { this.save(); this.redrawOrg(); };
   $('#orgOn')?.addEventListener('click', () => { O.on = !O.on; if (O.on && !O.color) O.color = this.orgColor(); save(); });
   $('#orgKind')?.addEventListener('click', e => { const b = e.target.closest('[data-val]'); if (!b) return; O.kind = b.dataset.val; save(); });
   // Le nom ne change que la tête de page et le titre : la section reste en place (un clic voisin n'est pas perdu).
-  $('#orgName')?.addEventListener('change', e => { O.name = e.target.value.replace(/\s+/g, ' ').trim().slice(0, 40); Store.touch('profile'); this.redraw(); });
+  $('#orgName')?.addEventListener('change', e => { O.name = e.target.value.replace(/\s+/g, ' ').trim().slice(0, 40); this.save(); this.redraw(); });
   $('#orgLogo')?.addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; this.setLogo(f); });
   $('#orgLogoDel')?.addEventListener('click', () => { delete O.logo; save(); });
   const setColor = c => { const was = this.tinted(); O.color = c; if (was) { S.profile.settings.accentHex = c; Custom.apply(); } save(); };
