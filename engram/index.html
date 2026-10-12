@@ -11548,7 +11548,7 @@ const DAY_QUESTS = {
   game: { ic: 'grid', lbl: N_('Finir une partie (paires ou examen blanc)'), m: l => l.gm || 0, xp: 20, co: 15, go: 'games' },
   scan: { ic: 'camera', lbl: N_('Transformer un cours en fiches'), m: l => l.sc || 0, xp: 25, co: 15, go: 'scan' },
   streak: { ic: 'flame', lbl: N_('Garder la série : une fiche suffit'), m: l => l.r || 0, xp: 10, co: 10, go: 'study' },
-  rec: { ic: 'mic', lbl: N_('Réciter une fiche à voix haute'), m: l => l.rec || 0, xp: 25, co: 15 }
+  rec: { ic: 'mic', lbl: N_('Réciter une fiche à voix haute'), m: l => l.rec || 0, xp: 25, co: 15, go: 'recite' }
 };
 // Quêtes de la semaine, du lundi au dimanche : m reçoit les journaux des jours de la semaine.
 const weekSum = (ls, k) => ls.reduce((a, l) => a + (+l[k] || 0), 0);
@@ -11676,7 +11676,7 @@ const Play = {
     const r5 = v => Math.max(5, Math.round(v / 5) * 5), one = a => a.length ? a[Math.floor(R() * a.length)] : null;
     const n = { rev: clamp(r5(g * .4), 10, 60), ok: clamp(r5(g * .3), 8, 45), time: [10, 15, 20][Math.floor(R() * 3)], goal: g, new: Math.min(10, tc.nNew), game: 1, scan: 1, streak: 1, rec: 1 };
     const can = { rev: 1, ok: 1, time: 1, scan: 1, goal: g <= 120, new: tc.nNew >= 3, game: gameDecks().length > 0, streak: streak() > 0,
-      rec: typeof Recite !== 'undefined' || Object.values(S.profile.log).some(l => l?.rec > 0) };
+      rec: this.canRecite() || Object.values(S.profile.log).some(l => l?.rec > 0) };
     const a = one(['rev', 'ok', 'time']);
     const b = one(['game', 'new', 'scan', 'rec'].filter(x => can[x])) || one(['rev', 'ok', 'time'].filter(x => x !== a));
     const c = one(['streak', 'goal', 'ok', 'time', 'game'].filter(x => can[x] && x !== a && x !== b && !(x === 'goal' && a === 'rev'))) || one(['rev', 'ok', 'time', 'scan'].filter(x => x !== a && x !== b));
@@ -11944,7 +11944,9 @@ const Play = {
     return `<${tag} class="hq ${x.done ? 'done' : ''} ${x.org ? 'oq' : ''}" ${tag === 'button' ? 'type="button" ' + x.act : ''}><span class="hq-ic">${x.done ? icon('check', 'i-sm') : x.ic}</span><span class="hq-t">${esc(x.label)}</span><span class="hq-n tnum">${cnt}</span><span class="hq-bar"><i style="width:${(p * 100).toFixed(1)}%"></i></span>${x.rw ? `<span class="hq-rw tnum">${t('+{xp} XP · +{c} éclats', { xp: x.xp, c: x.co })}</span>` : ''}</${tag}>`;
   },
   qic(ic) { return ic === 'chest' ? this.chestIc(17) : icon(ic, 'i-sm'); },
-  dayRow(q, l, rw = false) { const Q = DAY_QUESTS[q.id]; return this.qrow({ ic: this.qic(Q.ic), label: t(Q.lbl, { n: q.n }), v: Q.m(l), n: q.n, done: !!this.st.day.done[q.id], xp: Q.xp, co: Q.co, act: Q.go ? `data-act="playQuest" data-q="${q.id}"` : '', rw }); },
+  dayRow(q, l, rw = false) { const Q = DAY_QUESTS[q.id]; return this.qrow({ ic: this.qic(Q.ic), label: t(Q.lbl, { n: q.n }), v: Q.m(l), n: q.n, done: !!this.st.day.done[q.id], xp: Q.xp, co: Q.co, act: Q.go && (Q.go !== 'recite' || this.canRecite()) ? `data-act="playQuest" data-q="${q.id}"` : '', rw }); },
+  /** La récitation orale (Recite), quand elle est là : elle compte ses récitations dans le journal du jour (l.rec). */
+  canRecite() { return typeof Recite !== 'undefined' && typeof Recite.open === 'function'; },
   weekRow(q, ls, rw = false) { const Q = WEEK_QUESTS[q.id]; return this.qrow({ ic: this.qic(Q.ic), label: t(Q.lbl, { n: q.n }), v: Q.m(ls), n: q.n, done: !!this.st.week.done[q.id], xp: Q.xp, co: Q.co, rw }); },
   orgRow(q, l, rw = false) { const tick = q.m === 'tick'; return this.qrow({ ic: icon(orgIcon(this.st.org.kind), 'i-sm'), label: q.text, v: this.orgVal(q, l), n: tick ? 1 : q.n, tick, org: 1, done: !!this.st.org.done[q.id], xp: ORG_REWARD.xp, co: ORG_REWARD.co, act: tick ? `data-act="playTick" data-id="${esc(q.id)}"` : '', rw }); },
   chestBtn() {
@@ -12109,6 +12111,7 @@ Object.assign(Actions, {
     // Sans aucune fiche, réviser commence par un cours à transformer.
     if (g === 'study' && !S.decks.some(d => d.cards.length)) { App.go('scan'); toast(t('Pas encore de fiches : transformez un cours en fiches pour commencer.'), 'camera'); }
     else if (g === 'study') Study.start(todayCounts().total ? {} : { cram: true }); else if (g === 'games') openGame('hub'); else if (g === 'scan') App.go('scan');
+    else if (g === 'recite' && Play.canRecite()) Recite.open({});
   },
   playTick: el => Play.tick(el.dataset.id),
   playPick: el => Play.pick(el.dataset.kind, el.dataset.id),
