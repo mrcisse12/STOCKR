@@ -11539,7 +11539,7 @@ function localGenerate(text, n, types) {
      sur l'accueil. Rien d'inventé : ni autres joueurs, ni classement.
    ════════════════════════════════════════════════════════════════════ */
 // Quêtes du jour. m : ce qui se mesure dans le journal du jour ; go : où l'on va pour l'avancer.
-const QUESTS = {
+const DAY_QUESTS = {
   rev: { ic: 'flip', lbl: N_('Réviser {n} fiches'), m: l => l.r || 0, xp: 20, co: 10, go: 'study' },
   ok: { ic: 'check', lbl: N_('Donner {n} bonnes réponses'), m: l => l.ok || 0, xp: 20, co: 10, go: 'study' },
   time: { ic: 'timer', lbl: N_('Étudier {n} minutes'), m: l => Math.floor((l.ms || 0) / MIN), xp: 20, co: 10, go: 'study' },
@@ -11551,13 +11551,13 @@ const QUESTS = {
   rec: { ic: 'mic', lbl: N_('Réciter une fiche à voix haute'), m: l => l.rec || 0, xp: 25, co: 15 }
 };
 // Quêtes de la semaine, du lundi au dimanche : m reçoit les journaux des jours de la semaine.
-const sumOf = (ls, k) => ls.reduce((a, l) => a + (+l[k] || 0), 0);
+const weekSum = (ls, k) => ls.reduce((a, l) => a + (+l[k] || 0), 0);
 const WEEK_QUESTS = {
   wdays: { ic: 'cal', lbl: N_('Réviser {n} jours cette semaine'), m: ls => ls.filter(l => l.r > 0).length, xp: 100, co: 60 },
-  wrev: { ic: 'flip', lbl: N_('Réviser {n} fiches cette semaine'), m: ls => sumOf(ls, 'r'), xp: 80, co: 50 },
-  wgames: { ic: 'grid', lbl: N_('Finir {n} parties cette semaine'), m: ls => sumOf(ls, 'gm'), xp: 80, co: 50 },
-  wchest: { ic: 'chest', lbl: N_('Ouvrir {n} coffres cette semaine'), m: ls => sumOf(ls, 'ch'), xp: 80, co: 50 },
-  wnew: { ic: 'sparkles', lbl: N_('Découvrir {n} nouvelles fiches cette semaine'), m: ls => sumOf(ls, 'n'), xp: 80, co: 50 }
+  wrev: { ic: 'flip', lbl: N_('Réviser {n} fiches cette semaine'), m: ls => weekSum(ls, 'r'), xp: 80, co: 50 },
+  wgames: { ic: 'grid', lbl: N_('Finir {n} parties cette semaine'), m: ls => weekSum(ls, 'gm'), xp: 80, co: 50 },
+  wchest: { ic: 'chest', lbl: N_('Ouvrir {n} coffres cette semaine'), m: ls => weekSum(ls, 'ch'), xp: 80, co: 50 },
+  wnew: { ic: 'sparkles', lbl: N_('Découvrir {n} nouvelles fiches cette semaine'), m: ls => weekSum(ls, 'n'), xp: 80, co: 50 }
 };
 // Défis d'une organisation : ce qui se compte dans le journal du jour, ou une case que chacun coche.
 const ORG_METRICS = { r: N_('fiches révisées'), ok: N_('bonnes réponses'), min: N_("minutes d'étude"), n: N_('nouvelles fiches'), gm: N_('parties finies'), tick: N_('à cocher soi-même') };
@@ -11695,9 +11695,9 @@ const Play = {
     const ok = (x, M) => isObj(x) && typeof x.k === 'string' && Array.isArray(x.q) && x.q.length && x.q.every(q => isObj(q) && Object.hasOwn(M, q.id) && q.n > 0);
     const add = ([a, b]) => { paid[0] += a; paid[1] += b; };
     // Les quêtes tirées pendant les exemples sont retirées avec eux, si aucune n'a encore été faite.
-    const demo = ok(P.day, QUESTS) && P.day.k === k && !!P.day.demo !== !!S.demo && !P.day.chest && !Object.keys(isObj(P.day.done) ? P.day.done : {}).length;
-    if (!ok(P.day, QUESTS) || P.day.k !== k || demo) {
-      if (ok(P.day, QUESTS) && P.day.k < k) add(this.settle(P.day, QUESTS, this.day(P.day.k)));
+    const demo = ok(P.day, DAY_QUESTS) && P.day.k === k && !!P.day.demo !== !!S.demo && !P.day.chest && !Object.keys(isObj(P.day.done) ? P.day.done : {}).length;
+    if (!ok(P.day, DAY_QUESTS) || P.day.k !== k || demo) {
+      if (ok(P.day, DAY_QUESTS) && P.day.k < k) add(this.settle(P.day, DAY_QUESTS, this.day(P.day.k)));
       P.day = { k, q: this.draw(k), done: {}, chest: 0, ...(S.demo ? { demo: 1 } : {}) }; changed = true;
     }
     if (!ok(P.week, WEEK_QUESTS) || P.week.k !== w) {
@@ -11718,7 +11718,7 @@ const Play = {
   settle(x, M, data) {
     const N = this.st.stats; let xp = 0, co = 0; if (!isObj(x.done)) x.done = {};
     for (const q of x.q) { const Q = M[q.id]; if (!x.done[q.id] && Q.m(data) >= q.n) { x.done[q.id] = Date.now(); xp += Q.xp; co += Q.co; N.quests = (N.quests || 0) + 1; } }
-    if (M === QUESTS && !x.chest && x.q.every(q => x.done[q.id])) {
+    if (M === DAY_QUESTS && !x.chest && x.q.every(q => x.done[q.id])) {
       const r = this.prize(x.k), lo = S.profile.log[x.k]; x.chest = Date.now(); xp += r.xp; co += r.co; N.chests = (N.chests || 0) + 1;
       if (lo && !lo.sim) lo.ch = 1;
     }
@@ -11734,7 +11734,7 @@ const Play = {
   sync(quiet = false) {
     const P = this.st, { paid, changed } = this.roll(), l = this.day(), fresh = []; let today = false;
     const pay = (x, q, Q, label) => { x.done[q.id] = Date.now(); this.give(Q.xp, Q.co); P.stats.quests = (P.stats.quests || 0) + 1; fresh.push([label, Q.xp, Q.co]); };
-    for (const q of P.day.q) { const Q = QUESTS[q.id]; if (!P.day.done[q.id] && Q.m(l) >= q.n) { pay(P.day, q, Q, t(Q.lbl, { n: q.n })); today = true; } }
+    for (const q of P.day.q) { const Q = DAY_QUESTS[q.id]; if (!P.day.done[q.id] && Q.m(l) >= q.n) { pay(P.day, q, Q, t(Q.lbl, { n: q.n })); today = true; } }
     const wl = this.weekKeys(P.week.k).map(k => this.day(k));
     for (const q of P.week.q) { const Q = WEEK_QUESTS[q.id]; if (!P.week.done[q.id] && Q.m(wl) >= q.n) pay(P.week, q, Q, t(Q.lbl, { n: q.n })); }
     if (this.orgOn()) for (const q of this.orgQuests()) if (q.m !== 'tick' && !P.org.done[q.id] && this.orgVal(q, l) >= q.n) pay(P.org, q, ORG_REWARD, q.text);
@@ -11935,7 +11935,7 @@ const Play = {
     return `<${tag} class="hq ${x.done ? 'done' : ''} ${x.org ? 'oq' : ''}" ${tag === 'button' ? 'type="button" ' + x.act : ''}><span class="hq-ic">${x.done ? icon('check', 'i-sm') : x.ic}</span><span class="hq-t">${esc(x.label)}</span><span class="hq-n tnum">${cnt}</span><span class="hq-bar"><i style="width:${(p * 100).toFixed(1)}%"></i></span>${x.rw ? `<span class="hq-rw tnum">${t('+{xp} XP · +{c} éclats', { xp: x.xp, c: x.co })}</span>` : ''}</${tag}>`;
   },
   qic(ic) { return ic === 'chest' ? this.chestIc(17) : icon(ic, 'i-sm'); },
-  dayRow(q, l, rw = false) { const Q = QUESTS[q.id]; return this.qrow({ ic: this.qic(Q.ic), label: t(Q.lbl, { n: q.n }), v: Q.m(l), n: q.n, done: !!this.st.day.done[q.id], xp: Q.xp, co: Q.co, act: Q.go ? `data-act="playQuest" data-q="${q.id}"` : '', rw }); },
+  dayRow(q, l, rw = false) { const Q = DAY_QUESTS[q.id]; return this.qrow({ ic: this.qic(Q.ic), label: t(Q.lbl, { n: q.n }), v: Q.m(l), n: q.n, done: !!this.st.day.done[q.id], xp: Q.xp, co: Q.co, act: Q.go ? `data-act="playQuest" data-q="${q.id}"` : '', rw }); },
   weekRow(q, ls, rw = false) { const Q = WEEK_QUESTS[q.id]; return this.qrow({ ic: this.qic(Q.ic), label: t(Q.lbl, { n: q.n }), v: Q.m(ls), n: q.n, done: !!this.st.week.done[q.id], xp: Q.xp, co: Q.co, rw }); },
   orgRow(q, l, rw = false) { const tick = q.m === 'tick'; return this.qrow({ ic: icon(orgIcon(this.st.org.kind), 'i-sm'), label: q.text, v: this.orgVal(q, l), n: tick ? 1 : q.n, tick, org: 1, done: !!this.st.org.done[q.id], xp: ORG_REWARD.xp, co: ORG_REWARD.co, act: tick ? `data-act="playTick" data-id="${esc(q.id)}"` : '', rw }); },
   chestBtn() {
@@ -12095,7 +12095,12 @@ Play.bindOrg = function () {
 };
 Object.assign(Actions, {
   playChest: el => Play.openChest(el),
-  playQuest: el => { const g = QUESTS[el.dataset.q]?.go; if (g === 'study') Study.start(todayCounts().total ? {} : { cram: true }); else if (g === 'games') openGame('hub'); else if (g === 'scan') App.go('scan'); },
+  playQuest: el => {
+    const g = DAY_QUESTS[el.dataset.q]?.go;
+    // Sans aucune fiche, réviser commence par un cours à transformer.
+    if (g === 'study' && !S.decks.some(d => d.cards.length)) { App.go('scan'); toast(t('Pas encore de fiches : transformez un cours en fiches pour commencer.'), 'camera'); }
+    else if (g === 'study') Study.start(todayCounts().total ? {} : { cram: true }); else if (g === 'games') openGame('hub'); else if (g === 'scan') App.go('scan');
+  },
   playTick: el => Play.tick(el.dataset.id),
   playPick: el => Play.pick(el.dataset.kind, el.dataset.id),
   playNick: () => Play.nickModal(),
@@ -15395,6 +15400,7 @@ TR = {
   "coffre ouvert|coffres ouverts": ["chest opened|chests opened","cofre abierto|cofres abiertos","Truhe geöffnet|Truhen geöffnet","baú aberto|baús abertos"],
   "Coffre du jour": ["Today's chest","Cofre del día","Truhe von heute","Baú do dia"],
   "{n} quête accomplie|{n} quêtes accomplies": ["{n} quest done|{n} quests done","{n} misión cumplida|{n} misiones cumplidas","{n} Quest geschafft|{n} Quests geschafft","{n} missão cumprida|{n} missões cumpridas"],
+  "Pas encore de fiches : transformez un cours en fiches pour commencer.": ["No cards yet: turn a course into cards to get started.","Aún no hay tarjetas: convierte un curso en tarjetas para empezar.","Noch keine Karten: Verwandle einen Kurs in Karten, um loszulegen.","Ainda não há cartões: transforme uma aula em cartões para começar."],
   // ── fin du jeu ──
   "Carnet": ["Notebook","Cuaderno","Notizbuch","Caderno"],
   "Accueil": ["Home","Inicio","Start","Início"],
