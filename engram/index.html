@@ -9603,12 +9603,12 @@ const AgentLocal = {
     const s3 = M.step(t('Préparation de l\'examen')); await M.nap();
     const x = upcomingExams()[0], rd = x ? Plan.readiness(x) : null; s3.done(x ? x.name : t('Aucun examen prévu'));
     const s4 = M.step(t('Lecture du tableau des assistants')); await M.nap();
-    const wk = Board.of({ days: 7 }); s4.done(wk.length ? plural(wk.length, 'mot|mots') : t('vide'));
+    const wk = Board.of({ days: 7 }); s4.done(wk.length ? plural(wk.length, 'message|messages') : t('vide'));
     const decks = S.decks.map(d => ({ d, lee: d.cards.filter(isLeech).length, m: maturity(d.cards) })).sort((a, b) => b.lee - a.lee);
     // L'équipe : ce que les assistants ont trouvé et fait cette semaine, et où en sont les objectifs de maîtrise.
     const team = [], by = {};
     for (const e of wk) if (AGENT[e.by]) by[e.by] = (by[e.by] || 0) + 1;
-    if (Object.keys(by).length) team.push(t('Vos assistants ont laissé {n} au tableau : {list}.', { n: plural(wk.length, 'mot|mots'), list: Board.join(Object.entries(by).map(([id, n]) => `${t(AGENT[id].name)} (${num(n)})`)) }));
+    if (Object.keys(by).length) team.push(t('Vos assistants ont laissé {n} au tableau : {list}.', { n: plural(wk.length, 'message|messages'), list: Board.join(Object.entries(by).map(([id, n]) => `${t(AGENT[id].name)} (${num(n)})`)) }));
     const ex = wk.find(e => e.kind === 'exam');
     if (ex) team.push(t('Dernier examen blanc : {p} de bonnes réponses.', { p: pct(ex.score || 0) }) + (ex.ids?.length ? ' ' + tp(ex.ids.length, 'Une erreur à reprendre.|{n} erreurs à reprendre.') : ''));
     const hit = wk.filter(e => e.kind === 'mastery').map(e => deckById(e.deckId)?.name).filter(Boolean);
@@ -9760,7 +9760,7 @@ const AgentAI = {
   async run(M) {
     const s0 = M.step(t('Lecture de l\'état de l\'app')); await M.nap(250); s0.done(plural(S.decks.length, 'paquet|paquets'));
     const s1 = M.step(t('Lecture du tableau des assistants')); await M.nap(200);
-    const bn = Board.of({ deckId: M.deck?.id, n: 16 }).length; s1.done(bn ? plural(bn, 'mot|mots') : t('vide'));
+    const bn = Board.of({ deckId: M.deck?.id, n: 16 }).length; s1.done(bn ? plural(bn, 'message|messages') : t('vide'));
     const x = upcomingExams()[0];
     const brief = AGENT_BRIEF[M.a.id].replace(/\{deck\}/g, M.deck?.name || '').replace(/\{id\}/g, M.deck?.id || '').replace(/\{limit\}/g, Pro.expert ? 150 : 60)
       .replace('{deckHint}', M.deck ? ` (on the deck "${M.deck.name}", deck_id ${M.deck.id})` : x ? ` (nearest exam: "${x.name}", in ${daysUntil(x.date)} days)` : '');
@@ -12576,7 +12576,7 @@ const Play = {
     const r5 = v => Math.max(5, Math.round(v / 5) * 5), one = a => a.length ? a[Math.floor(R() * a.length)] : null;
     const n = { rev: clamp(r5(g * .4), 10, 60), ok: clamp(r5(g * .3), 8, 45), time: [10, 15, 20][Math.floor(R() * 3)], goal: g, new: Math.min(10, tc.nNew), game: 1, scan: 1, streak: 1, rec: 1 };
     const can = { rev: 1, ok: 1, time: 1, scan: 1, goal: g <= 120, new: tc.nNew >= 3, game: gameDecks().length > 0, streak: streak() > 0,
-      rec: this.canRecite() || Object.values(S.profile.log).some(l => l?.rec > 0) };
+      rec: this.canRecite() };
     const a = one(['rev', 'ok', 'time']);
     const b = one(['game', 'new', 'scan', 'rec'].filter(x => can[x])) || one(['rev', 'ok', 'time'].filter(x => x !== a));
     const c = one(['streak', 'goal', 'ok', 'time', 'game'].filter(x => can[x] && x !== a && x !== b && !(x === 'goal' && a === 'rev'))) || one(['rev', 'ok', 'time', 'scan'].filter(x => x !== a && x !== b));
@@ -12841,7 +12841,7 @@ const Play = {
   qic(ic) { return ic === 'chest' ? this.chestIc(17) : icon(ic, 'i-sm'); },
   dayRow(q, l, rw = false) { const Q = DAY_QUESTS[q.id]; return this.qrow({ ic: this.qic(Q.ic), label: t(Q.lbl, { n: q.n }), v: Q.m(l), n: q.n, done: !!this.D.done[q.id], xp: Q.xp, co: Q.co, act: Q.go && (Q.go !== 'recite' || this.canRecite()) ? `data-act="playQuest" data-q="${q.id}"` : '', rw }); },
   /** La récitation orale (Recite), quand elle est là : elle compte ses récitations dans le journal du jour (l.rec). */
-  canRecite() { return typeof Recite !== 'undefined' && typeof Recite.open === 'function'; },
+  canRecite() { return typeof Recite !== 'undefined' && typeof Recite.open === 'function' && Pro.expert; },
   weekRow(q, ls, rw = false) { const Q = WEEK_QUESTS[q.id]; return this.qrow({ ic: this.qic(Q.ic), label: t(Q.lbl, { n: q.n }), v: Q.m(ls), n: q.n, done: !!this.W.done[q.id], xp: Q.xp, co: Q.co, rw }); },
   orgRow(q, l, rw = false) { const tick = q.m === 'tick'; return this.qrow({ ic: icon(orgIcon(this.st.org.kind), 'i-sm'), label: q.text, v: this.orgVal(q, l), n: tick ? 1 : q.n, tick, org: 1, done: this.orgDone(q.id), xp: ORG_REWARD.xp, co: ORG_REWARD.co, act: tick ? `data-act="playTick" data-id="${esc(q.id)}"` : '', rw }); },
   chestBtn() {
@@ -16415,8 +16415,6 @@ function calendarLinks() {
   return { google, outlook, exams, avg };
 }
 /* ── Glisser-déposer un fichier n'importe où ───────────────────────── */
-/* Dicter un cours : écoute continue (elle redémarre seule après chaque silence), le texte s'écrit dans l'onglet Texte
-   du scanner, phrase par phrase. S'arrête si l'on quitte le scanner. */
 /* ════════════════════════════════════════════════════════════════════
    BARRIÈRE D'APPS (Élite)
    Avant d'ouvrir TikTok (ou une autre app qui distrait), un petit examen
@@ -16462,9 +16460,10 @@ const Gate = {
   get on() { return Pro.expert; },
   get ios() { return /iPhone|iPad|iPod/.test(navigator.userAgent) || navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1; },
   get android() { return /Android/i.test(navigator.userAgent); },
-  /** Les réglages, complétés à la lecture : un profil plus ancien n'en a pas. */
+  /** Les réglages, complétés à la lecture : un profil plus ancien n'en a pas. Tant que rien n'est enregistré,
+      ils restent hors du profil (afficher une page ne doit rien écrire) ; save() les y range. */
   cfg() {
-    const p = S.profile, g = p.gate && typeof p.gate === 'object' ? p.gate : (p.gate = {});
+    const p = S.profile, g = p.gate && typeof p.gate === 'object' ? p.gate : this.blank?.p === p ? this.blank.g : (this.blank = { p, g: {} }).g;
     if (!Array.isArray(g.apps)) g.apps = ['tiktok'];
     if (!Array.isArray(g.custom)) g.custom = [];
     if (g.decks !== 'all' && !Array.isArray(g.decks)) g.decks = 'exam';
@@ -16477,6 +16476,7 @@ const Gate = {
     if (!g.st.apps || typeof g.st.apps !== 'object') g.st.apps = {};
     return g;
   },
+  save() { S.profile.gate = this.cfg(); Store.touch('profile'); },
   slug: s => fold(s).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 30),
   /** Une app : celles du tableau, celles ajoutées à la main, ou un nom venu du lien (#barriere=whatsapp). */
   app(k) {
@@ -16667,13 +16667,13 @@ const Gate = {
       if (g.xd.n < 50) { g.xd.n += 10; const l = S.profile.log[day] || (S.profile.log[day] = { r: 0, ok: 0, ms: 0, n: 0, xp: 0 }); l.xp = (l.xp || 0) + 10; S.profile.xp += 10; }
       this.ping();
     }
-    Store.touch('profile');
+    this.save();
   },
   /** Le webhook MacroDroid « Engram Pass » : la macro de la barrière se tait le temps du déblocage. */
   ping() { const h = gateHref(this.cfg().hook); if (!/^https:/i.test(h)) return false; try { fetch(h, { mode: 'no-cors', cache: 'no-store', keepalive: true }).catch(() => { }); } catch { } return true; },
   skip() {
     const r = this.run, g = this.cfg(), app = r?.app || this.first(), a = g.st.apps[app.id] || (g.st.apps[app.id] = [0, 0, 0]);
-    g.st.skips++; a[2]++; Store.touch('profile');
+    g.st.skips++; a[2]++; this.save();
     this.ctl?.abort(); this.run = null;
     toast(t('Bien joué : pas de {app} pour cette fois.', { app: app.name }), 'check');
     App.go('today');
@@ -16908,7 +16908,7 @@ const Gate = {
         if (hk.dataset.ghook === 'test') { toast(this.ping() ? t('Webhook appelé : MacroDroid doit afficher sa notification.') : t('Enregistrez d\'abord le lien du webhook.'), 'send'); return; }
         const v = ($('#gsHook')?.value || '').trim();
         if (v && !/^https:\/\//i.test(gateHref(v))) { toast(t('Le lien du webhook commence par https://'), 'link'); return; }
-        g.hook = v; Store.touch('profile'); this.refresh();
+        g.hook = v; this.save(); this.refresh();
         toast(v ? t('Webhook enregistré : Engram l\'appellera à chaque réussite.') : t('Webhook retiré.'), 'check'); return;
       }
       const b = e.target.closest('[data-gapp],[data-gdel],[data-gdeck],[data-gscope],[data-gn],[data-gm]'); if (!b) return;
@@ -16920,7 +16920,7 @@ const Gate = {
       else if (d.gdeck) { const ids = Array.isArray(g.decks) ? g.decks : [], i = ids.indexOf(d.gdeck); if (i < 0) ids.push(d.gdeck); else if (ids.length > 1) ids.splice(i, 1); else { toast(t('Gardez au moins un paquet.'), 'drawer'); return; } g.decks = ids; }
       else if (d.gn) g.n = +d.gn;
       else if (d.gm) g.mins = +d.gm;
-      Store.touch('profile'); Sound.play('tick'); this.refresh();
+      this.save(); Sound.play('tick'); this.refresh();
     });
     root.addEventListener('submit', e => {
       if (e.target.id !== 'gsAdd') return;
@@ -16931,11 +16931,11 @@ const Gate = {
       const id = this.slug(name) || 'app';
       if (!GATE_APPS[id]) { const c = g.custom.find(x => x.id === id); if (c) Object.assign(c, { name, scheme: href }); else g.custom.push({ id, name, scheme: href }); }
       if (!g.apps.includes(id)) g.apps.push(id);
-      Store.touch('profile'); Sound.play('pop'); this.refresh();
+      this.save(); Sound.play('pop'); this.refresh();
       toast(t('{app} est gardée par la barrière.', { app: name }), 'padlock');
     });
     root.addEventListener('input', e => { if (e.target.id !== 'gsTh') return; if (!this.on) { e.target.value = g.th; return; } g.th = +e.target.value; const o = $('#gsThOut'); if (o) o.textContent = pct(g.th / 100); });
-    root.addEventListener('change', e => { if (e.target.id !== 'gsTh') return; if (lock()) { e.target.value = g.th; return; } Store.touch('profile'); const l = $('#gsLede'); if (l) l.innerHTML = this.lede(); });
+    root.addEventListener('change', e => { if (e.target.id !== 'gsTh') return; if (lock()) { e.target.value = g.th; return; } this.save(); const l = $('#gsLede'); if (l) l.innerHTML = this.lede(); });
   },
   /** La carte du hub des jeux. */
   card() {
@@ -16948,6 +16948,8 @@ Hooks.gate = () => Gate.hook();
 Views['gate-setup'] = () => Gate.setupView();
 Hooks['gate-setup'] = () => Gate.setupHook();
 
+/* Dicter un cours : écoute continue (elle redémarre seule après chaque silence), le texte s'écrit dans l'onglet Texte
+   du scanner, phrase par phrase. S'arrête si l'on quitte le scanner. */
 const LiveDict = {
   on: false, rec: null, words: 0,
   toggle() { this.on ? this.stop() : this.start(); },
@@ -17803,7 +17805,6 @@ TR = {
   "Erreurs de la barrière": ["Barrier mistakes","Errores de la barrera","Fehler bei der Sperre","Erros da barreira"],
   "Récitation réussie : {app} est débloqué.": ["Recitation passed: {app} is unlocked.","Recitación superada: {app} está desbloqueada.","Vortrag bestanden: {app} ist entsperrt.","Recitação aprovada: {app} está desbloqueado."],
   "Récitation : {s} sur 100, il fallait {p}.": ["Recitation: {s} out of 100, you needed {p}.","Recitación: {s} de 100, hacía falta {p}.","Vortrag: {s} von 100, nötig waren {p}.","Recitação: {s} de 100, era preciso {p}."],
-  "Réessayer": ["Try again","Reintentar","Erneut versuchen","Tentar de novo"],
   "Ouvrir {app}": ["Open {app}","Abrir {app}","{app} öffnen","Abrir {app}"],
   "Ouvrir directement": ["Open directly","Abrir directamente","Direkt öffnen","Abrir diretamente"],
   "Barrière": ["Barrier","Barrera","Sperre","Barreira"],
@@ -17837,7 +17838,6 @@ TR = {
   "La barrière a besoin d'au moins 3 fiches (QCM, vrai ou faux, question-réponse ou texte à trous) dans les paquets choisis.": ["The barrier needs at least 3 cards (multiple choice, true or false, question and answer, or cloze) in the chosen decks.","La barrera necesita al menos 3 tarjetas (opción múltiple, verdadero o falso, pregunta-respuesta o texto con huecos) en los mazos elegidos.","Die Sperre braucht mindestens 3 Karten (Multiple Choice, wahr oder falsch, Frage-Antwort oder Lückentext) in den gewählten Stapeln.","A barreira precisa de pelo menos 3 cartões (múltipla escolha, verdadeiro ou falso, pergunta e resposta ou lacunas) nos baralhos escolhidos."],
   "Sur iPhone, le lien de la barrière s'ouvre dans Safari : si vos fiches sont dans l'app de l'écran d'accueil, connectez-vous à votre compte Engram dans Safari aussi pour les retrouver.": ["On iPhone, the barrier link opens in Safari: if your cards are in the Home Screen app, sign in to your Engram account in Safari too to find them.","En iPhone, el enlace de la barrera se abre en Safari: si tus tarjetas están en la app de la pantalla de inicio, inicia sesión en tu cuenta de Engram también en Safari para encontrarlas.","Auf dem iPhone öffnet sich der Link der Sperre in Safari: Wenn deine Karten in der App auf dem Home-Bildschirm sind, melde dich auch in Safari bei deinem Engram-Konto an, um sie dort zu finden.","No iPhone, o link da barreira abre no Safari: se seus cartões estão no app da tela de início, entre na sua conta Engram no Safari também para encontrá-los."],
   "Régler la barrière": ["Set up the barrier","Configurar la barrera","Sperre einrichten","Configurar a barreira"],
-  "Réciter à l'oral": ["Recite out loud","Recitar en voz alta","Laut vortragen","Recitar em voz alta"],
   "Réussissez-en {p} et {app} s'ouvre pour {m}. Sinon, vous réessayez avec d'autres questions.": ["Get {p} right and {app} opens for {m}. Otherwise, you try again with other questions.","Acierta el {p} y {app} se abre durante {m}. Si no, vuelves a intentarlo con otras preguntas.","Beantworte {p} richtig, und {app} öffnet sich für {m}. Sonst versuchst du es mit anderen Fragen noch einmal.","Acerte {p} e o {app} abre por {m}. Senão, você tenta de novo com outras perguntas."],
   "Réponses écrites corrigées par l'IA": ["Written answers graded by the AI","Respuestas escritas corregidas por la IA","Geschriebene Antworten von der KI korrigiert","Respostas escritas corrigidas pela IA"],
   "Correction sur l'appareil": ["Graded on the device","Corrección en el dispositivo","Korrektur auf dem Gerät","Correção no aparelho"],
@@ -18847,7 +18847,6 @@ TR = {
   "Ce que vos assistants ont fait": ["What your assistants did","Lo que han hecho tus asistentes","Was deine Assistenten getan haben","O que seus assistentes fizeram"],
   "Examen blanc prêt": ["Mock exam ready","Simulacro listo","Probeprüfung bereit","Simulado pronto"],
   "Examiner": ["Review","Revisar","Ansehen","Revisar"],
-  "Voir": ["View","Ver","Ansehen","Ver"],
   "{a} travaille sur « {deck} »…": ["{a} is working on “{deck}”…","{a} está trabajando en «{deck}»…","{a} arbeitet an „{deck}“…","{a} está trabalhando em “{deck}”…"],
   "{a} travaille…": ["{a} is working…","{a} está trabajando…","{a} arbeitet…","{a} está trabalhando…"],
   "Encore {n} fiche à retenir à 90 % pour l'atteindre.|Encore {n} fiches à retenir à 90 % pour l'atteindre.": ["{n} more card to hold at 90% to reach it.|{n} more cards to hold at 90% to reach it.","Falta {n} tarjeta por retener al 90 % para alcanzarlo.|Faltan {n} tarjetas por retener al 90 % para alcanzarlo.","Noch {n} Karte zu 90 % festigen, um es zu erreichen.|Noch {n} Karten zu 90 % festigen, um es zu erreichen.","Falta {n} cartão para reter a 90% e atingi-la.|Faltam {n} cartões para reter a 90% e atingi-la."],
@@ -18863,7 +18862,6 @@ TR = {
   "{n} fragile à consolider avant qu'elle ne s'efface|{n} fragiles à consolider avant qu'elles ne s'effacent": ["{n} shaky one to firm up before it fades|{n} shaky ones to firm up before they fade","{n} frágil por afianzar antes de que se borre|{n} frágiles por afianzar antes de que se borren","{n} wackelige zu festigen, bevor sie verblasst|{n} wackelige zu festigen, bevor sie verblassen","{n} frágil para firmar antes que se apague|{n} frágeis para firmar antes que se apaguem"],
   "fiche à travailler|fiches à travailler": ["card to work on|cards to work on","tarjeta por trabajar|tarjetas por trabajar","Karte zum Üben|Karten zum Üben","cartão para trabalhar|cartões para trabalhar"],
   "{n} question vient du tableau des assistants (fiche signalée ou ratée).|{n} questions viennent du tableau des assistants (fiches signalées ou ratées).": ["{n} question comes from the assistants' board (flagged or missed card).|{n} questions come from the assistants' board (flagged or missed cards).","{n} pregunta viene del tablón de los asistentes (tarjeta señalada o fallada).|{n} preguntas vienen del tablón de los asistentes (tarjetas señaladas o falladas).","{n} Frage stammt von der Pinnwand der Assistenten (gemeldete oder verfehlte Karte).|{n} Fragen stammen von der Pinnwand der Assistenten (gemeldete oder verfehlte Karten).","{n} pergunta vem do quadro dos assistentes (cartão sinalizado ou errado).|{n} perguntas vêm do quadro dos assistentes (cartões sinalizados ou errados)."],
-  "mot|mots": ["note|notes","nota|notas","Notiz|Notizen","nota|notas"],
   "Une erreur à reprendre.|{n} erreurs à reprendre.": ["One mistake to go over.|{n} mistakes to go over.","Un error por repasar.|{n} errores por repasar.","Ein Fehler nachzuholen.|{n} Fehler nachzuholen.","Um erro para retomar.|{n} erros para retomar."],
   "fiche souvent oubliée|fiches souvent oubliées": ["often-forgotten card|often-forgotten cards","tarjeta que se olvida a menudo|tarjetas que se olvidan a menudo","oft vergessene Karte|oft vergessene Karten","cartão esquecido com frequência|cartões esquecidos com frequência"],
   "proposition à valider|propositions à valider": ["suggestion to approve|suggestions to approve","propuesta por validar|propuestas por validar","Vorschlag zu bestätigen|Vorschläge zu bestätigen","sugestão para aprovar|sugestões para aprovar"],
