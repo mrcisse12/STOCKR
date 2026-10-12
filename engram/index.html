@@ -472,6 +472,141 @@ button.ochip:hover{transform:translateY(-2px);border-color:var(--pen)}
 .scan-cam{border-style:solid}.scan-cam .i{color:#1B1407}.scan-cam small{color:rgba(27,20,7,.72)}
 html.cam-on{overflow:hidden}
 .cam{position:fixed;inset:0;z-index:290;background:#0D0B08;color:#F4EBD8;display:grid;grid-template-rows:1fr auto;animation:fadeIn .25s ease both}
+/* ── Barrière d'apps (Élite) : l'épreuve plein écran, le laissez-passer, les réglages et les maquettes de Raccourcis et MacroDroid ── */
+body:has(.gate-screen) :is(.hdr,.dock,.mentor-fab){display:none}
+body:has(.gate-screen) .shell{padding-top:calc(14px + env(safe-area-inset-top,0px));padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+body:has(.gate-screen) .folder{min-height:calc(100dvh - 40px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
+.gate-screen{display:flex;flex-direction:column;gap:22px;width:100%;max-width:760px;margin:0 auto;flex:1}
+/* L'accueil, le verrou et le laissez-passer se tiennent au milieu de l'écran ; l'épreuve reste en haut */
+body:has(.gate-screen) .folder{display:flex;flex-direction:column}
+body:has(.gate-screen) .folder > .view{flex:1;width:100%}
+.gate-screen:is([data-step=intro],[data-step=locked],[data-step=pass]) > :last-child{margin-block:auto}
+.gt-head{display:flex;align-items:center;gap:12px}
+.gt-head .kicker{flex:1;min-width:0}
+.gt-mono{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;flex:none;font:400 18px/1 var(--f-display);color:var(--brass-text);border:1px solid var(--hair-3);background:var(--brass-soft)}
+.gt-mono .i{width:17px;height:17px}
+.gt-need{flex:none;padding:6px 10px;border-radius:99px;border:1px solid var(--hair-2);font:700 11px/1 var(--f-type);letter-spacing:.06em;color:var(--muted)}
+.gt-head .icon-btn{flex:none}
+@media (max-width:520px){.gate-screen[data-step=q] .gt-mono{display:none}}
+/* Les longs libellés (« Réessayer avec d'autres questions ») passent à la ligne sur téléphone au lieu de déborder */
+.gate-screen .btn{max-width:100%}
+@media (max-width:620px){.gate-screen .btn-lg{white-space:normal;height:auto;min-height:54px;padding-block:12px;line-height:1.25;text-align:center}}
+.gt-mid{display:flex;flex-direction:column;align-items:flex-start;gap:18px}
+.gt-title{font-size:clamp(38px,6vw,68px)}
+.gt-mid .lede{max-width:52ch}
+.gt-chips .chip .i{color:var(--brass-text)}
+.gt-out{display:flex;flex-wrap:wrap;gap:6px;margin-left:-12px}
+.gt-out .btn-sm{margin-left:12px}
+.gt-small{margin:0;font-size:13px;line-height:1.55;color:var(--muted);max-width:60ch}
+.gt-rec{display:inline-flex;flex-wrap:wrap;gap:8px}
+.gt-rec .select{width:auto;max-width:210px}
+.gt-seal{position:relative;display:grid;place-items:center;width:88px;height:88px;border-radius:50%;color:var(--gilt);
+  background:radial-gradient(120% 90% at 30% 20%,rgba(255,236,190,.12),transparent 55%),linear-gradient(160deg,#20362B,var(--leather) 45%,var(--leather-2));
+  box-shadow:inset 0 0 0 1px rgba(227,196,126,.4),inset 0 0 0 6px rgba(0,0,0,.18),inset 0 0 0 7px rgba(227,196,126,.2),0 14px 30px -16px rgba(0,0,0,.6)}
+.gt-seal span{font:400 40px/1 var(--f-display);color:var(--gilt)}
+.gt-seal .i{position:absolute;right:-4px;bottom:-2px;width:34px;height:34px;padding:7px;border-radius:50%;background:var(--folder);border:1px solid var(--hair-3);color:var(--brass-text)}
+/* L'épreuve : une copie lignée, comme l'examen blanc */
+.gt-prog{display:flex;align-items:center;gap:12px}
+.gt-prog .st-prog{flex:1;margin:0;max-width:none}
+.gt-tally{display:inline-flex;align-items:center;gap:5px;color:var(--good)}
+.gt-paper .gq{margin-bottom:20px}
+.gt-paper .gq .q-text{font-size:clamp(20px,2.6vw,26px)}
+.gt-paper .gq img{display:block;max-width:100%;max-height:220px;margin:0 0 12px;border-radius:4px}
+.gt-paper .exam-opt span{min-width:0;overflow-wrap:anywhere}
+.gt-paper .exam-opt:disabled{cursor:default;transform:none}
+.gt-paper .exam-opt:disabled:not(.right):not(.wrong){opacity:.55}
+.gt-fb{margin-top:16px}
+.gt-fb small{font:600 12px/1 var(--f-type);color:var(--p-muted)}
+.gt-you,.gt-exp{margin-top:8px;font-size:15px;line-height:1.45;color:var(--p-ink);overflow-wrap:anywhere}
+.gt-you s{color:var(--pen)}
+.gt-com{margin-top:8px;font-size:14px;line-height:1.5;color:var(--p-muted)}
+.answer-box.gt-form,.verdict.gt-wait{width:100%}
+.gt-form .btn{height:50px;flex:none}
+.gt-acts{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}
+.gt-acts:empty{display:none}
+.gt-self{display:grid;gap:12px;padding:16px;border-radius:12px;border:1px dashed var(--hair-3);background:var(--folder-2)}
+.gt-cmp{display:grid;gap:4px}
+.gt-cmp b{font-size:16px;font-weight:600;overflow-wrap:anywhere}
+.gt-cmp.good b{color:var(--good)}
+.gt-self p{margin:0;font-size:13.5px;line-height:1.5;color:var(--text-2)}
+/* Le laissez-passer, tamponné */
+.gt-pass{display:flex;flex-direction:column;gap:26px}
+.gt-ticket{position:relative;display:grid;gap:6px;width:min(360px,100%);padding:20px 24px 22px 36px;border-radius:6px;overflow:hidden;color:var(--p-ink);background:var(--paper);box-shadow:var(--sh-card);transform:rotate(-1.2deg)}
+.gt-ticket::before{content:"";position:absolute;left:16px;top:10px;bottom:10px;border-left:2px dashed color-mix(in srgb,var(--p-ink) 22%,transparent)}
+.gt-ticket .kicker{color:var(--p-muted)}
+.gt-ticket b{font:400 36px/1.05 var(--f-display);overflow-wrap:anywhere;padding-right:70px}
+.gt-ticket .tnum{font:700 12px/1 var(--f-type);letter-spacing:.08em;color:var(--p-muted)}
+.gt-stamp{position:absolute;right:4px;bottom:12px;width:140px;transform:rotate(-11deg);opacity:.92;animation:gtStamp .5s .35s var(--spring) both}
+.gt-stamp svg{display:block;width:100%;height:auto}
+@keyframes gtStamp{from{opacity:0;transform:rotate(-11deg) scale(1.6)}}
+/* L'échec : la note au stylo rouge, puis ce qui a manqué */
+.gt-fail{display:flex;flex-direction:column;gap:22px}
+.gt-note{align-self:flex-start;padding:10px 34px 8px}
+.gt-note small{font-size:.42em}
+.gt-miss .panel-h + .gt-err{border-top:0;padding-top:0}
+.gt-err{padding:12px 0;border-top:1px solid var(--hair)}
+.gt-eq{font-weight:600;line-height:1.4;overflow-wrap:anywhere}
+.gt-ea{margin-top:4px;font-size:14px;line-height:1.5;overflow-wrap:anywhere}
+.gt-ea .ok{color:var(--good)}
+.gt-ec{margin-top:4px;font-size:13px;line-height:1.5;color:var(--muted)}
+/* La carte du hub des jeux */
+.gt-art em{position:absolute;left:58%;top:24px;display:grid;place-items:center;width:62px;height:62px;border-radius:50%;color:var(--gilt);
+  background:linear-gradient(160deg,#20362B,var(--leather) 45%,var(--leather-2));box-shadow:inset 0 0 0 1px rgba(227,196,126,.4),inset 0 0 0 5px rgba(0,0,0,.18),0 10px 18px -10px rgba(0,0,0,.6);transition:transform .6s var(--spring)}
+.gt-art em .i{width:26px;height:26px}
+.game:hover .gt-art em{transform:rotate(-8deg) translateY(-3px)}
+/* Réglages et installation */
+.gs-honest{margin:0}
+.gs-honest b{color:var(--text)}
+.gs-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px;align-items:start}
+.gs-side{display:flex;flex-direction:column;gap:18px;min-width:0}
+@media (max-width:900px){.gs-grid{grid-template-columns:minmax(0,1fr)}}
+.gs-cust{padding-right:4px}
+.gs-cust button{display:grid;place-items:center;width:22px;height:22px;border-radius:5px;color:var(--muted)}
+.gs-cust button:hover{color:var(--again);background:var(--brass-soft)}
+.gs-add{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:8px;margin-top:4px}
+.gs-add .input{padding:8px 11px;font-size:14px}
+@media (max-width:560px){.gs-add{grid-template-columns:1fr 1fr}.gs-add .btn{grid-column:1/-1}}
+.gs-try p{margin:0 0 12px;color:var(--text-2);font-size:14px;line-height:1.5}
+.gs-try-b{display:flex;flex-wrap:wrap;gap:8px}
+.gs-stats{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--hair);border-radius:10px;overflow:hidden}
+.gs-stats div{padding:12px 14px;border-left:1px solid var(--hair);border-top:1px solid var(--hair);min-width:0}
+.gs-stats div:nth-child(odd){border-left:0}
+.gs-stats div:nth-child(-n+2){border-top:0}
+.gs-stats b{display:block;font:400 30px/1 var(--f-display)}
+.gs-stats span{display:block;margin-top:6px;font:700 10px/1.3 var(--f-type);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.gs-per{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:6px;font-size:13px}
+.gs-per li{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.gs-per span{color:var(--muted)}
+.gs-none{margin:12px 0 0;font-size:13px}
+.gs-links .ag-link b{flex:none;min-width:72px;font-size:13px}
+.gs-links .ag-link + .ag-link{margin-top:8px}
+.gs-links .ag-hint.warn{margin:0 0 10px}
+.gs-steps{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:16px}
+.gs-step{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:22px;align-items:start;padding:20px;border-radius:12px;border:1px solid var(--hair);background:var(--folder-2)}
+.gs-step:not(:has(.gs-side-x)){grid-template-columns:minmax(0,1fr)}
+@media (max-width:760px){.gs-step{grid-template-columns:minmax(0,1fr);padding:16px}}
+.gs-sh{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.gs-n{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;flex:none;font:400 17px/1 var(--f-display);color:var(--on-brass);background:linear-gradient(180deg,var(--brass-hi),var(--brass-btn) 55%,var(--brass-lo))}
+.gs-step .lk-steps{margin:0;max-width:none}
+.gs-step code,.gs-links code{font:12px var(--f-type);color:var(--brass-text);overflow-wrap:anywhere}
+.gs-side-x{min-width:0}
+.gs-hook{display:grid;gap:10px}
+.gs-hook-a{display:flex;gap:8px;flex-wrap:wrap}
+.gx-phone{width:100%;max-width:300px;margin:0 auto;padding:12px 12px 14px;border-radius:24px;background:var(--desk-2);border:1px solid var(--hair-2);box-shadow:inset 0 0 0 5px var(--folder),var(--sh-panel)}
+.gx-bar{display:flex;align-items:center;gap:8px;padding:8px 6px 10px;font:600 13px/1.2 var(--f-ui);color:var(--text)}
+.gx-bar i{width:20px;height:20px;border-radius:6px;flex:none;background:linear-gradient(135deg,#D0533F,#7E54C8)}
+.gx-list{display:grid;gap:7px}
+.gx-a{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:10px;background:var(--folder-3);border:1px solid var(--hair);font-size:12.5px;line-height:1.35;color:var(--text-2)}
+.gx-a.in{margin-left:18px}
+.gx-a > i{display:grid;place-items:center;width:24px;height:24px;border-radius:7px;flex:none;background:var(--c);color:#fff}
+.gx-a > i .i{width:14px;height:14px;stroke-width:2}
+.gx-a > span{min-width:0;overflow-wrap:anywhere}
+.gx-a b{color:var(--text);font-weight:600}
+.gx-a em{font-style:normal;padding:1px 6px;border-radius:5px;background:color-mix(in srgb,var(--c) 20%,transparent);color:var(--text)}
+.gx-a code{font:11px var(--f-type);color:var(--brass-text)}
+.gx-phone.droid .gx-bar i{background:linear-gradient(135deg,#2F8F62,#3D63C9)}
+.gx-phone.droid .gx-a{border-left:3px solid var(--c)}
+.gx-phone.auto .gx-bar i{background:linear-gradient(135deg,#B7841F,#C8463A)}
 .cam.out{opacity:0;transition:opacity .25s}
 .cam-stage{position:relative;overflow:hidden;min-height:0}
 .cam video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000}
@@ -7672,6 +7807,7 @@ const Pro = {
       mentor: [t('Vos 20 messages à Mentor sont utilisés ce mois-ci'), t('Avec Pro, Mentor répond et agit pour vous sans limite.')],
       agent: [t('Vos 3 missions du mois sont utilisées'), t('Avec Pro, les six assistants travaillent pour vous sans limite. Les analyses sans IA restent libres.')],
       expert: [t('Le mode Expert fait partie d\'Élite'), t('Le modèle le plus puissant, pour les plans de concours et les raisonnements longs.')],
+      gate: [t('La barrière d\'apps fait partie d\'Élite'), t('Avant TikTok ou Instagram, quelques questions sur vos fiches : il faut réussir pour ouvrir l\'app. Élite est aussi proposée aux écoles et aux entreprises.')],
       atelier: [t('Cet outil fait partie d\'Élite'), t('Thèmes Velours et Marbre, papiers Tableau noir, Tableau blanc et Kraft, couleur d\'accent sur mesure, rétention par paquet et intervalle maximal : Élite règle Engram à votre façon.')],
       play: [t('Cet objet de collection fait partie de Pro'), t('Avatars Automate et Lion, cadres Cachet de cire et Dorure, titre « Architecte du palais » et tableau Ardoise : Pro les ouvre tous.')],
       legend: [t('Les objets légendaires font partie d\'Élite'), t('Phénix et Dragon, cadres Constellation et Couronne de flammes, tableaux Velours et Nuit étoilée, et l\'espace Écoles et entreprises : nom, logo, couleur et défis de votre organisation.')],
@@ -10653,6 +10789,7 @@ Views.settings = arg => {
       ${setRow(t('Objectif de rétention'), t("La probabilité visée de vous souvenir d'une fiche le jour où elle revient. Plus c'est haut, plus il y a de révisions."), `<div class="ctl"><input type="range" min="0.8" max="0.97" step="0.01" value="${s.retention}" id="setRet"><b class="tnum" id="retOut" style="width:56px">${pct(s.retention)}</b></div>`)}
       ${setRow(t('Nouvelles fiches par jour'), s.followPlan ? t("Avec le programme : plafond quotidien pour les paquets sans examen. Aujourd'hui, le programme prévoit {n} nouvelles fiches au total.", { n: Plan.todayNewTotal() }) : t('Au-delà, elles attendent le lendemain.'), `<div class="ctl"><input type="range" min="0" max="100" step="5" value="${s.newPerDay}" id="setNew"><b class="tnum" id="newOut" style="width:56px">${s.newPerDay}</b></div>`)}
       ${setRow(t('Objectif quotidien'), t('Nombre de révisions pour remplir la jauge du jour.'), `<div class="ctl"><input type="range" min="10" max="300" step="10" value="${s.goal}" id="setGoal"><b class="tnum" id="goalOut" style="width:56px">${s.goal}</b></div>`)}
+      ${setRow(t('Barrière d\'apps') + ` <span class="elite-tag">${t('Élite')}</span>`, t('Avant TikTok ou Instagram, quelques questions sur vos fiches : il faut réussir pour ouvrir l\'app.'), `<button class="btn btn-sm" data-act="go" data-v="gate-setup">${icon('padlock', 'i-sm')}${t('Régler')}</button>`)}
       ${setRow(t('Façon de répondre'), t('Retourner la fiche, écrire (ou dicter) votre réponse, ou la tracer à la main au stylet : elle est corrigée même si elle n\'est pas mot pour mot.'), segCtl('answerMode', [['flip', t('Retourner')], ['type', t('Écrire')], ['ink', t('Stylet')]], s.answerMode))}
       ${setRow(t('Exigence de la correction'), t(STRICT[s.strict].desc) + '. ' + t('La correction accepte synonymes et reformulations selon le niveau choisi.'), segCtl('strict', Object.entries(STRICT).map(([k, v]) => [k, t(v.label)]), s.strict))}
       ${setRow(t('Ambiance de travail'), t('Un fond sonore discret pendant la séance.'), segCtl('ambient', [['off', t('Silence')], ['library', t('Bibliothèque')], ['rain', t('Pluie')]], s.ambient))}
@@ -12938,6 +13075,7 @@ Views.games = () => {
         <div class="t">${t('Atelier des points faibles')}</div><p>${t('Les fiches oubliées plusieurs fois ou devenues fragiles, pour les consolider une bonne fois.')}</p>
         <div class="meta"><span>${t('25 fiches max.')}</span><span>${t('compte dans le calendrier')}</span></div>
       </button>
+      ${Gate.card()}
     </div>`;
 };
 /* Jeu des paires */
@@ -16279,6 +16417,537 @@ function calendarLinks() {
 /* ── Glisser-déposer un fichier n'importe où ───────────────────────── */
 /* Dicter un cours : écoute continue (elle redémarre seule après chaque silence), le texte s'écrit dans l'onglet Texte
    du scanner, phrase par phrase. S'arrête si l'on quitte le scanner. */
+/* ════════════════════════════════════════════════════════════════════
+   BARRIÈRE D'APPS (Élite)
+   Avant d'ouvrir TikTok (ou une autre app qui distrait), un petit examen
+   sur ses fiches : 90 % de bonnes réponses débloquent l'app 15 minutes ;
+   sinon on réessaie avec d'autres questions, ou l'on renonce.
+   · Une app web ne voit pas les autres apps et ne peut pas les bloquer :
+     la barrière passe par les automatisations du téléphone, et l'app le
+     dit tel quel. iPhone : l'automatisation « App → TikTok → est ouverte »
+     lance le raccourci « Engram Barrière », qui ouvre #barriere=tiktok
+     sauf si engram-pass.txt (écrit par « Engram Pass », lancé d'ici après
+     une réussite) a moins de 15 minutes. Android : MacroDroid ouvre le
+     même lien au lancement de l'app ; le webhook « Engram Pass », appelé
+     d'ici à la réussite, la fait taire le temps du déblocage. Le vrai
+     blocage viendra avec une app iPhone native (API Temps d'écran).
+   · Les questions : les fiches dues, puis fragiles, puis les autres déjà
+     vues, des paquets de l'examen le plus proche (ou de ceux choisis), une
+     seule par note, rien de l'épreuve précédente s'il y a mieux. QCM et
+     vrai/faux tels quels ; question-réponse et texte à trous à écrire quand
+     la réponse est courte (corrigés par l'IA quand elle est là, sinon
+     recoupement local puis comparaison honnête par l'élève), en QCM sinon.
+     L'épreuve ne touche pas au calendrier des fiches.
+   · Le laissez-passer (S.profile.gate.pass) vaut N minutes : tant qu'il
+     court, la barrière s'ouvre directement sur « Vous pouvez ouvrir… »,
+     sans boucle si l'automatisation la relance.
+   ════════════════════════════════════════════════════════════════════ */
+const GATE_APPS = {
+  tiktok: { name: 'TikTok', scheme: 'tiktok://', web: 'https://www.tiktok.com/' },
+  instagram: { name: 'Instagram', scheme: 'instagram://', web: 'https://www.instagram.com/' },
+  youtube: { name: 'YouTube', scheme: 'youtube://', web: 'https://m.youtube.com/' },
+  snapchat: { name: 'Snapchat', scheme: 'snapchat://', web: 'https://www.snapchat.com/' },
+  x: { name: 'X', scheme: 'twitter://', web: 'https://x.com/' },
+  facebook: { name: 'Facebook', scheme: 'fb://', web: 'https://m.facebook.com/' }
+};
+const GATE_TYPES = ['mcq', 'tf', 'basic', 'cloze'];
+Object.assign(I, {
+  padlock: '<rect x="5" y="10.5" width="14" height="10" rx="2.2"/><path d="M8.2 10.5V7.6a3.8 3.8 0 0 1 7.6 0v2.9M12 14.6v2.3"/>',
+  mobile: '<rect x="6.8" y="2.8" width="10.4" height="18.4" rx="2.4"/><path d="M10.8 18h2.4"/>'
+});
+/** Un lien d'app sans danger : https, ou un schéma d'app (tiktok://), jamais javascript:, data: ni http:. */
+const gateHref = u => { u = String(u || '').trim(); return /^https:\/\/[^\s"'<>]+$/i.test(u) || /^(?!(?:javascript|data|vbscript|file|blob|about|https?):)[a-z][a-z0-9+.-]{1,30}:(?:\/\/)?[^\s"'<>]*$/i.test(u) ? u : ''; };
+const Gate = {
+  run: null, lastIds: [], tab: '', keyOn: false, ctl: null,
+  get on() { return Pro.expert; },
+  get ios() { return /iPhone|iPad|iPod/.test(navigator.userAgent) || navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1; },
+  get android() { return /Android/i.test(navigator.userAgent); },
+  /** Les réglages, complétés à la lecture : un profil plus ancien n'en a pas. */
+  cfg() {
+    const p = S.profile, g = p.gate && typeof p.gate === 'object' ? p.gate : (p.gate = {});
+    if (!Array.isArray(g.apps)) g.apps = ['tiktok'];
+    if (!Array.isArray(g.custom)) g.custom = [];
+    if (g.decks !== 'all' && !Array.isArray(g.decks)) g.decks = 'exam';
+    g.th = clamp(Math.round((+g.th || 90) / 5) * 5, 70, 100);
+    g.n = [5, 10, 15, 20].includes(+g.n) ? +g.n : 10;
+    g.mins = [5, 10, 15, 30, 60].includes(+g.mins) ? +g.mins : 15;
+    if (typeof g.hook !== 'string') g.hook = '';
+    if (!g.st || typeof g.st !== 'object') g.st = {};
+    for (const k of ['tries', 'passes', 'skips']) g.st[k] = +g.st[k] || 0;
+    if (!g.st.apps || typeof g.st.apps !== 'object') g.st.apps = {};
+    return g;
+  },
+  slug: s => fold(s).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 30),
+  /** Une app : celles du tableau, celles ajoutées à la main, ou un nom venu du lien (#barriere=whatsapp). */
+  app(k) {
+    const id = String(k || '').toLowerCase().trim(), s = this.slug(k);
+    if (GATE_APPS[id]) return { id, ...GATE_APPS[id] };
+    const c = this.cfg().custom.find(x => x.id === id || x.id === s);
+    if (c) { const h = gateHref(c.scheme), web = /^https:/i.test(h); return { id: c.id, name: c.name, scheme: web ? '' : h, web: web ? h : '' }; }
+    return { id: s || 'app', name: s ? cap(String(k).replace(/[-_]+/g, ' ').trim().slice(0, 30)) : t('cette app'), scheme: '', web: '' };
+  },
+  guarded() { const g = this.cfg(); return g.apps.filter(id => GATE_APPS[id] || g.custom.some(c => c.id === id)).map(id => this.app(id)); },
+  first() { return this.guarded()[0] || this.app('tiktok'); },
+  pass() { const p = this.cfg().pass; return p && p.until > Date.now() ? p : null; },
+  link(id) { const b = Share.base(); return b ? b + '#barriere=' + encodeURIComponent(id) : ''; },
+  shortcut(id) { return 'shortcuts://run-shortcut?name=' + encodeURIComponent('Engram Pass') + '&input=text&text=' + encodeURIComponent(id); },
+  /** Les paquets de l'épreuve : ceux choisis, sinon ceux de l'examen le plus proche, sinon tous. */
+  decks() {
+    const g = this.cfg();
+    if (Array.isArray(g.decks)) { const ds = g.decks.map(deckById).filter(Boolean); if (ds.length) return ds; }
+    if (g.decks === 'exam') { const ds = (upcomingExams()[0]?.deckIds || []).map(deckById).filter(Boolean); if (ds.length) return ds; }
+    return S.decks;
+  },
+  /** D'où viennent les questions, en une ligne. */
+  scope() {
+    const g = this.cfg(), x = upcomingExams()[0], ds = this.decks(), names = ds.map(d => quote(esc(d.name))).join(', ');
+    if (!ds.length) return t('Aucun paquet pour le moment.');
+    if (g.decks === 'exam') return x && ds !== S.decks ? `${esc(x.name || t('Examen'))} · ${names}` : t('Aucun examen à venir avec des paquets : toutes vos fiches.');
+    return g.decks === 'all' ? t('Toutes vos fiches.') : names;
+  },
+  usable(c) {
+    if (c.suspended || !GATE_TYPES.includes(c.type)) return false;
+    if (c.type === 'mcq') return Array.isArray(c.options) && c.options.length >= 2 && c.options[c.answer] != null;
+    if (c.type === 'cloze') return /\{\{c\d+::/.test(c.text || '');
+    return c.type === 'tf' || !!plain(c.front).trim() && !!plain(c.back).trim();
+  },
+  pool() { return this.decks().flatMap(d => d.cards.filter(c => this.usable(c)).map(c => [c, d])); },
+  /** Le nombre de questions possibles : une par note (les fiches « sœurs » d'une note n'en font qu'une). */
+  size() { const seen = new Set(); let n = 0; for (const [c] of this.pool()) { if (c.note) { if (seen.has(c.note)) continue; seen.add(c.note); } n++; } return n; },
+  build() {
+    const g = this.cfg(), now = Date.now(), seen = new Set(this.lastIds), items = this.pool();
+    // Les dues d'abord, puis les fragiles, puis les autres déjà vues ; les nouvelles en dernier, et rien de la dernière épreuve s'il y a mieux.
+    const rank = ([c]) => {
+      const s = c.srs || {}, k = !s.state ? 3 : isDue(c, now) ? 0 : (s.lapses || 0) >= 2 || FSRS.retrievability(s) < 0.8 ? 1 : 2;
+      return k + (seen.has(c.id) ? 4 : 0) + Math.random() * 0.9;
+    };
+    const notes = new Set(), pick = [];
+    for (const [it] of items.map(x => [x, rank(x)]).sort((a, b) => a[1] - b[1])) {
+      const c = it[0]; if (c.note) { if (notes.has(c.note)) continue; notes.add(c.note); }
+      pick.push(it); if (pick.length >= g.n) break;
+    }
+    // Les réponses des autres fiches, de quoi tromper dans un QCM : calculées seulement si une réponse longue en a besoin.
+    let ans = null;
+    const answers = () => ans || (ans = items.filter(([c]) => c.type === 'basic' || c.type === 'cloze').flatMap(([c, d]) => plain(cardFaces(c).expected).split(' … ').map(x => [x.trim(), d])).filter(([x]) => x && x.length < 160));
+    const qs = shuffle(pick).map(([c, d]) => this.question(c, d, answers));
+    this.lastIds = qs.map(q => q.c.id);
+    return qs;
+  },
+  question(c, d, answers) {
+    const ask = `<div class="q-text">${md(c.front)}</div>`;
+    if (c.type === 'mcq') return { c, d, kind: 'choice', q: ask, ask: plain(c.front), expected: plain(c.options[c.answer]), opts: shuffle(c.options.map((x, i) => ({ h: md(x), t: plain(x), ok: i === c.answer }))) };
+    if (c.type === 'tf') return { c, d, kind: 'choice', q: ask, ask: plain(c.front), expected: c.answer ? trueLbl() : falseLbl(), opts: [{ h: esc(trueLbl()), t: trueLbl(), k: trueLbl()[0], ok: !!c.answer }, { h: esc(falseLbl()), t: falseLbl(), k: falseLbl()[0], ok: !c.answer }] };
+    const f = cardFaces(c), right = plain(f.expected).trim(), base = { c, d, q: f.front, ask: plain(f.question), expected: right };
+    // Une réponse longue ne s'écrit pas en quelques secondes : elle devient un QCM, si d'autres fiches donnent de quoi tromper (même règle que l'examen blanc).
+    if (right.length > 60 || /\n/.test(right)) {
+      const parts = right.split(' … '), n = parts.length, seen = new Set(parts.map(normTxt)), digits = /\d/.test(right);
+      const score = ([x, dd]) => (dd === d ? 0 : 1000) + (/\d/.test(x) === digits ? 0 : 200) + Math.abs(x.length - right.length / n);
+      const others = shuffle(answers().filter(([x]) => { const k = normTxt(x); if (seen.has(k)) return false; seen.add(k); return true; }).sort((a, b) => score(a) - score(b)).slice(0, 5 * n).map(([x]) => x));
+      const picks = []; for (let i = 0; i + n <= others.length && picks.length < 3; i += n) picks.push(others.slice(i, i + n).join(' … '));
+      if (picks.length >= 2) return { ...base, kind: 'choice', opts: shuffle([{ h: esc(right), t: right, ok: true }, ...picks.map(x => ({ h: esc(x), t: x, ok: false }))]) };
+    }
+    return { ...base, kind: 'type', lang: cardLangs(c, d)[1] };
+  },
+
+  /* ── L'épreuve ─────────────────────────────────────────────────── */
+  /** Arrivée par le lien du téléphone (#barriere=tiktok) : une épreuve neuve, ou le laissez-passer s'il court encore. */
+  land(raw) {
+    let id = String(raw || ''); try { id = decodeURIComponent(id); } catch { }
+    if (typeof closeModals === 'function') closeModals();
+    if (Mentor.isOpen) Mentor.close();
+    if (Study.active) Study.close(true);
+    this.ctl?.abort(); this.run = null;
+    App.go('gate', (id.trim() ? this.app(id) : this.first()).id); // un lien sans app (#barriere=) : la première app gardée
+  },
+  fresh(a) { return { app: a, step: !this.on ? 'locked' : this.pass() ? 'pass' : 'intro', th: this.cfg().th, qs: [], i: 0, ans: [], busy: false, self: null, typed: '', result: null }; },
+  view(arg) {
+    const a = this.app(arg || this.first().id), r = this.run;
+    // Formule changée, laissez-passer expiré, autre app : on repart d'un écran juste.
+    if (!r || r.app.id !== a.id || (r.step === 'locked') === this.on || r.step === 'pass' && !this.pass() || r.step === 'intro' && this.pass()) this.run = this.fresh(a);
+    if (!this.keyOn) { this.keyOn = true; document.addEventListener('keydown', e => this.key(e)); }
+    return `<div class="gate-screen" id="gateScr" data-step="${this.run.step}">${this.screen()}</div>`;
+  },
+  hook() {
+    const el = $('#gateScr'); if (!el) return;
+    el.addEventListener('click', e => {
+      const b = e.target.closest('[data-g]'); if (!b) return;
+      const k = b.dataset.g;
+      if (k === 'open') { if (!this.pass()) this.ping(); return; } // le lien s'ouvre de lui-même
+      if (k === 'start') this.start();
+      else if (k === 'pick') this.pick(+b.dataset.k);
+      else if (k === 'next') this.next();
+      else if (k === 'idk') this.check(true);
+      else if (k === 'self') this.selfCheck(b.dataset.ok === '1');
+      else if (k === 'retry') { this.run = this.fresh(this.run.app); this.start(); }
+      else if (k === 'review') this.review();
+      else if (k === 'skip') this.skip();
+      else if (k === 'recite') this.recite();
+    });
+    el.addEventListener('submit', e => { if (e.target.id === 'gtForm') { e.preventDefault(); this.check(); } });
+    this.focus();
+  },
+  paint(top) {
+    const el = $('#gateScr'); if (!el || !this.run) return;
+    el.dataset.step = this.run.step; el.innerHTML = this.screen();
+    if (top) scrollTo({ top: 0, behavior: 'instant' });
+    this.focus();
+  },
+  focus() {
+    const r = this.run; if (!r || r.step !== 'q') return;
+    setTimeout(() => { const n = $('#gtNext'), i = $('#gtAns'); if (n) n.focus({ preventScroll: true }); else if (i && !i.disabled) i.focus({ preventScroll: true }); }, 60);
+  },
+  key(e) {
+    const r = this.run;
+    if (App.route.v !== 'gate' || !r || r.step !== 'q' || Modal.stack.length || Study.active || e.ctrlKey || e.metaKey || e.altKey || e.target.closest?.('button,a,input,textarea,select')) return;
+    const q = r.qs[r.i]; if (!q) return;
+    if (r.ans[r.i]) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.next(); } return; }
+    if (q.kind !== 'choice') return;
+    const key = e.key.toLowerCase(); let k = '1234'.indexOf(key); if (k < 0) k = q.opts.findIndex(o => o.k && o.k.toLowerCase() === key); if (k < 0) k = 'abcd'.indexOf(key);
+    if (k >= 0 && q.opts[k]) { e.preventDefault(); this.pick(k); }
+  },
+  start() {
+    const r = this.run; if (!r || !this.on) return;
+    const qs = this.build();
+    if (qs.length < 3) { r.step = 'intro'; this.paint(true); return; }
+    Object.assign(r, { step: 'q', qs, i: 0, ans: [], busy: false, self: null, typed: '', th: this.cfg().th, t0: Date.now() });
+    Sound.play('flip'); this.paint(true);
+  },
+  pick(k) {
+    const r = this.run, q = r?.qs[r.i]; if (!q || q.kind !== 'choice' || r.ans[r.i]) return;
+    this.answer({ score: q.opts[k]?.ok ? 1 : 0, pick: k });
+  },
+  answer(a) {
+    const r = this.run; r.ans[r.i] = a; r.busy = false; r.self = null; r.typed = '';
+    Sound.play(a.score >= 1 ? 'good' : a.score > 0 ? 'hard' : 'again'); haptic(a.score >= 1 ? 10 : 30);
+    this.paint();
+  },
+  /** Réponse écrite : identique, elle passe ; sinon l'IA la corrige ; sans IA, le recoupement local, puis l'élève compare. */
+  async check(none) {
+    const r = this.run, q = r?.qs[r.i]; if (!q || q.kind !== 'type' || r.ans[r.i] || r.busy || r.self) return;
+    const inp = $('#gtAns'), a = none ? '' : String(inp?.value || '').trim();
+    if (!a) { if (none) this.answer({ score: 0, typed: '' }); else inp?.focus(); return; }
+    const strict = S.profile.settings.strict, local = localGrade(a, q.expected, strict, q.lang);
+    if (normTxt(a) === normTxt(q.expected) || local.verdict === 'correct' && nearSame(a, q.expected, q.lang)) return this.answer({ score: 1, typed: a, v: local });
+    r.aiErr = '';
+    if (AI.on) {
+      r.busy = true; r.typed = a; this.paint();
+      this.ctl?.abort(); const ctl = this.ctl = new AbortController(), late = setTimeout(() => ctl.abort(), 30000);
+      try {
+        const v = await aiGrade(q.ask, q.expected, a, strict, ctl.signal);
+        if (this.run !== r || r.ans[r.i]) return;
+        return this.answer({ score: v.verdict === 'correct' ? 1 : v.verdict === 'partiel' ? 0.5 : 0, typed: a, v });
+      } catch (e) {
+        if (this.run !== r || r.ans[r.i]) return;
+        r.busy = false; r.aiErr = AI.fail(e) || t('IA indisponible');
+      } finally { clearTimeout(late); }
+    }
+    if (local.verdict === 'correct') return this.answer({ score: 1, typed: a, v: local });
+    // Le recoupement local ne tranche pas (un synonyme, une reformulation) : l'élève compare lui-même, honnêtement.
+    r.self = { typed: a, v: local }; this.paint();
+  },
+  selfCheck(ok) { const r = this.run; if (!r?.self) return; const s = r.self; this.answer({ score: ok ? 1 : 0, typed: s.typed, v: s.v, self: true }); },
+  next() {
+    const r = this.run; if (!r || r.step !== 'q' || !r.ans[r.i]) return;
+    if (r.i + 1 < r.qs.length) { r.i++; this.paint(true); return; }
+    const tot = r.qs.length, pts = r.ans.reduce((s, x) => s + (x?.score || 0), 0), ok = Math.round(pts / tot * 1000) / 10 >= r.th;
+    r.result = { pts, tot }; r.step = ok ? 'pass' : 'fail';
+    this.record(r.app, ok);
+    this.paint(true);
+    Sound.play(ok ? 'seal' : 'print'); if (ok) haptic(30);
+  },
+  /** Une épreuve finie : les chiffres, et à la réussite le laissez-passer, l'XP du jour et le webhook Android. */
+  record(app, ok) {
+    const g = this.cfg(), st = g.st, a = st.apps[app.id] || (st.apps[app.id] = [0, 0, 0]);
+    st.tries++; a[0]++;
+    if (ok) {
+      st.passes++; a[1]++;
+      const now = Date.now(); g.pass = { app: app.id, at: now, until: now + g.mins * MIN };
+      // L'XP passe par le journal du jour (le total en est recalculé) ; 50 au plus par jour : la barrière n'est pas une ferme à XP.
+      const day = dayKey(); if (g.xd?.d !== day) g.xd = { d: day, n: 0 };
+      if (g.xd.n < 50) { g.xd.n += 10; const l = S.profile.log[day] || (S.profile.log[day] = { r: 0, ok: 0, ms: 0, n: 0, xp: 0 }); l.xp = (l.xp || 0) + 10; S.profile.xp += 10; }
+      this.ping();
+    }
+    Store.touch('profile');
+  },
+  /** Le webhook MacroDroid « Engram Pass » : la macro de la barrière se tait le temps du déblocage. */
+  ping() { const h = gateHref(this.cfg().hook); if (!/^https:/i.test(h)) return false; try { fetch(h, { mode: 'no-cors', cache: 'no-store', keepalive: true }).catch(() => { }); } catch { } return true; },
+  skip() {
+    const r = this.run, g = this.cfg(), app = r?.app || this.first(), a = g.st.apps[app.id] || (g.st.apps[app.id] = [0, 0, 0]);
+    g.st.skips++; a[2]++; Store.touch('profile');
+    this.ctl?.abort(); this.run = null;
+    toast(t('Bien joué : pas de {app} pour cette fois.', { app: app.name }), 'check');
+    App.go('today');
+  },
+  review() {
+    const r = this.run; if (!r) return;
+    const items = r.qs.filter((q, i) => (r.ans[i]?.score || 0) < 1).map(q => [q.c, q.d]);
+    if (items.length) Study.start({ items, title: t('Erreurs de la barrière') });
+  },
+  /** Élite : réciter un cours à l'oral à la place des questions (si la récitation est là). */
+  recite() {
+    const r = this.run; if (!r || typeof Recite === 'undefined') return;
+    const sel = $('#gtRDeck')?.value, d = deckById(sel) || this.decks().find(x => x.cards.length); if (!d) return;
+    const app = r.app, th = r.th;
+    Recite.open({
+      deckId: d.id, onDone: (score, info) => {
+        if (info?.focus) return; // reprendre les seuls points manqués ne vaut pas une récitation complète
+        const ok = +score >= th; this.record(app, ok);
+        toastAct(ok ? t('Récitation réussie : {app} est débloqué.', { app: app.name }) : t('Récitation : {s} sur 100, il fallait {p}.', { s: Math.round(+score || 0), p: th }), 'padlock', ok ? t('Ouvrir') : t('Réessayer'), ok ? 'arrow' : 'refresh', () => this.land(app.id), 12000);
+      }
+    });
+  },
+  /** Les boutons qui ouvrent l'app : sur iPhone par le raccourci « Engram Pass » (il note l'heure), sur Android par son adresse web (lien d'app). */
+  openBtns(a, size = 'main') {
+    const app = esc(a.name), web = gateHref(a.web), scheme = gateHref(a.scheme);
+    const first = this.android ? web || scheme : this.shortcut(a.id), second = this.android ? (web && scheme ? scheme : '') : scheme;
+    const c1 = size === 'main' ? 'btn btn-gilt btn-lg' : size === 'small' ? 'btn btn-sm' : 'btn btn-lg', c2 = size === 'small' ? 'btn btn-sm btn-ghost' : 'btn btn-lg btn-ghost';
+    // Une app ajoutée sans lien, sur Android : pas de bouton possible, on dit simplement où l'ouvrir.
+    if (!first) return `<span class="gt-small">${t('Ouvrez {app} depuis l\'écran d\'accueil.', { app })}</span>`;
+    return `<a class="${c1}" href="${esc(first)}" data-g="open">${icon('arrow')}${t('Ouvrir {app}', { app })}</a>` + (second ? `<a class="${c2}" href="${esc(second)}" data-g="open">${t('Ouvrir directement')}</a>` : '');
+  },
+  screen() {
+    const r = this.run, a = r.app, app = esc(a.name), g = this.cfg();
+    const head = `<div class="gt-head"><span class="gt-mono" aria-hidden="true">${icon('padlock')}</span><div class="kicker"><b>${t('Barrière')}</b> · ${app}</div>${r.step === 'q' ? `<span class="gt-need tnum">${t('{p} requis', { p: pct(r.th / 100) })}</span><button class="icon-btn" data-g="skip" aria-label="${esc(t('Je n\'ouvre pas {app}', { app: a.name }))}" title="${esc(t('Je n\'ouvre pas {app}', { app: a.name }))}">${icon('x')}</button>` : ''}</div>`;
+    const mins = tp(g.mins, '{n} minute|{n} minutes');
+    if (r.step === 'locked') return head + `<div class="gt-mid rise">
+      <h1 class="display gt-title">${words(t('La barrière fait partie d\'<em>Élite</em>.'))}</h1>
+      <p class="lede">${t('Votre téléphone a ouvert Engram avant {app}, mais la barrière n\'est pas active avec votre formule. Ouvrez l\'app, ou essayez Élite : la formule proposée aussi aux écoles et aux entreprises.', { app })}</p>
+      <div class="hero-actions"><button class="btn btn-gilt btn-lg" data-act="proTrial">${icon('sparkles')}${Pro.canTrial ? t('Essayer 14 jours') : t('Passer à Élite')}</button>${this.openBtns(a, 'plain')}</div>
+      <p class="gt-small">${t('Pour ne plus passer par Engram, désactivez l\'automatisation dans Raccourcis (iPhone) ou la macro dans MacroDroid (Android).')}</p>
+      <div class="gt-out"><button class="btn btn-ghost" data-act="go" data-v="today">${icon('home', 'i-sm')}${t('Retour à Engram')}</button></div></div>`;
+    if (r.step === 'pass') {
+      const p = this.pass() || { until: Date.now() }, u = new Date(p.until), h = fmtHM(u.getHours() * 60 + u.getMinutes()), res = r.result;
+      return head + `<div class="gt-pass">
+        <div class="gt-ticket rise" aria-hidden="true"><span class="kicker">${t('Laissez-passer')}</span><b>${app}</b><span class="tnum">${t('jusqu\'à {h}', { h })}</span><span class="gt-stamp">${stampSVG(t('DÉBLOQUÉ'), INK[3])}</span></div>
+        <div class="gt-mid rise" style="animation-delay:.08s">
+          <h1 class="display gt-title">${words(t('Vous pouvez ouvrir <em>{app}</em>.', { app }))}</h1>
+          <p class="lede">${res ? t('{x} sur {n} : la barrière se lève pour {m}.', { x: num(res.pts, res.pts % 1 ? 1 : 0), n: res.tot, m: mins }) : t('Votre laissez-passer court jusqu\'à {h} : pas besoin de repasser l\'épreuve.', { h })}</p>
+          <div class="hero-actions">${this.openBtns(a)}</div>
+          <p class="gt-small">${this.android ? t('Si MacroDroid relance la barrière, vérifiez le webhook « Engram Pass » dans Régler la barrière.') : t('« Ouvrir {app} » passe par le raccourci « Engram Pass » : il note l\'heure, et la barrière vous laisse passer {m}. « Ouvrir directement » ne note rien : l\'automatisation vous ramènera ici.', { app, m: mins })}</p>
+          <div class="gt-out"><button class="btn btn-ghost" data-act="go" data-v="today">${icon('home', 'i-sm')}${t('Retour à Engram')}</button></div>
+        </div></div>`;
+    }
+    if (r.step === 'fail') {
+      const res = r.result, errs = r.qs.map((q, i) => [q, r.ans[i]]).filter(([, x]) => (x?.score || 0) < 1);
+      return head + `<div class="gt-fail">
+        <div class="gt-mid rise">
+          <div class="note20 tnum gt-note"><svg viewBox="0 0 220 120" preserveAspectRatio="none"><path d="M18,64 C14,22 200,6 206,52 C212,98 40,116 22,82 C12,62 40,34 92,24"/></svg>${esc(num(res.pts, res.pts % 1 ? 1 : 0))}<small>/${res.tot}</small></div>
+          <h1 class="h2">${t('Il fallait {p} : {app} attendra encore un peu.', { p: pct(r.th / 100), app })}</h1>
+          <p class="lede">${t('Relisez ce qui vous a manqué, puis retentez avec d\'autres questions.')}</p>
+        </div>
+        <article class="panel rise gt-miss" style="animation-delay:.08s"><div class="panel-h"><h3 class="h3">${t('À retravailler')}</h3><span class="kicker">${plural(errs.length, 'erreur|erreurs')}</span></div>
+          ${errs.map(([q, x]) => `<div class="gt-err"><div class="gt-eq">${esc(q.ask)}</div><div class="gt-ea"><span class="ok">✓ ${esc(q.expected)}</span>${x?.typed ? ` <span class="muted">· ${t('votre réponse :')} ${esc(x.typed)}</span>` : x?.pick != null && q.opts?.[x.pick] ? ` <span class="muted">· ${t('votre choix :')} ${esc(q.opts[x.pick].t)}</span>` : ''}</div>${x?.v?.comment ? `<div class="gt-ec">${esc(x.v.comment)}</div>` : ''}</div>`).join('')}
+        </article>
+        <div class="hero-actions gt-acts rise" style="animation-delay:.14s"><button class="btn btn-brass btn-lg" data-g="retry">${icon('refresh')}${t('Réessayer avec d\'autres questions')}</button><button class="btn btn-lg" data-g="review">${icon('flip')}${t('Réviser mes erreurs')}</button><button class="btn btn-ghost" data-g="skip">${t('Je n\'ouvre pas {app}', { app })}</button></div>
+      </div>`;
+    }
+    if (r.step === 'q') {
+      const q = r.qs[r.i], x = r.ans[r.i], done = !!x, last = r.i + 1 >= r.qs.length, pts = r.ans.reduce((s, y) => s + (y?.score || 0), 0);
+      const opts = q.kind === 'choice' ? `<div class="gt-opts">${q.opts.map((o, k) => `<button class="exam-opt ${done ? (o.ok ? 'right' : k === x.pick ? 'wrong' : '') : ''}" data-g="pick" data-k="${k}" ${done ? 'disabled' : ''}><b>${esc(o.k || 'ABCD'[k])}</b><span>${o.h}</span></button>`).join('')}</div>` : '';
+      const fb = done ? `<div class="exam-fb gt-fb ${x.score >= 1 ? 'ok' : ''}">${x.score >= 1 ? t('Bien vu.') : x.score > 0 ? t('Presque') + '.' : t('Non.')}${x.self ? ` <small>${t('(auto-évaluée)')}</small>` : ''}</div>
+        ${x.typed != null && q.kind === 'type' ? `<div class="gt-you">${t('Votre réponse :')} ${x.score < 1 && x.typed ? `<s>${esc(x.typed)}</s>` : esc(x.typed || '—')}</div>` : ''}
+        ${x.score < 1 && q.kind === 'type' ? `<div class="gt-exp">${t('La bonne réponse : {x}', { x: `<b>${esc(q.expected)}</b>` })}</div>` : ''}
+        ${x.v?.comment ? `<div class="gt-com">${esc(x.v.comment)}</div>` : ''}` : '';
+      const form = q.kind === 'type' && !done && !r.self ? `<form class="answer-box gt-form" id="gtForm" autocomplete="off"><input class="input" id="gtAns" value="${esc(r.typed)}" placeholder="${esc(t('Votre réponse… (Entrée pour vérifier)'))}" aria-label="${esc(t('Votre réponse'))}" autocapitalize="off" spellcheck="false" enterkeyhint="done" ${r.busy ? 'disabled' : ''}><button class="btn btn-brass" ${r.busy ? 'disabled' : ''}>${icon('check')}${t('Vérifier')}</button></form>` : '';
+      const busy = r.busy ? `<div class="verdict gt-wait"><span class="thinking"><i></i><i></i><i></i></span><div><b>${t("L'IA relit votre réponse…")}</b><small>${t('synonymes et reformulations acceptés')}</small></div></div>` : '';
+      const self = r.self ? `<div class="gt-self rise"><div class="gt-cmp"><span class="kicker">${t('Votre réponse')}</span><b>${esc(r.self.typed)}</b></div><div class="gt-cmp good"><span class="kicker">${t('Réponse attendue')}</span><b>${esc(q.expected)}</b></div>
+        <p>${r.aiErr ? esc(r.aiErr) + ' ' : ''}${t('Engram ne peut pas trancher seul : comparez, et soyez honnête, c\'est vous que la barrière protège.')}</p>
+        <div class="hero-actions"><button class="btn" data-g="self" data-ok="1">${icon('check')}${t('J\'avais bon')}</button><button class="btn" data-g="self" data-ok="0">${icon('x')}${t('Je m\'étais trompé')}</button></div></div>` : '';
+      const act = done ? `<button class="btn btn-brass btn-lg" data-g="next" id="gtNext">${last ? t('Voir ma note') : t('Question suivante')} <kbd>${t('Entrée')}</kbd></button>` : q.kind === 'type' && !r.busy && !r.self ? `<button class="btn btn-ghost" data-g="idk">${t('Je ne sais pas')}</button>` : '';
+      return head + `<div class="gt-prog"><span class="kicker tnum">${t('Question {i} / {n}', { i: r.i + 1, n: r.qs.length })}</span><div class="st-prog"><i style="width:${(r.i + (done ? 1 : 0)) / r.qs.length * 100}%"></i></div><span class="kicker tnum gt-tally" aria-label="${esc(t('Bonnes réponses'))}">${icon('check', 'i-sm')}${num(pts, pts % 1 ? 1 : 0)}</span></div>
+        <article class="exam-paper gt-paper" id="gtPaper"><div class="kick">${esc(q.d.name)} · ${typeLabel(q.c.type)}</div><div class="gq">${q.q}</div>${opts}${fb}</article>
+        ${form}${busy}${self}<div class="gt-acts">${act}</div>`;
+    }
+    // Accueil de l'épreuve, ou rien à demander.
+    const usable = this.size(), n = Math.min(g.n, usable), ds = this.decks();
+    if (usable < 3) return head + `<div class="gt-mid rise">
+      <h1 class="display gt-title">${words(t('Pas encore assez de <em>fiches</em>.'))}</h1>
+      <p class="lede">${t('La barrière a besoin d\'au moins 3 fiches (QCM, vrai ou faux, question-réponse ou texte à trous) dans les paquets choisis.')}</p>
+      ${this.ios ? `<p class="bnote">${icon('info')}<span>${t('Sur iPhone, le lien de la barrière s\'ouvre dans Safari : si vos fiches sont dans l\'app de l\'écran d\'accueil, connectez-vous à votre compte Engram dans Safari aussi pour les retrouver.')}</span></p>` : ''}
+      <div class="hero-actions"><button class="btn btn-brass btn-lg" data-act="go" data-v="scan">${icon('camera')}${t('Scanner un cours')}</button><button class="btn btn-lg" data-act="go" data-v="gate-setup">${icon('settings')}${t('Régler la barrière')}</button></div>
+      <div class="gt-out">${this.openBtns(a, 'small')}</div></div>`;
+    const rec = typeof Recite !== 'undefined' ? `<span class="gt-rec">${ds.length > 1 ? `<select class="select" id="gtRDeck" aria-label="${esc(t('Paquet'))}">${ds.map(d => `<option value="${d.id}">${esc(d.name)}</option>`).join('')}</select>` : ''}<button class="btn btn-lg" data-g="recite">${icon('mic')}${t('Réciter à l\'oral')}</button></span>` : '';
+    return head + `<div class="gt-mid rise">
+      <div class="gt-seal" aria-hidden="true"><span>${esc(a.name.charAt(0).toUpperCase() || '?')}</span>${icon('padlock')}</div>
+      <h1 class="display gt-title">${words(tp(n, '{n} question avant <em>{app}</em>.|{n} questions avant <em>{app}</em>.', { app }))}</h1>
+      <p class="lede">${t('Réussissez-en {p} et {app} s\'ouvre pour {m}. Sinon, vous réessayez avec d\'autres questions.', { p: pct(r.th / 100), app, m: mins })}</p>
+      <div class="chips gt-chips">${ds.slice(0, 4).map(d => `<span class="chip">${icon('drawer', 'i-sm')}${esc(d.name)}</span>`).join('')}${ds.length > 4 ? `<span class="chip">+${ds.length - 4}</span>` : ''}<span class="chip">${icon(AI.on ? 'sparkles' : 'check', 'i-sm')}${AI.on ? t('Réponses écrites corrigées par l\'IA') : t('Correction sur l\'appareil')}</span></div>
+      <div class="hero-actions"><button class="btn btn-brass btn-lg" data-g="start">${icon('play')}${t('Commencer l\'épreuve')}</button>${rec}</div>
+      <div class="gt-out"><button class="btn btn-ghost" data-g="skip">${icon('x', 'i-sm')}${t('Je n\'ouvre pas {app}', { app })}</button><button class="btn btn-ghost" data-act="go" data-v="gate-setup">${icon('settings', 'i-sm')}${t('Régler la barrière')}</button></div></div>`;
+  },
+
+  /* ── Réglages et installation ──────────────────────────────────── */
+  /** Les noms des actions de Raccourcis et de MacroDroid, tels que l'élève les verra (traduits une fois, pour le texte et les maquettes). */
+  labels() {
+    return {
+      text: t('Texte@@raccourci'), now: t('Date actuelle'), save: t('Enregistrer le fichier'), open: t('Ouvrir l\'app'), get: t('Obtenir le fichier'), dates: t('Obtenir les dates de l\'entrée'),
+      adjust: t('Ajuster la date'), if: t('Si@@raccourci'), after: t('est après'), stop: t('Arrêter ce raccourci'), url: t('Ouvrir les URL'), run: t('Exécuter le raccourci'),
+      auto: t('Automatisation'), appTrig: t('App@@déclencheur'), opened: t('Est ouverte'), immed: t('Exécuter immédiatement'), input: t('Entrée du raccourci'),
+      hook: 'Webhook (URL)', notify: t('Afficher une notification'), launched: t('Application lancée/fermée'), web: t('Ouvrir un site web'), lastRun: t('Heure de dernière exécution')
+    };
+  },
+  /** Une maquette d'écran (Raccourcis ou MacroDroid), en HTML et CSS seulement. rows : [icône, couleur, action, détail HTML, retrait]. */
+  mock(title, rows, cls = '') {
+    return `<div class="gx-phone ${cls}" aria-hidden="true"><div class="gx-bar"><i></i><span>${esc(title)}</span></div><div class="gx-list">${rows.map(([ic, c, b, s, lvl]) => `<div class="gx-a ${lvl ? 'in' : ''}" style="--c:${c}"><i>${icon(ic)}</i><span><b>${esc(b)}</b>${s ? ' ' + s : ''}</span></div>`).join('')}</div></div>`;
+  },
+  setupView() {
+    const g = this.cfg(), lock = !this.on, a = this.first(), app = esc(a.name), st = g.st;
+    const tab = this.tab || (this.android ? 'android' : 'ios');
+    const per = Object.entries(st.apps).filter(([, v]) => v?.[0] || v?.[2]).map(([id, v]) => `<li><b>${esc(this.app(id).name)}</b><span class="tnum">${plural(v[1] || 0, 'réussite|réussites')} · ${plural(v[2] || 0, 'renoncement|renoncements')}</span></li>`).join('');
+    return `
+    <header class="rise"><div class="kicker"><b>${t('Élite')}</b> · ${t('barrière d\'apps')}</div><h1 class="display" style="margin-top:12px">${words(t('Vos fiches <em>avant</em> {app}.', { app }))}</h1>
+      <p class="lede" style="margin-top:14px" id="gsLede">${this.lede()}</p></header>
+    ${lock ? `<article class="autopilot leather gilt-rule rise sc-lock"><span class="ap-dial">${icon('crown')}</span><div><b>${t('La barrière d\'apps fait partie d\'Élite')}</b><span>${t('Élite, la formule proposée aussi aux écoles et aux entreprises : la barrière d\'apps, le planning heure par heure et l\'IA la plus puissante.')}</span></div><button class="btn btn-gilt" data-act="proTrial">${icon('sparkles')}${Pro.canTrial ? t('Essayer 14 jours') : t('Passer à Élite')}</button></article>` : ''}
+    <p class="bnote rise gs-honest">${icon('info')}<span>${t('<b>Ce que fait la barrière, honnêtement.</b> Engram est une app web : il ne peut ni voir ni bloquer les autres apps de votre téléphone. La barrière passe par les automatisations du téléphone (Raccourcis sur iPhone, MacroDroid sur Android) : à l\'ouverture de l\'app, elles ouvrent Engram. C\'est un garde-fou contre le réflexe, pas un verrou : vous pouvez toujours la désactiver. Le vrai blocage viendra avec l\'app Engram pour iPhone (API Temps d\'écran d\'Apple).')}</span></p>
+    <section class="gs-grid">
+      <article class="panel rise gs-set" id="gsSet"><div class="panel-h"><h3 class="h3">${t('Réglages de la barrière')}</h3>${lock ? `<span class="elite-tag">${t('Élite')}</span>` : icon('settings')}</div><div id="gsSetIn">${this.setInner()}</div></article>
+      <aside class="gs-side">
+        <article class="panel rise gs-try" style="animation-delay:.06s"><div class="panel-h"><h3 class="h3">${t('Essayer la barrière')}</h3>${icon('padlock')}</div>
+          <p>${t('Passez l\'épreuve ici, comme si vous ouvriez l\'app.')}</p><div class="gs-try-b" id="gsTry">${this.tryInner()}</div></article>
+        <article class="panel rise" style="animation-delay:.12s"><div class="panel-h"><h3 class="h3">${t('Vos barrières')}</h3><span class="kicker">${t('depuis le début')}</span></div>
+          <div class="gs-stats"><div><b class="tnum">${num(st.tries)}</b><span>${t('Épreuves')}</span></div><div><b class="tnum">${num(st.passes)}</b><span>${t('Réussies')}</span></div><div><b class="tnum">${st.tries ? pct(st.passes / st.tries) : '—'}</b><span>${t('Taux de réussite')}</span></div><div><b class="tnum">${num(st.skips)}</b><span>${t('Renoncements')}</span></div></div>
+          ${per ? `<ul class="gs-per">${per}</ul>` : `<p class="muted gs-none">${t('Pas encore d\'épreuve : essayez-la ci-dessus.')}</p>`}</article>
+      </aside>
+    </section>
+    <section class="sec" id="gsHow">
+      <div class="sec-h rise"><div><h2 class="h2">${t('Installer la barrière')}</h2><p>${t('Une dizaine de minutes, une seule fois, sur le téléphone où se trouvent les apps à garder.')}</p></div>
+        <div class="seg" id="gsTab" role="group" aria-label="${esc(t('Téléphone'))}"><button class="${tab === 'ios' ? 'on' : ''}" data-gtab="ios" aria-pressed="${tab === 'ios'}">${icon('mobile', 'i-sm')}iPhone</button><button class="${tab === 'android' ? 'on' : ''}" data-gtab="android" aria-pressed="${tab === 'android'}">${icon('mobile', 'i-sm')}Android</button></div></div>
+      <div id="gsPane">${this.pane(tab)}</div>
+    </section>`;
+  },
+  lede() { const g = this.cfg(); return t('Quand vous ouvrez {app}, votre téléphone ouvre d\'abord Engram : {n} questions sur vos fiches. {p} de bonnes réponses, et l\'app s\'ouvre pour {m}. Sinon, vous réessayez.', { app: esc(this.first().name), n: g.n, p: pct(g.th / 100), m: tp(g.mins, '{n} minute|{n} minutes') }); },
+  tryInner() { const apps = this.guarded(); return apps.length ? apps.map(a => `<button class="btn btn-sm" data-gtry="${esc(a.id)}">${icon('play', 'i-sm')}${esc(a.name)}</button>`).join('') : `<span class="muted">${t('Choisissez au moins une app à garder.')}</span>`; },
+  setInner() {
+    const g = this.cfg(), mode = Array.isArray(g.decks) ? 'pick' : g.decks, ids = new Set(this.decks().map(d => d.id));
+    const seg = (attr, list, cur) => `<div class="seg">${list.map(([k, l]) => `<button class="${String(cur) === String(k) ? 'on' : ''}" data-${attr}="${k}" aria-pressed="${String(cur) === String(k)}">${l}</button>`).join('')}</div>`;
+    return `<div class="settings">
+      <div class="set-row col"><div class="t"><b>${t('Apps à garder')}</b><span>${t('Celles qui vous prennent le plus de temps. Une autre ? Ajoutez son nom et, si vous le connaissez, son lien d\'app.')}</span></div>
+        <div class="chips">${Object.entries(GATE_APPS).map(([k, v]) => `<button class="chip ${g.apps.includes(k) ? 'on' : ''}" data-gapp="${k}" aria-pressed="${g.apps.includes(k)}">${g.apps.includes(k) ? icon('padlock', 'i-sm') : ''}${esc(v.name)}</button>`).join('')}${g.custom.map(c => `<span class="chip on gs-cust">${icon('padlock', 'i-sm')}${esc(c.name)}<button type="button" data-gdel="${esc(c.id)}" aria-label="${esc(t('Retirer {x}', { x: c.name }))}">${icon('x', 'i-sm')}</button></span>`).join('')}</div>
+        <form class="gs-add" id="gsAdd" autocomplete="off"><input class="input" id="gsName" maxlength="30" placeholder="${esc(t('Autre app'))}" aria-label="${esc(t('Nom de l\'app'))}"><input class="input" id="gsScheme" maxlength="80" placeholder="whatsapp://" aria-label="${esc(t('Lien de l\'app (facultatif)'))}" autocapitalize="off" spellcheck="false"><button class="btn btn-sm">${icon('plus', 'i-sm')}${t('Ajouter')}</button></form></div>
+      <div class="set-row col"><div class="t"><b>${t('Questions tirées de')}</b><span>${this.scope()}</span></div>
+        ${seg('gscope', [['exam', t('L\'examen le plus proche')], ['all', t('Tous les paquets')], ['pick', t('Choisir')]], mode)}
+        ${mode === 'pick' ? `<div class="chips">${S.decks.map(d => `<button class="chip ${ids.has(d.id) ? 'on' : ''}" data-gdeck="${d.id}" aria-pressed="${ids.has(d.id)}">${esc(d.name)}</button>`).join('')}</div>` : ''}</div>
+      ${setRow(t('Seuil de réussite'), t('La part de bonnes réponses qui ouvre l\'app.'), `<div class="ctl"><input type="range" min="70" max="100" step="5" value="${g.th}" id="gsTh" aria-label="${esc(t('Seuil de réussite'))}"><b class="tnum" id="gsThOut" style="width:56px">${pct(g.th / 100)}</b></div>`)}
+      ${setRow(t('Nombre de questions'), '', seg('gn', [5, 10, 15, 20].map(n => [n, num(n)]), g.n))}
+      ${setRow(t('Durée du déblocage'), t('Le temps pendant lequel l\'app reste libre après une réussite. Sur iPhone, reportez-le dans le raccourci « Engram Barrière » (Ajuster la date).'), seg('gm', [5, 10, 15, 30, 60].map(n => [n, num(n) + ' min']), g.mins))}
+    </div>`;
+  },
+  /** Les liens à copier, puis les étapes du téléphone choisi. */
+  pane(tab) {
+    const g = this.cfg(), L = this.labels(), a = this.first(), app = esc(a.name), apps = this.guarded(), base = Share.base(), many = apps.length > 1;
+    const link = this.link(a.id) || '…/#barriere=' + encodeURIComponent(a.id), mins = tp(g.mins, '{n} minute|{n} minutes');
+    const Q = s => `<b>${quote(esc(s))}</b>`, file = '<code>engram-pass.txt</code>';
+    const step = (n, title, items, side) => `<li class="gs-step rise"><div class="gs-txt"><div class="gs-sh"><span class="gs-n">${n}</span><h3 class="h3">${title}</h3></div><ol class="lk-steps">${items.filter(Boolean).map(x => `<li><span>${x}</span></li>`).join('')}</ol></div>${side ? `<div class="gs-side-x">${side}</div>` : ''}</li>`;
+    const links = `<article class="panel rise gs-links"><div class="panel-h"><h3 class="h3">${t('Les liens de la barrière')}</h3>${icon('link')}</div>
+      ${base ? '' : `<p class="ag-hint warn">${icon('eye', 'i-sm')}<span>${t('Ces liens marchent avec Engram en ligne (le site Netlify), pas dans l\'aperçu.')}</span></p>`}
+      ${apps.map(x => `<div class="ag-link"><b>${esc(x.name)}</b><code>${esc(this.link(x.id) || '…/#barriere=' + encodeURIComponent(x.id))}</code><button class="btn btn-sm" data-gcopy="${esc(x.id)}" ${base ? '' : 'disabled'}>${icon('copy', 'i-sm')}${t('Copier')}</button></div>`).join('') || `<p class="muted" style="margin:0">${t('Choisissez au moins une app à garder.')}</p>`}</article>`;
+    if (tab === 'android') return links + `<ol class="gs-steps">
+      ${step(1, t('Installez MacroDroid'), [
+        t('Sur le Play Store, installez MacroDroid (la version gratuite suffit) et autorisez l\'accès aux données d\'utilisation : c\'est ce qui lui permet de voir quelle app s\'ouvre.'),
+        t('Installez aussi Engram sur l\'écran d\'accueil depuis Chrome : le lien de la barrière s\'ouvrira dans l\'app, avec vos fiches.')
+      ])}
+      ${step(2, t('La macro {x}', { x: Q('Engram Pass') }), [
+        t('Nouvelle macro {x}, déclencheur {a}, identifiant {id}.', { x: Q('Engram Pass'), a: Q(L.hook), id: '<code>engram-pass</code>' }),
+        t('Action : {a} (« Barrière levée », par exemple). Enregistrez.', { a: Q(L.notify) }),
+        t('Copiez le lien du webhook affiché par MacroDroid et collez-le ici : Engram l\'appelle à chaque réussite.')
+      ], `<div class="gs-hook"><div class="field"><label for="gsHook">${t('Lien du webhook MacroDroid')}</label><input class="input" id="gsHook" inputmode="url" autocapitalize="off" spellcheck="false" placeholder="https://trigger.macrodroid.com/…/engram-pass" value="${esc(g.hook)}"></div><div class="gs-hook-a"><button class="btn btn-sm btn-brass" data-ghook="save">${icon('check', 'i-sm')}${t('Enregistrer')}</button><button class="btn btn-sm" data-ghook="test" ${g.hook ? '' : 'disabled'}>${icon('send', 'i-sm')}${t('Tester')}</button></div></div>`)}
+      ${step(3, t('La macro {x}', { x: Q('Engram Barrière') }), [
+        t('Déclencheur {a} : au lancement de {app}.', { a: Q(L.launched), app }),
+        t('Action {a} avec le lien de la barrière (ci-dessus, bouton Copier).', { a: Q(L.web) }),
+        t('Contrainte {a} : {x} n\'a pas été exécutée depuis {m}.', { a: Q(L.lastRun), x: Q('Engram Pass'), m: mins }),
+        many ? t('Plusieurs apps ? Une macro par app, chacune avec son lien.') : ''
+      ], this.mock('Engram Barrière', [['zap', '#C8463A', L.launched, app], ['globe', '#3D63C9', L.web, `<code>${esc(link)}</code>`], ['clock', '#2F8F62', L.lastRun, `Engram Pass · ${esc(mins)}`]], 'droid'))}
+    </ol>
+    <p class="bnote rise">${icon('info')}<span>${t('Sans webhook, mettez la contrainte sur {x} elle-même : plus simple, mais après chaque barrière, même ratée, l\'app reste libre {m}. Avec Tasker : un profil {a} pour {app}, et la tâche {b} avec le même lien.', { x: Q('Engram Barrière'), m: mins, a: Q(L.appTrig), app, b: Q(t('Parcourir l\'URL')) })}</span></p>`;
+    const ids = apps.map(x => `<code>${esc(x.id)}</code>`).join(', ');
+    return links + `<ol class="gs-steps">
+      ${step(1, t('Le raccourci {x}', { x: Q('Engram Pass') }), [
+        t('Dans l\'app Raccourcis, touchez « + » et nommez le raccourci {x}, exactement.', { x: Q('Engram Pass') }),
+        t('Ajoutez {a} et mettez-y la variable {b} (format ISO 8601).', { a: Q(L.text), b: Q(L.now) }),
+        t('Ajoutez {a} : dossier Raccourcis, nom {f}, « Demander où enregistrer » désactivé, « Remplacer » activé.', { a: Q(L.save), f: file }),
+        many ? t('Pour chaque app, ajoutez {a} : {b} est son code ({ids}), puis {c} cette app.', { a: Q(L.if), b: Q(L.input), ids, c: Q(L.open) }) : t('Ajoutez {a} et choisissez {app}.', { a: Q(L.open), app }),
+        t('Engram le lance après chaque réussite : il note l\'heure, puis ouvre l\'app.'),
+        t('Lancez-le une fois à la main : il crée le fichier {f}, que la barrière lira.', { f: file })
+      ], this.mock('Engram Pass', [['type', '#8A8A90', L.text, `<em>${esc(L.now)}</em>`], ['download', '#3D63C9', L.save, file], ['arrow', '#2F8F62', L.open, app]]))}
+      ${step(2, t('Le raccourci {x}', { x: Q('Engram Barrière') }), [
+        t('Nouveau raccourci, nommé {x}.', { x: Q('Engram Barrière') }),
+        t('{a} : dossier Raccourcis, chemin {f}, « Erreur si introuvable » désactivé.', { a: Q(L.get), f: file }),
+        t('{a}, puis {b} : ajouter {m}.', { a: Q(L.dates), b: Q(L.adjust), m: mins }),
+        t('{a} la date ajustée {b} {c} : {d}.', { a: Q(L.if), b: Q(L.after), c: Q(L.now), d: Q(L.stop) }),
+        t('Après la fin du {a}, ajoutez {b} avec le lien de la barrière (ci-dessus, bouton Copier).', { a: Q(L.if), b: Q(L.url) })
+      ], this.mock('Engram Barrière', [['file', '#3D63C9', L.get, file], ['cal', '#C8463A', L.dates, ''], ['clock', '#C8463A', L.adjust, '+ ' + esc(mins)], ['zap', '#8A8A90', L.if, `${esc(L.after)} <em>${esc(L.now)}</em>`], ['stop', '#8A8A90', L.stop, '', 1], ['link', '#3D63C9', L.url, `<code>${esc(link)}</code>`]]))}
+      ${step(3, t('L\'automatisation'), [
+        t('Onglet {a} → « + » → {b}.', { a: Q(L.auto), b: Q(L.appTrig) }),
+        t('Choisissez {app}, cochez {a} puis {b}.', { app, a: Q(L.opened), b: Q(L.immed) }),
+        t('Action : {a} → {x}.', { a: Q(L.run), x: Q('Engram Barrière') }),
+        many ? t('Une autre app ? Dupliquez {x}, changez seulement le lien, et créez son automatisation.', { x: Q('Engram Barrière') }) : ''
+      ], this.mock(L.auto, [['mobile', '#2F8F62', a.name, esc(L.opened)], ['zap', '#B7841F', L.immed, '✓'], ['play', '#3D63C9', L.run, 'Engram Barrière']], 'auto'))}
+    </ol>
+    <p class="bnote rise">${icon('info')}<span>${t('Le lien s\'ouvre dans Safari. Si vous utilisez Engram depuis l\'écran d\'accueil, connectez-vous à votre compte Engram dans Safari aussi : vos fiches vous y suivent.')}</span></p>`;
+  },
+  /** Après un réglage : on redessine les morceaux concernés, sans rejouer les animations de la page. */
+  refresh() {
+    const s = $('#gsSetIn'); if (s) s.innerHTML = this.setInner();
+    const l = $('#gsLede'); if (l) l.innerHTML = this.lede();
+    const y = $('#gsTry'); if (y) y.innerHTML = this.tryInner();
+    const p = $('#gsPane'); if (p) { p.innerHTML = this.pane(this.tab || (this.android ? 'android' : 'ios')); $$('.rise', p).forEach(x => x.style.animation = 'none'); }
+  },
+  setupHook() {
+    const root = $('#view > .view'); if (!root) return;
+    const g = this.cfg(), lock = () => { if (this.on) return false; Pro.upsell('gate'); return true; };
+    root.addEventListener('click', e => {
+      const tb = e.target.closest('[data-gtab]');
+      if (tb) { this.tab = tb.dataset.gtab; $$('#gsTab button').forEach(x => { x.classList.toggle('on', x === tb); x.setAttribute('aria-pressed', x === tb); }); const p = $('#gsPane'); if (p) p.innerHTML = this.pane(this.tab); Sound.play('tick'); return; }
+      const cp = e.target.closest('[data-gcopy]');
+      if (cp) { if (!lock()) copyText(this.link(cp.dataset.gcopy), t('Lien copié')); return; }
+      const tr = e.target.closest('[data-gtry]');
+      if (tr) { if (!lock()) this.land(tr.dataset.gtry); return; }
+      const hk = e.target.closest('[data-ghook]');
+      if (hk) {
+        if (lock()) return;
+        if (hk.dataset.ghook === 'test') { toast(this.ping() ? t('Webhook appelé : MacroDroid doit afficher sa notification.') : t('Enregistrez d\'abord le lien du webhook.'), 'send'); return; }
+        const v = ($('#gsHook')?.value || '').trim();
+        if (v && !/^https:\/\//i.test(gateHref(v))) { toast(t('Le lien du webhook commence par https://'), 'link'); return; }
+        g.hook = v; Store.touch('profile'); this.refresh();
+        toast(v ? t('Webhook enregistré : Engram l\'appellera à chaque réussite.') : t('Webhook retiré.'), 'check'); return;
+      }
+      const b = e.target.closest('[data-gapp],[data-gdel],[data-gdeck],[data-gscope],[data-gn],[data-gm]'); if (!b) return;
+      if (lock()) return;
+      const d = b.dataset;
+      if (d.gapp) { const i = g.apps.indexOf(d.gapp); if (i >= 0) g.apps.splice(i, 1); else g.apps.push(d.gapp); }
+      else if (d.gdel) { g.custom = g.custom.filter(c => c.id !== d.gdel); g.apps = g.apps.filter(x => x !== d.gdel); }
+      else if (d.gscope) g.decks = d.gscope === 'pick' ? this.decks().map(x => x.id) : d.gscope;
+      else if (d.gdeck) { const ids = Array.isArray(g.decks) ? g.decks : [], i = ids.indexOf(d.gdeck); if (i < 0) ids.push(d.gdeck); else if (ids.length > 1) ids.splice(i, 1); else { toast(t('Gardez au moins un paquet.'), 'drawer'); return; } g.decks = ids; }
+      else if (d.gn) g.n = +d.gn;
+      else if (d.gm) g.mins = +d.gm;
+      Store.touch('profile'); Sound.play('tick'); this.refresh();
+    });
+    root.addEventListener('submit', e => {
+      if (e.target.id !== 'gsAdd') return;
+      e.preventDefault(); if (lock()) return;
+      const name = ($('#gsName')?.value || '').trim().slice(0, 30), raw = ($('#gsScheme')?.value || '').trim(), href = gateHref(raw);
+      if (!name) { $('#gsName')?.focus(); return; }
+      if (raw && !href) { toast(t('Ce lien d\'app ne ressemble pas à un lien : par exemple whatsapp:// ou https://…'), 'link'); return; }
+      const id = this.slug(name) || 'app';
+      if (!GATE_APPS[id]) { const c = g.custom.find(x => x.id === id); if (c) Object.assign(c, { name, scheme: href }); else g.custom.push({ id, name, scheme: href }); }
+      if (!g.apps.includes(id)) g.apps.push(id);
+      Store.touch('profile'); Sound.play('pop'); this.refresh();
+      toast(t('{app} est gardée par la barrière.', { app: name }), 'padlock');
+    });
+    root.addEventListener('input', e => { if (e.target.id !== 'gsTh') return; if (!this.on) { e.target.value = g.th; return; } g.th = +e.target.value; const o = $('#gsThOut'); if (o) o.textContent = pct(g.th / 100); });
+    root.addEventListener('change', e => { if (e.target.id !== 'gsTh') return; if (lock()) { e.target.value = g.th; return; } Store.touch('profile'); const l = $('#gsLede'); if (l) l.innerHTML = this.lede(); });
+  },
+  /** La carte du hub des jeux. */
+  card() {
+    const g = this.cfg();
+    return `<button class="game rise" style="animation-delay:.24s" data-act="go" data-v="gate-setup"><div class="art gt-art" aria-hidden="true"><span style="left:8%;top:26px;transform:rotate(-8deg)"></span><span class="g" style="left:30%;top:12px;transform:rotate(4deg)"></span><em>${icon('padlock')}</em></div><div class="t">${t('Barrière d\'apps')}</div><p>${t('Avant TikTok ou Instagram, quelques questions sur vos fiches : il faut {p} pour ouvrir l\'app.', { p: pct(g.th / 100) })}</p><div class="meta"><span>${t('Élite')}</span><span>${t('iPhone et Android')}</span></div></button>`;
+  }
+};
+Views.gate = arg => Gate.view(arg);
+Hooks.gate = () => Gate.hook();
+Views['gate-setup'] = () => Gate.setupView();
+Hooks['gate-setup'] = () => Gate.setupHook();
+
 const LiveDict = {
   on: false, rec: null, words: 0,
   toggle() { this.on ? this.stop() : this.start(); },
@@ -17120,6 +17789,156 @@ TR = {
   "Apparence": ["Appearance","Apariencia","Erscheinungsbild","Aparência"],
   "Langue": ["Language","Idioma","Sprache","Idioma"],
   "Réglages": ["Settings","Ajustes","Einstellungen","Ajustes"],
+  "Ouvrez {app} depuis l'écran d'accueil.": ["Open {app} from your home screen.","Abre {app} desde la pantalla de inicio.","Öffne {app} über den Startbildschirm.","Abra {app} pela tela inicial."],
+  "Lancez-le une fois à la main : il crée le fichier {f}, que la barrière lira.": ["Run it once by hand: it creates the file {f}, which the barrier will read.","Ejecútalo una vez a mano: crea el archivo {f}, que la barrera leerá.","Starte ihn einmal von Hand: Er legt die Datei {f} an, die die Sperre liest.","Execute-o uma vez manualmente: ele cria o arquivo {f}, que a barreira vai ler."],
+  "La barrière d'apps fait partie d'Élite": ["The app barrier is part of Elite","La barrera de apps forma parte de Élite","Die App-Sperre gehört zu Elite","A barreira de apps faz parte do Elite"],
+  "Avant TikTok ou Instagram, quelques questions sur vos fiches : il faut réussir pour ouvrir l'app. Élite est aussi proposée aux écoles et aux entreprises.": ["Before TikTok or Instagram, a few questions on your cards: you have to pass to open the app. Elite is also offered to schools and companies.","Antes de TikTok o Instagram, unas preguntas sobre tus tarjetas: hay que aprobar para abrir la app. Élite también se ofrece a escuelas y empresas.","Vor TikTok oder Instagram ein paar Fragen zu deinen Karten: Erst wer besteht, öffnet die App. Elite gibt es auch für Schulen und Unternehmen.","Antes do TikTok ou do Instagram, algumas perguntas sobre seus cartões: é preciso passar para abrir o app. O Elite também é oferecido a escolas e empresas."],
+  "Barrière d'apps": ["App barrier","Barrera de apps","App-Sperre","Barreira de apps"],
+  "Avant TikTok ou Instagram, quelques questions sur vos fiches : il faut réussir pour ouvrir l'app.": ["Before TikTok or Instagram, a few questions on your cards: you have to pass to open the app.","Antes de TikTok o Instagram, unas preguntas sobre tus tarjetas: hay que aprobar para abrir la app.","Vor TikTok oder Instagram ein paar Fragen zu deinen Karten: Erst wer besteht, öffnet die App.","Antes do TikTok ou do Instagram, algumas perguntas sobre seus cartões: é preciso passar para abrir o app."],
+  "Régler": ["Set up","Configurar","Einrichten","Configurar"],
+  "cette app": ["this app","esta app","diese App","este app"],
+  "Aucun examen à venir avec des paquets : toutes vos fiches.": ["No upcoming exam with decks: all your cards.","Ningún examen próximo con mazos: todas tus tarjetas.","Keine anstehende Prüfung mit Stapeln: alle deine Karten.","Nenhuma prova próxima com baralhos: todos os seus cartões."],
+  "Toutes vos fiches.": ["All your cards.","Todas tus tarjetas.","Alle deine Karten.","Todos os seus cartões."],
+  "Bien joué : pas de {app} pour cette fois.": ["Well done: no {app} this time.","Bien hecho: nada de {app} esta vez.","Gut gemacht: diesmal kein {app}.","Muito bem: nada de {app} desta vez."],
+  "Erreurs de la barrière": ["Barrier mistakes","Errores de la barrera","Fehler bei der Sperre","Erros da barreira"],
+  "Récitation réussie : {app} est débloqué.": ["Recitation passed: {app} is unlocked.","Recitación superada: {app} está desbloqueada.","Vortrag bestanden: {app} ist entsperrt.","Recitação aprovada: {app} está desbloqueado."],
+  "Récitation : {s} sur 100, il fallait {p}.": ["Recitation: {s} out of 100, you needed {p}.","Recitación: {s} de 100, hacía falta {p}.","Vortrag: {s} von 100, nötig waren {p}.","Recitação: {s} de 100, era preciso {p}."],
+  "Réessayer": ["Try again","Reintentar","Erneut versuchen","Tentar de novo"],
+  "Ouvrir {app}": ["Open {app}","Abrir {app}","{app} öffnen","Abrir {app}"],
+  "Ouvrir directement": ["Open directly","Abrir directamente","Direkt öffnen","Abrir diretamente"],
+  "Barrière": ["Barrier","Barrera","Sperre","Barreira"],
+  "{p} requis": ["{p} required","{p} necesario","{p} nötig","{p} necessário"],
+  "La barrière fait partie d'<em>Élite</em>.": ["The barrier is part of <em>Elite</em>.","La barrera forma parte de <em>Élite</em>.","Die Sperre gehört zu <em>Elite</em>.","A barreira faz parte do <em>Elite</em>."],
+  "Votre téléphone a ouvert Engram avant {app}, mais la barrière n'est pas active avec votre formule. Ouvrez l'app, ou essayez Élite : la formule proposée aussi aux écoles et aux entreprises.": ["Your phone opened Engram before {app}, but the barrier isn't active on your plan. Open the app, or try Elite: the plan also offered to schools and companies.","Tu teléfono abrió Engram antes de {app}, pero la barrera no está activa con tu plan. Abre la app o prueba Élite: el plan que también se ofrece a escuelas y empresas.","Dein Handy hat Engram vor {app} geöffnet, aber die Sperre ist in deinem Tarif nicht aktiv. Öffne die App oder teste Elite: der Tarif, den es auch für Schulen und Unternehmen gibt.","Seu celular abriu o Engram antes do {app}, mas a barreira não está ativa no seu plano. Abra o app ou experimente o Elite: o plano também oferecido a escolas e empresas."],
+  "Pour ne plus passer par Engram, désactivez l'automatisation dans Raccourcis (iPhone) ou la macro dans MacroDroid (Android).": ["To stop going through Engram, turn off the automation in Shortcuts (iPhone) or the macro in MacroDroid (Android).","Para no pasar más por Engram, desactiva la automatización en Atajos (iPhone) o la macro en MacroDroid (Android).","Um nicht mehr über Engram zu gehen, schalte die Automation in Kurzbefehle (iPhone) oder das Makro in MacroDroid (Android) aus.","Para não passar mais pelo Engram, desative a automação no Atalhos (iPhone) ou a macro no MacroDroid (Android)."],
+  "Laissez-passer": ["Pass","Pase","Passierschein","Passe"],
+  "jusqu'à {h}": ["until {h}","hasta las {h}","bis {h}","até {h}"],
+  "DÉBLOQUÉ": ["UNLOCKED","DESBLOQUEADO","ENTSPERRT","LIBERADO"],
+  "Vous pouvez ouvrir <em>{app}</em>.": ["You can open <em>{app}</em>.","Ya puedes abrir <em>{app}</em>.","Du kannst <em>{app}</em> öffnen.","Você pode abrir o <em>{app}</em>."],
+  "{x} sur {n} : la barrière se lève pour {m}.": ["{x} out of {n}: the barrier lifts for {m}.","{x} de {n}: la barrera se levanta durante {m}.","{x} von {n}: Die Sperre öffnet sich für {m}.","{x} de {n}: a barreira se abre por {m}."],
+  "Votre laissez-passer court jusqu'à {h} : pas besoin de repasser l'épreuve.": ["Your pass runs until {h}: no need to take the test again.","Tu pase vale hasta las {h}: no hace falta repetir la prueba.","Dein Passierschein gilt bis {h}: Du musst den Test nicht wiederholen.","Seu passe vale até {h}: não precisa refazer a prova."],
+  "Si MacroDroid relance la barrière, vérifiez le webhook « Engram Pass » dans Régler la barrière.": ["If MacroDroid brings the barrier back, check the “Engram Pass” webhook in Set up the barrier.","Si MacroDroid vuelve a lanzar la barrera, revisa el webhook «Engram Pass» en Configurar la barrera.","Wenn MacroDroid die Sperre erneut startet, prüfe den Webhook „Engram Pass“ unter Sperre einrichten.","Se o MacroDroid abrir a barreira de novo, confira o webhook “Engram Pass” em Configurar a barreira."],
+  "« Ouvrir {app} » passe par le raccourci « Engram Pass » : il note l'heure, et la barrière vous laisse passer {m}. « Ouvrir directement » ne note rien : l'automatisation vous ramènera ici.": ["“Open {app}” goes through the “Engram Pass” shortcut: it records the time, and the barrier lets you through for {m}. “Open directly” records nothing: the automation will bring you back here.","«Abrir {app}» pasa por el atajo «Engram Pass»: anota la hora y la barrera te deja pasar durante {m}. «Abrir directamente» no anota nada: la automatización te traerá de vuelta aquí.","„{app} öffnen“ läuft über den Kurzbefehl „Engram Pass“: Er notiert die Uhrzeit, und die Sperre lässt dich {m} lang durch. „Direkt öffnen“ notiert nichts: Die Automation bringt dich wieder hierher.","“Abrir {app}” passa pelo atalho “Engram Pass”: ele anota a hora, e a barreira deixa você passar por {m}. “Abrir diretamente” não anota nada: a automação trará você de volta aqui."],
+  "Retour à Engram": ["Back to Engram","Volver a Engram","Zurück zu Engram","Voltar ao Engram"],
+  "Il fallait {p} : {app} attendra encore un peu.": ["You needed {p}: {app} will have to wait a little longer.","Hacía falta {p}: {app} tendrá que esperar un poco más.","Nötig waren {p}: {app} muss noch ein bisschen warten.","Era preciso {p}: o {app} vai ter que esperar mais um pouco."],
+  "Relisez ce qui vous a manqué, puis retentez avec d'autres questions.": ["Read over what you missed, then try again with other questions.","Repasa lo que te faltó y vuelve a intentarlo con otras preguntas.","Lies nach, was dir gefehlt hat, und versuch es dann mit anderen Fragen.","Releia o que faltou e tente de novo com outras perguntas."],
+  "votre réponse :": ["your answer:","tu respuesta:","deine Antwort:","sua resposta:"],
+  "Réessayer avec d'autres questions": ["Try again with other questions","Reintentar con otras preguntas","Mit anderen Fragen erneut versuchen","Tentar de novo com outras perguntas"],
+  "Je n'ouvre pas {app}": ["I won't open {app}","No abro {app}","Ich öffne {app} nicht","Não vou abrir o {app}"],
+  "(auto-évaluée)": ["(self-assessed)","(autoevaluada)","(selbst bewertet)","(autoavaliada)"],
+  "synonymes et reformulations acceptés": ["synonyms and rewordings accepted","se aceptan sinónimos y reformulaciones","Synonyme und Umformulierungen erlaubt","sinônimos e reformulações aceitos"],
+  "Réponse attendue": ["Expected answer","Respuesta esperada","Erwartete Antwort","Resposta esperada"],
+  "Engram ne peut pas trancher seul : comparez, et soyez honnête, c'est vous que la barrière protège.": ["Engram can't decide on its own: compare, and be honest, the barrier is there to protect you.","Engram no puede decidir solo: compara y sé honesto, la barrera está para protegerte a ti.","Engram kann das nicht allein entscheiden: Vergleiche und sei ehrlich, die Sperre schützt dich.","O Engram não consegue decidir sozinho: compare e seja honesto, a barreira está aí para proteger você."],
+  "J'avais bon": ["I got it right","Lo tenía bien","Ich lag richtig","Eu acertei"],
+  "Je m'étais trompé": ["I got it wrong","Me equivoqué","Ich lag falsch","Eu errei"],
+  "Je ne sais pas": ["I don't know","No lo sé","Weiß ich nicht","Não sei"],
+  "Bonnes réponses": ["Right answers","Respuestas correctas","Richtige Antworten","Respostas certas"],
+  "Pas encore assez de <em>fiches</em>.": ["Not enough <em>cards</em> yet.","Todavía no hay suficientes <em>tarjetas</em>.","Noch nicht genug <em>Karten</em>.","Ainda não há <em>cartões</em> suficientes."],
+  "La barrière a besoin d'au moins 3 fiches (QCM, vrai ou faux, question-réponse ou texte à trous) dans les paquets choisis.": ["The barrier needs at least 3 cards (multiple choice, true or false, question and answer, or cloze) in the chosen decks.","La barrera necesita al menos 3 tarjetas (opción múltiple, verdadero o falso, pregunta-respuesta o texto con huecos) en los mazos elegidos.","Die Sperre braucht mindestens 3 Karten (Multiple Choice, wahr oder falsch, Frage-Antwort oder Lückentext) in den gewählten Stapeln.","A barreira precisa de pelo menos 3 cartões (múltipla escolha, verdadeiro ou falso, pergunta e resposta ou lacunas) nos baralhos escolhidos."],
+  "Sur iPhone, le lien de la barrière s'ouvre dans Safari : si vos fiches sont dans l'app de l'écran d'accueil, connectez-vous à votre compte Engram dans Safari aussi pour les retrouver.": ["On iPhone, the barrier link opens in Safari: if your cards are in the Home Screen app, sign in to your Engram account in Safari too to find them.","En iPhone, el enlace de la barrera se abre en Safari: si tus tarjetas están en la app de la pantalla de inicio, inicia sesión en tu cuenta de Engram también en Safari para encontrarlas.","Auf dem iPhone öffnet sich der Link der Sperre in Safari: Wenn deine Karten in der App auf dem Home-Bildschirm sind, melde dich auch in Safari bei deinem Engram-Konto an, um sie dort zu finden.","No iPhone, o link da barreira abre no Safari: se seus cartões estão no app da tela de início, entre na sua conta Engram no Safari também para encontrá-los."],
+  "Régler la barrière": ["Set up the barrier","Configurar la barrera","Sperre einrichten","Configurar a barreira"],
+  "Réciter à l'oral": ["Recite out loud","Recitar en voz alta","Laut vortragen","Recitar em voz alta"],
+  "Réussissez-en {p} et {app} s'ouvre pour {m}. Sinon, vous réessayez avec d'autres questions.": ["Get {p} right and {app} opens for {m}. Otherwise, you try again with other questions.","Acierta el {p} y {app} se abre durante {m}. Si no, vuelves a intentarlo con otras preguntas.","Beantworte {p} richtig, und {app} öffnet sich für {m}. Sonst versuchst du es mit anderen Fragen noch einmal.","Acerte {p} e o {app} abre por {m}. Senão, você tenta de novo com outras perguntas."],
+  "Réponses écrites corrigées par l'IA": ["Written answers graded by the AI","Respuestas escritas corregidas por la IA","Geschriebene Antworten von der KI korrigiert","Respostas escritas corrigidas pela IA"],
+  "Correction sur l'appareil": ["Graded on the device","Corrección en el dispositivo","Korrektur auf dem Gerät","Correção no aparelho"],
+  "Commencer l'épreuve": ["Start the test","Empezar la prueba","Test starten","Começar a prova"],
+  "Texte@@raccourci": ["Text","Texto","Text","Texto"],
+  "Date actuelle": ["Current Date","Fecha actual","Aktuelles Datum","Data Atual"],
+  "Ouvrir l'app": ["Open App","Abrir app","App öffnen","Abrir App"],
+  "Obtenir le fichier": ["Get File","Obtener archivo","Datei abrufen","Obter Arquivo"],
+  "Obtenir les dates de l'entrée": ["Get Dates from Input","Obtener fechas de la entrada","Daten aus Eingabe abrufen","Obter Datas da Entrada"],
+  "Ajuster la date": ["Adjust Date","Ajustar fecha","Datum anpassen","Ajustar Data"],
+  "Si@@raccourci": ["If","Si","Wenn","Se"],
+  "est après": ["is after","es posterior a","ist nach","é depois de"],
+  "Arrêter ce raccourci": ["Stop This Shortcut","Detener este atajo","Diesen Kurzbefehl stoppen","Parar Este Atalho"],
+  "Ouvrir les URL": ["Open URLs","Abrir URL","URLs öffnen","Abrir URLs"],
+  "Exécuter le raccourci": ["Run Shortcut","Ejecutar atajo","Kurzbefehl ausführen","Executar Atalho"],
+  "Automatisation": ["Automation","Automatización","Automation","Automação"],
+  "App@@déclencheur": ["App","App","App","App"],
+  "Est ouverte": ["Is Opened","Se abre","Wird geöffnet","É Aberto"],
+  "Exécuter immédiatement": ["Run Immediately","Ejecutar inmediatamente","Sofort ausführen","Executar Imediatamente"],
+  "Entrée du raccourci": ["Shortcut Input","Entrada del atajo","Kurzbefehleingabe","Entrada do Atalho"],
+  "Afficher une notification": ["Display Notification","Mostrar notificación","Benachrichtigung anzeigen","Mostrar notificação"],
+  "Application lancée/fermée": ["Application Launched/Closed","Aplicación iniciada/cerrada","App gestartet/geschlossen","Aplicativo iniciado/fechado"],
+  "Ouvrir un site web": ["Open Website","Abrir sitio web","Webseite öffnen","Abrir site"],
+  "Heure de dernière exécution": ["Last Run Time","Hora de la última ejecución","Letzte Ausführungszeit","Hora da última execução"],
+  "barrière d'apps": ["app barrier","barrera de apps","App-Sperre","barreira de apps"],
+  "Vos fiches <em>avant</em> {app}.": ["Your cards <em>before</em> {app}.","Tus tarjetas <em>antes</em> que {app}.","Deine Karten <em>vor</em> {app}.","Seus cartões <em>antes</em> do {app}."],
+  "Élite, la formule proposée aussi aux écoles et aux entreprises : la barrière d'apps, le planning heure par heure et l'IA la plus puissante.": ["Elite, the plan also offered to schools and companies: the app barrier, the hour-by-hour schedule and the most powerful AI.","Élite, el plan que también se ofrece a escuelas y empresas: la barrera de apps, el horario hora a hora y la IA más potente.","Elite, der Tarif, den es auch für Schulen und Unternehmen gibt: die App-Sperre, der Stundenplan und die stärkste KI.","Elite, o plano também oferecido a escolas e empresas: a barreira de apps, o planejamento hora a hora e a IA mais poderosa."],
+  "<b>Ce que fait la barrière, honnêtement.</b> Engram est une app web : il ne peut ni voir ni bloquer les autres apps de votre téléphone. La barrière passe par les automatisations du téléphone (Raccourcis sur iPhone, MacroDroid sur Android) : à l'ouverture de l'app, elles ouvrent Engram. C'est un garde-fou contre le réflexe, pas un verrou : vous pouvez toujours la désactiver. Le vrai blocage viendra avec l'app Engram pour iPhone (API Temps d'écran d'Apple).": ["<b>What the barrier does, honestly.</b> Engram is a web app: it can neither see nor block the other apps on your phone. The barrier works through your phone's automations (Shortcuts on iPhone, MacroDroid on Android): when the app opens, they open Engram. It's a guard against the reflex, not a lock: you can always turn it off. Real blocking will come with the Engram iPhone app (Apple's Screen Time API).","<b>Lo que hace la barrera, con honestidad.</b> Engram es una app web: no puede ver ni bloquear las demás apps de tu teléfono. La barrera funciona con las automatizaciones del teléfono (Atajos en iPhone, MacroDroid en Android): al abrir la app, abren Engram. Es una protección contra el reflejo, no un candado: siempre puedes desactivarla. El bloqueo real llegará con la app de Engram para iPhone (API Tiempo de uso de Apple).","<b>Was die Sperre ehrlich gesagt kann.</b> Engram ist eine Web-App: Es kann die anderen Apps auf deinem Handy weder sehen noch sperren. Die Sperre läuft über die Automationen des Handys (Kurzbefehle auf dem iPhone, MacroDroid auf Android): Beim Öffnen der App öffnen sie Engram. Sie bremst den Reflex, ist aber kein Schloss: Du kannst sie jederzeit ausschalten. Echtes Sperren kommt mit der Engram-App fürs iPhone (Apples Bildschirmzeit-API).","<b>O que a barreira faz, com honestidade.</b> O Engram é um app web: ele não consegue ver nem bloquear os outros apps do seu celular. A barreira usa as automações do celular (Atalhos no iPhone, MacroDroid no Android): quando o app abre, elas abrem o Engram. É uma proteção contra o reflexo, não uma tranca: você sempre pode desativá-la. O bloqueio de verdade virá com o app Engram para iPhone (API Tempo de Uso da Apple)."],
+  "Réglages de la barrière": ["Barrier settings","Ajustes de la barrera","Einstellungen der Sperre","Ajustes da barreira"],
+  "Essayer la barrière": ["Try the barrier","Probar la barrera","Sperre ausprobieren","Experimentar a barreira"],
+  "Passez l'épreuve ici, comme si vous ouvriez l'app.": ["Take the test here, as if you were opening the app.","Haz la prueba aquí, como si abrieras la app.","Mach den Test hier, als würdest du die App öffnen.","Faça a prova aqui, como se estivesse abrindo o app."],
+  "Vos barrières": ["Your barriers","Tus barreras","Deine Sperren","Suas barreiras"],
+  "depuis le début": ["since the start","desde el principio","seit Beginn","desde o início"],
+  "Épreuves": ["Tests","Pruebas","Tests","Provas"],
+  "Taux de réussite": ["Success rate","Tasa de éxito","Erfolgsquote","Taxa de sucesso"],
+  "Renoncements": ["Apps left closed","Apps no abiertas","Apps nicht geöffnet","Apps não abertos"],
+  "Pas encore d'épreuve : essayez-la ci-dessus.": ["No test yet: try it above.","Todavía no hay pruebas: pruébala arriba.","Noch kein Test: Probier ihn oben aus.","Nenhuma prova ainda: experimente acima."],
+  "Installer la barrière": ["Install the barrier","Instalar la barrera","Sperre installieren","Instalar a barreira"],
+  "Une dizaine de minutes, une seule fois, sur le téléphone où se trouvent les apps à garder.": ["About ten minutes, just once, on the phone that has the apps to guard.","Unos diez minutos, una sola vez, en el teléfono donde están las apps que quieres vigilar.","Etwa zehn Minuten, nur einmal, auf dem Handy mit den Apps, die du sperren willst.","Uns dez minutos, uma única vez, no celular onde estão os apps a vigiar."],
+  "Téléphone": ["Phone","Teléfono","Handy","Celular"],
+  "Quand vous ouvrez {app}, votre téléphone ouvre d'abord Engram : {n} questions sur vos fiches. {p} de bonnes réponses, et l'app s'ouvre pour {m}. Sinon, vous réessayez.": ["When you open {app}, your phone opens Engram first: {n} questions on your cards. {p} right answers, and the app opens for {m}. Otherwise, you try again.","Cuando abres {app}, tu teléfono abre primero Engram: {n} preguntas sobre tus tarjetas. Con un {p} de aciertos, la app se abre durante {m}. Si no, vuelves a intentarlo.","Wenn du {app} öffnest, öffnet dein Handy zuerst Engram: {n} Fragen zu deinen Karten. Mit {p} richtigen Antworten öffnet sich die App für {m}. Sonst versuchst du es noch einmal.","Quando você abre o {app}, seu celular abre primeiro o Engram: {n} perguntas sobre seus cartões. Com {p} de acertos, o app abre por {m}. Senão, você tenta de novo."],
+  "Choisissez au moins une app à garder.": ["Choose at least one app to guard.","Elige al menos una app para vigilar.","Wähle mindestens eine App zum Sperren.","Escolha pelo menos um app para vigiar."],
+  "Apps à garder": ["Apps to guard","Apps que vigilar","Zu sperrende Apps","Apps a vigiar"],
+  "Celles qui vous prennent le plus de temps. Une autre ? Ajoutez son nom et, si vous le connaissez, son lien d'app.": ["The ones that take up most of your time. Another one? Add its name and, if you know it, its app link.","Las que más tiempo te quitan. ¿Otra? Añade su nombre y, si lo conoces, su enlace de app.","Die, die dich am meisten Zeit kosten. Eine andere? Gib ihren Namen und, falls bekannt, ihren App-Link ein.","Os que mais tomam seu tempo. Outro? Adicione o nome e, se souber, o link do app."],
+  "Autre app": ["Other app","Otra app","Andere App","Outro app"],
+  "Nom de l'app": ["App name","Nombre de la app","Name der App","Nome do app"],
+  "Lien de l'app (facultatif)": ["App link (optional)","Enlace de la app (opcional)","App-Link (optional)","Link do app (opcional)"],
+  "Questions tirées de": ["Questions drawn from","Preguntas sacadas de","Fragen aus","Perguntas tiradas de"],
+  "L'examen le plus proche": ["The nearest exam","El examen más cercano","Die nächste Prüfung","A prova mais próxima"],
+  "Seuil de réussite": ["Pass mark","Nota para aprobar","Bestehensgrenze","Nota para passar"],
+  "La part de bonnes réponses qui ouvre l'app.": ["The share of right answers that opens the app.","La proporción de respuestas correctas que abre la app.","Der Anteil richtiger Antworten, der die App öffnet.","A parcela de respostas certas que abre o app."],
+  "Nombre de questions": ["Number of questions","Número de preguntas","Anzahl der Fragen","Número de perguntas"],
+  "Durée du déblocage": ["Unlock duration","Duración del desbloqueo","Dauer der Freigabe","Duração da liberação"],
+  "Le temps pendant lequel l'app reste libre après une réussite. Sur iPhone, reportez-le dans le raccourci « Engram Barrière » (Ajuster la date).": ["How long the app stays free after you pass. On iPhone, copy it into the “Engram Barrière” shortcut (Adjust Date).","El tiempo que la app queda libre después de aprobar. En iPhone, cámbialo también en el atajo «Engram Barrière» (Ajustar fecha).","Wie lange die App nach dem Bestehen frei bleibt. Auf dem iPhone auch im Kurzbefehl „Engram Barrière“ ändern (Datum anpassen).","O tempo em que o app fica livre depois de passar. No iPhone, mude também no atalho “Engram Barrière” (Ajustar Data)."],
+  "Les liens de la barrière": ["The barrier links","Los enlaces de la barrera","Die Links der Sperre","Os links da barreira"],
+  "Installez MacroDroid": ["Install MacroDroid","Instala MacroDroid","Installiere MacroDroid","Instale o MacroDroid"],
+  "Sur le Play Store, installez MacroDroid (la version gratuite suffit) et autorisez l'accès aux données d'utilisation : c'est ce qui lui permet de voir quelle app s'ouvre.": ["From the Play Store, install MacroDroid (the free version is enough) and allow usage access: that's what lets it see which app opens.","En Play Store, instala MacroDroid (basta la versión gratuita) y permite el acceso a los datos de uso: es lo que le deja ver qué app se abre.","Installiere MacroDroid aus dem Play Store (die kostenlose Version reicht) und erlaube den Zugriff auf Nutzungsdaten: So sieht es, welche App sich öffnet.","Na Play Store, instale o MacroDroid (a versão gratuita basta) e permita o acesso aos dados de uso: é isso que deixa ele ver qual app abre."],
+  "Installez aussi Engram sur l'écran d'accueil depuis Chrome : le lien de la barrière s'ouvrira dans l'app, avec vos fiches.": ["Also install Engram on the Home screen from Chrome: the barrier link will open in the app, with your cards.","Instala también Engram en la pantalla de inicio desde Chrome: el enlace de la barrera se abrirá en la app, con tus tarjetas.","Installiere Engram auch aus Chrome auf dem Startbildschirm: Der Link der Sperre öffnet sich dann in der App, mit deinen Karten.","Instale também o Engram na tela inicial pelo Chrome: o link da barreira vai abrir no app, com seus cartões."],
+  "La macro {x}": ["The {x} macro","La macro {x}","Das Makro {x}","A macro {x}"],
+  "Nouvelle macro {x}, déclencheur {a}, identifiant {id}.": ["New macro {x}, trigger {a}, identifier {id}.","Nueva macro {x}, disparador {a}, identificador {id}.","Neues Makro {x}, Auslöser {a}, Kennung {id}.","Nova macro {x}, gatilho {a}, identificador {id}."],
+  "Action : {a} (« Barrière levée », par exemple). Enregistrez.": ["Action: {a} (“Barrier lifted”, for example). Save.","Acción: {a} («Barrera levantada», por ejemplo). Guarda.","Aktion: {a} (zum Beispiel „Sperre offen“). Speichern.","Ação: {a} (“Barreira aberta”, por exemplo). Salve."],
+  "Copiez le lien du webhook affiché par MacroDroid et collez-le ici : Engram l'appelle à chaque réussite.": ["Copy the webhook link MacroDroid shows and paste it here: Engram calls it every time you pass.","Copia el enlace del webhook que muestra MacroDroid y pégalo aquí: Engram lo llama cada vez que apruebas.","Kopiere den Webhook-Link, den MacroDroid anzeigt, und füge ihn hier ein: Engram ruft ihn bei jedem Bestehen auf.","Copie o link do webhook que o MacroDroid mostra e cole aqui: o Engram o chama a cada aprovação."],
+  "Lien du webhook MacroDroid": ["MacroDroid webhook link","Enlace del webhook de MacroDroid","MacroDroid-Webhook-Link","Link do webhook do MacroDroid"],
+  "Tester": ["Test","Probar","Testen","Testar"],
+  "Déclencheur {a} : au lancement de {app}.": ["Trigger {a}: when {app} launches.","Disparador {a}: al iniciar {app}.","Auslöser {a}: beim Start von {app}.","Gatilho {a}: quando o {app} iniciar."],
+  "Action {a} avec le lien de la barrière (ci-dessus, bouton Copier).": ["Action {a} with the barrier link (above, Copy button).","Acción {a} con el enlace de la barrera (arriba, botón Copiar).","Aktion {a} mit dem Link der Sperre (oben, Schaltfläche Kopieren).","Ação {a} com o link da barreira (acima, botão Copiar)."],
+  "Contrainte {a} : {x} n'a pas été exécutée depuis {m}.": ["Constraint {a}: {x} has not run in the last {m}.","Restricción {a}: {x} no se ha ejecutado en los últimos {m}.","Bedingung {a}: {x} wurde in den letzten {m} nicht ausgeführt.","Restrição {a}: {x} não foi executada nos últimos {m}."],
+  "Plusieurs apps ? Une macro par app, chacune avec son lien.": ["Several apps? One macro per app, each with its own link.","¿Varias apps? Una macro por app, cada una con su enlace.","Mehrere Apps? Ein Makro pro App, jedes mit seinem Link.","Vários apps? Uma macro por app, cada uma com seu link."],
+  "Sans webhook, mettez la contrainte sur {x} elle-même : plus simple, mais après chaque barrière, même ratée, l'app reste libre {m}. Avec Tasker : un profil {a} pour {app}, et la tâche {b} avec le même lien.": ["Without a webhook, put the constraint on {x} itself: simpler, but after every barrier, even a failed one, the app stays free for {m}. With Tasker: an {a} profile for {app}, and the {b} task with the same link.","Sin webhook, pon la restricción sobre {x} misma: más sencillo, pero después de cada barrera, aunque no la apruebes, la app queda libre durante {m}. Con Tasker: un perfil {a} para {app} y la tarea {b} con el mismo enlace.","Ohne Webhook setzt du die Bedingung auf {x} selbst: einfacher, aber nach jeder Sperre, auch einer nicht bestandenen, bleibt die App {m} lang frei. Mit Tasker: ein Profil {a} für {app} und die Aufgabe {b} mit demselben Link.","Sem webhook, coloque a restrição na própria {x}: mais simples, mas depois de cada barreira, mesmo reprovada, o app fica livre por {m}. Com o Tasker: um perfil {a} para o {app} e a tarefa {b} com o mesmo link."],
+  "Parcourir l'URL": ["Browse URL","Navegar a URL","URL aufrufen","Navegar para URL"],
+  "Le raccourci {x}": ["The {x} shortcut","El atajo {x}","Der Kurzbefehl {x}","O atalho {x}"],
+  "Dans l'app Raccourcis, touchez « + » et nommez le raccourci {x}, exactement.": ["In the Shortcuts app, tap “+” and name the shortcut {x}, exactly.","En la app Atajos, toca «+» y llama al atajo {x}, exactamente así.","Tippe in der Kurzbefehle-App auf „+“ und nenne den Kurzbefehl genau {x}.","No app Atalhos, toque em “+” e dê ao atalho o nome {x}, exatamente."],
+  "Ajoutez {a} et mettez-y la variable {b} (format ISO 8601).": ["Add {a} and put the {b} variable in it (ISO 8601 format).","Añade {a} y pon dentro la variable {b} (formato ISO 8601).","Füge {a} hinzu und setze die Variable {b} ein (Format ISO 8601).","Adicione {a} e coloque nela a variável {b} (formato ISO 8601)."],
+  "Ajoutez {a} : dossier Raccourcis, nom {f}, « Demander où enregistrer » désactivé, « Remplacer » activé.": ["Add {a}: Shortcuts folder, name {f}, “Ask Where to Save” off, “Overwrite” on.","Añade {a}: carpeta Atajos, nombre {f}, «Preguntar dónde guardar» desactivado, «Sobrescribir» activado.","Füge {a} hinzu: Ordner Kurzbefehle, Name {f}, „Fragen, wo gesichert werden soll“ aus, „Überschreiben“ an.","Adicione {a}: pasta Atalhos, nome {f}, “Perguntar Onde Salvar” desativado, “Substituir” ativado."],
+  "Pour chaque app, ajoutez {a} : {b} est son code ({ids}), puis {c} cette app.": ["For each app, add {a}: {b} is its code ({ids}), then {c} for that app.","Para cada app, añade {a}: {b} es su código ({ids}), y luego {c} esa app.","Füge für jede App {a} hinzu: {b} ist ihr Code ({ids}), dann {c} für diese App.","Para cada app, adicione {a}: {b} é o código dele ({ids}), depois {c} esse app."],
+  "Ajoutez {a} et choisissez {app}.": ["Add {a} and choose {app}.","Añade {a} y elige {app}.","Füge {a} hinzu und wähle {app}.","Adicione {a} e escolha {app}."],
+  "Engram le lance après chaque réussite : il note l'heure, puis ouvre l'app.": ["Engram runs it after every pass: it records the time, then opens the app.","Engram lo lanza cada vez que apruebas: anota la hora y luego abre la app.","Engram startet ihn nach jedem Bestehen: Er notiert die Uhrzeit und öffnet dann die App.","O Engram o executa a cada aprovação: ele anota a hora e depois abre o app."],
+  "Nouveau raccourci, nommé {x}.": ["New shortcut, named {x}.","Nuevo atajo, llamado {x}.","Neuer Kurzbefehl namens {x}.","Novo atalho, com o nome {x}."],
+  "{a} : dossier Raccourcis, chemin {f}, « Erreur si introuvable » désactivé.": ["{a}: Shortcuts folder, path {f}, “Error If Not Found” off.","{a}: carpeta Atajos, ruta {f}, «Error si no se encuentra» desactivado.","{a}: Ordner Kurzbefehle, Pfad {f}, „Fehler, falls nicht gefunden“ aus.","{a}: pasta Atalhos, caminho {f}, “Erro se Não Encontrado” desativado."],
+  "{a}, puis {b} : ajouter {m}.": ["{a}, then {b}: add {m}.","{a}, luego {b}: sumar {m}.","{a}, dann {b}: {m} addieren.","{a}, depois {b}: somar {m}."],
+  "{a} la date ajustée {b} {c} : {d}.": ["{a} the adjusted date {b} {c}: {d}.","{a} la fecha ajustada {b} {c}: {d}.","{a} das angepasste Datum {b} {c}: {d}.","{a} a data ajustada {b} {c}: {d}."],
+  "Après la fin du {a}, ajoutez {b} avec le lien de la barrière (ci-dessus, bouton Copier).": ["After the end of the {a}, add {b} with the barrier link (above, Copy button).","Después del final del {a}, añade {b} con el enlace de la barrera (arriba, botón Copiar).","Füge nach dem Ende von {a} die Aktion {b} mit dem Link der Sperre hinzu (oben, Schaltfläche Kopieren).","Depois do fim do {a}, adicione {b} com o link da barreira (acima, botão Copiar)."],
+  "L'automatisation": ["The automation","La automatización","Die Automation","A automação"],
+  "Onglet {a} → « + » → {b}.": ["{a} tab → “+” → {b}.","Pestaña {a} → «+» → {b}.","Tab {a} → „+“ → {b}.","Aba {a} → “+” → {b}."],
+  "Choisissez {app}, cochez {a} puis {b}.": ["Choose {app}, tick {a} then {b}.","Elige {app}, marca {a} y luego {b}.","Wähle {app}, aktiviere {a} und dann {b}.","Escolha {app}, marque {a} e depois {b}."],
+  "Action : {a} → {x}.": ["Action: {a} → {x}.","Acción: {a} → {x}.","Aktion: {a} → {x}.","Ação: {a} → {x}."],
+  "Une autre app ? Dupliquez {x}, changez seulement le lien, et créez son automatisation.": ["Another app? Duplicate {x}, change only the link, and create its automation.","¿Otra app? Duplica {x}, cambia solo el enlace y crea su automatización.","Eine weitere App? Dupliziere {x}, ändere nur den Link und erstelle ihre Automation.","Outro app? Duplique {x}, troque só o link e crie a automação dele."],
+  "Le lien s'ouvre dans Safari. Si vous utilisez Engram depuis l'écran d'accueil, connectez-vous à votre compte Engram dans Safari aussi : vos fiches vous y suivent.": ["The link opens in Safari. If you use Engram from the Home Screen, sign in to your Engram account in Safari too: your cards follow you there.","El enlace se abre en Safari. Si usas Engram desde la pantalla de inicio, inicia sesión en tu cuenta de Engram también en Safari: tus tarjetas te siguen.","Der Link öffnet sich in Safari. Wenn du Engram vom Home-Bildschirm aus nutzt, melde dich auch in Safari bei deinem Engram-Konto an: Deine Karten folgen dir dorthin.","O link abre no Safari. Se você usa o Engram pela tela de início, entre na sua conta Engram no Safari também: seus cartões acompanham você."],
+  "Webhook appelé : MacroDroid doit afficher sa notification.": ["Webhook called: MacroDroid should show its notification.","Webhook llamado: MacroDroid debería mostrar su notificación.","Webhook aufgerufen: MacroDroid sollte seine Benachrichtigung anzeigen.","Webhook chamado: o MacroDroid deve mostrar a notificação."],
+  "Enregistrez d'abord le lien du webhook.": ["Save the webhook link first.","Guarda primero el enlace del webhook.","Speichere zuerst den Webhook-Link.","Salve primeiro o link do webhook."],
+  "Le lien du webhook commence par https://": ["The webhook link starts with https://","El enlace del webhook empieza por https://","Der Webhook-Link beginnt mit https://","O link do webhook começa com https://"],
+  "Webhook enregistré : Engram l'appellera à chaque réussite.": ["Webhook saved: Engram will call it every time you pass.","Webhook guardado: Engram lo llamará cada vez que apruebes.","Webhook gespeichert: Engram ruft ihn bei jedem Bestehen auf.","Webhook salvo: o Engram vai chamá-lo a cada aprovação."],
+  "Webhook retiré.": ["Webhook removed.","Webhook quitado.","Webhook entfernt.","Webhook removido."],
+  "Gardez au moins un paquet.": ["Keep at least one deck.","Deja al menos un mazo.","Behalte mindestens einen Stapel.","Mantenha pelo menos um baralho."],
+  "Ce lien d'app ne ressemble pas à un lien : par exemple whatsapp:// ou https://…": ["This app link doesn't look like a link: for example whatsapp:// or https://…","Este enlace de app no parece un enlace: por ejemplo whatsapp:// o https://…","Dieser App-Link sieht nicht wie ein Link aus: zum Beispiel whatsapp:// oder https://…","Este link de app não parece um link: por exemplo whatsapp:// ou https://…"],
+  "{app} est gardée par la barrière.": ["{app} is now guarded by the barrier.","{app} queda vigilada por la barrera.","{app} wird jetzt von der Sperre bewacht.","{app} agora é vigiado pela barreira."],
+  "Avant TikTok ou Instagram, quelques questions sur vos fiches : il faut {p} pour ouvrir l'app.": ["Before TikTok or Instagram, a few questions on your cards: you need {p} to open the app.","Antes de TikTok o Instagram, unas preguntas sobre tus tarjetas: hace falta un {p} para abrir la app.","Vor TikTok oder Instagram ein paar Fragen zu deinen Karten: Du brauchst {p}, um die App zu öffnen.","Antes do TikTok ou do Instagram, algumas perguntas sobre seus cartões: é preciso {p} para abrir o app."],
+  "iPhone et Android": ["iPhone and Android","iPhone y Android","iPhone und Android","iPhone e Android"],
+  "{n} question avant <em>{app}</em>.|{n} questions avant <em>{app}</em>.": ["{n} question before <em>{app}</em>.|{n} questions before <em>{app}</em>.","{n} pregunta antes de <em>{app}</em>.|{n} preguntas antes de <em>{app}</em>.","{n} Frage vor <em>{app}</em>.|{n} Fragen vor <em>{app}</em>.","{n} pergunta antes do <em>{app}</em>.|{n} perguntas antes do <em>{app}</em>."],
+  "réussite|réussites": ["pass|passes","aprobada|aprobadas","bestanden|bestanden","aprovação|aprovações"],
+  "renoncement|renoncements": ["app left closed|apps left closed","app no abierta|apps no abiertas","App nicht geöffnet|Apps nicht geöffnet","app não aberto|apps não abertos"],
   "Engram Pro": ["Engram Pro","Engram Pro","Engram Pro","Engram Pro"],
   "Actions": ["Actions","Acciones","Aktionen","Ações"],
   "Paquets": ["Decks","Mazos","Stapel","Baralhos"],
@@ -19442,6 +20261,7 @@ async function boot() {
     else if (h === 'portal') { App.go('pro'); Pay.refresh(true); } // retour du portail Stripe : formule changée ou arrêtée
     else if (h === 'invite') { App.go('pro'); if (S.profile.onboarded) setTimeout(() => openInvite(), 400); }
     else if (h === 'bilan') setTimeout(() => openCheckup(), 300);
+    else if (h.startsWith('barriere=')) Gate.land(h.slice(9)); // l'automatisation du téléphone, avant TikTok ou une autre app (voir BARRIÈRE D'APPS)
     else if (/^paid=cs_(test|live)_\w+$/.test(h)) { App.go('pro'); Pay.claim(h.slice(5)); }
     else if (Share.land(h)) closeModals();
     history.replaceState(null, '', location.pathname + location.search);
