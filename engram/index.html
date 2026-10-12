@@ -11682,6 +11682,8 @@ const Play = {
     const c = one(['streak', 'goal', 'ok', 'time', 'game'].filter(x => can[x] && x !== a && x !== b && !(x === 'goal' && a === 'rev'))) || one(['rev', 'ok', 'time', 'scan'].filter(x => x !== a && x !== b));
     return [a, b, c].map(id => ({ id, n: n[id] }));
   },
+  /** Une quête du jour encore faisable : une partie demande un paquet jouable, les nouvelles fiches des fiches à découvrir, garder la série une série. */
+  doable(q, tc = todayCounts()) { return q.id === 'game' ? gameDecks().length > 0 : q.id === 'new' ? (+this.day().n || 0) + tc.nNew >= q.n : q.id === 'streak' ? streak() > 0 : true; },
   /** Deux quêtes de la semaine : réviser plusieurs jours, et une autre. */
   drawWeek(w) {
     const R = this.seed('w' + w), g = clamp(Math.round(+S.profile.settings.goal || 60), 10, 500), days = S.profile.study.weekly.filter(m => m > 0).length;
@@ -11694,11 +11696,15 @@ const Play = {
     const P = this.st, k = dayKey(), w = this.monday(k), paid = [0, 0]; let changed = false;
     const ok = (x, M) => isObj(x) && typeof x.k === 'string' && Array.isArray(x.q) && x.q.length && x.q.every(q => isObj(q) && Object.hasOwn(M, q.id) && q.n > 0);
     const add = ([a, b]) => { paid[0] += a; paid[1] += b; };
-    // Les quêtes tirées pendant les exemples sont retirées avec eux, si aucune n'a encore été faite.
-    const demo = ok(P.day, DAY_QUESTS) && P.day.k === k && !!P.day.demo !== !!S.demo && !P.day.chest && !Object.keys(isObj(P.day.done) ? P.day.done : {}).length;
-    if (!ok(P.day, DAY_QUESTS) || P.day.k !== k || demo) {
+    if (!ok(P.day, DAY_QUESTS) || P.day.k !== k) {
       if (ok(P.day, DAY_QUESTS) && P.day.k < k) add(this.settle(P.day, DAY_QUESTS, this.day(P.day.k)));
       P.day = { k, q: this.draw(k), done: {}, chest: 0, ...(S.demo ? { demo: 1 } : {}) }; changed = true;
+    } else if (P.day.demo && !S.demo) {
+      // Sortie des exemples : une quête que seuls les paquets d'exemple rendaient possible est remplacée ; les autres restent.
+      const tc = todayCounts(), done = isObj(P.day.done) ? P.day.done : {}, ids = P.day.q.map(q => q.id);
+      const alt = [...this.draw(k), { id: 'scan', n: 1 }, { id: 'streak', n: 1 }];
+      P.day.q = P.day.q.map((q, i) => { if (done[q.id] || this.doable(q, tc)) return q; const f = [alt[i], ...alt].find(x => x && !ids.includes(x.id) && this.doable(x, tc)); if (f) ids[i] = f.id; return f || q; });
+      delete P.day.demo; changed = true;
     }
     if (!ok(P.week, WEEK_QUESTS) || P.week.k !== w) {
       if (ok(P.week, WEEK_QUESTS) && P.week.k < w) add(this.settle(P.week, WEEK_QUESTS, this.weekKeys(P.week.k).map(x => this.day(x))));
