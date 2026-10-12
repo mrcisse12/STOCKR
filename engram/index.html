@@ -480,7 +480,7 @@ body:has(.gate-screen) .folder{min-height:calc(100dvh - 40px - env(safe-area-ins
 /* L'accueil, le verrou et le laissez-passer se tiennent au milieu de l'écran ; l'épreuve reste en haut */
 body:has(.gate-screen) .folder{display:flex;flex-direction:column}
 body:has(.gate-screen) .folder > .view{flex:1;width:100%}
-.gate-screen:is([data-step=intro],[data-step=locked],[data-step=pass],[data-step=empty]) > :last-child{margin-block:auto}
+.gate-screen:is([data-step=intro],[data-step=locked],[data-step=pass]) > :last-child{margin-block:auto}
 .gt-head{display:flex;align-items:center;gap:12px}
 .gt-head .kicker{flex:1;min-width:0}
 .gt-mono{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;flex:none;font:400 18px/1 var(--f-display);color:var(--brass-text);border:1px solid var(--hair-3);background:var(--brass-soft)}
@@ -14421,7 +14421,6 @@ const Gate = {
     const el = $('#gateScr'); if (!el || !this.run) return;
     el.dataset.step = this.run.step; el.innerHTML = this.screen();
     if (top) scrollTo({ top: 0, behavior: 'instant' });
-    requestAnimationFrame(() => $$('#gateScr .rv').forEach(x => x.style.strokeDashoffset = x.dataset.off));
     this.focus();
   },
   focus() {
