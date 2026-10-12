@@ -486,6 +486,10 @@ body:has(.gate-screen) .folder > .view{flex:1;width:100%}
 .gt-mono{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;flex:none;font:400 18px/1 var(--f-display);color:var(--brass-text);border:1px solid var(--hair-3);background:var(--brass-soft)}
 .gt-mono .i{width:17px;height:17px}
 .gt-need{flex:none;padding:6px 10px;border-radius:99px;border:1px solid var(--hair-2);font:700 11px/1 var(--f-type);letter-spacing:.06em;color:var(--muted)}
+.gt-head .icon-btn{flex:none}
+/* Les longs libellés (« Réessayer avec d'autres questions ») passent à la ligne sur téléphone au lieu de déborder */
+.gate-screen .btn{max-width:100%}
+@media (max-width:620px){.gate-screen .btn-lg{white-space:normal;height:auto;min-height:54px;padding-block:12px;line-height:1.25;text-align:center}}
 .gt-mid{display:flex;flex-direction:column;align-items:flex-start;gap:18px}
 .gt-title{font-size:clamp(38px,6vw,68px)}
 .gt-mid .lede{max-width:52ch}
@@ -14381,6 +14385,7 @@ const Gate = {
     let id = String(raw || ''); try { id = decodeURIComponent(id); } catch { }
     if (typeof closeModals === 'function') closeModals();
     if (Mentor.isOpen) Mentor.close();
+    if (Study.active) Study.close(true);
     this.ctl?.abort(); this.run = null;
     App.go('gate', this.app(id).id);
   },
@@ -14488,8 +14493,9 @@ const Gate = {
     if (ok) {
       st.passes++; a[1]++;
       const now = Date.now(); g.pass = { app: app.id, at: now, until: now + g.mins * MIN };
-      // L'XP passe par le journal du jour : le total en est recalculé.
-      const l = S.profile.log[dayKey()] || (S.profile.log[dayKey()] = { r: 0, ok: 0, ms: 0, n: 0, xp: 0 }); l.xp = (l.xp || 0) + 10; S.profile.xp += 10;
+      // L'XP passe par le journal du jour (le total en est recalculé) ; 50 au plus par jour : la barrière n'est pas une ferme à XP.
+      const day = dayKey(); if (g.xd?.d !== day) g.xd = { d: day, n: 0 };
+      if (g.xd.n < 50) { g.xd.n += 10; const l = S.profile.log[day] || (S.profile.log[day] = { r: 0, ok: 0, ms: 0, n: 0, xp: 0 }); l.xp = (l.xp || 0) + 10; S.profile.xp += 10; }
       this.ping();
     }
     Store.touch('profile');
@@ -14526,17 +14532,20 @@ const Gate = {
     const app = esc(a.name), web = gateHref(a.web), scheme = gateHref(a.scheme);
     const first = this.android ? web || scheme : this.shortcut(a.id), second = this.android ? (web && scheme ? scheme : '') : scheme;
     const c1 = size === 'main' ? 'btn btn-gilt btn-lg' : size === 'small' ? 'btn btn-sm' : 'btn btn-lg', c2 = size === 'small' ? 'btn btn-sm btn-ghost' : 'btn btn-lg btn-ghost';
-    return (first ? `<a class="${c1}" href="${esc(first)}" data-g="open">${icon('arrow')}${t('Ouvrir {app}', { app })}</a>` : '') + (second ? `<a class="${c2}" href="${esc(second)}" data-g="open">${t('Ouvrir directement')}</a>` : '');
+    // Une app ajoutée sans lien, sur Android : pas de bouton possible, on dit simplement où l'ouvrir.
+    if (!first) return `<span class="gt-small">${t('Ouvrez {app} depuis l\'écran d\'accueil.', { app })}</span>`;
+    return `<a class="${c1}" href="${esc(first)}" data-g="open">${icon('arrow')}${t('Ouvrir {app}', { app })}</a>` + (second ? `<a class="${c2}" href="${esc(second)}" data-g="open">${t('Ouvrir directement')}</a>` : '');
   },
   screen() {
     const r = this.run, a = r.app, app = esc(a.name), g = this.cfg();
-    const head = `<div class="gt-head"><span class="gt-mono" aria-hidden="true">${icon('padlock')}</span><div class="kicker"><b>${t('Barrière')}</b> · ${app}</div>${r.step === 'q' ? `<span class="gt-need tnum">${t('{p} requis', { p: pct(r.th / 100) })}</span>` : ''}</div>`;
+    const head = `<div class="gt-head"><span class="gt-mono" aria-hidden="true">${icon('padlock')}</span><div class="kicker"><b>${t('Barrière')}</b> · ${app}</div>${r.step === 'q' ? `<span class="gt-need tnum">${t('{p} requis', { p: pct(r.th / 100) })}</span><button class="icon-btn" data-g="skip" aria-label="${esc(t('Je n\'ouvre pas {app}', { app: a.name }))}" title="${esc(t('Je n\'ouvre pas {app}', { app: a.name }))}">${icon('x')}</button>` : ''}</div>`;
     const mins = tp(g.mins, '{n} minute|{n} minutes');
     if (r.step === 'locked') return head + `<div class="gt-mid rise">
       <h1 class="display gt-title">${words(t('La barrière fait partie d\'<em>Élite</em>.'))}</h1>
       <p class="lede">${t('Votre téléphone a ouvert Engram avant {app}, mais la barrière n\'est pas active avec votre formule. Ouvrez l\'app, ou essayez Élite : la formule proposée aussi aux écoles et aux entreprises.', { app })}</p>
       <div class="hero-actions"><button class="btn btn-gilt btn-lg" data-act="proTrial">${icon('sparkles')}${Pro.canTrial ? t('Essayer 14 jours') : t('Passer à Élite')}</button>${this.openBtns(a, 'plain')}</div>
-      <p class="gt-small">${t('Pour ne plus passer par Engram, désactivez l\'automatisation dans Raccourcis (iPhone) ou la macro dans MacroDroid (Android).')}</p></div>`;
+      <p class="gt-small">${t('Pour ne plus passer par Engram, désactivez l\'automatisation dans Raccourcis (iPhone) ou la macro dans MacroDroid (Android).')}</p>
+      <div class="gt-out"><button class="btn btn-ghost" data-act="go" data-v="today">${icon('home', 'i-sm')}${t('Retour à Engram')}</button></div></div>`;
     if (r.step === 'pass') {
       const p = this.pass() || { until: Date.now() }, u = new Date(p.until), h = fmtHM(u.getHours() * 60 + u.getMinutes()), res = r.result;
       return head + `<div class="gt-pass">
@@ -14651,7 +14660,7 @@ const Gate = {
         ${mode === 'pick' ? `<div class="chips">${S.decks.map(d => `<button class="chip ${ids.has(d.id) ? 'on' : ''}" data-gdeck="${d.id}" aria-pressed="${ids.has(d.id)}">${esc(d.name)}</button>`).join('')}</div>` : ''}</div>
       ${setRow(t('Seuil de réussite'), t('La part de bonnes réponses qui ouvre l\'app.'), `<div class="ctl"><input type="range" min="70" max="100" step="5" value="${g.th}" id="gsTh" aria-label="${esc(t('Seuil de réussite'))}"><b class="tnum" id="gsThOut" style="width:56px">${pct(g.th / 100)}</b></div>`)}
       ${setRow(t('Nombre de questions'), '', seg('gn', [5, 10, 15, 20].map(n => [n, num(n)]), g.n))}
-      ${setRow(t('Durée du déblocage'), t('Le temps pendant lequel l\'app reste libre après une réussite.'), seg('gm', [5, 10, 15, 30, 60].map(n => [n, num(n) + ' min']), g.mins))}
+      ${setRow(t('Durée du déblocage'), t('Le temps pendant lequel l\'app reste libre après une réussite. Sur iPhone, reportez-le dans le raccourci « Engram Barrière » (Ajuster la date).'), seg('gm', [5, 10, 15, 30, 60].map(n => [n, num(n) + ' min']), g.mins))}
     </div>`;
   },
   /** Les liens à copier, puis les étapes du téléphone choisi. */
@@ -14688,7 +14697,8 @@ const Gate = {
         t('Ajoutez {a} et mettez-y la variable {b} (format ISO 8601).', { a: Q(L.text), b: Q(L.now) }),
         t('Ajoutez {a} : dossier Raccourcis, nom {f}, « Demander où enregistrer » désactivé, « Remplacer » activé.', { a: Q(L.save), f: file }),
         many ? t('Pour chaque app, ajoutez {a} : {b} est son code ({ids}), puis {c} cette app.', { a: Q(L.if), b: Q(L.input), ids, c: Q(L.open) }) : t('Ajoutez {a} et choisissez {app}.', { a: Q(L.open), app }),
-        t('Engram le lance après chaque réussite : il note l\'heure, puis ouvre l\'app.')
+        t('Engram le lance après chaque réussite : il note l\'heure, puis ouvre l\'app.'),
+        t('Lancez-le une fois à la main : il crée le fichier {f}, que la barrière lira.', { f: file })
       ], this.mock('Engram Pass', [['type', '#8A8A90', L.text, `<em>${esc(L.now)}</em>`], ['download', '#3D63C9', L.save, file], ['arrow', '#2F8F62', L.open, app]]))}
       ${step(2, t('Le raccourci {x}', { x: Q('Engram Barrière') }), [
         t('Nouveau raccourci, nommé {x}.', { x: Q('Engram Barrière') }),
@@ -15342,6 +15352,8 @@ TR = {
   "Apparence": ["Appearance","Apariencia","Erscheinungsbild","Aparência"],
   "Langue": ["Language","Idioma","Sprache","Idioma"],
   "Réglages": ["Settings","Ajustes","Einstellungen","Ajustes"],
+  "Ouvrez {app} depuis l'écran d'accueil.": ["Open {app} from your home screen.","Abre {app} desde la pantalla de inicio.","Öffne {app} über den Startbildschirm.","Abra {app} pela tela inicial."],
+  "Lancez-le une fois à la main : il crée le fichier {f}, que la barrière lira.": ["Run it once by hand: it creates the file {f}, which the barrier will read.","Ejecútalo una vez a mano: crea el archivo {f}, que la barrera leerá.","Starte ihn einmal von Hand: Er legt die Datei {f} an, die die Sperre liest.","Execute-o uma vez manualmente: ele cria o arquivo {f}, que a barreira vai ler."],
   "La barrière d'apps fait partie d'Élite": ["The app barrier is part of Elite","La barrera de apps forma parte de Élite","Die App-Sperre gehört zu Elite","A barreira de apps faz parte do Elite"],
   "Avant TikTok ou Instagram, quelques questions sur vos fiches : il faut réussir pour ouvrir l'app. Élite est aussi proposée aux écoles et aux entreprises.": ["Before TikTok or Instagram, a few questions on your cards: you have to pass to open the app. Elite is also offered to schools and companies.","Antes de TikTok o Instagram, unas preguntas sobre tus tarjetas: hay que aprobar para abrir la app. Élite también se ofrece a escuelas y empresas.","Vor TikTok oder Instagram ein paar Fragen zu deinen Karten: Erst wer besteht, öffnet die App. Elite gibt es auch für Schulen und Unternehmen.","Antes do TikTok ou do Instagram, algumas perguntas sobre seus cartões: é preciso passar para abrir o app. O Elite também é oferecido a escolas e empresas."],
   "Barrière d'apps": ["App barrier","Barrera de apps","App-Sperre","Barreira de apps"],
@@ -15442,7 +15454,7 @@ TR = {
   "La part de bonnes réponses qui ouvre l'app.": ["The share of right answers that opens the app.","La proporción de respuestas correctas que abre la app.","Der Anteil richtiger Antworten, der die App öffnet.","A parcela de respostas certas que abre o app."],
   "Nombre de questions": ["Number of questions","Número de preguntas","Anzahl der Fragen","Número de perguntas"],
   "Durée du déblocage": ["Unlock duration","Duración del desbloqueo","Dauer der Freigabe","Duração da liberação"],
-  "Le temps pendant lequel l'app reste libre après une réussite.": ["How long the app stays free after you pass.","El tiempo que la app queda libre después de aprobar.","Wie lange die App nach dem Bestehen frei bleibt.","O tempo em que o app fica livre depois de passar."],
+  "Le temps pendant lequel l'app reste libre après une réussite. Sur iPhone, reportez-le dans le raccourci « Engram Barrière » (Ajuster la date).": ["How long the app stays free after you pass. On iPhone, copy it into the “Engram Barrière” shortcut (Adjust Date).","El tiempo que la app queda libre después de aprobar. En iPhone, cámbialo también en el atajo «Engram Barrière» (Ajustar fecha).","Wie lange die App nach dem Bestehen frei bleibt. Auf dem iPhone auch im Kurzbefehl „Engram Barrière“ ändern (Datum anpassen).","O tempo em que o app fica livre depois de passar. No iPhone, mude também no atalho “Engram Barrière” (Ajustar Data)."],
   "Les liens de la barrière": ["The barrier links","Los enlaces de la barrera","Die Links der Sperre","Os links da barreira"],
   "Installez MacroDroid": ["Install MacroDroid","Instala MacroDroid","Installiere MacroDroid","Instale o MacroDroid"],
   "Sur le Play Store, installez MacroDroid (la version gratuite suffit) et autorisez l'accès aux données d'utilisation : c'est ce qui lui permet de voir quelle app s'ouvre.": ["From the Play Store, install MacroDroid (the free version is enough) and allow usage access: that's what lets it see which app opens.","En Play Store, instala MacroDroid (basta la versión gratuita) y permite el acceso a los datos de uso: es lo que le deja ver qué app se abre.","Installiere MacroDroid aus dem Play Store (die kostenlose Version reicht) und erlaube den Zugriff auf Nutzungsdaten: So sieht es, welche App sich öffnet.","Na Play Store, instale o MacroDroid (a versão gratuita basta) e permita o acesso aos dados de uso: é isso que deixa ele ver qual app abre."],
