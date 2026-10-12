@@ -476,10 +476,15 @@ html.cam-on{overflow:hidden}
 body:has(.gate-screen) :is(.hdr,.dock,.mentor-fab){display:none}
 body:has(.gate-screen) .shell{padding-top:calc(14px + env(safe-area-inset-top,0px));padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
 body:has(.gate-screen) .folder{min-height:calc(100dvh - 40px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
-.gate-screen{display:flex;flex-direction:column;gap:22px;width:100%;max-width:760px;margin:0 auto}
+.gate-screen{display:flex;flex-direction:column;gap:22px;width:100%;max-width:760px;margin:0 auto;flex:1}
+/* L'accueil, le verrou et le laissez-passer se tiennent au milieu de l'écran ; l'épreuve reste en haut */
+body:has(.gate-screen) .folder{display:flex;flex-direction:column}
+body:has(.gate-screen) .folder > .view{flex:1;width:100%}
+.gate-screen:is([data-step=intro],[data-step=locked],[data-step=pass],[data-step=empty]) > :last-child{margin-block:auto}
 .gt-head{display:flex;align-items:center;gap:12px}
 .gt-head .kicker{flex:1;min-width:0}
 .gt-mono{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;flex:none;font:400 18px/1 var(--f-display);color:var(--brass-text);border:1px solid var(--hair-3);background:var(--brass-soft)}
+.gt-mono .i{width:17px;height:17px}
 .gt-need{flex:none;padding:6px 10px;border-radius:99px;border:1px solid var(--hair-2);font:700 11px/1 var(--f-type);letter-spacing:.06em;color:var(--muted)}
 .gt-mid{display:flex;flex-direction:column;align-items:flex-start;gap:18px}
 .gt-title{font-size:clamp(38px,6vw,68px)}
@@ -510,7 +515,8 @@ body:has(.gate-screen) .folder{min-height:calc(100dvh - 40px - env(safe-area-ins
 .gt-you,.gt-exp{margin-top:8px;font-size:15px;line-height:1.45;color:var(--p-ink);overflow-wrap:anywhere}
 .gt-you s{color:var(--pen)}
 .gt-com{margin-top:8px;font-size:14px;line-height:1.5;color:var(--p-muted)}
-.gt-form,.gt-wait{width:100%}
+.answer-box.gt-form,.verdict.gt-wait{width:100%}
+.gt-form .btn{height:50px;flex:none}
 .gt-acts{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}
 .gt-acts:empty{display:none}
 .gt-self{display:grid;gap:12px;padding:16px;border-radius:12px;border:1px dashed var(--hair-3);background:var(--folder-2)}
@@ -525,7 +531,7 @@ body:has(.gate-screen) .folder{min-height:calc(100dvh - 40px - env(safe-area-ins
 .gt-ticket .kicker{color:var(--p-muted)}
 .gt-ticket b{font:400 36px/1.05 var(--f-display);overflow-wrap:anywhere;padding-right:70px}
 .gt-ticket .tnum{font:700 12px/1 var(--f-type);letter-spacing:.08em;color:var(--p-muted)}
-.gt-stamp{position:absolute;right:-10px;bottom:4px;width:148px;transform:rotate(-11deg);opacity:.92;animation:gtStamp .5s .35s var(--spring) both}
+.gt-stamp{position:absolute;right:4px;bottom:12px;width:140px;transform:rotate(-11deg);opacity:.92;animation:gtStamp .5s .35s var(--spring) both}
 .gt-stamp svg{display:block;width:100%;height:auto}
 @keyframes gtStamp{from{opacity:0;transform:rotate(-11deg) scale(1.6)}}
 /* L'échec : la note au stylo rouge, puis ce qui a manqué */
@@ -14523,8 +14529,8 @@ const Gate = {
     return (first ? `<a class="${c1}" href="${esc(first)}" data-g="open">${icon('arrow')}${t('Ouvrir {app}', { app })}</a>` : '') + (second ? `<a class="${c2}" href="${esc(second)}" data-g="open">${t('Ouvrir directement')}</a>` : '');
   },
   screen() {
-    const r = this.run, a = r.app, app = esc(a.name), g = this.cfg(), mono = esc(a.name.charAt(0).toUpperCase() || '?');
-    const head = `<div class="gt-head"><span class="gt-mono" aria-hidden="true">${mono}</span><div class="kicker"><b>${t('Barrière')}</b> · ${app}</div>${r.step === 'q' ? `<span class="gt-need tnum">${t('{p} requis', { p: pct(r.th / 100) })}</span>` : ''}</div>`;
+    const r = this.run, a = r.app, app = esc(a.name), g = this.cfg();
+    const head = `<div class="gt-head"><span class="gt-mono" aria-hidden="true">${icon('padlock')}</span><div class="kicker"><b>${t('Barrière')}</b> · ${app}</div>${r.step === 'q' ? `<span class="gt-need tnum">${t('{p} requis', { p: pct(r.th / 100) })}</span>` : ''}</div>`;
     const mins = tp(g.mins, '{n} minute|{n} minutes');
     if (r.step === 'locked') return head + `<div class="gt-mid rise">
       <h1 class="display gt-title">${words(t('La barrière fait partie d\'<em>Élite</em>.'))}</h1>
