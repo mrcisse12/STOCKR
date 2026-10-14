@@ -723,7 +723,8 @@ body.studying .shell,body.studying .dock{visibility:hidden}
 .st-main.has-tutor{overflow-y:auto;overscroll-behavior:contain;justify-content:flex-start;scrollbar-width:thin}
 @supports (justify-content:safe center){.st-main.has-tutor{justify-content:safe center}}
 .answer-box{display:flex;gap:8px;width:min(640px,100%)}
-.answer-box .input{height:50px;font-size:16px}
+.answer-box .input{height:50px;font-size:16px;flex:1;min-width:0}
+.answer-box>.icon-btn,.answer-box>.btn{flex:none}
 .verdict{display:flex;align-items:center;gap:16px;width:min(640px,100%);padding:12px 16px;border-radius:12px;background:var(--folder-2);border:1px solid var(--hair-2);animation:rise .5s var(--ease) both}
 .verdict b{display:block;font:600 16px/1.2 var(--f-ui)}
 .verdict small{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font:400 11.5px/1.3 var(--f-type);color:var(--muted);margin-top:4px}
@@ -1830,6 +1831,7 @@ body.studying .mentor-fab,body.mentor-on .mentor-fab,#onb:not([hidden])~.mentor-
 .m-title{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .m-title b{font:400 24px/1 var(--f-display)}
 .m-title span{font:700 10px/1.2 var(--f-type);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:480px){.m-title span{white-space:normal;letter-spacing:.08em;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}}
 .m-tier{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px;border-radius:8px;border:1px solid var(--hair-2);font:700 11px/1 var(--f-type);letter-spacing:.06em;color:var(--brass-text);transition:all .2s}
 .m-tier:hover{background:var(--brass-soft)}.m-tier:disabled{opacity:.4}
 .m-body{position:relative;flex:1;overflow:auto;padding:18px 16px 8px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
@@ -1920,7 +1922,9 @@ body.studying .mentor-fab,body.mentor-on .mentor-fab,#onb:not([hidden])~.mentor-
 .ec-j span{font:400 38px/1 var(--f-display)}.ec-j small{font:700 9.5px/1.2 var(--f-type);letter-spacing:.1em;text-transform:uppercase;color:var(--pen)}
 .ec-b{display:flex;flex-direction:column;gap:6px;min-width:0}
 .ec-b>b{font-weight:600;font-size:16px}.ec-b>.muted{font-size:13px}
-.ready{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.ready{display:flex;flex-direction:column;gap:6px;margin-top:6px;container-type:inline-size}
+/* Carte d'examen étroite (iPad, trois colonnes) : le libellé passe au-dessus de sa barre au lieu de se couper mot à mot. */
+@container (max-width:300px){.rd-row{grid-template-columns:minmax(0,1fr) auto;row-gap:4px}.rd-row>span:first-child{grid-column:1/-1}}
 .rd-row{display:grid;grid-template-columns:minmax(0,1fr) 90px auto;gap:10px;align-items:center;font-size:12.5px;color:var(--text-2)}
 .rd-bar{height:6px;border-radius:99px;background:var(--folder-4);overflow:hidden}.rd-bar i{display:block;height:100%;border-radius:inherit;animation:fill 1s var(--ease) both;transform-origin:left}
 .week-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;width:100%}
@@ -2182,6 +2186,12 @@ button,a,label,select,.chip,.opt,.ochip{touch-action:manipulation}
   .btn-brass:hover{transform:none}
   .ftab:not(.on):hover{background:transparent;color:var(--muted)}
   .icon-btn:not(.on):hover{background:transparent;border-color:var(--hair);color:var(--text-2)}
+}
+/* Téléphone : cibles d'au moins 40 px là où la place le permet. */
+@media (pointer:coarse) and (max-width:699px){
+  .hud-link{min-height:40px;padding:8px 4px}
+  .pl-ed{width:40px;height:40px}
+  .st-tools .seg button{min-height:36px}
 }
 /* Tablette : cibles plus larges, fiche plus grande. */
 @media (pointer:coarse) and (min-width:700px){
@@ -11213,7 +11223,7 @@ const Study = {
         </div>
         ${showInk ? `<div class="inkpad" id="inkPad">${inkSurface('inkAns', t('Écrivez votre réponse ici, au stylet ou au doigt'), 'ruled')}
           <div class="ink-row">${Ink.bar({ marker: false, colors: false })}<button type="button" class="btn btn-brass" data-act="st-inkcheck" id="inkGo" disabled>${icon('check')}${AI.images ? t('Faire corriger') : t('Comparer')}</button></div></div>` : ''}
-        ${showInput ? `<form class="answer-box" id="ansForm" autocomplete="off"><input class="input" id="ans" placeholder="${esc(t('Votre réponse… (Entrée pour vérifier)'))}" aria-label="${esc(t('Votre réponse'))}">${Dictation.supported ? `<button type="button" class="icon-btn" id="micBtn" style="height:50px;width:50px" data-tip="${esc(t('Dicter la réponse'))}">${icon('mic')}</button>` : ''}<button class="btn btn-brass" style="height:50px">${icon('check')}${t('Vérifier')}</button></form>` : ''}
+        ${showInput ? `<form class="answer-box" id="ansForm" autocomplete="off"><input class="input" id="ans" placeholder="${esc(matchMedia('(max-width: 600px)').matches ? t('Votre réponse…') : t('Votre réponse… (Entrée pour vérifier)'))}" aria-label="${esc(t('Votre réponse'))}">${Dictation.supported ? `<button type="button" class="icon-btn" id="micBtn" style="height:50px;width:50px" data-tip="${esc(t('Dicter la réponse'))}">${icon('mic')}</button>` : ''}<button class="btn btn-brass" style="height:50px">${icon('check')}${t('Vérifier')}</button></form>` : ''}
         <div id="verdictBox" style="display:contents">${this.verdictHTML() + this.tutorOfferHTML()}</div>
         <div id="tutorBox" style="display:contents"></div>
       </div>
@@ -12366,23 +12376,29 @@ async function commitScan() {
 }
 /* Génération locale (sans IA) à partir d'un texte, en cinq langues */
 const DEF_VERBS = 'est|sont|désigne|désignent|correspond à|correspondent à|signifie|permet de|permettent de|a lieu|se déroule|fixe|produit|is|are|means|refers to|allows|takes place|occurs|produces|fixes|releases|es|son|significa|designa|permite|permiten|tiene lugar|ocurre|produce|fija|libera|ist|sind|bedeutet|bezeichnet|ermöglicht|findet|erzeugt|fixiert|é|são|designa|ocorre|produz|fixa|libera';
+// Une réponse qui commence par une formule ou une variable (« n1 sin(i1) = … », « v la vitesse… ») garde sa minuscule.
+const capDef = s => /^(?:\S*\d|[b-xzB-XZ](?=\s|$)|[a-zA-Z]\s*[=(_^'′])/.test(s) ? s : cap(s);
+// Sujet sans contexte (« Elle est… ? », « Cette approche permet de… ? ») : la question ne voudrait rien dire seule.
+const VAGUE_SUBJ = /^(?:il|elle|ils|elles|on|cela|ceci|ça|ce|cet|cette|ces|it|they|this|that|these|those|he|she|él|ella|ellos|ellas|esto|eso|este|esta|estos|estas|ese|esa|er|sie|es|dies|dieser|diese|dieses|ele|ela|eles|elas|isso|isto|esse|essa)\b/i;
 function localGenerate(text, n, types) {
   let lines = text.split(/\n+/).map(l => l.trim()).filter(Boolean);
-  const hasTitle = lines[0] && lines[0].length < 70 && !/[:.!?]$/.test(lines[0]) && lines.length > 1;
-  const title = hasTitle ? lines[0] : t('Cours');
+  // Titre : une première ligne courte sans ponctuation finale, ou un intitulé de chapitre (« Optique — chapitre 2 : … »).
+  const hasTitle = lines[0] && lines.length > 1 && (lines[0].length < 70 && !/[:.!?]$/.test(lines[0]) || lines[0].length < 100 && /\b(?:chapitre|chapter|cap[ií]tulo|kapitel|le[cç]on|lesson|lecci[oó]n|lektion|li[cç][aã]o|partie|th[eè]me|unit[eé]?)\s+[\dIVX]/i.test(lines[0]));
+  const title = hasTitle ? lines[0].replace(/\.$/, '') : t('Cours');
   if (hasTitle) lines = lines.slice(1);
   const flat = lines.map(l => /[.!?]$/.test(l) ? l : l + '.').join(' ');
   const sentences = flat.split(/(?<=[.!?])\s+(?=[A-ZÀ-ÖØ-Ý0-9«¿¡„"])/).map(s => s.trim()).filter(s => s.length > 25 && s.length < 280);
   const defs = [];
   // Seule une puce (« - », « • », « 3. », « 2) ») est retirée : le terme lui-même peut commencer par un nombre (« 1789 : … »).
-  for (const l of lines) { const m = l.match(/^(?:[-•*]\s+|\d{1,3}[.)]\s+)?([^:–—\s][^:–—]{1,59}?)\s*[:–—]\s+(.{8,})$/); if (m) defs.push([m[1].trim(), m[2].trim().replace(/\.$/, '')]); }
+  // Un « terme » qui contient déjà un verbe d'état est une phrase (« Un rayon est un objet théorique : … ») : pas une définition.
+  for (const l of lines) { const m = l.match(/^(?:[-•*]\s+|\d{1,3}[.)]\s+)?([^:–—\s][^:–—]{1,59}?)\s*[:–—]\s+(.{8,})$/); if (m && !/\s(?:est|sont|is|are|ist|sind|são|é)\s|,\s/i.test(m[1])) defs.push([m[1].trim(), m[2].trim().replace(/\.$/, '')]); }
   const out = { basic: [], cloze: [], mcq: [], tf: [], order: [] };
-  for (const [x, d] of defs) out.basic.push({ type: 'basic', front: t('Que désigne le terme « {t} » ?', { t: x }), back: cap(d) });
+  for (const [x, d] of defs) out.basic.push({ type: 'basic', front: t('Que désigne le terme « {t} » ?', { t: x }), back: capDef(d) });
   const re = new RegExp(`^(.{3,70}?)\\s+(${DEF_VERBS})\\s+(.{6,})$`, 'i');
   for (const s of sentences) {
     if (defs.some(([x]) => s.startsWith(x))) continue;
     const m = s.match(re);
-    if (m) out.basic.push({ type: 'basic', front: `${cap(m[1])} ${m[2]}… ?`, back: cap(m[3].replace(/\.$/, '')) });
+    if (m && !VAGUE_SUBJ.test(m[1])) out.basic.push({ type: 'basic', front: `${capDef(m[1])} ${m[2]}… ?`, back: capDef(m[3].replace(/\.$/, '')) });
   }
   for (const s of sentences) {
     const numb = s.match(/\b\d{1,4}(?:[.,]\d+)?\s?(?:%|°C|km|kg|ans|years|años|Jahre|anos|siècles?)?(?=[\s.,;]|$)/);
@@ -14060,7 +14076,7 @@ Views.plan = () => {
       ${upcomingExams().length ? `<div class="exams">${upcomingExams().map(x => { const r = Plan.readiness(x), e = examInfo(x); return `<article class="exam-card rise">
         <div class="ec-j"><span class="tnum">${e.days}</span><small>${tp(e.days, 'jour|jours')}</small></div>
         <div class="ec-b"><b>${esc(x.name)}${x.example ? ` <span class="tag">${t('exemple')}</span>` : ''}</b><span class="muted">${esc(cap(fmtDate(e.date, { weekday: 'long', day: 'numeric', month: 'long' })))} · ${e.decks.length ? e.decks.map(d => esc(d.name)).join(', ') : t('tous les paquets')}</span>
-          ${r ? `<div class="ready"><div class="rd-row"><span>${t('En suivant le programme')}</span><span class="rd-bar"><i style="width:${r.follow * 100}%;background:var(--good)"></i></span><b class="tnum">${pct(r.follow)}</b></div><div class="rd-row"><span>${t('Sans réviser')}</span><span class="rd-bar"><i style="width:${r.idle * 100}%;background:var(--again)"></i></span><b class="tnum">${pct(r.idle)}</b></div><small class="muted">${t('{a} vues sur {b} · {c} prévues d\'ici là', { a: r.seen, b: r.total, c: r.planned })}</small></div>` : ''}</div>
+          ${r ? `<div class="ready"><div class="rd-row"><span>${t('En suivant le programme')}</span><span class="rd-bar"><i style="width:${r.follow * 100}%;background:var(--good)"></i></span><b class="tnum">${pct(r.follow)}</b></div><div class="rd-row"><span>${t('Sans réviser')}</span><span class="rd-bar"><i style="width:${r.idle * 100}%;background:var(--again)"></i></span><b class="tnum">${pct(r.idle)}</b></div><small class="muted">${tp(r.seen, '{n} vue sur {b}|{n} vues sur {b}', { b: r.total })} · ${tp(r.planned, '{n} prévue d\'ici là|{n} prévues d\'ici là')}</small></div>` : ''}</div>
         <button class="icon-btn" data-act="examPlan" data-exam="${esc(x.id)}" aria-label="${esc(t('Modifier'))}">${icon('pen', 'i-sm')}</button></article>`; }).join('')}</div>` : `<div class="empty"><div class="t">${t('Aucun examen en vue')}</div><div>${t('Ajoutez une date : chaque paquet concerné recevra la bonne dose de nouvelles fiches chaque jour.')}</div></div>`}
     </section>
     <section class="sec">
@@ -14178,7 +14194,7 @@ const Mentor = {
       <div class="m-files" id="mFiles" ${this.files.length ? '' : 'hidden'}>${this.filesHTML()}</div>
       <form class="m-in" id="mForm" autocomplete="off">
         ${offline ? '' : `<button type="button" class="icon-btn m-clip" id="mClip" aria-label="${esc(t('Joindre des fichiers'))}" data-tip="${esc(t('Joindre des fichiers : PDF, Word, PowerPoint, Excel, ZIP, photos…'))}">${icon('clip')}${Pro.on ? '' : '<span class="tag gilt">Pro</span>'}</button><input type="file" id="mFile" multiple hidden accept="${Docs.ACCEPT}">`}
-        <textarea class="input" id="mInput" rows="1" placeholder="${esc(offline ? t("Mentor a besoin de l'IA pour répondre") : this.files.length ? t('Votre demande…') : t('Demandez, ou confiez une tâche…'))}" ${offline ? 'disabled' : ''}></textarea>
+        <textarea class="input" id="mInput" rows="1" placeholder="${esc(offline ? t("Mentor a besoin de l'IA pour répondre") : this.files.length || matchMedia('(max-width: 480px)').matches ? t('Votre demande…') : t('Demandez, ou confiez une tâche…'))}" ${offline ? 'disabled' : ''}></textarea>
         ${Dictation.supported && !offline ? `<button type="button" class="icon-btn" id="mMic" aria-label="${esc(t('Dicter'))}">${icon('mic')}</button>` : ''}
         <button class="btn btn-brass" id="mSend" ${offline ? 'disabled' : ''} aria-label="${esc(t('Envoyer'))}">${icon('send')}</button>
       </form>
@@ -18449,7 +18465,8 @@ TR = {
   "Préparation estimée le jour J : si vous suivez le programme, et si vous arrêtiez de réviser aujourd'hui.": ["Estimated readiness on the day: if you follow the programme, and if you stopped reviewing today.","Preparación estimada el día D: si sigues el programa, y si dejaras de repasar hoy.","Geschätzte Vorbereitung am Tag X: wenn du dem Programm folgst, und wenn du heute aufhören würdest.","Preparação estimada no dia D: se você seguir o programa, e se parasse de revisar hoje."],
   "En suivant le programme": ["Following the programme","Siguiendo el programa","Mit dem Programm","Seguindo o programa"],
   "Sans réviser": ["Without reviewing","Sin repasar","Ohne Wiederholen","Sem revisar"],
-  "{a} vues sur {b} · {c} prévues d'ici là": ["{a} seen out of {b} · {c} planned by then","{a} vistas de {b} · {c} previstas de aquí a entonces","{a} von {b} gesehen · {c} bis dahin geplant","{a} vistos de {b} · {c} previstos até lá"],
+  "{n} vue sur {b}|{n} vues sur {b}": ["{n} seen out of {b}|{n} seen out of {b}","{n} vista de {b}|{n} vistas de {b}","{n} von {b} gesehen|{n} von {b} gesehen","{n} visto de {b}|{n} vistos de {b}"],
+  "{n} prévue d'ici là|{n} prévues d'ici là": ["{n} planned by then|{n} planned by then","{n} prevista de aquí a entonces|{n} previstas de aquí a entonces","{n} bis dahin geplant|{n} bis dahin geplant","{n} previsto até lá|{n} previstos até lá"],
   "Aucun examen en vue": ["No exam coming up","Ningún examen a la vista","Keine Prüfung in Sicht","Nenhuma prova à vista"],
   "Ajoutez une date : chaque paquet concerné recevra la bonne dose de nouvelles fiches chaque jour.": ["Add a date: every deck involved will get the right dose of new cards each day.","Añade una fecha: cada mazo implicado recibirá cada día la dosis justa de tarjetas nuevas.","Füge ein Datum hinzu: Jeder betroffene Stapel bekommt täglich die richtige Dosis neuer Karten.","Adicione uma data: cada baralho envolvido receberá, todo dia, a dose certa de cartões novos."],
   "Votre semaine type": ["Your typical week","Tu semana tipo","Deine typische Woche","Sua semana típica"],
