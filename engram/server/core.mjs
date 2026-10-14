@@ -82,7 +82,9 @@ export function createEngram(env = process.env, { client, freeStore = null, log 
     maxRetries: 2,
     apiKey: env.ANTHROPIC_API_KEY || null,
     authToken: env.ANTHROPIC_AUTH_TOKEN || null,
-    ...(env.ANTHROPIC_BASE_URL ? { baseURL: env.ANTHROPIC_BASE_URL } : {})
+    ...(env.ANTHROPIC_BASE_URL ? { baseURL: env.ANTHROPIC_BASE_URL } : {}),
+    // Clé d'organisation (non rattachée à un espace de travail) : l'API exige l'espace dans cet en-tête.
+    ...(env.ANTHROPIC_WORKSPACE_ID ? { defaultHeaders: { 'anthropic-workspace-id': env.ANTHROPIC_WORKSPACE_ID } } : {})
   });
 
   /* ── Abonnements (Stripe) ────────────────────────────────────────── */
@@ -263,7 +265,7 @@ export function createEngram(env = process.env, { client, freeStore = null, log 
             const budget = status === 402 || e?.error?.error?.details?.error_code === 'enforced_spend_limit_reached' || /enforced_spend_limit_reached|specified (workspace )?API usage limits|credit balance|billing_error/i.test(text);
             // Une surcharge peut aussi arriver au milieu du flux, sans statut HTTP : seul le texte de l'erreur le dit.
             const code = budget ? 'budget'
-              : status === 401 || status === 403 || /authentication|x-api-key/i.test(text) ? 'server_key'
+              : status === 401 || status === 403 || /authentication|x-api-key|anthropic-workspace-id|not scoped to a workspace/i.test(text) ? 'server_key'
               : status === 429 || status === 529 || /overloaded_error|rate_limit_error/i.test(text) ? 'rate_limited'
               : status === 413 || /prompt is too long|too many tokens/i.test(text) ? 'prompt_too_large'
               : /image exceeds|image\.source|invalid image|could not process image/i.test(text) ? 'image_rejected' : 'upstream_error';
