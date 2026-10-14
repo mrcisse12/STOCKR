@@ -700,7 +700,7 @@ body:has(.gate-screen) .folder > .view{flex:1;width:100%}
 /* ── Séance de révision ──────────────────────────────────────────── */
 #study{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;overflow:hidden;
   background:radial-gradient(70% 55% at 50% 42%,var(--lamp),transparent 70%),var(--desk);
-  padding:calc(14px + env(safe-area-inset-top,0px)) 16px calc(14px + env(safe-area-inset-bottom,0px));animation:fadeIn .5s var(--ease) both}
+  padding:calc(14px + env(safe-area-inset-top,0px)) 16px calc(14px + env(safe-area-inset-bottom,0px) + var(--hb,0px));animation:fadeIn .5s var(--ease) both}
 #study::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:var(--felt);mix-blend-mode:overlay;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0'/></filter><rect width='100%' height='100%' filter='url(%23f)'/></svg>")}
 #study > *{position:relative;z-index:1}
@@ -1415,7 +1415,7 @@ button.hq:hover{background:var(--h-chip)}
   .modal{width:100%;border-radius:18px 18px 0 0;max-height:92vh;padding:22px 16px calc(22px + env(safe-area-inset-bottom,0px));animation:sheet .5s var(--ease) both}
   @keyframes sheet{from{transform:translateY(100%)}}
 }
-.toasts{position:fixed;z-index:300;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:max-content;max-width:calc(100% - 32px)}
+.toasts{position:fixed;z-index:300;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px) + var(--hb,0px));transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:max-content;max-width:calc(100% - 32px)}
 .toast{display:flex;align-items:center;gap:10px;padding:11px 15px;border-radius:10px;background:var(--folder-3);border:1px solid var(--hair-2);box-shadow:var(--sh-pop);font-weight:500;font-size:14px;animation:toastIn .5s var(--snap) both;pointer-events:auto}
 .toast .i{color:var(--brass-text)}
 .toast .wax{width:40px;height:40px;flex:none}
@@ -1813,7 +1813,7 @@ button.streak{cursor:pointer;transition:all .25s var(--ease)}button.streak:hover
 @media (max-width:960px){.hdr-r .hide-m{display:none}}
 
 /* ── Mentor : bouton flottant et tiroir ───────────────────────────── */
-.mentor-fab{position:fixed;z-index:60;right:calc(22px + env(safe-area-inset-right,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:10px;height:54px;padding:0 20px 0 7px;border-radius:99px;color:var(--text);
+.mentor-fab{position:fixed;z-index:60;right:calc(22px + env(safe-area-inset-right,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px) + var(--hb,0px));display:flex;align-items:center;gap:10px;height:54px;padding:0 20px 0 7px;border-radius:99px;color:var(--text);
   background:color-mix(in srgb,var(--folder-2) 92%,transparent);border:1px solid var(--hair-2);box-shadow:var(--sh-pop);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font:600 14.5px/1 var(--f-ui);transition:transform .45s var(--spring),box-shadow .3s,opacity .3s}
 .mentor-fab:hover{transform:translateY(-2px)}
 .mf-seal{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;color:var(--on-brass);background:radial-gradient(circle at 35% 30%,var(--brass-hi),var(--brass-btn) 55%,var(--brass-lo));box-shadow:0 6px 16px -6px var(--brass-glow),inset 0 1px 0 rgba(255,255,255,.35)}
@@ -20283,6 +20283,8 @@ async function boot() {
   };
   follow(); addEventListener('hashchange', follow);
 }
+/* L'hébergeur (Netlify, offre gratuite) pose un badge en bas à droite : le bouton Mentor, les bulles et les notes de séance remontent d'autant. */
+(() => { const fit = () => document.documentElement.style.setProperty('--hb', document.getElementById('nl-badge-frame') ? '56px' : '0px'); new MutationObserver(fit).observe(document.body, { childList: true }); fit(); })();
 boot();
 </script>
 </body>
