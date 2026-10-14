@@ -22,6 +22,13 @@
    Vert bibliothèque, laiton, fiches bristol, tampons encreurs.
    Sombre = la salle de lecture le soir · Clair = le bureau en journée.
    ═══════════════════════════════════════════════════════════════════ */
+/* Signes mathématiques (= + − × ÷ · < > ≤ ≥ ≈ ≠ ±) : Gloock les trace en filets
+   presque invisibles (« ΣF = m · a »). Cette famille ne couvre que ces signes et
+   les prend dans une serif du système, en gras pour avoir la couleur de Gloock ;
+   les lettres restent en Gloock. */
+@font-face{font-family:"Engram Signes";font-style:normal;font-weight:100 900;font-display:swap;
+  src:local("Georgia Bold"),local("Georgia-Bold"),local("Times New Roman Bold"),local("TimesNewRomanPS-BoldMT"),local("Noto Serif Bold"),local("NotoSerif-Bold"),local("DejaVu Serif Bold"),local("DejaVuSerif-Bold"),local("Liberation Serif Bold"),local("Georgia"),local("Times New Roman"),local("Noto Serif"),local("DejaVu Serif"),local("Cambria Math");
+  unicode-range:U+2B,U+3C-3E,U+B1,U+B7,U+D7,U+F7,U+2212,U+2248,U+2260,U+2264-2265,U+22C5}
 :root{
   color-scheme: dark;
   --desk:#0D1411; --desk-2:#101915;
@@ -41,7 +48,7 @@
   --sh-card:0 1px 0 rgba(255,255,255,.5) inset,0 2px 2px rgba(0,0,0,.18),0 18px 30px -12px rgba(0,0,0,.6),0 40px 80px -30px rgba(0,0,0,.7);
   --sh-panel:0 30px 60px -40px rgba(0,0,0,.8);
   --sh-pop:0 24px 60px -20px rgba(0,0,0,.75);
-  --f-display:"Gloock","Didot","Bodoni 72",Georgia,serif;
+  --f-display:"Engram Signes","Gloock","Didot","Bodoni 72",Georgia,serif;
   --f-ui:"Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --f-type:"Courier Prime","Courier New",ui-monospace,monospace;
   --f-pen:"Caveat","Segoe Print","Bradley Hand",cursive;
@@ -4348,6 +4355,15 @@ const AI = {
 };
 /** Langue dans laquelle l'IA doit s'adresser à la personne (consigne en anglais). */
 const aiLang = () => langNameEn(LANG);
+/** Registre de l'IA : le même que l'interface (vous en français, du en allemand, tú en espagnol, você en portugais). */
+const AI_VOICE = {
+  fr: 'In French, address the student formally with "vous" (vouvoiement), never "tu".',
+  de: 'In German, address the student informally with "du", never "Sie".',
+  es: 'In Spanish, address the student informally with "tú", never "usted".',
+  pt: 'In Portuguese, address the student as "você", never "tu".',
+  en: 'Address the student directly as "you".'
+};
+const aiVoice = () => AI_VOICE[LANG] || AI_VOICE.en;
 
 /* Client du serveur Engram : même contrat que « sample » (texte en flux,
    images, outils exécutés dans la page, erreurs {code, message, text}). */
@@ -4593,7 +4609,7 @@ Student's answer: ${answer}
 
 Reply with only a JSON object of this shape:
 {"score": 0-100, "verdict": "correct" | "partial" | "incorrect", "missing": ["important element that is missing or wrong", "..."], "comment": "one short, kind sentence in ${aiLang()} that says what is right and what is missing", "grade": 1 | 2 | 3 | 4}
-"missing" holds at most 3 very short items, written in ${aiLang()} (empty list if nothing is missing). "grade": 1 = wrong, 2 = partial, 3 = right, 4 = perfect and complete.`;
+"missing" holds at most 3 very short items, written in ${aiLang()} (empty list if nothing is missing). "grade": 1 = wrong, 2 = partial, 3 = right, 4 = perfect and complete. ${aiVoice()}`;
   const r = await AI.json(prompt, { ...Brain.opts('grade'), signal });
   const score = clamp(Math.round(Number(r?.score) || 0), 0, 100);
   const v0 = String(r?.verdict || '').toLowerCase();
@@ -4614,7 +4630,7 @@ Expected answer: ${expected}
 
 Reply with only a JSON object of this shape:
 {"transcription": "exactly what the student wrote, as plain text (formulas in plain notation, e.g. x^2, H2O, ->)", "legible": true | false, "score": 0-100, "verdict": "correct" | "partial" | "incorrect", "missing": ["important element that is missing or wrong", "..."], "comment": "one short, kind sentence in ${aiLang()} that says what is right and what is missing", "grade": 1 | 2 | 3 | 4}
-If you cannot read the handwriting, set "legible": false, score 0, verdict "incorrect", and say so kindly in "comment". "missing" holds at most 3 very short items, written in ${aiLang()}. "grade": 1 = wrong, 2 = partial, 3 = right, 4 = perfect and complete.`;
+If you cannot read the handwriting, set "legible": false, score 0, verdict "incorrect", and say so kindly in "comment". "missing" holds at most 3 very short items, written in ${aiLang()}. "grade": 1 = wrong, 2 = partial, 3 = right, 4 = perfect and complete. ${aiVoice()}`;
   const r = await AI.json(prompt, { ...Brain.opts('grade'), images: [image], signal });
   const score = clamp(Math.round(Number(r?.score) || 0), 0, 100);
   const v0 = String(r?.verdict || '').toLowerCase();
@@ -7032,7 +7048,7 @@ function openEditor(cardId, deckId, preset) {
       btn.disabled = true; out.innerHTML = `<span class="thinking"><i></i><i></i><i></i></span> ${t("L'IA relit votre fiche…")}`;
       const fmt = st.type === 'cloze' ? '{"text": "...", "why": "one sentence"}' : st.type === 'mcq' ? '{"front": "...", "options": ["...","...","...","..."], "answer": 0, "why": "one sentence"}' : st.type === 'order' ? '{"front": "...", "items": ["...", "..."], "why": "one sentence"}' : '{"front": "...", "back": "...", "why": "one sentence"}';
       try {
-        const r = await AI.json(`You are an expert in long-term memorisation (spaced repetition). Improve this flashcard: a single idea, precise and unambiguous wording, short answer. Keep the same language and meaning as the card, invent nothing. Write "why" in ${aiLang()}.\n\n${srcTxt()}\n\nReply with only a JSON ${fmt}`, { modelTier: 'quick', cache: false });
+        const r = await AI.json(`You are an expert in long-term memorisation (spaced repetition). Improve this flashcard: a single idea, precise and unambiguous wording, short answer. Keep the same language and meaning as the card, invent nothing. Write "why" in ${aiLang()}. ${aiVoice()}\n\n${srcTxt()}\n\nReply with only a JSON ${fmt}`, { modelTier: 'quick', cache: false });
         if (st.type === 'cloze' && r.text) st.text = String(r.text);
         else {
           if (r.front) st.front = String(r.front);
@@ -7047,7 +7063,7 @@ function openEditor(cardId, deckId, preset) {
       read(); const btn = ev.currentTarget, out = root.querySelector('#eAIout');
       btn.disabled = true; out.innerHTML = `<span class="thinking"><i></i><i></i><i></i></span> ${t('Recherche d\'une image mentale…')}`;
       try {
-        const r = await AI.json(`Invent ONE memorable mnemonic (vivid image, acronym, rhyme or story) to remember this flashcard. At most 30 words, written in ${aiLang()} unless the card is a language-learning card (then keep the target words as they are).\n\n${srcTxt()}\n\nReply with only {"mnemonic": "..."}`, { modelTier: 'quick', cache: false });
+        const r = await AI.json(`Invent ONE memorable mnemonic (vivid image, acronym, rhyme or story) to remember this flashcard. At most 30 words, written in ${aiLang()} unless the card is a language-learning card (then keep the target words as they are). ${aiVoice()}\n\n${srcTxt()}\n\nReply with only {"mnemonic": "..."}`, { modelTier: 'quick', cache: false });
         if (r?.mnemonic) { st.extra = (st.extra ? st.extra + '\n' : '') + '💡 ' + String(r.mnemonic); draw(); const o2 = root.querySelector('#eAIout'); if (o2) o2.textContent = t('✓ Ajouté au complément de la fiche.'); }
       } catch (e) { out.textContent = AI.fail(e); btn.disabled = false; }
     });
@@ -9776,7 +9792,7 @@ const AgentAI = {
       .replace('{deckHint}', M.deck ? ` (on the deck "${M.deck.name}", deck_id ${M.deck.id})` : x ? ` (nearest exam: "${x.name}", in ${daysUntil(x.date)} days)` : '');
     const why = M.focus ? `\n\nWHY THIS MISSION NOW (${M.by === 'mentor' ? 'asked by Mentor' : M.by === 'autopilot' ? 'decided by the autopilot from the board, the mastery and the exam dates' : 'context'}): ${M.focus}` : '';
     const rules = agentRules(M.a, M);
-    const input = [{ role: 'user', content: `${rules}\n\nYOUR MISSION\n${brief}${why}\n\nRules: you never change anything yourself; you PROPOSE, the student decides. Write the final note in ${aiLang()}, in Markdown (short paragraphs, **bold** for key words), addressed to the student. Do not repeat the proposals one by one in the note: they are shown next to it. Use the tools first and write nothing until you are done with them; then write only the note.` }];
+    const input = [{ role: 'user', content: `${rules}\n\nYOUR MISSION\n${brief}${why}\n\nRules: you never change anything yourself; you PROPOSE, the student decides. Write the final note in ${aiLang()}, in Markdown (short paragraphs, **bold** for key words), addressed to the student. ${aiVoice()} Do not repeat the proposals one by one in the note: they are shown next to it. Use the tools first and write nothing until you are done with them; then write only the note.` }];
     // Élite : le modèle le plus puissant que permet la formule (le serveur l'applique), et plus d'allers-retours avec les outils.
     const o = { ...Brain.opts(AGENT_TASK[M.a.id] || 'agent'), rounds: Pro.expert ? 12 : Pro.on ? 9 : 7 };
     if (AI.tools) {
@@ -9996,7 +10012,7 @@ function deckContext(d, max = 14000) { return d.cards.filter(c => c.type !== 'oc
 function openChat(deckId) {
   const d = deckById(deckId); if (!d) return;
   if (!AI.on) { toast(t("Le prof virtuel a besoin de l'IA : ouvrez Engram dans l'app Claude."), 'chat'); return; }
-  const RULES = `You are a private tutor who is ${TONES[S.profile.settings.tone]?.ai || TONES.gentle.ai}. The student is revising the deck "${d.name}".\n${Brain.brief('tutor')}\nHere are their flashcards (question → answer):\n${deckContext(d)}\n\nAnswer in ${aiLang()}, clearly, in 120 words at most unless the student asks for more (or asks for an exercise, a proof or a detailed explanation). Rely on the flashcards; if you add information that is not in them, say so. No headings; short lists are allowed.`;
+  const RULES = `You are a private tutor who is ${TONES[S.profile.settings.tone]?.ai || TONES.gentle.ai}. The student is revising the deck "${d.name}".\n${Brain.brief('tutor')}\nHere are their flashcards (question → answer):\n${deckContext(d)}\n\nAnswer in ${aiLang()}, clearly, in 120 words at most unless the student asks for more (or asks for an exercise, a proof or a detailed explanation). Rely on the flashcards; if you add information that is not in them, say so. No headings; short lists are allowed. ${aiVoice()}`;
   const turns = []; let ctl = null;
   const m = Modal.open(mh(t('Demander au prof'), esc(d.name)) + `
     <div class="chat" id="chat"><div class="msg ai">${t('Bonjour ! Je connais les {n} fiches de « {name} ». Posez-moi une question, ou choisissez une idée ci-dessous.', { n: d.cards.length, name: esc(d.name) })}</div></div>
@@ -11551,7 +11567,7 @@ Question: ${plain(f.question)}
 Right answer: ${plain(f.expected)}${this.typed ? `\nTheir answer: ${this.typed}` : ''}${c.extra ? `\nExtra: ${c.extra}` : ''}${S.profile.memory.length ? `\nWhat you know about the student: ${S.profile.memory.slice(-8).join(' / ')}` : ''}
 ${Brain.brief('tutor')}
 
-Explain the idea differently, in 4 sentences at most, with a concrete everyday analogy. End with one line that starts with "${t('Astuce :')}" and gives a short mnemonic. Write in ${aiLang()}, simply, no heading, no list, no markdown.`;
+Explain the idea differently, in 4 sentences at most, with a concrete everyday analogy. End with one line that starts with "${t('Astuce :')}" and gives a short mnemonic. Write in ${aiLang()}, simply, no heading, no list, no markdown. ${aiVoice()}`;
     try {
       await AI.ask(prompt, { signal: this.tutorCtl.signal, ...Brain.opts('tutor'), onText: ({ text }) => { if (this.cur === card) { const p = $('#tutorTxt'); if (p) { p.textContent = text; fit(); } } } });
     } catch (e) { const p = $('#tutorTxt'); if (p && this.cur === card) { p.textContent = e?.text || AI.fail(e) || ''; fit(); } }
@@ -13652,7 +13668,7 @@ ${said.slice(0, 20000)}
 
 Reply with only a JSON object of this exact shape:
 {"points": [{"id": "p1", "status": "covered" | "partial" | "missing", "quote": "the student's words that express this point, copied exactly from the recitation (at most 25 words), or an empty string", "note": "for partial or missing: what is missing or wrong, at most 18 words; empty if covered"}], "errors": [{"quote": "the student's wrong words, copied exactly", "fix": "the correct statement, at most 25 words"}], "tips": ["2 or 3 concrete tips for the next recitation, at most 22 words each"], "comment": "one honest, encouraging sentence about the recitation as a whole"}
-One entry per key point, in the same order and with the same ids. "note", "fix", "tips" and "comment" are written in ${aiLang()}; quotes stay in the student's own words. "errors" is empty when nothing is wrong.`;
+One entry per key point, in the same order and with the same ids. "note", "fix", "tips" and "comment" are written in ${aiLang()}; quotes stay in the student's own words. "errors" is empty when nothing is wrong. ${aiVoice()}`;
   },
   /** Réponse de l'IA vérifiée : un statut connu par point, des citations vraiment dites, le score calculé ici. */
   cleanGrade(raw, pts, said) {
@@ -14107,7 +14123,7 @@ Next 7 days (minutes planned/available): ${Pl.days.map(d => `${d.min}/${d.avail}
 Decks: ${S.decks.map(d => { const m = maturity(d.cards); return `${d.name} (${d.cards.length} cards: ${m.n} new, ${m.m} mastered, ${d.cards.filter(isLeech).length} leeches)`; }).join('; ')}.
 What we know about the student: ${S.profile.memory.join(' / ') || 'nothing yet'}.`;
     try {
-      const r = await AI.ask(`You are Mentor, the study coach of the Engram flashcard app; your tone is ${TONES[S.profile.settings.tone].ai}. Write this week's short letter to the student in ${aiLang()}: 90 to 140 words, addressed to them by first name if known, like a handwritten note from a tutor. Be concrete: name the priorities for this week (which decks, how many minutes, which days to watch), one encouragement grounded in their numbers, one practical tip. No headings, no lists, no markdown except **bold** for at most two key phrases. Sign "— Mentor".\n\n${ctx}`, { modelTier: S.profile.settings.mentorTier === 'complex' ? 'complex' : 'default', cache: false, onText: ({ text }) => { box.innerHTML = `<div class="pen-letter">${md(text)}</div>`; } });
+      const r = await AI.ask(`You are Mentor, the study coach of the Engram flashcard app; your tone is ${TONES[S.profile.settings.tone].ai}. Write this week's short letter to the student in ${aiLang()}: 90 to 140 words, addressed to them by first name if known, like a handwritten note from a tutor. Be concrete: name the priorities for this week (which decks, how many minutes, which days to watch), one encouragement grounded in their numbers, one practical tip. No headings, no lists, no markdown except **bold** for at most two key phrases. Sign "— Mentor". ${aiVoice()}\n\n${ctx}`, { modelTier: S.profile.settings.mentorTier === 'complex' ? 'complex' : 'default', cache: false, onText: ({ text }) => { box.innerHTML = `<div class="pen-letter">${md(text)}</div>`; } });
       S.profile.coach = { week: isoWeek(new Date()) + '-' + LANG, text: r.text }; Store.touch('profile');
       box.innerHTML = `<div class="pen-letter">${md(r.text)}</div>`;
     } catch (e) { box.innerHTML = `<p class="muted">${esc(e?.text || AI.fail(e))}</p>`; }
@@ -14339,7 +14355,7 @@ const Mentor = {
   rules() {
     const s = S.profile.settings;
     return `You are Mentor, the built-in study coach of Engram, a flashcard app that uses the FSRS spaced-repetition algorithm (shown as a Leitner box), AI answer grading, exams and a personalised daily programme.
-Your tone: ${TONES[s.tone]?.ai || TONES.gentle.ai}. Reply in ${aiLang()} unless the student writes to you in another language (then use theirs). Be concise: short paragraphs, **bold** for key words, simple lists when useful, no headings, no tables (except inside a saved note or course sheet).
+Your tone: ${TONES[s.tone]?.ai || TONES.gentle.ai}. Reply in ${aiLang()} unless the student writes to you in another language (then use theirs). ${aiVoice()} Be concise: short paragraphs, **bold** for key words, simple lists when useful, no headings, no tables (except inside a saved note or course sheet).
 ${Brain.brief('mentor')}
 ${AI.tools ? `You can act inside the app with the tools provided. When the student asks for something the tools can do, DO it with the tools instead of explaining how, then confirm in one or two sentences what you did. Call get_deck_cards before editing or quizzing on specific cards. Create at most 30 cards per add_cards call (call it several times for more). When you learn something durable about the student (goal, weakness, preference, constraint), save it with remember. Never delete anything the student did not explicitly ask to delete — the app asks them to confirm deletions. Everything you change can be undone by the student with one click.` : `In this view you cannot act in the app: answer, advise and tell the student which button to use.`}
 Flashcard quality rules: one idea per card; precise, unambiguous question; short answer (under 20 words); useful detail in "extra"; cloze cards use {{c1::…}} on the most information-rich words (1–3 gaps); multiple-choice cards have 4 plausible options and exactly one correct; write cards in the language of the deck (see each deck's lang) unless asked otherwise.
@@ -15490,7 +15506,7 @@ PRINCIPLES (cognitive science)
 - The most demanding work (new cards of the weakest or most urgent decks, mock exams) at the student's best time of day${bp.best ? ` (${['morning', 'afternoon', 'evening', 'night'][DAY_PARTS.findIndex(p => p[0] === bp.best.name)]}: ${Math.round(bp.best.acc * 100)}% success)` : ''}.
 - Interleave subjects; read the course sheet of a deck just before learning its new cards.
 - A light 5-minute recap of the day's new cards at the end of the day (sleep consolidates); the day before an exam: reviews only, no new cards.
-- Each block gets a "why": one short sentence in ${aiLang()}, concrete, mentioning the reason (time of day, exam in N days, weak deck…). Titles in ${aiLang()}.
+- Each block gets a "why": one short sentence in ${aiLang()}, concrete, mentioning the reason (time of day, exam in N days, weak deck…). Titles in ${aiLang()}. ${aiVoice()}
 
 DATA (JSON)
 ${JSON.stringify({ today: dayKey(), success_by_time_of_day: bp.P.map((p, k) => ({ part: ['morning 5-12h', 'afternoon 12-18h', 'evening 18-23h', 'night 23-5h'][k], reviews: p.r, success_rate: p.acc == null ? null : Math.round(p.acc * 100) + '%' })), seconds_per_review: Math.round(P.sec.rev), seconds_per_new_card: Math.round(P.sec.nw), decks, exams: upcomingExams().map(x => ({ name: x.name, date: x.date, days_left: daysUntil(x.date) })), draft })}
