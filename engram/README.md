@@ -92,6 +92,7 @@ L'app détecte seule le serveur qui la sert. Si l'app est hébergée ailleurs (N
 | Variable | Défaut | Rôle |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | — | Clé de l'API Claude |
+| `ANTHROPIC_WORKSPACE_ID` | — | Seulement si la clé n'est rattachée à aucun espace de travail (erreur « not scoped to a workspace ») : l'identifiant `wrkspc_…` de l'espace (Console → Paramètres → Espaces de travail) |
 | `ENGRAM_ACCESS_CODE` | — | Code d'accès à saisir dans Réglages (conseillé pour un serveur public) |
 | `ENGRAM_MODEL_QUICK` / `_DEFAULT` / `_COMPLEX` | `claude-sonnet-5-5` / `claude-opus-5-5` / `claude-fable-5-1` | Modèles des niveaux Rapide, Standard et Expert |
 | `ENGRAM_EFFORT_QUICK` / `_DEFAULT` / `_COMPLEX` | `low` / `medium` / `high` | Effort de réflexion quand la page n'en demande pas |
