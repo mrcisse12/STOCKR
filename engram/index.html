@@ -2743,6 +2743,7 @@ details.d-box[open] .d-show{display:none}
 @media (max-width:760px){
   .trials,.cp-cols{grid-template-columns:minmax(0,1fr)}
   .cl-scroll{height:50vh;padding:18px 16px}.cl-msg.exam{font-size:21px}.cl-msg.me{max-width:90%}
+  .cl-room.with-board .cl-scroll{height:36vh}
   .cl-acts .btn span{display:none}.cl-acts .cl-mic span,.cl-acts [data-cl="send"] span{display:inline}
   .cl-sp{display:none}.cl-acts #clEnd,.cl-acts [data-cl="send"]{flex:1 1 40%;justify-content:center}
   .cl-board .ink-paper{min-height:230px}
@@ -2793,6 +2794,7 @@ details.d-box[open] .d-show{display:none}
 .mc-clear{align-self:center;margin-top:6px}
 .mc-empty{padding:34px 10px}
 .shake{animation:shake .4s var(--ease)}
+.exam-banner>div{min-width:0;overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -5186,6 +5188,13 @@ function toast(msg, ic = 'check', lead = '') {
   $('#toasts').append(el);
   setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 400); }, lead ? 4200 : 3200);
 }
+/** Un sélecteur qui retrouve un bouton après un nouveau rendu de la page (même action, même cible). */
+function focusSig(el) {
+  if (!el || el === document.body || !el.dataset) return null;
+  if (el.id) return '#' + CSS.escape(el.id);
+  if (!el.dataset.act) return null;
+  return ['act', 'deck', 'id', 'v', 'g'].filter(k => el.dataset[k] != null).map(k => `[data-${k}="${CSS.escape(el.dataset[k])}"]`).join('');
+}
 const Modal = {
   stack: [],
   open(html, cls = '') {
@@ -5193,8 +5202,8 @@ const Modal = {
     back.innerHTML = `<div class="modal ${cls}" role="dialog" aria-modal="true"><i class="m-grip" aria-hidden="true"></i>${html}</div>`;
     back.addEventListener('pointerdown', e => { back._down = e.target === back; });
     back.addEventListener('click', e => { if (e.target === back && back._down) this.close({ soft: true }); });
-    // Le clavier reste dans la fenêtre (Tab boucle), et le focus revient à ce qui l'a ouverte.
-    back._prev = document.activeElement;
+    // Le clavier reste dans la fenêtre (Tab boucle), et le focus revient à ce qui l'a ouverte (ou à son double, si la page a été redessinée).
+    back._prev = document.activeElement; back._prevSel = focusSig(back._prev);
     back.addEventListener('keydown', e => {
       if (e.key !== 'Tab') return;
       const f = [...back.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(x => x.offsetParent !== null || x === document.activeElement);
@@ -5214,7 +5223,8 @@ const Modal = {
     const b = this.stack.at(-1); if (!b) return;
     if (o.soft && b._guard && !b._guard()) return;
     this.stack.pop(); this.out(b); b._onclose?.();
-    const p = b._prev; if (p?.isConnected && !this.stack.length && !$('.modal-back:not(.out)')) setTimeout(() => { if (p.isConnected) p.focus?.({ preventScroll: true }); }, 30);
+    const p = b._prev, sel = b._prevSel;
+    if (p && p !== document.body && !this.stack.length) setTimeout(() => { if (this.stack.length) return; const el = p.isConnected ? p : sel && document.querySelector(sel); el?.focus?.({ preventScroll: true }); }, 30);
   },
   guard(m, fn) { m.closest('.modal-back')._guard = fn; },
   /** Elle repart comme elle est venue : glissée vers le bas sur téléphone, fondue ailleurs. */
@@ -17409,6 +17419,7 @@ TR = {
   "{n} dans « {x} »": ["{n} in “{x}”", "{n} en «{x}»", "{n} in „{x}“", "{n} em “{x}”"],
   "Fiche ajoutée dans « {x} »": ["Card added to “{x}”", "Tarjeta añadida a «{x}»", "Karte zu „{x}“ hinzugefügt", "Cartão adicionado a “{x}”"],
   "Fiche non enregistrée : refaites le geste pour fermer sans enregistrer.": ["Card not saved: do it again to close without saving.", "Tarjeta sin guardar: repite el gesto para cerrar sin guardar.", "Karte nicht gespeichert: Wiederhole die Geste, um ohne Speichern zu schließen.", "Cartão não salvo: repita o gesto para fechar sem salvar."],
+  "réponse|réponses": ["answer|answers", "respuesta|respuestas", "Antwort|Antworten", "resposta|respostas"],
 };
 
 /* ── Démarrage ─────────────────────────────────────────────────────── */
