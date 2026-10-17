@@ -2792,6 +2792,7 @@ details.d-box[open] .d-show{display:none}
 .mc-del:hover{color:var(--again)}
 .mc-clear{align-self:center;margin-top:6px}
 .mc-empty{padding:34px 10px}
+.shake{animation:shake .4s var(--ease)}
 </style>
 </head>
 <body>
@@ -4987,6 +4988,7 @@ function seedDemo(lang = LANG) {
    APP — composants, vues, modales
    ════════════════════════════════════════════════════════════════════ */
 const DECK_COLORS = { green: '#2E7A58', ink: '#2F55B0', red: '#B8352A', brass: '#A57B2E', plum: '#7A3B72', slate: '#4E5D66', teal: '#1F7A7A', clay: '#B0613A' };
+const DECK_COLOR_NAME = { green: N_('Vert'), ink: N_('Bleu encre'), red: N_('Rouge'), brass: N_('Laiton'), plum: N_('Prune'), slate: N_('Ardoise'), teal: N_('Bleu canard'), clay: N_('Terre cuite') };
 const CARD_LANGS = ['fr', 'en', 'es', 'de', 'pt', 'it', 'nl', 'ar', 'zh', 'ja', 'ko', 'ru', 'tr', 'pl', 'sw'];
 const TYPE_LABEL = { basic: N_('Q/R'), cloze: N_('Trous'), mcq: N_('QCM'), tf: N_('Vrai/Faux'), occlusion: N_('Image'), order: N_('Ordre') };
 const typeLabel = k => t(TYPE_LABEL[k] || TYPE_LABEL.basic);
@@ -6269,12 +6271,12 @@ function deckForm(d = {}) {
     <div class="field"><label for="dDesc">${t('Description')}</label><input class="input" id="dDesc" value="${esc(d.desc || '')}" placeholder="${esc(t('Facultatif'))}"></div>
     ${d.id ? `<div class="field"><label for="dRet">${t('Rétention visée pour ce paquet')} <span class="elite-tag">${t('Élite')}</span></label><select class="input" id="dRet" ${Pro.expert ? '' : 'disabled'}><option value="">${t('Comme les réglages ({x})', { x: pct(S.profile.settings.retention) })}</option>${[0.8, 0.85, 0.88, 0.9, 0.92, 0.94, 0.95, 0.97].map(v => `<option value="${v}" ${d.retention === v ? 'selected' : ''}>${pct(v)}</option>`).join('')}</select></div>` : ''}
     <div class="two">
-      <div class="field"><span class="flabel">${t("Couleur de l'étiquette")}</span><div class="chips" id="dColor">${Object.entries(DECK_COLORS).map(([k, v]) => `<button class="chip ${(d.color || 'brass') === k ? 'on' : ''}" data-c="${k}" aria-label="${k}"><i class="d" style="background:${v};width:14px;height:14px"></i></button>`).join('')}</div></div>
+      <div class="field"><span class="flabel">${t("Couleur de l'étiquette")}</span><div class="chips" id="dColor" role="radiogroup" aria-label="${esc(t("Couleur de l'étiquette"))}">${Object.entries(DECK_COLORS).map(([k, v]) => `<button class="chip ${(d.color || 'brass') === k ? 'on' : ''}" data-c="${k}" role="radio" aria-checked="${(d.color || 'brass') === k}" aria-label="${esc(t(DECK_COLOR_NAME[k]))}" data-tip="${esc(t(DECK_COLOR_NAME[k]))}"><i class="d" style="background:${v};width:14px;height:14px"></i></button>`).join('')}</div></div>
       <div class="field"><label for="dLang">${t('Langue des fiches')}</label><select class="select" id="dLang">${CARD_LANGS.map(k => `<option value="${k}" ${(d.lang || LANG) === k ? 'selected' : ''}>${esc(langName(k))}</option>`).join('')}</select></div>
     </div></div>`;
 }
 function readDeckForm(m) { const ret = m.querySelector('#dRet'); return { name: m.querySelector('#dName').value.trim(), desc: m.querySelector('#dDesc').value.trim(), color: m.querySelector('#dColor .on')?.dataset.c || 'brass', lang: m.querySelector('#dLang').value, ...(ret && Pro.expert ? { retention: +ret.value || undefined } : {}) }; }
-function bindColorChips(m) { m.querySelector('#dColor').addEventListener('click', e => { const b = e.target.closest('[data-c]'); if (!b) return; m.querySelectorAll('#dColor .chip').forEach(x => x.classList.toggle('on', x === b)); }); }
+function bindColorChips(m) { m.querySelector('#dColor').addEventListener('click', e => { const b = e.target.closest('[data-c]'); if (!b) return; m.querySelectorAll('#dColor .chip').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-checked', x === b); }); }); }
 function createDeck(o) {
   if (S.demo) Store.leaveDemo(false);
   const d = { id: uid('d'), name: o.name || t('Nouveau paquet'), desc: o.desc || '', color: DECK_COLORS[o.color] ? o.color : pick(Object.keys(DECK_COLORS)), lang: o.lang || LANG, created: Date.now(), updatedAt: Date.now(), cards: [], notes: [] };
@@ -6316,7 +6318,11 @@ function openDeckSettings(id) {
       <div style="display:flex;gap:8px"><button class="btn btn-ghost" data-act="close">${t('Annuler')}</button><button class="btn btn-brass" id="dSave">${icon('check')}${t('Enregistrer')}</button></div>
     </div>`);
   bindColorChips(m);
-  m.querySelector('#dSave').onclick = () => { Object.assign(d, readDeckForm(m)); if (!d.name) d.name = t('Sans titre'); Store.touchDeck(d); Store.touch('profile'); Modal.close(); App.render(); toast(t('Paquet enregistré')); };
+  m.querySelector('#dSave').onclick = () => {
+    const f = readDeckForm(m); if (!f.name) { const n = m.querySelector('#dName'); n.focus(); n.classList.add('shake'); setTimeout(() => n.classList.remove('shake'), 500); toast(t('Donnez un nom au paquet.'), 'pen'); return; }
+    Object.assign(d, f); Store.touchDeck(d); Store.touch('profile'); Modal.close(); App.render(); toast(t('Paquet enregistré'));
+  };
+  m.querySelector('#dName').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); m.querySelector('#dSave').click(); } });
   const del = m.querySelector('#dDel');
   del.onclick = () => {
     if (!del.dataset.sure) { del.dataset.sure = 1; del.innerHTML = icon('trash', 'i-sm') + t('Confirmer : supprimer {x}', { x: plural(d.cards.length, 'fiche|fiches') }); return; }
@@ -6351,6 +6357,7 @@ function openEditor(cardId, deckId, preset) {
   if (card && card.type === 'occlusion') return openOcclusion(deck.id, card);
   if (!deck) { openNewDeck(d => openEditor(null, d.id)); return; }
   const st = { type: card ? card.type : (preset || 'basic'), front: card?.front || '', back: card?.back || '', extra: card?.extra || '', text: card?.text || '', options: card?.options ? [...card.options, '', '', '', ''].slice(0, Math.max(4, card.options.length)) : ['', '', '', ''], answer: card?.answer ?? 0, items: (card?.items || []).join('\n'), tags: (card?.tags || []).join(', '), fimg: card?.fimg || '', bimg: card?.bimg || '' };
+  const inked = new Set(); // schémas dessinés dans cette fenêtre
   const tblBtn = id => `<button class="btn btn-ghost btn-sm" data-tbl="${id}">${icon('table', 'i-sm')}${t('Insérer un tableau')}</button>`;
   const sk = side => { const id = st[side], src = id && S.images[id];
     return `<div class="sk-row">${src ? `<img class="sk-thumb ${/^ink/.test(id) ? 'sketch' : ''}" src="${src}" alt=""><button class="btn btn-ghost btn-sm" data-sk-draw="${side}">${icon('nib', 'i-sm')}${t('Redessiner')}</button><button class="btn btn-ghost btn-sm" data-sk-rm="${side}">${icon('x', 'i-sm')}${t('Retirer')}</button>` : `<button class="btn btn-ghost btn-sm" data-sk-draw="${side}">${icon('nib', 'i-sm')}${t('Ajouter un schéma dessiné')}</button>`}${tblBtn(side === 'fimg' ? 'eFront' : 'eBack')}</div>`; };
@@ -6403,7 +6410,7 @@ function openEditor(cardId, deckId, preset) {
     root.querySelectorAll('[data-ans]').forEach(b => b.onclick = () => { read(); st.answer = +b.dataset.ans; draw(); });
     root.querySelectorAll('[data-sk-draw]').forEach(b => b.onclick = () => {
       read(); const side = b.dataset.skDraw;
-      openSketch({ title: side === 'fimg' ? t('Schéma du recto') : t('Schéma du verso'), done: im => { const id = uid('ink'); S.images[id] = im.url; Store.dirty.add('img:' + id); st[side] = id; draw(); } });
+      openSketch({ title: side === 'fimg' ? t('Schéma du recto') : t('Schéma du verso'), done: im => { const id = uid('ink'); S.images[id] = im.url; Store.dirty.add('img:' + id); inked.add(id); st[side] = id; draw(); } });
     });
     root.querySelectorAll('[data-sk-rm]').forEach(b => b.onclick = () => { read(); st[b.dataset.skRm] = ''; draw(); });
     root.querySelector('#eTF')?.addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; read(); st.answer = b.dataset.v === '1'; draw(); });
@@ -6536,7 +6543,8 @@ function openEditor(cardId, deckId, preset) {
     Object.assign(st, { front: '', back: '', extra: '', text: '', options: ['', '', '', ''], items: '', answer: ty === 'tf' ? true : 0, fimg: '', bimg: '' });
     draw(); base0 = snap(); m.querySelector('#eFront, #eText')?.focus();
   };
-  Modal.onClose(m, () => { if (!Study.active && ['deck', 'today', 'library'].includes(App.route.v)) App.render(false, null, scrollY); });
+  // Les schémas dessinés puis remplacés, retirés ou abandonnés ne restent pas en mémoire.
+  Modal.onClose(m, () => { inked.forEach(dropSketch); if (!Study.active && ['deck', 'today', 'library'].includes(App.route.v)) App.render(false, null, scrollY); });
   // Échap ou un toucher à côté ne jettent pas une saisie : un premier geste prévient, le second ferme.
   let base0 = '', warned = 0;
   const snap = () => { read(); return JSON.stringify(st); };
@@ -6679,7 +6687,7 @@ function openOcclusion(deckId, existing, o = {}) {
   const deck = deckById(deckId) || S.decks[0]; if (!deck && !o.draft) return openNewDeck(d => openOcclusion(d.id));
   const sibs = existing ? deck.cards.filter(c => c.note && c.note === existing.note) : [];
   const st = o.draft ? { src: o.draft.src, imgId: null, masks: o.draft.masks.map(x => ({ ...x })), title: o.draft.title || t('Nommez la structure masquée') }
-    : { src: existing ? S.images[existing.img] : null, imgId: existing?.img || null, masks: existing ? existing.masks.map(x => ({ ...x })) : [], title: existing?.front || t('Nommez la structure masquée') };
+    : { src: existing ? S.images[existing.img] : null, imgId: existing?.img || null, masks: existing ? existing.masks.map((x, i) => ({ ...x, _o: i })) : [], title: existing?.front || t('Nommez la structure masquée') };
   const m = Modal.open('<div id="ocRoot"></div>', 'wide');
   const readLabels = () => m.querySelectorAll('[data-lab]').forEach(i => { if (st.masks[+i.dataset.lab]) st.masks[+i.dataset.lab].label = i.value.trim(); });
   const draw = () => {
@@ -6693,7 +6701,7 @@ function openOcclusion(deckId, existing, o = {}) {
           <div class="oc-tools">${AI.images ? `<button class="btn" id="ocAI">${icon('sparkles')}${t("Détecter les légendes avec l'IA")}</button>` : ''}${st.masks.length ? `<button class="btn btn-ghost" id="ocSnap" data-tip="${esc(t('Resserre chaque masque sur les mots qu\'il cache, sans IA'))}">${icon('target')}${t('Caler sur le texte')}</button>` : ''}</div><div class="muted" id="ocAIout" style="font-size:13px"></div>
         </div>
       </div>
-      <div class="modal-f"><button class="btn btn-ghost" data-act="close">${t('Annuler')}</button><button class="btn btn-brass" id="ocSave" ${st.masks.length ? '' : 'disabled'}>${icon('check')}${o.draft ? t('Valider') : existing ? t('Enregistrer') : t('Créer {x}', { x: plural(st.masks.length, 'fiche|fiches') })}</button></div>`
+      <div class="modal-f">${existing && !o.draft ? `<button class="btn btn-sm btn-danger" id="ocDel" style="margin-right:auto">${icon('trash', 'i-sm')}${t('Supprimer')}</button>` : ''}<button class="btn btn-ghost" data-act="close">${t('Annuler')}</button><button class="btn btn-brass" id="ocSave" ${st.masks.length ? '' : 'disabled'}>${icon('check')}${o.draft ? t('Valider') : existing ? t('Enregistrer') : t('Créer {x}', { x: plural(st.masks.length, 'fiche|fiches') })}</button></div>`
       : `<label class="drop" for="ocFile"><div class="ico">${icon('image')}</div><b>${t('Choisissez un schéma')}</b><span class="muted">${t('Un schéma légendé, une carte, une frise… (JPEG, PNG)')}</span></label><input type="file" id="ocFile" accept="image/*" hidden>`);
     const root = m.querySelector('#ocRoot');
     root.querySelector('#ocFile')?.addEventListener('change', async e => { const f = e.target.files[0]; if (!f) return; st.src = await compressImage(f); st.file = f; draw(); });
@@ -6723,17 +6731,25 @@ function openOcclusion(deckId, existing, o = {}) {
       st.masks = next; draw();
       const o2 = m.querySelector('#ocAIout'); if (o2) o2.textContent = moved && before !== JSON.stringify(next.map(k => [k.x, k.y, k.w, k.h])) ? t('✓ {x} sur le texte.', { x: plural(moved, 'masque calé|masques calés') }) : t("Aucun texte net sous les masques : rien n'a bougé.");
     });
+    root.querySelector('#ocDel')?.addEventListener('click', e => {
+      const b = e.currentTarget; if (!b.dataset.sure) { b.dataset.sure = 1; b.innerHTML = icon('trash', 'i-sm') + t('Confirmer la suppression'); return; }
+      const was = deck.cards.map((x, i) => [x, i]).filter(([x]) => x.note === existing.note);
+      deck.cards = deck.cards.filter(x => x.note !== existing.note); Store.touchDeck(deck); Modal.close(); App.render();
+      toastUndo(plural(was.length, 'fiche supprimée|fiches supprimées'), () => { for (const [x, i] of was) if (!deck.cards.includes(x)) deck.cards.splice(Math.min(i, deck.cards.length), 0, x); Store.touchDeck(deck); App.render(); });
+    });
     root.querySelector('#ocSave')?.addEventListener('click', () => {
       readLabels(); st.title = root.querySelector('#ocTitle').value.trim() || t('Nommez la zone masquée');
-      if (o.draft) { Modal.close(); o.draft.done({ masks: st.masks, title: st.title }); return; }
+      if (o.draft) { Modal.close(); o.draft.done({ masks: st.masks.map(({ _o, ...k }) => k), title: st.title }); return; }
       if (!st.imgId) { st.imgId = uid('img'); S.images[st.imgId] = st.src; }
       const note = existing?.note || uid('n');
+      // Chaque masque garde sa fiche (et son historique) même si l'on en retire un autre avant lui.
+      const masks = st.masks.map(({ _o, ...k }) => k);
       if (existing) {
-        const kept = st.masks.map((k, i) => { const old = sibs.find(s => s.maskIdx === i); return old ? Object.assign(old, { masks: st.masks, front: st.title }) : mkCard('occlusion', { img: st.imgId, masks: st.masks, maskIdx: i, note, front: st.title, src: 'manuel' }); });
+        const kept = st.masks.map((k, i) => { const old = k._o != null ? sibs.find(s => s.maskIdx === k._o) : null; return old ? Object.assign(old, { masks, maskIdx: i, front: st.title }) : mkCard('occlusion', { img: st.imgId, masks, maskIdx: i, note, front: st.title, src: 'manuel' }); });
         deck.cards = deck.cards.filter(c => c.note !== note).concat(kept);
       } else {
         if (S.demo) Store.leaveDemo(false);
-        deck.cards.push(...st.masks.map((k, i) => mkCard('occlusion', { img: st.imgId, masks: st.masks, maskIdx: i, note, front: st.title, src: 'manuel' })));
+        deck.cards.push(...masks.map((k, i) => mkCard('occlusion', { img: st.imgId, masks, maskIdx: i, note, front: st.title, src: 'manuel' })));
       }
       Store.touchDeck(deck); Store.touch('img:' + st.imgId); Modal.close(); App.render(); toast(existing ? t('Fiches mises à jour') : plural(st.masks.length, 'fiche créée|fiches créées'), 'image');
     });
@@ -17203,6 +17219,196 @@ TR = {
   "Créneaux enregistrés": ["Slots saved", "Franjas guardadas", "Zeitfenster gespeichert", "Horários salvos"],
   "Prochain créneau": ["Next slot", "Próxima franja", "Nächstes Zeitfenster", "Próximo horário"],
   "Cette fonction de l'IA fait partie de Pro et Élite.": ["This AI feature is part of Pro and Elite.", "Esta función de la IA forma parte de Pro y Élite.", "Diese KI-Funktion gehört zu Pro und Elite.", "Este recurso da IA faz parte do Pro e do Elite."],
+  "Cette fonction de l'IA fait partie d'Élite.": ["This AI feature is part of Elite.", "Esta función de la IA forma parte de Élite.", "Diese KI-Funktion gehört zu Elite.", "Este recurso da IA faz parte do Elite."],
+  "Courbe d'oubli de la fiche": ["The card's forgetting curve", "Curva del olvido de la tarjeta", "Vergessenskurve der Karte", "Curva do esquecimento do cartão"],
+  "Créée": ["Created", "Creada", "Erstellt", "Criado"],
+  "par l'IA": ["by the AI", "por la IA", "von der KI", "pela IA"],
+  "Mémoire aujourd'hui": ["Memory today", "Memoria hoy", "Erinnerung heute", "Memória hoje"],
+  "chance de s'en souvenir": ["chance of recalling it", "probabilidad de recordarla", "Chance, dich zu erinnern", "chance de lembrá-lo"],
+  "Stabilité": ["Stability", "Estabilidad", "Stabilität", "Estabilidade"],
+  "Prochaine révision": ["Next review", "Próximo repaso", "Nächste Wiederholung", "Próxima revisão"],
+  "à apprendre": ["to learn", "por aprender", "zu lernen", "para aprender"],
+  "La courbe d'oubli": ["The forgetting curve", "La curva del olvido", "Die Vergessenskurve", "A curva do esquecimento"],
+  "Après chaque révision, la mémoire retombe moins vite : c'est la répétition espacée.": ["After each review, memory fades more slowly: that's spaced repetition.", "Tras cada repaso, la memoria decae más despacio: es la repetición espaciada.", "Nach jeder Wiederholung sinkt die Erinnerung langsamer: Das ist verteilte Wiederholung.", "Após cada revisão, a memória cai mais devagar: é a repetição espaçada."],
+  "revue dans {x}": ["due again in {x}", "vuelve en {x}", "wieder fällig in {x}", "volta em {x}"],
+  "Historique détaillé à venir": ["Detailed history to come", "Historial detallado próximamente", "Detaillierter Verlauf folgt", "Histórico detalhado em breve"],
+  "Pas encore révisée": ["Not reviewed yet", "Aún sin repasar", "Noch nicht wiederholt", "Ainda não revisado"],
+  "Les prochaines révisions de cette fiche s'inscriront ici, avec la courbe de sa mémoire.": ["This card's next reviews will appear here, along with its memory curve.", "Los próximos repasos de esta tarjeta aparecerán aquí, con la curva de su memoria.", "Die nächsten Wiederholungen dieser Karte erscheinen hier, samt ihrer Erinnerungskurve.", "As próximas revisões deste cartão aparecerão aqui, com a curva da memória dele."],
+  "Chaque révision s'inscrira ici, avec la note donnée et la courbe de sa mémoire.": ["Each review will appear here, with the rating given and its memory curve.", "Cada repaso aparecerá aquí, con la nota dada y la curva de su memoria.", "Jede Wiederholung erscheint hier, mit der vergebenen Bewertung und der Erinnerungskurve.", "Cada revisão aparecerá aqui, com a nota dada e a curva de memória do cartão."],
+  "{n} plus anciennes ne sont pas détaillées.": ["Plus {n} from earlier, not shown in detail.", "Además, {n} de antes, sin detalle.", "Dazu {n} von früher, nicht im Detail.", "Mais {n} de antes, sem detalhes."],
+  "Réapprendre de zéro": ["Relearn from scratch", "Reaprender desde cero", "Von vorn lernen", "Reaprender do zero"],
+  "Historique de la fiche": ["Card history", "Historial de la tarjeta", "Verlauf der Karte", "Histórico do cartão"],
+  "Confirmer : repartir de zéro": ["Confirm: start from scratch", "Confirmar: empezar de cero", "Bestätigen: von vorn beginnen", "Confirmar: recomeçar do zero"],
+  "Fiche remise à apprendre": ["Card reset to new", "Tarjeta reiniciada como nueva", "Karte auf neu zurückgesetzt", "Cartão reiniciado como novo"],
+  "Historique": ["History", "Historial", "Verlauf", "Histórico"],
+  "Colle orale": ["Oral exam", "Examen oral", "Mündliche Prüfung", "Prova oral"],
+  "Corriger ma copie": ["Correct my paper", "Corregir mi examen", "Meine Arbeit korrigieren", "Corrigir minha prova"],
+  "Conversations avec Mentor": ["Conversations with Mentor", "Conversaciones con Mentor", "Gespräche mit Mentor", "Conversas com o Mentor"],
+  "La colle orale fait partie d'Élite": ["The oral exam is part of Elite", "El examen oral forma parte de Élite", "Die mündliche Prüfung gehört zu Elite", "A prova oral faz parte do Elite"],
+  "L'IA la plus puissante joue l'examinateur : questions de cours, exercices, relances, indices, note et bilan, comme le jour de l'oral.": ["The most powerful AI plays the examiner: course questions, exercises, follow-ups, hints, a mark and a report, just like on exam day.", "La IA más potente hace de examinador: preguntas de teoría, ejercicios, repreguntas, pistas, nota y valoración, como el día del oral.", "Die stärkste KI spielt den Prüfer: Theoriefragen, Aufgaben, Nachfragen, Hinweise, Note und Fazit, wie am Tag der mündlichen Prüfung.", "A IA mais poderosa faz o papel do examinador: perguntas de teoria, exercícios, réplicas, dicas, nota e balanço, como no dia da prova oral."],
+  "La correction de copie fait partie de Pro et Élite": ["Paper correction is part of Pro and Elite", "La corrección de exámenes forma parte de Pro y Élite", "Die Korrektur von Arbeiten gehört zu Pro und Elite", "A correção de provas faz parte do Pro e do Elite"],
+  "Un DS, un devoir maison, une annale : l'IA lit votre écriture, note chaque question et rédige le corrigé. Élite corrige jusqu'à 10 pages avec le modèle le plus puissant.": ["A written test, a homework assignment, a past paper: the AI reads your handwriting, marks each question and writes the model answer. Elite corrects up to 10 pages with the most powerful model.", "Un examen escrito, unos deberes, un examen de otros años: la IA lee tu letra, puntúa cada pregunta y redacta la solución modelo. Élite corrige hasta 10 páginas con el modelo más potente.", "Eine Klausur, eine Hausaufgabe, eine Altklausur: Die KI liest deine Handschrift, bewertet jede Aufgabe und schreibt die Musterlösung. Elite korrigiert bis zu 10 Seiten mit dem stärksten Modell.", "Uma prova escrita, um dever de casa, uma prova antiga: a IA lê sua letra, dá nota a cada questão e redige o gabarito. O Elite corrige até 10 páginas com o modelo mais poderoso."],
+  "La fiche vérifiée fait partie d'Élite": ["Verified course sheets are part of Elite", "Las fichas de curso verificadas forman parte de Élite", "Geprüfte Lernzettel gehören zu Elite", "As fichas de curso verificadas fazem parte do Elite"],
+  "Le modèle le plus puissant relit votre fiche de cours ligne à ligne : énoncés, hypothèses, formules, unités, exemples recalculés. Les erreurs sont corrigées et marquées, et tout s'annule d'un geste.": ["The most powerful model checks your course sheet line by line: statements, hypotheses, formulas, units, examples recalculated. Errors are corrected and flagged, and everything can be undone in one tap.", "El modelo más potente revisa tu ficha de curso línea a línea: enunciados, hipótesis, fórmulas, unidades, ejemplos recalculados. Los errores se corrigen y se marcan, y todo se deshace con un toque.", "Das stärkste Modell prüft deinen Lernzettel Zeile für Zeile: Aussagen, Voraussetzungen, Formeln, Einheiten, nachgerechnete Beispiele. Fehler werden korrigiert und markiert, und alles lässt sich mit einem Tipp rückgängig machen.", "O modelo mais poderoso relê sua ficha de curso linha por linha: enunciados, hipóteses, fórmulas, unidades, exemplos recalculados. Os erros são corrigidos e marcados, e tudo se desfaz com um toque."],
+  "Correction de vos copies façon DS, avec corrigé": ["Your papers corrected test-style, with a model answer", "Corrección de tus exámenes como en clase, con solución modelo", "Korrektur deiner Arbeiten wie in der Klausur, mit Musterlösung", "Correção das suas provas como em sala, com gabarito"],
+  "La colle orale avec un examinateur IA, notée sur 20": ["The oral exam with an AI examiner, marked out of 20", "El examen oral con un examinador IA, con nota sobre 20", "Die mündliche Prüfung mit einem KI-Prüfer, bewertet von 0 bis 20", "A prova oral com um examinador de IA, com nota de 0 a 20"],
+  "Fiches de cours vérifiées par contre-relecture": ["Course sheets verified by a second review", "Fichas de curso verificadas con una segunda revisión", "Durch Gegenlesen geprüfte Lernzettel", "Fichas de curso verificadas por revisão cruzada"],
+  "Correction de copie façon DS : barème, erreurs, corrigé": ["Test-style paper correction: marking scheme, errors, model answer", "Corrección de exámenes como en clase: baremo, errores, solución modelo", "Korrektur wie in der Klausur: Bewertungsschema, Fehler, Musterlösung", "Correção de provas como em sala: critérios de correção, erros, gabarito"],
+  "4 pages": ["4 pages", "4 páginas", "4 Seiten", "4 páginas"],
+  "10 pages, corrigé détaillé": ["10 pages, detailed model answer", "10 páginas, solución modelo detallada", "10 Seiten, ausführliche Musterlösung", "10 páginas, gabarito detalhado"],
+  "Colle orale avec un examinateur IA": ["Oral exam with an AI examiner", "Examen oral con un examinador IA", "Mündliche Prüfung mit KI-Prüfer", "Prova oral com um examinador de IA"],
+  "Des fiches pour combler les lacunes": ["Cards to fill the gaps", "Tarjetas para cubrir las lagunas", "Karten, um die Lücken zu schließen", "Cartões para preencher as lacunas"],
+  "Ajouter les fiches": ["Add the cards", "Añadir las tarjetas", "Karten hinzufügen", "Adicionar os cartões"],
+  "Cochez au moins une fiche.": ["Tick at least one card.", "Marca al menos una tarjeta.", "Wähle mindestens eine Karte aus.", "Marque pelo menos um cartão."],
+  "Fiches tirées d'une épreuve.": ["Cards from an exam.", "Tarjetas sacadas de un examen.", "Karten aus einer Prüfung.", "Cartões tirados de uma prova."],
+  "Ajoutées à « {x} »": ["Added to “{x}”", "Añadidas a «{x}»", "Zu „{x}“ hinzugefügt", "Adicionados a “{x}”"],
+  "{n} ajoutées à « {x} »": ["{n} added to “{x}”", "{n} añadidas a «{x}»", "{n} zu „{x}“ hinzugefügt", "{n} adicionados a “{x}”"],
+  "Voir": ["View", "Ver", "Ansehen", "Ver"],
+  "La colle a besoin de l'IA.": ["The oral exam needs the AI.", "El examen oral necesita la IA.", "Die mündliche Prüfung braucht die KI.", "A prova oral precisa da IA."],
+  "Choisissez un paquet ou écrivez le sujet de la colle.": ["Choose a deck or write the exam topic.", "Elige un mazo o escribe el tema del examen oral.", "Wähle einen Stapel oder gib das Thema der Prüfung ein.", "Escolha um baralho ou escreva o tema da prova oral."],
+  "Répondez à voix haute, par écrit ou au tableau.": ["Answer out loud, in writing or on the board.", "Responde en voz alta, por escrito o en la pizarra.", "Antworte laut, schriftlich oder an der Tafel.", "Responda em voz alta, por escrito ou no quadro."],
+  "Colle arrêtée avant la première réponse : rien n'est noté.": ["Exam stopped before the first answer: nothing is marked.", "Examen detenido antes de la primera respuesta: no se pone nota.", "Prüfung vor der ersten Antwort beendet: Es wird nichts bewertet.", "Prova interrompida antes da primeira resposta: nada é avaliado."],
+  "L'examinateur": ["The examiner", "El examinador", "Der Prüfer", "O examinador"],
+  "Réécouter": ["Listen again", "Volver a escuchar", "Erneut anhören", "Ouvir de novo"],
+  "Vous": ["You", "Tú", "Du", "Você"],
+  "{m} min": ["{m} min", "{m} min", "{m} Min.", "{m} min"],
+  "Je sèche : un indice, s'il vous plaît.": ["I'm stuck: a hint, please.", "Me he atascado: una pista, por favor.", "Ich hänge fest: einen Hinweis, bitte.", "Travei: uma dica, por favor."],
+  "Tableau montré": ["Board shown", "Pizarra mostrada", "Tafel gezeigt", "Quadro mostrado"],
+  "Voir mon bilan": ["See my report", "Ver mi valoración", "Mein Fazit ansehen", "Ver meu balanço"],
+  "Terminer la colle": ["End the exam", "Terminar el examen", "Prüfung beenden", "Encerrar a prova"],
+  "L'examinateur réfléchit…": ["The examiner is thinking…", "El examinador está pensando…", "Der Prüfer überlegt…", "O examinador está pensando…"],
+  "La colle est terminée.": ["The exam is over.", "El examen ha terminado.", "Die Prüfung ist vorbei.", "A prova terminou."],
+  "À vous.": ["Your turn.", "Te toca.", "Du bist dran.", "Sua vez."],
+  "J'écoute…": ["Listening…", "Te escucho…", "Ich höre zu…", "Estou ouvindo…"],
+  "La copie était difficile à lire : reprenez la photo bien à plat, en pleine lumière.": ["Your paper was hard to read: retake the photo with the page flat, in good light.", "Tu examen se leía mal: repite la foto con la hoja bien plana y buena luz.", "Deine Arbeit war schwer lesbar: Fotografiere sie noch einmal flach und bei gutem Licht.", "Sua prova estava difícil de ler: tire a foto de novo com a folha bem plana e boa luz."],
+  "Remarques du correcteur": ["Marker's comments", "Comentarios del corrector", "Anmerkungen des Korrektors", "Comentários do corretor"],
+  "Points": ["Points", "Puntos", "Punkte", "Pontos"],
+  "Erreurs relevées": ["Mistakes spotted", "Errores detectados", "Gefundene Fehler", "Erros apontados"],
+  "Le corrigé": ["Model answer", "Solución modelo", "Musterlösung", "Gabarito"],
+  "Relire la colle": ["Reread the oral exam", "Releer el examen oral", "Mündliche Prüfung nachlesen", "Reler a prova oral"],
+  "Nouvelle colle": ["New oral exam", "Nuevo examen oral", "Neue mündliche Prüfung", "Nova prova oral"],
+  "Corriger une autre copie": ["Correct another paper", "Corregir otro examen", "Weitere Arbeit korrigieren", "Corrigir outra prova"],
+  "En parler à Mentor": ["Talk it over with Mentor", "Hablarlo con Mentor", "Mit Mentor besprechen", "Falar disso com o Mentor"],
+  "Vos dernières épreuves": ["Your recent exams", "Tus últimos exámenes", "Deine letzten Prüfungen", "Suas últimas provas"],
+  "Chaque colle est gardée ici avec sa note et son bilan, pour mesurer vos progrès.": ["Every oral exam is kept here with its mark and feedback, so you can track your progress.", "Cada examen oral se guarda aquí con su nota y su balance, para medir tu progreso.", "Jede mündliche Prüfung bleibt hier mit Note und Auswertung, damit du deine Fortschritte siehst.", "Cada prova oral fica guardada aqui com a nota e o balanço, para você medir seu progresso."],
+  "Chaque copie corrigée est gardée ici avec sa note, son barème et son corrigé.": ["Every corrected paper is kept here with its mark, marking scheme and model answer.", "Cada examen corregido se guarda aquí con su nota, su baremo y su solución modelo.", "Jede korrigierte Arbeit bleibt hier mit Note, Bewertungsschema und Musterlösung.", "Cada prova corrigida fica guardada aqui com a nota, os critérios de correção e o gabarito."],
+  "moyenne {x}/20": ["average {x}/20", "media {x}/20", "Schnitt {x}/20", "média {x}/20"],
+  "Énoncez…": ["State…", "Enuncia…", "Formuliere…", "Enuncie…"],
+  "Un examinateur IA vous interroge à voix haute, relance, donne un indice quand vous séchez, et note sur 20.": ["An AI examiner questions you out loud, follows up, gives a hint when you're stuck, and marks out of 20.", "Un examinador con IA te interroga en voz alta, repregunta, te da una pista cuando te atascas y pone nota sobre 20.", "Ein KI-Prüfer fragt dich mündlich ab, hakt nach, gibt dir einen Hinweis, wenn du festhängst, und vergibt bis zu 20 Punkte.", "Um examinador com IA interroga você em voz alta, insiste, dá uma dica quando você trava e dá uma nota de 0 a 20."],
+  "10 à 30 min": ["10 to 30 min", "10 a 30 min", "10 bis 30 Min.", "10 a 30 min"],
+  "à voix haute": ["out loud", "en voz alta", "mündlich", "em voz alta"],
+  "tableau au stylet": ["stylus board", "pizarra con lápiz", "Tafel mit Stift", "quadro com caneta"],
+  "Justifier !": ["Justify!", "¡Justifica!", "Begründen!", "Justifique!"],
+  "Photo ou stylet : barème sur 20, erreurs relevées, corrigé détaillé et fiches tirées de vos erreurs.": ["Photo or stylus: marking scheme out of 20, mistakes spotted, detailed model answer and cards drawn from your mistakes.", "Foto o lápiz: baremo sobre 20, errores detectados, solución modelo detallada y tarjetas a partir de tus errores.", "Foto oder Stift: Bewertung bis 20 Punkte, gefundene Fehler, ausführliche Musterlösung und Karten aus deinen Fehlern.", "Foto ou caneta: critérios de correção sobre 20, erros apontados, gabarito detalhado e cartões tirados dos seus erros."],
+  "jusqu'à 10 pages": ["up to 10 pages", "hasta 10 páginas", "bis zu 10 Seiten", "até 10 páginas"],
+  "corrigé": ["model answer", "solución modelo", "Musterlösung", "gabarito"],
+  "fiches": ["cards", "tarjetas", "Karten", "cartões"],
+  "Dernière colle": ["Last oral exam", "Último examen oral", "Letzte mündliche Prüfung", "Última prova oral"],
+  "Dernière copie": ["Last paper", "Último examen", "Letzte Arbeit", "Última prova"],
+  "Ma colle sur « {x} » : {m}/20. Lacunes : {g}. Aide-moi à les combler.": ["My oral exam on “{x}”: {m}/20. Gaps: {g}. Help me fill them.", "Mi examen oral sobre «{x}»: {m}/20. Lagunas: {g}. Ayúdame a cubrirlas.", "Meine mündliche Prüfung zu „{x}“: {m}/20. Lücken: {g}. Hilf mir, sie zu schließen.", "Minha prova oral sobre “{x}”: {m}/20. Lacunas: {g}. Me ajude a preenchê-las."],
+  "Ma copie « {x} » a eu {m}/20. Erreurs : {g}. Explique-moi et entraîne-moi.": ["I got {m}/20 on my paper “{x}”. Mistakes: {g}. Explain them and help me practise.", "He sacado {m}/20 en mi examen «{x}». Errores: {g}. Explícamelos y hazme practicar.", "Ich habe in meiner Arbeit „{x}“ {m}/20 bekommen. Fehler: {g}. Erklär sie mir und übe mit mir.", "Tirei {m}/20 na minha prova “{x}”. Erros: {g}. Me explique e treine comigo."],
+  "Rédigez comme sur une copie double : numéros de questions, calculs, résultats encadrés.": ["Write as you would on exam paper: question numbers, working, boxed results.", "Escribe como en un examen: número de pregunta, cálculos, resultados recuadrados.", "Schreib wie auf einem Klausurbogen: Aufgabennummern, Rechenwege, eingerahmte Ergebnisse.", "Escreva como numa folha de prova: número das questões, cálculos, resultados destacados."],
+  "Question 1…": ["Question 1…", "Pregunta 1…", "Aufgabe 1…", "Questão 1…"],
+  "Mentor répond encore : attendez la fin ou arrêtez-le.": ["Mentor is still answering: wait for it to finish or stop it.", "Mentor aún está respondiendo: espera a que termine o detenlo.", "Mentor antwortet noch: Warte, bis er fertig ist, oder halte ihn an.", "O Mentor ainda está respondendo: espere terminar ou interrompa-o."],
+  "Conversation supprimée": ["Conversation deleted", "Conversación eliminada", "Gespräch gelöscht", "Conversa excluída"],
+  "Aucune conversation trouvée": ["No conversation found", "No se encontró ninguna conversación", "Kein Gespräch gefunden", "Nenhuma conversa encontrada"],
+  "Aucune conversation": ["No conversations yet", "Sin conversaciones", "Noch keine Gespräche", "Nenhuma conversa ainda"],
+  "Vos échanges avec Mentor sont gardés ici, sur cet appareil.": ["Your chats with Mentor are kept here, on this device.", "Tus conversaciones con Mentor se guardan aquí, en este dispositivo.", "Deine Gespräche mit Mentor bleiben hier, auf diesem Gerät.", "Suas conversas com o Mentor ficam guardadas aqui, neste aparelho."],
+  "Conversation": ["Conversation", "Conversación", "Gespräch", "Conversa"],
+  "Chercher dans les conversations": ["Search conversations", "Buscar en las conversaciones", "Gespräche durchsuchen", "Buscar nas conversas"],
+  "Fais-moi passer une colle sur ce paquet": ["Give me an oral exam on this deck", "Hazme un examen oral sobre este mazo", "Prüf mich mündlich zu diesem Stapel", "Me aplique uma prova oral sobre este baralho"],
+  "Je veux faire corriger ma copie": ["I want my paper corrected", "Quiero que corrijas mi examen", "Ich möchte meine Arbeit korrigieren lassen", "Quero que corrija minha prova"],
+  "Conversations": ["Conversations", "Conversaciones", "Gespräche", "Conversas"],
+  "Confirmer : tout effacer": ["Confirm: delete everything", "Confirmar: borrarlo todo", "Bestätigen: alles löschen", "Confirmar: apagar tudo"],
+  "Conversations effacées": ["Conversations deleted", "Conversaciones borradas", "Gespräche gelöscht", "Conversas apagadas"],
+  "Colle orale prête : « {x} »": ["Oral exam ready: “{x}”", "Examen oral listo: «{x}»", "Mündliche Prüfung bereit: „{x}“", "Prova oral pronta: “{x}”"],
+  "sujet libre": ["open topic", "tema libre", "freies Thema", "tema livre"],
+  "Correction de copie ouverte": ["Paper correction opened", "Corrección de examen abierta", "Korrektur der Arbeit geöffnet", "Correção de prova aberta"],
+  "Vérifiée": ["Verified", "Verificada", "Geprüft", "Verificada"],
+  "Le modèle le plus puissant relit chaque énoncé, formule et exemple": ["The most powerful model rechecks every statement, formula and example", "El modelo más potente revisa cada enunciado, fórmula y ejemplo", "Das stärkste Modell prüft jede Aussage, Formel und jedes Beispiel", "O modelo mais poderoso revisa cada enunciado, fórmula e exemplo"],
+  "Revérifier": ["Check again", "Volver a verificar", "Erneut prüfen", "Verificar de novo"],
+  "Vérifier la fiche": ["Verify the sheet", "Verificar la ficha", "Lernzettel prüfen", "Verificar a ficha"],
+  "Contre-relecture par l'IA la plus puissante…": ["Second review by the most powerful AI…", "Segunda revisión con la IA más potente…", "Gegenlesen durch die stärkste KI…", "Revisão cruzada pela IA mais poderosa…"],
+  "{n} corrigées dans la fiche": ["{n} fixed in the sheet", "Ficha corregida: {n}", "{n} im Lernzettel korrigiert", "Ficha corrigida: {n}"],
+  "Fiche vérifiée : rien à corriger.": ["Sheet verified: nothing to fix.", "Ficha verificada: nada que corregir.", "Lernzettel geprüft: nichts zu korrigieren.", "Ficha verificada: nada a corrigir."],
+  "Corrections annulées": ["Corrections undone", "Correcciones deshechas", "Korrekturen rückgängig gemacht", "Correções desfeitas"],
+  "Erreur": ["Mistake", "Error", "Fehler", "Erro"],
+  "Imprécision": ["Inaccuracy", "Imprecisión", "Ungenauigkeit", "Imprecisão"],
+  "Oubli": ["Omission", "Omisión", "Auslassung", "Omissão"],
+  "Contre-relecture : {n} corrigées": ["Second review: {n} fixed", "Segunda revisión: corrección de {n}", "Gegenlesen: {n} korrigiert", "Revisão cruzada: correção de {n}"],
+  "Contre-relecture : fiche juste": ["Second review: sheet is correct", "Segunda revisión: ficha correcta", "Gegenlesen: Lernzettel fehlerfrei", "Revisão cruzada: ficha correta"],
+  "Le modèle le plus puissant n'a rien trouvé à corriger.": ["The most powerful model found nothing to fix.", "El modelo más potente no ha encontrado nada que corregir.", "Das stärkste Modell hat nichts zu korrigieren gefunden.", "O modelo mais poderoso não encontrou nada a corrigir."],
+  "à reporter vous-même": ["to apply by hand", "por aplicar a mano", "von Hand eintragen", "a aplicar à mão"],
+  "Annuler les corrections": ["Undo the corrections", "Deshacer las correcciones", "Korrekturen rückgängig machen", "Desfazer as correções"],
+  "Parler": ["Speak", "Hablar", "Sprechen", "Falar"],
+  "C'est l'heure : terminez votre réponse, l'examinateur conclut.": ["Time's up: finish your answer, the examiner is wrapping up.", "Se acabó el tiempo: termina tu respuesta, el examinador va a concluir.", "Die Zeit ist um: Beende deine Antwort, der Prüfer kommt zum Schluss.", "Acabou o tempo: termine sua resposta, o examinador vai concluir."],
+  "Colle": ["Oral exam", "Examen oral", "Mündliche Prüfung", "Prova oral"],
+  "Oral": ["Oral", "Oral", "Mündlich", "Oral"],
+  "Temps restant": ["Time left", "Tiempo restante", "Verbleibende Zeit", "Tempo restante"],
+  "Le tableau": ["The board", "La pizarra", "Die Tafel", "O quadro"],
+  "Il part avec votre prochaine réponse.": ["It's sent with your next answer.", "Se envía con tu próxima respuesta.", "Sie wird mit deiner nächsten Antwort gesendet.", "Ele vai junto com sua próxima resposta."],
+  "Calculs, schémas, démonstration…": ["Working, diagrams, proof…", "Cálculos, esquemas, demostración…", "Rechnungen, Skizzen, Beweis…", "Cálculos, esquemas, demonstração…"],
+  "Votre réponse, à voix haute ou par écrit…": ["Your answer, out loud or in writing…", "Tu respuesta, en voz alta o por escrito…", "Deine Antwort, mündlich oder schriftlich…", "Sua resposta, em voz alta ou por escrito…"],
+  "Tableau": ["Board", "Pizarra", "Tafel", "Quadro"],
+  "Montrer vos calculs au tableau": ["Show your working on the board", "Mostrar tus cálculos en la pizarra", "Deinen Rechenweg an der Tafel zeigen", "Mostrar seus cálculos no quadro"],
+  "Je sèche": ["I'm stuck", "Me he atascado", "Ich hänge fest", "Travei"],
+  "Demander un indice": ["Ask for a hint", "Pedir una pista", "Um einen Hinweis bitten", "Pedir uma dica"],
+  "Répondre": ["Answer", "Responder", "Antworten", "Responder"],
+  "Bilan de la colle": ["Oral exam report", "Balance del examen oral", "Auswertung der mündlichen Prüfung", "Balanço da prova oral"],
+  "Réessayer": ["Try again", "Reintentar", "Erneut versuchen", "Tentar de novo"],
+  "L'examinateur rédige son bilan…": ["The examiner is writing their report…", "El examinador está redactando su balance…", "Der Prüfer schreibt seine Auswertung…", "O examinador está redigindo o balanço…"],
+  "Épreuve orale": ["Oral test", "Prueba oral", "Mündliche Prüfung", "Exame oral"],
+  "La colle <em>orale</em>.": ["The <em>oral</em> exam.", "El examen <em>oral</em>.", "Die <em>mündliche</em> Prüfung.", "A prova <em>oral</em>."],
+  "Un examinateur vous interroge, à voix haute ou par écrit : une question de cours, puis un exercice. Il relance, demande de justifier, donne un indice quand vous séchez, regarde votre tableau, et vous note sur 20 avec un bilan.": ["An examiner questions you, out loud or in writing: a theory question, then an exercise. They follow up, ask you to justify, give a hint when you're stuck, look at your board, and mark you out of 20 with a report.", "Un examinador te interroga, en voz alta o por escrito: una pregunta de teoría y luego un ejercicio. Repregunta, te pide que justifiques, te da una pista cuando te atascas, mira tu pizarra y te pone una nota sobre 20 con un balance.", "Ein Prüfer fragt dich ab, mündlich oder schriftlich: eine Theoriefrage, dann eine Aufgabe. Er hakt nach, lässt dich begründen, gibt dir einen Hinweis, wenn du festhängst, schaut auf deine Tafel und gibt dir eine Note von 0 bis 20 samt Auswertung.", "Um examinador interroga você, em voz alta ou por escrito: uma pergunta de teoria, depois um exercício. Ele insiste, pede justificativas, dá uma dica quando você trava, olha seu quadro e dá uma nota de 0 a 20 com um balanço."],
+  "Aucun : je donne le sujet": ["None: I'll set the topic", "Ninguno: yo doy el tema", "Keiner: Ich gebe das Thema vor", "Nenhum: eu dou o tema"],
+  "L'examinateur lit vos fiches et vos fiches de cours, et reste dans votre programme.": ["The examiner reads your cards and course sheets, and sticks to your syllabus.", "El examinador lee tus tarjetas y tus fichas de curso, y se ciñe a tu temario.", "Der Prüfer liest deine Karten und Lernzettel und bleibt bei deinem Stoff.", "O examinador lê seus cartões e suas fichas de curso, e não foge do seu conteúdo."],
+  "Sujet précis (facultatif)": ["Specific topic (optional)", "Tema concreto (opcional)", "Bestimmtes Thema (optional)", "Tema específico (opcional)"],
+  "Ex. Lentilles minces, intégrales impropres, la Révolution de 1848…": ["E.g. Thin lenses, improper integrals, the Revolution of 1848…", "Ej. Lentes delgadas, integrales impropias, la Revolución de 1848…", "Z. B. Dünne Linsen, uneigentliche Integrale, die Revolution von 1848…", "Ex.: Lentes delgadas, integrais impróprias, a Revolução de 1848…"],
+  "Réponses": ["Answers", "Respuestas", "Antworten", "Respostas"],
+  "À voix haute": ["Out loud", "En voz alta", "Mündlich", "Em voz alta"],
+  "Par écrit": ["In writing", "Por escrito", "Schriftlich", "Por escrito"],
+  "La dictée n'est pas disponible dans ce navigateur : l'examinateur parle, vous répondez par écrit.": ["Dictation isn't available in this browser: the examiner speaks, you answer in writing.", "El dictado no está disponible en este navegador: el examinador habla y tú respondes por escrito.", "Diktieren ist in diesem Browser nicht verfügbar: Der Prüfer spricht, du antwortest schriftlich.", "O ditado não está disponível neste navegador: o examinador fala e você responde por escrito."],
+  "L'examinateur parle ; votre micro s'ouvre quand il a fini. Le tableau (stylet ou doigt) lui montre vos calculs.": ["The examiner speaks; your mic opens when they've finished. The board (stylus or finger) shows them your working.", "El examinador habla; tu micrófono se abre cuando termina. La pizarra (lápiz o dedo) le muestra tus cálculos.", "Der Prüfer spricht; dein Mikro geht an, sobald er fertig ist. Die Tafel (Stift oder Finger) zeigt ihm deinen Rechenweg.", "O examinador fala; seu microfone abre quando ele termina. O quadro (caneta ou dedo) mostra a ele seus cálculos."],
+  "Photos seulement (JPEG, PNG, WebP).": ["Photos only (JPEG, PNG, WebP).", "Solo fotos (JPEG, PNG, WebP).", "Nur Fotos (JPEG, PNG, WebP).", "Somente fotos (JPEG, PNG, WebP)."],
+  "{n} photo(s) d'énoncé au plus": ["Up to {n} photo(s) of the questions", "{n} foto(s) del enunciado como máximo", "Höchstens {n} Foto(s) der Aufgabenstellung", "No máximo {n} foto(s) do enunciado"],
+  "{n} pages de copie au plus avec votre formule": ["Up to {n} pages per paper on your plan", "Tu plan admite hasta {n} páginas de examen", "Dein Tarif erlaubt höchstens {n} Seiten pro Arbeit", "Seu plano aceita até {n} páginas de prova"],
+  "La correction a besoin de l'IA.": ["Marking needs AI.", "La corrección necesita la IA.", "Die Korrektur braucht KI.", "A correção precisa da IA."],
+  "Ajoutez au moins une page de votre copie.": ["Add at least one page of your paper.", "Añade al menos una página de tu examen.", "Füge mindestens eine Seite deiner Arbeit hinzu.", "Adicione pelo menos uma página da sua prova."],
+  "Copie": ["Paper", "Examen", "Arbeit", "Prova"],
+  "Lecture de votre copie…": ["Reading your paper…", "Leyendo tu examen…", "Deine Arbeit wird gelesen…", "Lendo sua prova…"],
+  "Vérification de chaque calcul…": ["Checking every calculation…", "Comprobando cada cálculo…", "Jede Rechnung wird geprüft…", "Verificando cada cálculo…"],
+  "Barème, question par question…": ["Marking scheme, question by question…", "Baremo, pregunta por pregunta…", "Bewertungsschema, Frage für Frage…", "Critérios de correção, questão por questão…"],
+  "Rédaction du corrigé…": ["Writing the model answer…", "Redactando la solución modelo…", "Musterlösung wird geschrieben…", "Escrevendo o gabarito…"],
+  "Correction en cours": ["Marking in progress", "Corrección en curso", "Korrektur läuft", "Correção em andamento"],
+  "Épreuve écrite": ["Written test", "Prueba escrita", "Schriftliche Prüfung", "Exame escrito"],
+  "Corriger ma <em>copie</em>.": ["Correct my <em>paper</em>.", "Corregir mi <em>examen</em>.", "Meine <em>Arbeit</em> korrigieren.", "Corrigir minha <em>prova</em>."],
+  "Photographiez votre copie ou écrivez-la au stylet : l'IA la corrige comme un professeur, question par question, avec un barème sur 20, les erreurs relevées, un corrigé et des fiches tirées de vos erreurs.": ["Photograph your paper or write it with a stylus: the AI marks it like a teacher, question by question, with a marking scheme out of 20, your mistakes picked out, a model answer and cards drawn from your mistakes.", "Fotografía tu examen o escríbelo con el lápiz: la IA lo corrige como un profesor, pregunta por pregunta, con un baremo sobre 20, los errores señalados, una solución modelo y tarjetas sacadas de tus errores.", "Fotografiere deine Arbeit oder schreib sie mit dem Stift: Die KI korrigiert sie wie ein Lehrer, Frage für Frage, mit einem Bewertungsschema auf 20 Punkte, markierten Fehlern, einer Musterlösung und Karten aus deinen Fehlern.", "Fotografe sua prova ou escreva-a com a caneta: a IA corrige como um professor, questão por questão, com critérios de correção e nota de 0 a 20, os erros apontados, um gabarito e cartões tirados dos seus erros."],
+  "L'énoncé": ["The questions", "El enunciado", "Die Aufgabenstellung", "O enunciado"],
+  "Collez ou tapez l'énoncé, ou prenez-le en photo. Sans énoncé, l'IA le déduit de votre copie.": ["Paste or type the questions, or take a photo. Without them, the AI works them out from your paper.", "Pega o escribe el enunciado, o hazle una foto. Sin enunciado, la IA lo deduce de tu examen.", "Füge die Aufgabenstellung ein, tippe sie oder fotografiere sie. Ohne sie leitet die KI sie aus deiner Arbeit ab.", "Cole ou digite o enunciado, ou tire uma foto. Sem enunciado, a IA o deduz da sua prova."],
+  "Photo de l'énoncé": ["Photo of the questions", "Foto del enunciado", "Foto der Aufgabenstellung", "Foto do enunciado"],
+  "Votre copie": ["Your paper", "Tu examen", "Deine Arbeit", "Sua prova"],
+  "Page par page, redressées automatiquement.": ["Page by page, straightened automatically.", "Página a página, enderezadas automáticamente.", "Seite für Seite, automatisch ausgerichtet.", "Página por página, endireitadas automaticamente."],
+  "Choisir des photos": ["Choose photos", "Elegir fotos", "Fotos auswählen", "Escolher fotos"],
+  "JPEG, PNG ou WebP, dans l'ordre des pages.": ["JPEG, PNG or WebP, in page order.", "JPEG, PNG o WebP, en el orden de las páginas.", "JPEG, PNG oder WebP, in Seitenreihenfolge.", "JPEG, PNG ou WebP, na ordem das páginas."],
+  "Rédiger au stylet": ["Write with a stylus", "Escribir con el lápiz", "Mit dem Stift schreiben", "Escrever com a caneta"],
+  "Sur iPad, comme sur une copie double.": ["On iPad, just like on exam paper.", "En el iPad, como en una hoja de examen.", "Auf dem iPad, wie auf einem Prüfungsbogen.", "No iPad, como numa folha de prova."],
+  "Matière (paquet)": ["Subject (deck)", "Materia (mazo)", "Fach (Stapel)", "Matéria (baralho)"],
+  "Faire corriger ma copie": ["Get my paper marked", "Corregir mi examen", "Meine Arbeit korrigieren lassen", "Corrigir minha prova"],
+  "Élite : le modèle le plus puissant, réflexion maximale, corrigé détaillé.": ["Elite: the most powerful model, maximum reasoning, a detailed model answer.", "Élite: el modelo más potente, razonamiento máximo, solución modelo detallada.", "Elite: das stärkste Modell, maximale Denktiefe, ausführliche Musterlösung.", "Elite: o modelo mais poderoso, raciocínio máximo, gabarito detalhado."],
+  "Pro : jusqu'à 4 pages. Élite corrige jusqu'à 10 pages avec le modèle le plus puissant.": ["Pro: up to 4 pages. Elite marks up to 10 pages with the most powerful model.", "Pro: hasta 4 páginas. Élite corrige hasta 10 páginas con el modelo más potente.", "Pro: bis zu 4 Seiten. Elite korrigiert bis zu 10 Seiten mit dem stärksten Modell.", "Pro: até 4 páginas. O Elite corrige até 10 páginas com o modelo mais poderoso."],
+  "Points forts": ["Strengths", "Puntos fuertes", "Stärken", "Pontos fortes"],
+  "Lacunes": ["Gaps", "Lagunas", "Lücken", "Lacunas"],
+  "Pour progresser": ["To improve", "Para mejorar", "So wirst du besser", "Para melhorar"],
+  "Conseils de méthode": ["Method tips", "Consejos de método", "Methodentipps", "Dicas de método"],
+  "Copie corrigée": ["Marked paper", "Examen corregido", "Korrigierte Arbeit", "Prova corrigida"],
+  "Bleu encre": ["Ink blue", "Azul tinta", "Tintenblau", "Azul-tinta"],
+  "Bleu canard": ["Teal", "Azul petróleo", "Petrol", "Azul-petróleo"],
+  "Terre cuite": ["Terracotta", "Terracota", "Terrakotta", "Terracota"],
+  "Donnez un nom au paquet.": ["Give the deck a name.", "Ponle un nombre al mazo.", "Gib dem Stapel einen Namen.", "Dê um nome ao baralho."],
+  "Recto-verso : l'autre sens suit vos modifications.": ["Two-way card: the reverse side follows your changes.", "Anverso y reverso: el otro sentido sigue tus cambios.", "Vorder- und Rückseite: Die Gegenrichtung übernimmt deine Änderungen.", "Frente e verso: o outro sentido acompanha suas alterações."],
+  "{n} dans « {x} »": ["{n} in “{x}”", "{n} en «{x}»", "{n} in „{x}“", "{n} em “{x}”"],
+  "Fiche ajoutée dans « {x} »": ["Card added to “{x}”", "Tarjeta añadida a «{x}»", "Karte zu „{x}“ hinzugefügt", "Cartão adicionado a “{x}”"],
+  "Fiche non enregistrée : refaites le geste pour fermer sans enregistrer.": ["Card not saved: do it again to close without saving.", "Tarjeta sin guardar: repite el gesto para cerrar sin guardar.", "Karte nicht gespeichert: Wiederhole die Geste, um ohne Speichern zu schließen.", "Cartão não salvo: repita o gesto para fechar sem salvar."],
 };
 
 /* ── Démarrage ─────────────────────────────────────────────────────── */
