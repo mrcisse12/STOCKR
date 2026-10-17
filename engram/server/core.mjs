@@ -73,6 +73,10 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
     pro: { tiers: ['quick', 'default'], effort: 'high', maxTokens: MAX_TOKENS, images: 20, scan: true },
     elite: { tiers: ['quick', 'default', 'complex'], effort: TOP, maxTokens: Math.max(MAX_TOKENS, MAX_TOKENS_ELITE), images: 20, scan: true }
   };
+  // Les tâches réservées : le scanner, les fiches de cours et la correction de copie à partir de Pro ; la colle orale
+  // et la contre-relecture des fiches avec Élite.
+  const NEEDS = { scan: 'pro', sheet: 'pro', copy: 'pro', colle: 'elite', verify: 'elite' };
+  const RANK = { free: 0, pro: 1, elite: 2 };
   const countImages = msgs => msgs.reduce((n, m) => n + (Array.isArray(m.content) ? m.content.filter(b => b?.type === 'image' || b?.type === 'document').length : 0), 0);
 
   // Sans clé, le serveur répond quand même à /health pour que l'app puisse dire ce qui manque.
@@ -161,7 +165,8 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
     // La formule fixe le plafond : niveau de modèle, effort, longueur, images. Le propriétaire (code d'accès) a tout,
     // comme un serveur sans paiements. Le modèle le plus puissant (« complex ») reste réservé à Élite.
     const plan = !PAY || owner ? 'elite' : lic?.p === 'elite' ? 'elite' : lic ? 'pro' : 'free', cap = CAPS[plan];
-    if (!cap.scan && (body.purpose === 'scan' || body.purpose === 'sheet' || countImages(body.messages) > cap.images)) return json(request, 402, { code: 'plan_required', message: 'part of Pro' });
+    const need = NEEDS[body.purpose];
+    if ((need && RANK[plan] < RANK[need]) || countImages(body.messages) > cap.images) return json(request, 402, { code: 'plan_required', message: need === 'elite' ? 'part of Elite' : 'part of Pro' });
     let want = body.modelTier || 'default';
     if (!cap.tiers.includes(want)) want = cap.tiers.at(-1);
     const tier = TIERS[want];

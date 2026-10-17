@@ -119,6 +119,18 @@ Programme → **Planning heure par heure** : vos révisions posées dans vos cr�
 
 **Raccourcis Apple et Siri** : l'adresse du site suivie de `#now` ouvre la séance du moment (Raccourcis → « Ouvrir les URL » → « Dis Siri, ma séance Engram ») ; `#agenda` ouvre le planning.
 
+## Épreuves : colle orale, copie corrigée
+
+- **Colle orale (Élite)** : Jeux → « Colle orale ». Un examinateur IA interroge à voix haute (ou par écrit), une question de cours puis un exercice ; il relance, donne un indice quand on sèche, regarde le tableau (stylet) et note sur 20 avec un bilan et des fiches tirées des lacunes.
+- **Corriger ma copie (Pro et Élite)** : photos ou stylet d'une copie, avec l'énoncé si on l'a ; note sur 20, barème question par question, erreurs relevées, corrigé et fiches. Pro : 4 pages ; Élite : 10 pages, modèle le plus puissant.
+- **Fiche vérifiée (Élite)** : dans la liseuse, « Vérifier la fiche » fait relire chaque énoncé, formule et exemple ; les corrections s'appliquent et s'annulent d'un geste.
+- Les 12 dernières colles et copies se rouvrent depuis leur page. Le serveur refuse ces fonctions aux formules qui ne les comprennent pas.
+
+## Historique
+
+- **Chaque fiche** garde ses 20 dernières révisions : éditeur → « Historique » (courbe d'oubli, notes, intervalles, prochaine révision). Les paquets Anki importés apportent leur historique.
+- **Mentor** garde les 24 dernières conversations (bouton horloge) : recherche, reprise, suppression.
+
 ## Au stylet (iPad, Android, Surface)
 
 - **Répondre à la main** : en séance, touchez la plume, écrivez, puis **Faire corriger**. L'IA lit l'écriture, affiche ce qu'elle a lu et corrige selon la sévérité choisie. Sur iPad en paysage, la fiche est à gauche, la feuille à droite.
