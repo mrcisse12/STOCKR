@@ -12,6 +12,8 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.128.0"
+    "@anthropic-ai/sdk": "^0.128.0",
+    "@mozilla/readability": "^0.6.0",
+    "linkedom": "^0.18.12"
   }
 }

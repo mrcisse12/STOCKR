@@ -32,7 +32,7 @@ Ou avec Docker, depuis `engram/` :
 
 ```bash
 docker build -f server/Dockerfile -t engram .
-docker run -p 8787:8787 -e ANTHROPIC_API_KEY=sk-ant-... -e ENGRAM_ACCESS_CODE=un-code engram
+docker run -p 8787:8787 -v engram-data:/app/server/data -e ANTHROPIC_API_KEY=sk-ant-... -e ENGRAM_ACCESS_CODE=un-code engram
 ```
 
 ### Sur Netlify
@@ -64,6 +64,7 @@ Comment ça marche : après le paiement, le serveur vérifie la session Stripe e
 | `ENGRAM_FREE_DAILY` | Appels d'IA gratuits par jour et par adresse (60) |
 | `ENGRAM_PRICE_PRO_MONTH`, `_PRO_YEAR`, `_ELITE_MONTH`, `_ELITE_YEAR` | Prix créés au premier lancement, en euros (7.99, 79.90, 14.99, 149.90) |
 | `STRIPE_TAX` | `on` : Stripe calcule la TVA (Stripe Tax doit être activé) |
+| `ENGRAM_SITE_URL` | **Conseillé sur un serveur Node** : l'adresse publique du site (ex. `https://engram.example.com`), où Stripe ramène l'élève après le paiement. Sans elle, l'adresse est lue dans la requête (Netlify la fournit déjà). |
 | `ENGRAM_LICENSE_SECRET` | Facultatif : secret des codes d'abonnement (sinon dérivé de la clé Stripe ; changer de clé Stripe invalide alors les anciens codes, qui se renouvellent seuls) |
 
 ### Synchronisation entre appareils (Pro et Élite)
@@ -91,6 +92,7 @@ L'app détecte seule le serveur qui la sert. Si l'app est hébergée ailleurs (N
 | Variable | Défaut | Rôle |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | — | Clé de l'API Claude |
+| `ANTHROPIC_WORKSPACE_ID` | — | Seulement si la clé n'est rattachée à aucun espace de travail (erreur « not scoped to a workspace ») : l'identifiant `wrkspc_…` de l'espace (Console → Paramètres → Espaces de travail) |
 | `ENGRAM_ACCESS_CODE` | — | Code d'accès à saisir dans Réglages (conseillé pour un serveur public) |
 | `ENGRAM_MODEL_QUICK` / `_DEFAULT` / `_COMPLEX` | `claude-sonnet-5-5` / `claude-opus-5-5` / `claude-fable-5-1` | Modèles des niveaux Rapide, Standard et Expert |
 | `ENGRAM_EFFORT_QUICK` / `_DEFAULT` / `_COMPLEX` | `low` / `medium` / `high` | Effort de réflexion quand la page n'en demande pas |
@@ -98,7 +100,8 @@ L'app détecte seule le serveur qui la sert. Si l'app est hébergée ailleurs (N
 | `ENGRAM_RATE_PER_MIN` | `30` | Requêtes par minute et par adresse |
 | `ENGRAM_FALLBACKS` | activé | Repli automatique sur le modèle recommandé si une requête est déclinée (`off` pour couper) |
 | `ENGRAM_CORS_ORIGIN` | — | Origines autorisées (`*` ou liste séparée par des virgules) |
-| `PORT`, `ENGRAM_MAX_TOKENS`, `ENGRAM_MAX_BODY_MB`, `ENGRAM_TRUST_PROXY`, `ENGRAM_LOG` | `8787`, `32000`, `12`, —, — | Réseau, limites, journal |
+| `ENGRAM_TRUST_PROXY` | — | Nombre de relais de confiance devant le serveur : `1` (ou `true`) derrière un seul (hébergeur ou nginx), `2` si un second (Cloudflare…) s'y ajoute. L'adresse comptée par la limite de débit est alors la n-ième en partant de la droite de `X-Forwarded-For` (les valeurs plus à gauche viennent du client) |
+| `PORT`, `ENGRAM_MAX_TOKENS`, `ENGRAM_MAX_BODY_MB`, `ENGRAM_LOG` | `8787`, `32000`, `12`, — | Réseau, limites, journal. `ENGRAM_MAX_BODY_MB` vaut pour l'IA ; la synchronisation accepte 2,6 Mo par envoi et les autres routes 64 Ko |
 
 Coûts : environ 0,002 $ par correction, 0,06 $ par page scannée, 0,04 $ par message à Mentor ; environ 5,45 $ par mois pour un abonné Pro normal (détail dans la fiche technique, §11). Astuce : `ENGRAM_MODEL_DEFAULT=claude-sonnet-5-5` divise encore par deux le prix des scans et de Mentor, à valider sur de vraies photos de cours.
 

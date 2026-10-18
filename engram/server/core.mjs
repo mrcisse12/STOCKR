@@ -15,7 +15,8 @@
 
 import crypto from 'node:crypto';
 import Anthropic from '@anthropic-ai/sdk';
-import { licenseSecret, readLicense } from './pay.mjs';
+import { licenseSecret, readLicense, stripeMode } from './pay.mjs';
+import { ipKey } from './net.mjs';
 
 const SYSTEM = 'You are the AI engine inside Engram, a spaced-repetition flashcard app. The page sends you the full instructions for each task inside the conversation; follow them.';
 const JSON_RULE = 'Reply with valid JSON only: no prose before or after, no code fences.';
@@ -44,7 +45,7 @@ export function sanitize(content, stopReason) {
  * Crée le relais. `env` : les variables d'environnement (process.env en général).
  * `client` : un client Anthropic déjà construit (pour les tests).
  */
-export function createEngram(env = process.env, { client, log = (...a) => { if (env.ENGRAM_LOG !== 'off') console.log('[engram]', new Date().toISOString(), ...a); } } = {}) {
+export function createEngram(env = process.env, { client, freeStore = null, log = (...a) => { if (env.ENGRAM_LOG !== 'off') console.log('[engram]', new Date().toISOString(), ...a); } } = {}) {
   const ACCESS_CODE = env.ENGRAM_ACCESS_CODE || '';
   const RATE_PER_MIN = +env.ENGRAM_RATE_PER_MIN || 30;
   const MAX_BODY = (+env.ENGRAM_MAX_BODY_MB || 12) * 1024 * 1024;
@@ -85,20 +86,25 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
     maxRetries: 2,
     apiKey: env.ANTHROPIC_API_KEY || null,
     authToken: env.ANTHROPIC_AUTH_TOKEN || null,
-    ...(env.ANTHROPIC_BASE_URL ? { baseURL: env.ANTHROPIC_BASE_URL } : {})
+    ...(env.ANTHROPIC_BASE_URL ? { baseURL: env.ANTHROPIC_BASE_URL } : {}),
+    // Clé d'organisation (non rattachée à un espace de travail) : l'API exige l'espace dans cet en-tête.
+    ...(env.ANTHROPIC_WORKSPACE_ID ? { defaultHeaders: { 'anthropic-workspace-id': env.ANTHROPIC_WORKSPACE_ID } } : {})
   });
 
   /* ── Abonnements (Stripe) ────────────────────────────────────────── */
   // Avec STRIPE_SECRET_KEY, l'IA s'ouvre à tous : les abonnés (code d'abonnement signé par pay.mjs) sans limite,
   // les autres dans la limite gratuite du jour. Le modèle le plus puissant est réservé à Élite (et au code d'accès).
-  const PAY = !!env.STRIPE_SECRET_KEY, LIC = licenseSecret(env);
+  const PAY = !!env.STRIPE_SECRET_KEY, LIC = licenseSecret(env), MODE = stripeMode(env);
   const FREE_DAILY = +env.ENGRAM_FREE_DAILY || 60;
   const freeDays = new Map();
   function licenseOf(headers) {
-    const d = readLicense(LIC, headers.get('x-engram-license') || '');
+    const d = readLicense(LIC, headers.get('x-engram-license') || '', MODE);
     return d && !d.expired && (d.p === 'pro' || d.p === 'elite') ? d : null;
   }
+  // Compté par visiteur (ipKey : l'adresse IPv4, ou le /64 d'une adresse IPv6), ici en mémoire ; sur Netlify, freeStore
+  // tient aussi le compte entre les instances de la fonction (voir handleAI).
   function overFree(ip) {
+    ip = ipKey(ip);
     const day = new Date().toISOString().slice(0, 10), u = freeDays.get(ip);
     if (!u || u.day !== day) { freeDays.set(ip, { day, n: 1 }); if (freeDays.size > 20000) freeDays.clear(); return false; }
     return ++u.n > FREE_DAILY;
@@ -107,17 +113,46 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
   /* ── Garde-fous ──────────────────────────────────────────────────── */
   const hits = new Map();
   function rateLimited(ip) {
+    ip = ipKey(ip);
     const now = Date.now(), win = hits.get(ip)?.filter(x => now - x < 60_000) || [];
     win.push(now); hits.set(ip, win);
     // Ménage paresseux (pas de minuterie : une fonction serverless peut être gelée entre deux appels).
     if (hits.size > 5000) for (const [k, w] of hits) if (!w.some(x => now - x < 60_000)) hits.delete(k);
     return win.length > RATE_PER_MIN;
   }
+  // Codes faux comptés à part, avant toute comparaison : au-delà de FAIL_MAX en 10 minutes, l'adresse attend.
+  const fails = new Map(), FAIL_MAX = 10, FAIL_WIN = 10 * 60_000;
+  function guessing(ip, failed) {
+    ip = ipKey(ip);
+    const now = Date.now(), win = fails.get(ip)?.filter(x => now - x < FAIL_WIN) || [];
+    if (failed) win.push(now);
+    if (win.length) fails.set(ip, win); else fails.delete(ip);
+    if (fails.size > 5000) for (const [k, w] of fails) if (!w.some(x => now - x < FAIL_WIN)) fails.delete(k);
+    return win.length >= FAIL_MAX;
+  }
   function codeOk(headers) {
     if (!ACCESS_CODE) return true;
-    const got = Buffer.from(String(headers.get('x-engram-code') || ''));
+    // La page envoie le code encodé (encodeURIComponent : œ, € … passent dans un en-tête) ; le code brut reste accepté.
+    const raw = String(headers.get('x-engram-code') || '');
+    let dec = raw; try { dec = decodeURIComponent(raw); } catch { }
     const want = Buffer.from(ACCESS_CODE);
-    return got.length === want.length && crypto.timingSafeEqual(got, want);
+    const eq = s => { const got = Buffer.from(s); return got.length === want.length && crypto.timingSafeEqual(got, want); };
+    return eq(dec) || eq(raw);
+  }
+  /** Contrôles qui ne demandent pas le corps (accès, quota gratuit, débit, taille annoncée) : une Response de refus, ou null. */
+  function precheck(headers, ip) {
+    const req = { headers }, sent = !!headers.get('x-engram-code');
+    // Un code envoyé et faux compte comme un essai, même avec les abonnements (le code du propriétaire ouvre tout).
+    if (ACCESS_CODE && sent && guessing(ip)) return json(req, 429, { code: 'rate_limited', message: 'too many wrong codes' });
+    const owner = !!ACCESS_CODE && codeOk(headers), lic = PAY ? licenseOf(headers) : null;
+    if (ACCESS_CODE && sent && !owner) guessing(ip, true);
+    if (!lic && !owner) {
+      if (PAY) { if (overFree(ip)) return json(req, 429, { code: 'quota', message: 'free daily limit' }); }
+      else if (ACCESS_CODE) return json(req, 401, { code: 'not_granted', message: 'access code' });
+    }
+    if (rateLimited(ip)) return json(req, 429, { code: 'rate_limited', message: 'slow down' });
+    if (+(headers.get('content-length') || 0) > MAX_BODY) return json(req, 413, { code: 'prompt_too_large', message: 'too large' });
+    return null;
   }
 
   /** Vérifie la forme de la requête envoyée par la page ; renvoie un message d'erreur ou null. */
@@ -145,14 +180,16 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
   }
   const json = (request, status, obj) => new Response(JSON.stringify(obj), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...corsHeaders(request) } });
 
-  async function handleAI(request, ip) {
+  async function handleAI(request, ip, checked) {
+    // `checked` : le serveur Node a déjà fait ces contrôles avant de lire le corps (sans compter deux fois le débit ni le quota).
+    const stop = checked ? null : precheck(request.headers, ip);
+    if (stop) return stop;
     const lic = PAY ? licenseOf(request.headers) : null, owner = !!ACCESS_CODE && codeOk(request.headers);
-    if (!lic && !owner) {
-      if (PAY) { if (overFree(ip)) return json(request, 429, { code: 'quota', message: 'free daily limit' }); }
-      else if (ACCESS_CODE) return json(request, 401, { code: 'not_granted', message: 'access code' });
+    // Quota gratuit partagé entre les instances (Netlify) : s'il ne répond pas, la limite en mémoire reste.
+    if (PAY && !lic && !owner && freeStore) {
+      let over = false; try { over = await freeStore.over(ipKey(ip), FREE_DAILY); } catch (e) { log('free quota store', e?.message || e); }
+      if (over) return json(request, 429, { code: 'quota', message: 'free daily limit' });
     }
-    if (rateLimited(ip)) return json(request, 429, { code: 'rate_limited', message: 'slow down' });
-    if (+(request.headers.get('content-length') || 0) > MAX_BODY) return json(request, 413, { code: 'prompt_too_large', message: 'too large' });
     let body;
     try {
       const raw = await request.text();
@@ -233,7 +270,7 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
             const budget = status === 402 || e?.error?.error?.details?.error_code === 'enforced_spend_limit_reached' || /enforced_spend_limit_reached|specified (workspace )?API usage limits|credit balance|billing_error/i.test(text);
             // Une surcharge peut aussi arriver au milieu du flux, sans statut HTTP : seul le texte de l'erreur le dit.
             const code = budget ? 'budget'
-              : status === 401 || status === 403 || /authentication|x-api-key/i.test(text) ? 'server_key'
+              : status === 401 || status === 403 || /authentication|x-api-key|anthropic-workspace-id|not scoped to a workspace/i.test(text) ? 'server_key'
               : status === 429 || status === 529 || /overloaded_error|rate_limit_error/i.test(text) ? 'rate_limited'
               : status === 413 || /prompt is too long|too many tokens/i.test(text) ? 'prompt_too_large'
               : /image exceeds|image\.source|invalid image|could not process image/i.test(text) ? 'image_rejected' : 'upstream_error';
@@ -251,16 +288,20 @@ export function createEngram(env = process.env, { client, log = (...a) => { if (
   }
 
   return {
-    TIERS, CAPS, FALLBACKS, locked: !!ACCESS_CODE, RATE_PER_MIN, MAX_BODY,
+    TIERS, CAPS, FALLBACKS, locked: !!ACCESS_CODE, RATE_PER_MIN, MAX_BODY, precheck,
     /** Répond aux routes /api/ai… ; renvoie null pour toute autre adresse. */
-    async handle(request, { ip = '?' } = {}) {
+    async handle(request, { ip = '?', checked = false } = {}) {
       const { pathname } = new URL(request.url);
       if (!pathname.startsWith('/api/ai')) return null;
       if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders(request) });
       if (pathname === '/api/ai/health' && request.method === 'GET') {
+        // Le bilan dit si le code ouvre tout (caps) : un code faux y compte comme un essai, comme sur POST /api/ai.
+        const sent = !!ACCESS_CODE && !!request.headers.get('x-engram-code');
+        if (sent && guessing(ip)) return json(request, 429, { code: 'rate_limited', message: 'too many wrong codes' });
+        if (sent && !codeOk(request.headers)) guessing(ip, true);
         return json(request, 200, { ok: true, accounts: true, key: HAS_KEY, images: true, tools: true, locked: !!ACCESS_CODE && !PAY, pay: PAY, plan: PAY ? licenseOf(request.headers)?.p || 'free' : null, caps: (() => { const c = CAPS[!PAY || codeOk(request.headers) && ACCESS_CODE ? 'elite' : licenseOf(request.headers)?.p || 'free']; return { tiers: c.tiers, effort: c.effort, scan: c.scan }; })(), fallbacks: FALLBACKS, models: Object.fromEntries(Object.entries(TIERS).map(([k, v]) => [k, v.model])) });
       }
-      if (pathname === '/api/ai' && request.method === 'POST') return handleAI(request, ip);
+      if (pathname === '/api/ai' && request.method === 'POST') return handleAI(request, ip, checked);
       return json(request, 404, { code: 'upstream_error', message: 'not found' });
     }
   };
