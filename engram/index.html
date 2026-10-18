@@ -2497,7 +2497,7 @@ details.d-box[open] .d-show{display:none}
 .mentor.drop::after{content:"";position:absolute;inset:8px;border:2px dashed var(--brass);border-radius:14px;background:var(--brass-soft);pointer-events:none;z-index:5}
 .note-card.course{background:linear-gradient(180deg,color-mix(in srgb,#E9CF8A 22%,var(--paper)),var(--paper))}
 .note-card .kicker .i{vertical-align:-3px;margin-right:4px}
-@media print{body.lr-print>*:not(.reader){display:none!important}body.lr-print .reader{position:static;inset:auto;background:#fff;display:block;opacity:1;transform:none}body.lr-print .lr-bar,body.lr-print .lr-toc,body.lr-print .lr-cut{display:none!important}body.lr-print .lr-body{display:block}body.lr-print .lr-page{overflow:visible;padding:0}body.lr-print .doc{box-shadow:none;max-width:none;padding:0 0 0 14mm;background-image:none;animation:none}}
+@media print{body.lr-print>*:not(.reader){display:none!important}body.lr-print .reader{position:static;inset:auto;background:#fff;display:block;opacity:1;transform:none}body.lr-print .lr-bar,body.lr-print .lr-toc,body.lr-print .lr-cut,body.lr-print .lr-ver{display:none!important}body.lr-print .lr-body{display:block}body.lr-print .lr-page{overflow:visible;padding:0}body.lr-print .doc{box-shadow:none;max-width:none;padding:0 0 0 14mm;background-image:none;animation:none}}
 
 /* ── Le planning heure par heure (lot 24) ────────────────────────── */
 .ag-now{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:18px;align-items:center;padding:20px 22px;border-radius:16px;margin-bottom:18px;position:relative;overflow:hidden}
@@ -5423,7 +5423,7 @@ const App = {
     else if (!same && from.v === 'deck' && this.back?.v === v && this.back.arg === arg) y = this.back.y;
     this.route = { v, arg };
     // Changer de page oublie la recherche et les filtres de la page quittée (un filtre posé juste avant d'ouvrir le fichier reste).
-    if (!same) { Seek.memo = {}; if (v !== 'library') libFilter = null; if (v === 'deck') deckFilter = 'all'; }
+    if (!same) { Seek.memo = {}; if (v !== 'library') libFilter = null; if (v === 'deck') deckFilter = 'all'; if (v !== 'games' && Colle.st === 'run') Colle.hush(); }
     this.render(!same, same ? null : from, y);
   },
   /** Redessine la page, puis la place à la hauteur `y` s'il y en a une ; avec `from`, c'est un changement de page (voir Motion). */
@@ -5918,7 +5918,8 @@ function cardMemoryCurve(c, d) {
     segs.push(`<polyline points="${pts.join(' ')}"/>`);
     if (i + 1 < H.length) segs.push(`<line class="mcv-jump" x1="${X(b).toFixed(1)}" y1="${Y(FSRS.R((b - a) / DAY, s)).toFixed(1)}" x2="${X(b).toFixed(1)}" y2="${Y(1)}"/>`);
   });
-  const ret = retFor(d), ticks = [...new Set([y0, Math.round((y0 + ret) / 2 * 20) / 20, ret, 1])].filter((v, i, a) => !a.some((w, j) => j < i && Math.abs(w - v) < .06));
+  // Les repères par priorité : la rétention visée, 100 %, le bas de l'échelle, puis le milieu s'il a la place.
+  const ret = retFor(d), ticks = [ret, 1, y0, Math.round((y0 + ret) / 2 * 20) / 20].reduce((k, v) => k.some(w => Math.abs(w - v) < .06) ? k : [...k, v], []);
   return `<svg class="mem-curve" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="${esc(t('Courbe d\'oubli de la fiche'))}">
     ${ticks.map(v => `<line class="mcv-grid ${v === ret ? 'ret' : ''}" x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end">${pct(v)}</text>`).join('')}
     <g class="mcv-line">${segs.join('')}</g>
@@ -5947,7 +5948,8 @@ function openCardHistory(id) {
     </div>
     <div class="modal-f"><button class="btn btn-ghost" data-act="close">${t('Fermer')}</button>${s.reps ? `<button class="btn btn-sm btn-ghost" id="chReset">${icon('refresh', 'i-sm')}${t('Réapprendre de zéro')}</button>` : ''}<button class="btn btn-brass" id="chEdit">${icon('pen')}${t('Modifier la fiche')}</button></div>`;
   const m = Modal.open(mh(esc(plain(cardTitle(c)).slice(0, 120)), `${t('Historique de la fiche')} · ${esc(d.name)}`) + body, 'wide');
-  m.querySelector('#chEdit').onclick = () => { Modal.close(); openEditor(c.id); };
+  // Ouverte depuis l'éditeur : « Modifier » y revient, au lieu d'empiler un second éditeur.
+  m.querySelector('#chEdit').onclick = () => { const under = Modal.stack.at(-2)?.querySelector('#edRoot'); Modal.close(); if (!under?.isConnected) openEditor(c.id); };
   m.querySelector('#chReset')?.addEventListener('click', e => {
     const b = e.currentTarget; if (!b.dataset.sure) { b.dataset.sure = 1; b.innerHTML = icon('refresh', 'i-sm') + t('Confirmer : repartir de zéro'); return; }
     const before = { srs: c.srs, h: c.h }; c.srs = FSRS.blank(); delete c.h; Store.touchDeck(d); Modal.close(); if (App.route.v === 'deck') App.render();
@@ -8323,7 +8325,7 @@ function joinKit(P) {
       nd.cards = d.cards.map(c => { const o = old.get(c.ref); if (!o) { add++; return c; } old.delete(c.ref); if (body(o) !== body(c)) upd++; return Object.assign(o, c, { id: o.id, srs: o.srs, suspended: o.suspended, created: o.created, ...(o.h ? { h: o.h } : {}) }); });
       rem += old.size;
       Object.assign(nd, { name: d.name || nd.name, desc: d.desc || '', cls: { ...K } });
-      for (const n of Array.isArray(d.notes) ? d.notes : []) { const o = nd.notes.find(x => x.id === n.id); if (o) Object.assign(o, n); else nd.notes.unshift(n); }
+      for (const n of Array.isArray(d.notes) ? d.notes : []) { const o = nd.notes.find(x => x.id === n.id); if (o) { if (o.md !== n.md && !n.verified) delete o.verified; Object.assign(o, n); } else nd.notes.unshift(n); }
     } else {
       nd = { id: uid('d'), ref: d.ref, cls: { ...K }, name: d.name || K.name, desc: d.desc || '', color: DECK_COLORS[d.color] ? d.color : pick(Object.keys(DECK_COLORS)), lang: d.lang || LANG, created: Date.now(), updatedAt: Date.now(), cards: d.cards, notes: Array.isArray(d.notes) ? d.notes : [] };
       S.decks.unshift(nd); add += d.cards.length;
@@ -9572,7 +9574,7 @@ const Actions = {
     if (!el.dataset.sure) { el.dataset.sure = 1; el.innerHTML = icon('trash', 'i-sm') + t('Confirmer : tout supprimer'); return; }
     const ids = S.decks.map(d => d.id), imgs = Object.keys(S.images);
     S.decks = []; S.images = {}; Object.assign(S.profile, { log: {}, xp: 0, bestStreak: 0, badges: {}, flags: {}, exams: [], memory: [], classes: [], cmd: { recent: [] }, trials: { colles: [], copies: [] } });
-    Mentor.convs = []; Mentor.newConv();
+    Mentor.ctl?.abort(); Mentor.convs = []; Mentor.newConv();
     ids.forEach(id => Store.dirty.add('deck:' + id)); imgs.forEach(k => Store.dirty.add('img:' + k)); Store.touch('profile');
     App.go('today'); toast(t('Tout a été effacé'), 'trash');
   }
@@ -11165,7 +11167,8 @@ function gradeScale(r) {
 function openGame(mode, deckId) {
   Game.deckId = deckId || Game.deckId || '';
   if (mode === 'colle' && Colle.st !== 'run') { Colle.st = 'setup'; if (deckId) Colle.deckId = deckId; }
-  if (mode === 'copy' && Copie.st === 'done') Copie.reset();
+  if (mode === 'copy' && Copie.st === 'done') { if (Copie.past) Object.assign(Copie, { st: 'setup', result: null, past: false }); else Copie.reset(); }
+  if (mode !== 'colle') Colle.hush();
   if (mode === 'copy' && deckId && Copie.st === 'setup') Copie.deckId = deckId;
   Game.mode = mode === 'match' ? 'match-setup' : mode === 'exam' ? 'exam-setup' : mode === 'colle' || mode === 'copy' ? mode : 'hub';
   App.go('games');
@@ -11472,12 +11475,14 @@ RULES: one question or remark per message; short, spoken style (about 25 to 90 w
     if (!AI.on) { toast(t('La colle a besoin de l\'IA.'), 'sparkles'); return; }
     if (!Pro.expert) { Pro.upsell('colle'); return; }
     if (!this.subject()) { toast(t('Choisissez un paquet ou écrivez le sujet de la colle.'), 'school'); $('#clTopic')?.focus(); return; }
-    Object.assign(this, { st: 'run', turns: [], t0: Date.now(), over: false, warned: false, result: null, draft: '', strokes: null, board: false, id: uid('cl') });
+    Object.assign(this, { st: 'run', turns: [], t0: Date.now(), over: false, warned: false, result: null, err: '', draft: '', strokes: null, board: false, retryImg: null, id: uid('cl') });
     App.render(); this.ask();
   },
+  /** La salle de colle est-elle à l'écran ? La voix et le micro ne marchent que là. */
+  here() { return App.route.v === 'games' && Game.mode === 'colle' && this.st === 'run'; },
   async ask() {
     if (this.busy) return;
-    const msgs = this.messages(), last = this.turns.at(-1);
+    const msgs = this.messages(), last = this.turns.at(-1), id = this.id;
     const x = { who: 'exam', text: '', live: true }; this.turns.push(x);
     this.busy = true; this.ctl = new AbortController(); this.paint();
     try {
@@ -11486,65 +11491,88 @@ RULES: one question or remark per message; short, spoken style (about 25 to 90 w
       if (!x.text) throw { code: 'empty_completion' };
       if (/\[(?:END|FIN)\]\s*$/i.test(x.text)) { this.over = true; x.text = x.text.replace(/\s*\[(?:END|FIN)\]\s*$/i, ''); }
       x.live = false; this.busy = false; this.paint(); Sound.play('flip');
-      if (this.voice && this.st === 'run') { this.stopMic(); await sayAloud(speakable(x.text), speechLang(this.lang)); if (this.st === 'run' && !this.over && !this.busy && this.voice && Dictation.supported) this.listen(); }
+      if (this.voice && this.here()) {
+        this.stopMic();
+        await sayAloud(speakable(x.text), speechLang(this.lang));
+        // La synthèse peut durer plus longtemps que la garde de sayAloud : le micro attend la fin de la phrase.
+        for (let k = 0; k < 400 && this.here() && this.id === id && window.speechSynthesis?.speaking; k++) await sleep(300);
+        if (this.here() && this.id === id && !this.over && !this.busy && this.voice && Dictation.supported) this.listen();
+      }
     } catch (e) {
       this.busy = false; this.turns.splice(this.turns.indexOf(x), 1);
-      if (e?.code === 'cancelled') return;
+      if (e?.code === 'cancelled' || this.id !== id) return;
       // La réponse de l'élève revient dans la zone de saisie, pour la renvoyer.
       if (last?.who === 'me') { this.turns.pop(); this.draft = last.text; if (last.img) this.retryImg = last.img; }
       this.paint(); toast(AI.fail(e) || t('IA indisponible'), 'sparkles');
     }
   },
   async send(stuck = false) {
-    if (this.busy || this.st !== 'run') return;
-    const inp = $('#clInput'), text = (inp?.value ?? this.draft).trim();
-    let img = null;
-    if (this.pad && !this.pad.empty()) img = await this.pad.image({ bg: '#fff', ink: '#1D1C18', maxW: 1400 })?.blob();
-    else if (this.retryImg) img = this.retryImg;
-    this.retryImg = null;
-    if (!text && !img && !stuck) { toast(t('Répondez à voix haute, par écrit ou au tableau.'), 'mic'); return; }
-    this.stopMic();
-    this.turns.push({ who: 'me', text, img, stuck, at: this.elapsed() });
-    this.draft = ''; if (inp) inp.value = '';
-    if (img) { this.pad?.clear(); }
-    this.ask();
+    if (this.busy || this.sending || this.st !== 'run') return;
+    this.sending = true;
+    try {
+      const inp = $('#clInput'), text = (inp?.value ?? this.draft).trim();
+      let img = null;
+      if (this.pad && !this.pad.empty()) img = await this.pad.image({ bg: '#fff', ink: '#1D1C18', maxW: 1400 })?.blob();
+      else if (this.retryImg) img = this.retryImg;
+      if (this.st !== 'run') return;
+      if (!text && !img && !stuck) { toast(t('Répondez à voix haute, par écrit ou au tableau.'), 'mic'); return; }
+      this.retryImg = null;
+      this.stopMic();
+      this.turns.push({ who: 'me', text, img, stuck, at: this.elapsed() });
+      this.draft = ''; if (inp) inp.value = '';
+      if (img) { this.pad?.clear(); }
+      this.ask();
+    } finally { this.sending = false; }
   },
-  /** Écoute continue : la réponse dite s'écrit dans la zone de saisie, phrase par phrase. */
+  /** Écoute continue : la réponse dite s'écrit dans la zone de saisie, phrase par phrase. Taper au clavier reprend la main. */
   listen() {
     const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!Rec) { toast(t('La dictée n\'est pas disponible dans ce navigateur : essayez Chrome, Edge ou Safari.'), 'mic'); return; }
+    if (this.mic) this.stopMic();
     this.mic = true; this.paintMic();
-    const base = () => ($('#clInput')?.value || '').trim();
+    let fails = 0;
     const go = () => {
       const r = new Rec(); r.lang = speechLang(this.lang); r.continuous = true; r.interimResults = true; r.maxAlternatives = 1;
-      let head = base();
+      let head = ($('#clInput')?.value || '').trim(), shown = head, heard = false;
       r.onresult = e => {
+        heard = true; fails = 0;
+        const inp = $('#clInput'); if (!inp) return;
+        if (inp.value !== shown) head = inp.value.trim(); // corrigé à la main entre deux phrases
         let fin = '', live = '';
         for (let i = e.resultIndex; i < e.results.length; i++) { const z = e.results[i]; if (z.isFinal) fin += z[0].transcript; else live += z[0].transcript; }
         if (fin) head = (head ? head + ' ' : '') + fin.trim();
-        const inp = $('#clInput'); if (inp) { inp.value = head + (live ? (head ? ' ' : '') + live : ''); this.draft = inp.value; }
+        inp.value = shown = head + (live ? (head ? ' ' : '') + live : ''); this.draft = inp.value;
       };
-      r.onerror = e => { if (['not-allowed', 'service-not-allowed', 'audio-capture'].includes(e.error)) { Dictation.supported = false; this.stopMic(); toast(t('Micro refusé : autorisez-le dans les réglages du navigateur.'), 'mic'); } };
-      r.onend = () => { if (this.mic && this.rec === r) setTimeout(() => this.mic && this.st === 'run' && App.route.v === 'games' && go(), 250); };
+      r.onerror = e => {
+        if (['not-allowed', 'service-not-allowed', 'audio-capture'].includes(e.error)) { Dictation.supported = false; this.stopMic(); toast(t('Micro refusé : autorisez-le dans les réglages du navigateur.'), 'mic'); }
+        else if (['network', 'language-not-supported'].includes(e.error) || ++fails >= 4) { this.stopMic(); toast(t('La dictée n\'est pas disponible dans ce navigateur : essayez Chrome, Edge ou Safari.'), 'mic'); }
+      };
+      r.onend = () => { if (this.rec !== r) return; if (!heard) fails++; setTimeout(() => { if (this.rec !== r) return; if (this.mic && this.here() && fails < 6) go(); else this.stopMic(); }, 250); };
       try { r.start(); this.rec = r; } catch { this.stopMic(); }
     };
     go();
   },
   stopMic() { const r = this.rec; this.mic = false; this.rec = null; try { r?.stop(); } catch { } this.paintMic(); },
-  quit() { this.stopMic(); try { speechSynthesis.cancel(); } catch { } this.ctl?.abort(); clearInterval(this.timer); this.busy = false; this.pad?.destroy(); this.pad = null; },
+  /** Coupe la voix et le micro (on quitte la salle, ou la colle s'arrête). */
+  hush() { this.stopMic(); try { speechSynthesis.cancel(); } catch { } },
+  quit() { this.hush(); this.ctl?.abort(); clearInterval(this.timer); this.busy = false; this.retryImg = null; this.pad?.destroy(); this.pad = null; },
   async finish() {
     if (this.st !== 'run') return;
     const said = this.turns.filter(x => x.who === 'me').length;
     this.quit();
     if (!said) { this.st = 'setup'; App.render(); toast(t('Colle arrêtée avant la première réponse : rien n\'est noté.'), 'school'); return; }
+    // Le bilan porte sur cette colle-ci, même si une autre commence pendant qu'il s'écrit.
+    this.snap = { id: this.id, subject: this.subject().slice(0, 120), deckId: this.deckId, mins: this.mins, done: Math.max(1, this.elapsed()), lang: this.lang, turns: this.turns.filter(x => x.text || x.img || x.stuck).map(x => ({ who: x.who, text: String(x.text || '').slice(0, 2000), img: !!x.img, stuck: !!x.stuck })).slice(-80) };
     this.st = 'done'; this.result = null; App.render();
     this.evaluate();
   },
   async evaluate() {
+    const S0 = this.snap; if (!S0) return;
     this.err = ''; this.result = null; if (App.route.v === 'games' && Game.mode === 'colle') App.render();
-    const ctl = this.ctl = new AbortController(), pre = Brain.prepa(), lang = langNameEn(this.lang);
-    const transcript = this.turns.map(x => x.who === 'exam' ? `EXAMINER: ${x.text}` : `STUDENT: ${x.text || '(blackboard only)'}${x.img ? ' [showed the blackboard]' : ''}${x.stuck ? ' [asked for a hint]' : ''}`).join('\n');
-    const prompt = `You were the examiner of this ${pre ? 'colle' : 'oral exam'} (subject: ${this.subject()}; planned ${this.mins} min, done ${Math.max(1, this.elapsed())} min).
+    this.evalCtl?.abort();
+    const ctl = this.evalCtl = new AbortController(), pre = Brain.prepa(), lang = langNameEn(S0.lang || LANG);
+    const transcript = S0.turns.map(x => x.who === 'exam' ? `EXAMINER: ${x.text}` : `STUDENT: ${x.text || '(blackboard only)'}${x.img ? ' [showed the blackboard]' : ''}${x.stuck ? ' [asked for a hint]' : ''}`).join('\n');
+    const prompt = `You were the examiner of this ${pre ? 'colle' : 'oral exam'} (subject: ${S0.subject}; planned ${S0.mins} min, done ${S0.done} min).
 ${Brain.brief('colle')}
 Write the examiner's report: evaluate the student's performance fairly but demandingly, from the transcript only.
 TRANSCRIPT:
@@ -11557,13 +11585,16 @@ Write every text in ${lang}. 1 to 4 strengths, 1 to 5 gaps, 2 to 4 pieces of adv
       const r = await AI.json(prompt, { ...Brain.opts('colleEval'), purpose: 'colle', cache: false, signal: ctl.signal });
       const mark = mark20(r?.mark);
       if (mark == null) throw { code: 'invalid_json' };
-      this.result = { id: this.id, at: Date.now(), subject: this.subject().slice(0, 120), deckId: this.deckId, mins: this.mins, done: Math.max(1, this.elapsed()), mark, verdict: String(r.verdict || '').slice(0, 80), summary: String(r.summary || '').slice(0, 900), strengths: strList(r.strengths, 4), gaps: strList(r.gaps, 5), advice: strList(r.advice, 4), cards: cleanCards(r.cards), turns: this.turns.map(x => ({ who: x.who, text: String(x.text || '').slice(0, 2000), img: !!x.img, stuck: !!x.stuck })).slice(-80) };
-      keepTrial('colles', this.result);
-      if (App.route.v === 'games' && Game.mode === 'colle') App.render();
+      const R = { ...S0, at: Date.now(), mark, verdict: String(r.verdict || '').slice(0, 80), summary: String(r.summary || '').slice(0, 900), strengths: strList(r.strengths, 4), gaps: strList(r.gaps, 5), advice: strList(r.advice, 4), cards: cleanCards(r.cards) };
+      delete R.lang;
+      keepTrial('colles', R);
+      if (this.snap !== S0) return; // une autre colle a commencé : ce bilan est rangé dans l'historique
+      this.result = R;
+      if (App.route.v === 'games' && Game.mode === 'colle' && this.st === 'done') App.render();
       Sound.play(mark >= 12 ? 'done' : 'print');
     } catch (e) {
-      if (e?.code === 'cancelled') return;
-      this.err = AI.fail(e) || t('IA indisponible'); if (App.route.v === 'games' && Game.mode === 'colle') App.render();
+      if (e?.code === 'cancelled' || this.snap !== S0) return;
+      this.err = AI.fail(e) || t('IA indisponible'); if (App.route.v === 'games' && Game.mode === 'colle' && this.st === 'done') App.render();
     }
   },
   /* Affichage pendant la colle : on ne redessine que ce qui change (le tableau garde son écriture). */
@@ -11689,7 +11720,7 @@ Write every text in ${lang}. At most 6 errors, 2 to 4 pieces of advice, 3 to 8 f
     if (!AI.on) { toast(t('La correction a besoin de l\'IA.'), 'sparkles'); return; }
     if (!Pro.on) { Pro.upsell('copy'); return; }
     if (!this.files.length) { toast(t('Ajoutez au moins une page de votre copie.'), 'camera'); return; }
-    this.st = 'run'; this.err = ''; this.busy = true; this.step = 0; this.ctl = new AbortController(); App.render();
+    this.st = 'run'; this.err = ''; this.busy = true; this.past = false; this.step = 0; this.ctl = new AbortController(); App.render();
     clearInterval(this.stepTimer); this.stepTimer = setInterval(() => { this.step = Math.min(3, this.step + 1); const el = $('#cpStep'); if (el) el.textContent = t(COPY_STEPS[this.step]); }, 9000);
     try {
       const r = await AI.json(this.prompt(), { ...Brain.opts('copy'), purpose: 'copy', cache: false, signal: this.ctl.signal, images: [...this.stmtFiles, ...this.files] });
@@ -11804,8 +11835,9 @@ function trialsHTML() {
 }
 function openTrial(kind, id) {
   const R = S.profile.trials[kind].find(x => x.id === id); if (!R) return;
-  if (kind === 'colles') { Colle.quit(); Object.assign(Colle, { st: 'done', result: R, err: '' }); Game.mode = 'colle'; }
-  else { Object.assign(Copie, { st: 'done', result: R, err: '' }); Game.mode = 'copy'; }
+  // Une colle en cours s'arrête ; un bilan en train de s'écrire continue (il se range dans l'historique).
+  if (kind === 'colles') { if (Colle.st === 'run') Colle.quit(); Colle.snap = null; Object.assign(Colle, { st: 'done', result: R, err: '' }); Game.mode = 'colle'; }
+  else { Object.assign(Copie, { st: 'done', result: R, err: '', past: Copie.st === 'setup' || Copie.past }); Game.mode = 'copy'; }
   App.go('games');
 }
 function trialHooks() {
@@ -11817,8 +11849,10 @@ function trialHooks() {
     bindTrialCards('trCards', R.cards, R.subject || t('Épreuve'), () => keepTrial(Game.mode === 'colle' ? 'colles' : 'copies', R));
     v.querySelectorAll('[data-tr]').forEach(b => b.addEventListener('click', () => {
       const a = b.dataset.tr;
-      if (a === 'back') { if (Game.mode === 'colle') Colle.st = 'setup'; else Copie.reset(); App.render(); }
-      else if (a === 'again') { if (Game.mode === 'colle') { Colle.st = 'setup'; Colle.result = null; } else Copie.reset(); App.render(); }
+      // Une copie rouverte depuis l'historique ne vide pas celle qu'on préparait.
+      const copyBack = () => { if (Copie.past) Object.assign(Copie, { st: 'setup', result: null, past: false }); else Copie.reset(); };
+      if (a === 'back') { if (Game.mode === 'colle') Colle.st = 'setup'; else copyBack(); App.render(); }
+      else if (a === 'again') { if (Game.mode === 'colle') { Colle.st = 'setup'; Colle.result = null; } else copyBack(); App.render(); }
       else if (a === 'md') saveFile(`${slug(t('corrigé'))}-${slug(R.subject)}.md`, `# ${R.subject}\n\n**${num(R.mark, 1)}/20** — ${R.verdict}\n\n${R.summary}\n\n${R.solution}`);
       else if (a === 'mentor') Mentor.open(Game.mode === 'colle' ? t('Ma colle sur « {x} » : {m}/20. Lacunes : {g}. Aide-moi à les combler.', { x: R.subject, m: num(R.mark, 1), g: (R.gaps || []).join(' ; ') }) : t('Ma copie « {x} » a eu {m}/20. Erreurs : {g}. Explique-moi et entraîne-moi.', { x: R.subject, m: num(R.mark, 1), g: (R.errors || []).map(e => e.why).join(' ; ') }), false, R.deckId || null);
     }));
@@ -12187,7 +12221,9 @@ const Mentor = {
   /** Enregistre une conversation (par défaut l'ouverte) ; une conversation vide n'est pas gardée. */
   save(id = this.cur, turns = this.turns) {
     let c = this.convs.find(x => x.id === id);
-    if (!c && turns.length) { c = { id, created: Date.now(), deckId: this.deckId || null }; this.convs.unshift(c); }
+    // Une conversation inconnue n'est recréée que si c'est l'ouverte (une conversation supprimée pendant une réponse reste supprimée).
+    if (!c && turns.length && id === this.cur) { c = { id, created: Date.now(), deckId: this.deckId || null }; this.convs.unshift(c); }
+    if (!c && id !== this.cur) return;
     if (c) {
       // Le même tableau que la conversation ouverte (et que celui d'une réponse en cours) : 30 échanges au plus.
       if (turns.length > 30) turns.splice(0, turns.length - 30);
@@ -13292,7 +13328,6 @@ LENGTH: as long as needed to be complete${elite ? ' — be exhaustive, up to abo
     if (!AI.on) { toast(t("La fiche de cours a besoin de l'IA."), 'sparkles'); return; }
     if (!Pro.expert) { Pro.upsell('verify'); return; }
     const btn = R.el.querySelector('[data-rd="verify"]'); if (btn) btn.disabled = true;
-    R.el.querySelector('.lr-ver')?.remove();
     R.status(t('Contre-relecture par l\'IA la plus puissante…'));
     const lang = aiLang();
     const prompt = `You are a meticulous expert proofreader and examiner. A student will learn the COURSE SHEET below by heart, so every error matters.
@@ -13308,25 +13343,33 @@ ${note.md}
     try {
       const r = await AI.json(prompt, { ...Brain.opts('verify'), purpose: 'verify', cache: false, signal: R.ctl.signal });
       const issues = (Array.isArray(r?.issues) ? r.issues : []).slice(0, 15).map(x => ({ kind: ['error', 'imprecision', 'missing'].includes(x?.kind) ? x.kind : 'imprecision', section: String(x?.section || '').slice(0, 140), before: String(x?.before || ''), after: String(x?.after || ''), why: String(x?.why || '').slice(0, 400) })).filter(x => x.after || x.why);
-      const prev = note.md, out = sheetPatch(prev, issues);
-      R.prev = prev; note.md = out.md;
-      note.verified = { at: Date.now(), found: issues.length, fixed: out.res.filter(x => x.ok).length };
-      Store.touchDeck(deck); Sound.play(issues.length ? 'stamp' : 'done');
-      R.done(deck, note, true);
-      R.el.querySelector('.lr-page').insertAdjacentHTML('afterbegin', sheetVerHTML(String(r?.summary || ''), out.res));
+      // La fiche et son paquet sont relus au moment d'écrire : une synchronisation a pu les remplacer pendant la relecture.
+      const d = deckById(deck.id), n = d?.notes.find(x => x.id === note.id); if (!d || !n) return;
+      const prev = n.md, out = sheetPatch(prev, issues);
+      if (R.prev == null) { R.prev = prev; R.prevVer = n.verified || null; } // l'annulation revient à la fiche d'avant la première relecture
+      R.deck = d; R.note = n; n.md = out.md;
+      n.verified = { at: Date.now(), found: issues.length, fixed: out.res.filter(x => x.ok).length };
+      Store.touchDeck(d); Sound.play(issues.length ? 'stamp' : 'done');
+      R.done(d, n, true);
+      R.el.querySelector('.lr-ver')?.remove();
+      R.el.querySelector('.lr-page').insertAdjacentHTML('afterbegin', sheetVerHTML(String(r?.summary || ''), out.res, R.prev != null && R.prev !== n.md));
       TeX.typeset(R.el.querySelector('.lr-ver'));
       R.el.querySelector('.lr-page').scrollTop = 0;
-      toast(issues.length ? t('{n} corrigées dans la fiche', { n: plural(note.verified.fixed, 'erreur|erreurs') }) : t('Fiche vérifiée : rien à corriger.'), 'shield');
+      toast(issues.length ? t('{n} corrigées dans la fiche', { n: plural(n.verified.fixed, 'erreur|erreurs') }) : t('Fiche vérifiée : rien à corriger.'), 'shield');
     } catch (e) {
       if (e?.code === 'cancelled') return;
-      R.status(''); if (btn) btn.disabled = false; toast(AI.fail(e) || t('IA indisponible'), 'sparkles');
+      if (R.note) R.done(R.deck, R.note, true); else R.status('');
+      toast(AI.fail(e) || t('IA indisponible'), 'sparkles');
     }
   },
   unverify(R) {
-    if (R.prev == null || !R.note) return;
-    R.note.md = R.prev; R.prev = null; delete R.note.verified; Store.touchDeck(R.deck);
+    const d = deckById(R.deck?.id), n = d?.notes.find(x => x.id === R.note?.id);
+    if (R.prev == null || !n) return;
+    n.md = R.prev; R.prev = null;
+    if (R.prevVer) n.verified = R.prevVer; else delete n.verified;
+    R.prevVer = null; Store.touchDeck(d); R.deck = d; R.note = n;
     R.el.querySelector('.lr-ver')?.remove();
-    R.done(R.deck, R.note, true); toast(t('Corrections annulées'), 'undo');
+    R.done(d, n, true); toast(t('Corrections annulées'), 'undo');
   },
   /** « Créer les fiches » : le scanner reçoit la fiche et rédige les cartes, qu'on trie avant de les ranger. */
   cards(deck, note) {
@@ -13340,17 +13383,30 @@ ${note.md}
 /** Applique les corrections d'une contre-relecture : remplacement exact (ou aux espaces près), ajout en fin de section. */
 function sheetPatch(md, issues) {
   let out = md; const res = [];
+  // Une correction sur plusieurs lignes, à l'intérieur d'un encadré (« > »), garde le préfixe de l'encadré.
+  const put = (at, len, after) => {
+    const q = out.slice(out.lastIndexOf('\n', at - 1) + 1, at).match(/^\s*>\s?/)?.[0];
+    const rep = q ? after.split('\n').map((l, i) => i && !/^\s*>/.test(l) ? q + l : l).join('\n') : after;
+    out = out.slice(0, at) + rep + out.slice(at + len);
+  };
   for (const x of issues) {
     let ok = false;
-    const b = x.before.trim();
-    if (b && x.after) {
-      if (out.includes(b)) { out = out.replace(b, () => x.after.trim()); ok = true; }
-      else { const re = new RegExp(b.split(/\s+/).map(reEsc).join('\\s+')); if (re.test(out)) { out = out.replace(re, () => x.after.trim()); ok = true; } }
-    } else if (!b && x.after && x.kind === 'missing') {
-      const lines = out.split('\n'), key = normTxt(x.section).replace(/^\d+(\.\d+)*\s*/, '');
-      const at = key ? lines.findIndex(l => /^#{2,3}\s/.test(l) && normTxt(l.replace(/^#+\s*/, '')).includes(key)) : -1;
-      if (at >= 0) { let end = lines.findIndex((l, i) => i > at && /^#{1,2}\s/.test(l)); if (end < 0) end = lines.length; lines.splice(end, 0, '', x.after.trim(), ''); }
-      else { const keep = lines.findIndex(l => /^##\s/.test(l) && /retenir|remember|recordar|merken|lembrar|reter/i.test(l)); lines.splice(keep >= 0 ? keep : lines.length, 0, '', x.after.trim(), ''); }
+    const b = x.before.trim(), after = x.after.trim();
+    if (b && after) {
+      const at = out.indexOf(b);
+      if (at >= 0) { put(at, b.length, after); ok = true; }
+      else { const m = new RegExp(b.split(/\s+/).map(reEsc).join('\\s+')).exec(out); if (m) { put(m.index, m[0].length, after); ok = true; } }
+    } else if (!b && after && x.kind === 'missing') {
+      // La section : un titre hors des blocs de code ; elle finit au titre suivant de même niveau ou plus haut.
+      const lines = out.split('\n'), key = normTxt(x.section).replace(/^\d+(\.\d+)*\s*/, ''), code = [];
+      let fence = false; for (const l of lines) { if (/^\s*```/.test(l)) { code.push(true); fence = !fence; } else code.push(fence); }
+      const isH = (l, i) => !code[i] && /^#{1,6}\s/.test(l);
+      const at = key ? lines.findIndex((l, i) => isH(l, i) && /^#{2,3}\s/.test(l) && normTxt(l.replace(/^#+\s*/, '')).includes(key)) : -1;
+      if (at >= 0) {
+        const lv = lines[at].match(/^#+/)[0].length;
+        let end = lines.findIndex((l, i) => i > at && isH(l, i) && l.match(/^#+/)[0].length <= lv); if (end < 0) end = lines.length;
+        lines.splice(end, 0, '', after, '');
+      } else { const keep = lines.findIndex((l, i) => isH(l, i) && /^##\s/.test(l) && /retenir|remember|recordar|merken|lembrar|reter/i.test(l)); lines.splice(keep >= 0 ? keep : lines.length, 0, '', after, ''); }
       out = lines.join('\n').replace(/\n{3,}/g, '\n\n'); ok = true;
     }
     res.push({ ...x, ok });
@@ -13360,11 +13416,11 @@ function sheetPatch(md, issues) {
 const VER_KIND = { error: N_('Erreur'), imprecision: N_('Imprécision'), missing: N_('Oubli') };
 /** Un extrait de fiche sur une ligne : encadrés « > [!def] Titre » ramenés à « Définition · Titre … ». */
 const verLine = s => docInline(String(s).split('\n').map(l => l.replace(/^\s*>\s?/, '').replace(/^\[!(\w+)\]\s*/, (m, k) => { const c = CALLOUT_KIND[k.toLowerCase()]; return c ? t(CALLOUT_LABEL[c]) + ' · ' : ''; }).replace(/^#+\s*/, '').trim()).filter(Boolean).join(' '));
-function sheetVerHTML(summary, res) {
+function sheetVerHTML(summary, res, canUndo) {
   const fixed = res.filter(x => x.ok).length;
   return `<section class="lr-ver leather gilt-rule"><div class="lr-ver-h"><span class="ap-dial">${icon('shield')}</span><div><b>${res.length ? t('Contre-relecture : {n} corrigées', { n: plural(fixed, 'erreur|erreurs') }) : t('Contre-relecture : fiche juste')}</b><span>${esc(summary || (res.length ? '' : t('Le modèle le plus puissant n\'a rien trouvé à corriger.')))}</span></div></div>
     ${res.length ? `<ol>${res.map(x => `<li class="${x.ok ? '' : 'todo'}"><span class="vk ${x.kind}">${t(VER_KIND[x.kind])}</span><small>${esc(x.section)}${x.ok ? '' : ' · ' + t('à reporter vous-même')}</small>${x.before ? `<span class="vb">${verLine(x.before)}</span>` : ''}${x.after ? `<span class="va">${verLine(x.after)}</span>` : ''}${x.why ? `<span class="vw">${esc(x.why)}</span>` : ''}</li>`).join('')}</ol>` : ''}
-    ${fixed ? `<div class="lr-ver-f"><button class="btn btn-sm btn-ghost" data-rd="unverify">${icon('undo', 'i-sm')}${t('Annuler les corrections')}</button></div>` : ''}</section>`;
+    ${canUndo ? `<div class="lr-ver-f"><button class="btn btn-sm btn-ghost" data-rd="unverify">${icon('undo', 'i-sm')}${t('Annuler les corrections')}</button></div>` : ''}</section>`;
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -14248,7 +14304,9 @@ async function importAnki(file) {
     const cards = q('select id, nid, did, ord, type, queue, due, ivl, factor, reps, lapses, data from cards order by did, nid, ord');
     // Historique des révisions (revlog) : les 20 dernières notes de chaque carte, pour sa courbe d'oubli.
     const revs = new Map();
-    try { for (const r of q('select id, cid, ease, ivl from revlog where ease between 1 and 4 order by id')) { const a = revs.get(r.cid) || []; a.push([Math.round(r.id / MIN), r.ease, 0, +(r.ivl > 0 ? r.ivl : -r.ivl / 86400).toFixed(3)]); if (a.length > CARD_HIST) a.shift(); revs.set(r.cid, a); } } catch { }
+    // Ancien planificateur d'Anki (v1) : en apprentissage, 3 boutons (1 À revoir, 2 Bien, 3 Facile).
+    let v1 = false; if ((+colRow.ver || 11) < 15) try { v1 = (JSON.parse(q('select conf from col')[0]?.conf || '{}').schedVer || 1) < 2; } catch { }
+    try { for (const r of q('select id, cid, ease, ivl, type from revlog where ease between 1 and 4 order by id')) { const a = revs.get(r.cid) || []; const g = v1 && (r.type === 0 || r.type === 2) && r.ease > 1 ? Math.min(4, r.ease + 1) : r.ease; a.push([Math.round(r.id / MIN), g, 0, +(r.ivl > 0 ? r.ivl : -r.ivl / 86400).toFixed(3)]); if (a.length > CARD_HIST) a.shift(); revs.set(r.cid, a); } } catch { }
     // Médias : index → nom de fichier.
     let media = [];
     const mf = zip.file('media');
@@ -14302,7 +14360,7 @@ async function importAnki(file) {
         card.srs = { state: c.type === 3 ? 3 : 1, due: now, s: +data.s > 0 ? +data.s : 1, d: +data.d > 0 ? +data.d : 5, reps: c.reps || 1, lapses: c.lapses || 0, last: now - DAY };
         learned++;
       }
-      const hist = revs.get(c.id); if (hist?.length) card.h = hist.map(x => [x[0], x[1], x[3], x[3]]);
+      const hist = revs.get(c.id); if (hist?.length) card.h = hist.map(x => [x[0], x[1], x[3] >= 1 ? x[3] : 0, x[3]]);
       const dn = (deckNames[c.did] || t('Paquet Anki')).split('::');
       const key = dn.join('::');
       if (!decks.has(key)) decks.set(key, { name: dn.length > 1 ? dn.slice(-2).join(' — ') : dn[0], cards: [] });
@@ -14640,7 +14698,7 @@ function bootDrop() {
     if (App.route.v === 'scan' || e.defaultPrevented) return;
     const f = e.dataTransfer?.files?.[0]; if (!f) return; e.preventDefault();
     // Sur la page « Corriger ma copie », les photos déposées deviennent des pages de la copie.
-    if (App.route.v === 'games' && Game.mode === 'copy' && Copie.st === 'setup') { Copie.add([...e.dataTransfer.files].filter(x => /^image\//.test(x.type)), 'copy'); return; }
+    if (App.route.v === 'games' && Game.mode === 'copy' && Copie.st === 'setup') { Copie.add([...e.dataTransfer.files], 'copy'); return; }
     if (/^image\//.test(f.type)) { App.go('scan'); Scan.tab = 'photo'; Scan.files = [f]; Scan.urls = [URL.createObjectURL(f)]; App.render(); return; }
     if (['docx', 'pptx', 'odt', 'odp', 'epub', 'rtf', 'html'].includes(Docs.kind(f)) || (Docs.kind(f) === 'zip' && !/\.(apkg|colpkg)$/i.test(f.name))) { if (!Mentor.isOpen) Mentor.open(); Mentor.attach(e.dataTransfer.files); return; }
     importFile(f);
